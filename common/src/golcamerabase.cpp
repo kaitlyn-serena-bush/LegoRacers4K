@@ -120,8 +120,8 @@ void GolCameraBase::ComputeFrustum(GolViewFrustum* p_view)
 	LegoFloat tangent = static_cast<LegoFloat>(tan(m_fov * 0.0087266462f));
 	GolVec3 source;
 	source.m_z = m_farClip;
-	m_farHalfHeight = m_farClip * tangent;
-	m_farHalfWidth = m_aspectRatio * m_farHalfHeight;
+	m_farHalfHeight = GOL_MUL(m_farClip, tangent);
+	m_farHalfWidth = GOL_MUL(m_aspectRatio, m_farHalfHeight);
 	source.m_x = -m_farHalfWidth;
 	source.m_y = -m_farHalfHeight;
 	m_transform->TransformPoint(&source, &p_view->m_corners[0]);
@@ -133,8 +133,8 @@ void GolCameraBase::ComputeFrustum(GolViewFrustum* p_view)
 	source.m_y = m_farHalfHeight;
 	m_transform->TransformPoint(&source, &p_view->m_corners[3]);
 
-	m_nearHalfHeight = m_nearClip * tangent;
-	m_nearHalfWidth = m_aspectRatio * m_nearHalfHeight;
+	m_nearHalfHeight = GOL_MUL(m_nearClip, tangent);
+	m_nearHalfWidth = GOL_MUL(m_aspectRatio, m_nearHalfHeight);
 	source.m_z = m_nearClip;
 	source.m_x = -m_nearHalfWidth;
 	source.m_y = -m_nearHalfHeight;
@@ -334,10 +334,8 @@ LegoBool32 GolCameraBase::ProjectSphere(GolVec3* p_center, LegoFloat p_radius, G
 	m_transform->GetUp(&up);
 
 	const GolViewFrustum::Plane* plane = &m_viewFrustum.m_planes[1];
-	LegoFloat dot = plane->m_normal.m_z;
-	dot *= up.m_z;
-	dot += plane->m_normal.m_y * up.m_y;
-	dot += up.m_x * plane->m_normal.m_x;
+	LegoFloat dot = GOL_MUL(plane->m_normal.m_z, up.m_z) + GOL_MUL(plane->m_normal.m_y, up.m_y) +
+		GOL_MUL(up.m_x, plane->m_normal.m_x);
 	dot = -dot;
 	LegoFloat scale = p_radius / dot;
 	{
@@ -356,10 +354,8 @@ LegoBool32 GolCameraBase::ProjectSphere(GolVec3* p_center, LegoFloat p_radius, G
 	}
 
 	plane = &m_viewFrustum.m_planes[0];
-	dot = plane->m_normal.m_z;
-	dot *= up.m_z;
-	dot += plane->m_normal.m_y * up.m_y;
-	dot += up.m_x * plane->m_normal.m_x;
+	dot = GOL_MUL(plane->m_normal.m_z, up.m_z) + GOL_MUL(plane->m_normal.m_y, up.m_y) +
+		GOL_MUL(up.m_x, plane->m_normal.m_x);
 	scale = -(p_radius / dot);
 	{
 		GolVec3 scaledAxis;
@@ -379,10 +375,8 @@ LegoBool32 GolCameraBase::ProjectSphere(GolVec3* p_center, LegoFloat p_radius, G
 	m_transform->GetForward(&forward);
 
 	plane = &m_viewFrustum.m_planes[3];
-	dot = plane->m_normal.m_z;
-	dot *= forward.m_z;
-	dot += plane->m_normal.m_y * forward.m_y;
-	dot += forward.m_x * plane->m_normal.m_x;
+	dot = GOL_MUL(plane->m_normal.m_z, forward.m_z) + GOL_MUL(plane->m_normal.m_y, forward.m_y) +
+		GOL_MUL(forward.m_x, plane->m_normal.m_x);
 	scale = -(p_radius / dot);
 	{
 		GolVec3 scaledAxis;
@@ -400,10 +394,8 @@ LegoBool32 GolCameraBase::ProjectSphere(GolVec3* p_center, LegoFloat p_radius, G
 	}
 
 	plane = &m_viewFrustum.m_planes[2];
-	dot = plane->m_normal.m_z;
-	dot *= forward.m_z;
-	dot += plane->m_normal.m_y * forward.m_y;
-	dot += forward.m_x * plane->m_normal.m_x;
+	dot = GOL_MUL(plane->m_normal.m_z, forward.m_z) + GOL_MUL(plane->m_normal.m_y, forward.m_y) +
+		GOL_MUL(forward.m_x, plane->m_normal.m_x);
 	dot = -dot;
 	scale = p_radius / dot;
 	{
