@@ -466,15 +466,13 @@ void GolImage::UploadTiles()
 			GolD3DTexture* texture = GetTile(row, column);
 			copyWidth = texture->GetWidth();
 
-			LegoU32 remainingWidth = m_surface.GetWidth() - sourceX;
-			if (copyWidth > remainingWidth) {
-				copyWidth = remainingWidth;
+			if (copyWidth > m_surface.GetWidth() - sourceX) {
+				copyWidth = m_surface.GetWidth() - sourceX;
 			}
 
 			LegoU32 copyHeight = texture->GetHeight();
-			LegoU32 remainingHeight = m_surface.GetHeight() - sourceY;
-			if (copyHeight > remainingHeight) {
-				copyHeight = remainingHeight;
+			if (copyHeight > m_surface.GetHeight() - sourceY) {
+				copyHeight = m_surface.GetHeight() - sourceY;
 			}
 
 			LegoU8* source = sourcePixels + sourceY * sourcePitch + ((textureFormat.m_bitsPerPixel * sourceX + 7) >> 3);
