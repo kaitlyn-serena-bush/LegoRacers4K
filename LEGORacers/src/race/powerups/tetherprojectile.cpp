@@ -198,8 +198,7 @@ LegoS32 TetherProjectile::UpdateReleased(LegoU32 p_elapsedMs)
 		m_tension = 0.0f;
 	}
 
-	LegoFloat amount = m_tension;
-	amount *= g_tetherWaveScale;
+	LegoFloat amount = GOL_MUL(m_tension, g_tetherWaveScale);
 	GolVec3 delta;
 	delta.m_x = target->m_x - position.m_x;
 	delta.m_y = target->m_y - position.m_y;
