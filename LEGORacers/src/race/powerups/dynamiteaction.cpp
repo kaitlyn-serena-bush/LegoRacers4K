@@ -294,7 +294,7 @@ void DynamiteAction::AdvanceState()
 	case c_stateSecondBlast:
 		g_randomTableIndex = (g_randomTableIndex + 1) & c_randomTableMask;
 		position.m_x +=
-			static_cast<LegoS32>(g_randomTable[g_randomTableIndex]) % c_randomOffsetRange - c_randomOffsetCenter;
+			(static_cast<LegoFloat>(static_cast<LegoS32>(g_randomTable[g_randomTableIndex]) % c_randomOffsetRange - c_randomOffsetCenter));
 
 		g_randomTableIndex = (g_randomTableIndex + 1) & c_randomTableMask;
 		position.m_y +=
@@ -306,7 +306,7 @@ void DynamiteAction::AdvanceState()
 	case c_stateThirdBlast:
 		g_randomTableIndex = (g_randomTableIndex + 1) & c_randomTableMask;
 		position.m_x +=
-			static_cast<LegoS32>(g_randomTable[g_randomTableIndex]) % c_randomOffsetRange - c_randomOffsetCenter;
+			(static_cast<LegoFloat>(static_cast<LegoS32>(g_randomTable[g_randomTableIndex]) % c_randomOffsetRange - c_randomOffsetCenter));
 
 		g_randomTableIndex = (g_randomTableIndex + 1) & c_randomTableMask;
 		position.m_y +=
