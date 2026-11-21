@@ -184,28 +184,26 @@ void TriggeredAnimationHazard::Draw(GolD3DRenderDevice* p_renderer)
 	}
 
 	for (LegoS32 i = 0; i < c_entityCount; i++) {
-		GolAnimatedEntity** entity = &m_entities[i];
-		if (*entity != NULL) {
+		if (m_entities[i] != NULL) {
 			LegoS32 j;
-			LegoFloat* modelDistances = m_modelDistances;
 			for (j = 0; j < c_modelDistanceCount; j++) {
-				(*entity)->SetModelDistance(j, modelDistances[j]);
+				m_entities[i]->SetModelDistance(j, m_modelDistances[j]);
 			}
 
-			CmbModelPartData* partData = (*entity)->GetModelPart(0)->GetPartData();
-			CmbModelPartData* activePart = &partData[(*entity)->GetCurrentPartIndex()];
+			CmbModelPartData* partData = m_entities[i]->GetModelPart(0)->GetPartData();
+			CmbModelPartData* activePart = &partData[m_entities[i]->GetCurrentPartIndex()];
 			p_renderer->SetAlphaOverride(
 				static_cast<LegoS32>(
-					(static_cast<LegoFloat>(activePart->GetFrameCount()) - (*entity)->GetPartTimeMs()) /
+					(static_cast<LegoFloat>(activePart->GetFrameCount()) - m_entities[i]->GetPartTimeMs()) /
 					static_cast<LegoFloat>(activePart->GetFrameCount()) * 255.0f
 				),
 				TRUE
 			);
-			p_renderer->DrawModelEntity(*entity);
+			p_renderer->DrawModelEntity(m_entities[i]);
 			p_renderer->ClearAlphaOverride();
 
 			for (j = 0; j < c_modelDistanceCount; j++) {
-				(*entity)->SetModelDistance(j, 0.0f);
+				m_entities[i]->SetModelDistance(j, 0.0f);
 			}
 		}
 	}
