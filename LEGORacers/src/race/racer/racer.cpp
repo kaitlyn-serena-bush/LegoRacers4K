@@ -2341,8 +2341,8 @@ void Racer::UpdateFacing(LegoU32 p_elapsedMs)
 				break;
 			}
 
-			if (checkpoint->m_next.m_items[i] != 0xff) {
-				m_checkpointGraph->GetCheckpoint(checkpoint->m_next.m_items[i]);
+			if (m_checkpoint->m_next.m_items[i] != 0xff) {
+				m_checkpointGraph->GetCheckpoint(m_checkpoint->m_next.m_items[i]);
 				checkpoint = m_checkpoint;
 				GolVec2 normal;
 				normal.m_x = checkpoint->m_planeNormal.m_x;
