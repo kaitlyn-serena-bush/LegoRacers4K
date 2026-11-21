@@ -24,28 +24,22 @@ inline LegoFloat VisiblePlaneDot(const GolBoundingShape::TreeNode* p_entry, cons
 	return result;
 }
 
-static LegoFloat PlaneDot(const GolBoundingShape::TreeNode* p_entry, const GolVec3& p_point)
-{
-	return p_entry->m_data.m_plane.m_normalZ * p_point.m_z + p_entry->m_data.m_plane.m_normalY * p_point.m_y +
-		   p_entry->m_data.m_plane.m_normalX * p_point.m_x;
-}
-
 static LegoBool32 HasPositiveCorner(const GolBoundingShape::TreeNode* p_entry, const GolViewFrustum* p_frustum)
 {
 	LegoFloat threshold = -p_entry->m_data.m_plane.m_distance;
-	return PlaneDot(p_entry, p_frustum->m_corners[0]) >= threshold ||
-		   PlaneDot(p_entry, p_frustum->m_corners[3]) >= threshold ||
-		   PlaneDot(p_entry, p_frustum->m_corners[1]) >= threshold ||
-		   PlaneDot(p_entry, p_frustum->m_corners[2]) >= threshold;
+	return VisiblePlaneDot(p_entry, p_frustum->m_corners[0]) >= threshold ||
+		   VisiblePlaneDot(p_entry, p_frustum->m_corners[3]) >= threshold ||
+		   VisiblePlaneDot(p_entry, p_frustum->m_corners[1]) >= threshold ||
+		   VisiblePlaneDot(p_entry, p_frustum->m_corners[2]) >= threshold;
 }
 
 static LegoBool32 HasNegativeCorner(const GolBoundingShape::TreeNode* p_entry, const GolViewFrustum* p_frustum)
 {
 	LegoFloat threshold = -p_entry->m_data.m_plane.m_distance;
-	return PlaneDot(p_entry, p_frustum->m_corners[0]) <= threshold ||
-		   PlaneDot(p_entry, p_frustum->m_corners[3]) <= threshold ||
-		   PlaneDot(p_entry, p_frustum->m_corners[1]) <= threshold ||
-		   PlaneDot(p_entry, p_frustum->m_corners[2]) <= threshold;
+	return VisiblePlaneDot(p_entry, p_frustum->m_corners[0]) <= threshold ||
+		   VisiblePlaneDot(p_entry, p_frustum->m_corners[3]) <= threshold ||
+		   VisiblePlaneDot(p_entry, p_frustum->m_corners[1]) <= threshold ||
+		   VisiblePlaneDot(p_entry, p_frustum->m_corners[2]) <= threshold;
 }
 
 // FUNCTION: GOLDP 0x1001adc0
@@ -299,20 +293,18 @@ void GolBoundingShape::CollectVisibleLeaves(
 	entry = m_root;
 	while (entry->m_type == TreeNode::e_plane) {
 		LegoFloat distance = VisiblePlaneDot(entry, p_frustum->m_position) + entry->m_data.m_plane.m_distance;
-		LegoU16 childIndex;
-		if (distance >= 0.0f || entry->m_data.m_plane.m_backChild == TreeNode::c_invalidIndex) {
-			if (entry->m_data.m_plane.m_frontChild == TreeNode::c_invalidIndex) {
-				entry->m_data.m_plane.m_backStamp = m_visitStamp;
-				childIndex = entry->m_data.m_plane.m_backChild;
-			}
-			else {
-				entry->m_data.m_plane.m_frontStamp = m_visitStamp;
-				childIndex = entry->m_data.m_plane.m_frontChild;
-			}
-		}
-		else {
+		LegoU32 childIndex;
+		if (distance < 0.0f && entry->m_data.m_plane.m_backChild != TreeNode::c_invalidIndex) {
 			entry->m_data.m_plane.m_backStamp = m_visitStamp;
 			childIndex = entry->m_data.m_plane.m_backChild;
+		}
+		else if (entry->m_data.m_plane.m_frontChild == TreeNode::c_invalidIndex) {
+			entry->m_data.m_plane.m_backStamp = m_visitStamp;
+			childIndex = entry->m_data.m_plane.m_backChild;
+		}
+		else {
+			entry->m_data.m_plane.m_frontStamp = m_visitStamp;
+			childIndex = entry->m_data.m_plane.m_frontChild;
 		}
 		entry = &m_nodes[childIndex];
 	}
