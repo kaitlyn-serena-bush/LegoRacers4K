@@ -2829,17 +2829,17 @@ void GolD3DRenderDevice::FUN_1000b8e0(LegoU32 p_outputFirst, LegoU32 p_firstVert
 	m_unk0xc3848 += p_vertexCount;
 
 	for (; position < positionEnd; position++) {
-		vertex->sx = m_currentMatrix->m_m[0][0] * position->m_x;
-		vertex->sy = m_currentMatrix->m_m[0][1] * position->m_x;
-		vertex->rhw = m_currentMatrix->m_m[0][3] * position->m_x;
+		vertex->sx = GOL_MUL(m_currentMatrix->m_m[0][0], position->m_x);
+		vertex->sy = GOL_MUL(m_currentMatrix->m_m[0][1], position->m_x);
+		vertex->rhw = GOL_MUL(m_currentMatrix->m_m[0][3], position->m_x);
 
-		vertex->sx += m_currentMatrix->m_m[1][0] * position->m_y;
-		vertex->sy += m_currentMatrix->m_m[1][1] * position->m_y;
-		vertex->rhw += m_currentMatrix->m_m[1][3] * position->m_y;
+		vertex->sx += GOL_MUL(m_currentMatrix->m_m[1][0], position->m_y);
+		vertex->sy += GOL_MUL(m_currentMatrix->m_m[1][1], position->m_y);
+		vertex->rhw += GOL_MUL(m_currentMatrix->m_m[1][3], position->m_y);
 
-		vertex->sx += m_currentMatrix->m_m[2][0] * position->m_z;
-		vertex->sy += m_currentMatrix->m_m[2][1] * position->m_z;
-		vertex->rhw += m_currentMatrix->m_m[2][3] * position->m_z;
+		vertex->sx += GOL_MUL(m_currentMatrix->m_m[2][0], position->m_z);
+		vertex->sy += GOL_MUL(m_currentMatrix->m_m[2][1], position->m_z);
+		vertex->rhw += GOL_MUL(m_currentMatrix->m_m[2][3], position->m_z);
 
 		vertex->sx += m_currentMatrix->m_m[3][0];
 		vertex->sy += m_currentMatrix->m_m[3][1];
@@ -2874,17 +2874,17 @@ void GolD3DRenderDevice::FUN_1000baa0(LegoU32 p_outputFirst, LegoU32 p_firstVert
 	m_unk0xc3848 += p_vertexCount;
 
 	for (; position < positionEnd; position++) {
-		vertex->sx = m_currentMatrix->m_m[0][0] * position->m_x;
-		vertex->sy = m_currentMatrix->m_m[0][1] * position->m_x;
-		vertex->rhw = m_currentMatrix->m_m[0][3] * position->m_x;
+		vertex->sx = GOL_MUL(m_currentMatrix->m_m[0][0], position->m_x);
+		vertex->sy = GOL_MUL(m_currentMatrix->m_m[0][1], position->m_x);
+		vertex->rhw = GOL_MUL(m_currentMatrix->m_m[0][3], position->m_x);
 
-		vertex->sx += m_currentMatrix->m_m[1][0] * position->m_y;
-		vertex->sy += m_currentMatrix->m_m[1][1] * position->m_y;
-		vertex->rhw += m_currentMatrix->m_m[1][3] * position->m_y;
+		vertex->sx += GOL_MUL(m_currentMatrix->m_m[1][0], position->m_y);
+		vertex->sy += GOL_MUL(m_currentMatrix->m_m[1][1], position->m_y);
+		vertex->rhw += GOL_MUL(m_currentMatrix->m_m[1][3], position->m_y);
 
-		vertex->sx += m_currentMatrix->m_m[2][0] * position->m_z;
-		vertex->sy += m_currentMatrix->m_m[2][1] * position->m_z;
-		vertex->rhw += m_currentMatrix->m_m[2][3] * position->m_z;
+		vertex->sx += GOL_MUL(m_currentMatrix->m_m[2][0], position->m_z);
+		vertex->sy += GOL_MUL(m_currentMatrix->m_m[2][1], position->m_z);
+		vertex->rhw += GOL_MUL(m_currentMatrix->m_m[2][3], position->m_z);
 
 		vertex->sx += m_currentMatrix->m_m[3][0];
 		vertex->sy += m_currentMatrix->m_m[3][1];
@@ -2921,17 +2921,17 @@ void GolD3DRenderDevice::FUN_1000bc40(LegoU32 p_outputFirst, LegoU32 p_firstVert
 	m_unk0xc3848 += p_vertexCount;
 
 	for (; position < positionEnd; position++) {
-		vertex->sx = m_currentMatrix->m_m[0][0] * position->m_x;
-		vertex->sy = m_currentMatrix->m_m[0][1] * position->m_x;
-		vertex->rhw = m_currentMatrix->m_m[0][3] * position->m_x;
+		vertex->sx = GOL_MUL(m_currentMatrix->m_m[0][0], position->m_x);
+		vertex->sy = GOL_MUL(m_currentMatrix->m_m[0][1], position->m_x);
+		vertex->rhw = GOL_MUL(m_currentMatrix->m_m[0][3], position->m_x);
 
-		vertex->sx += m_currentMatrix->m_m[1][0] * position->m_y;
-		vertex->sy += m_currentMatrix->m_m[1][1] * position->m_y;
-		vertex->rhw += m_currentMatrix->m_m[1][3] * position->m_y;
+		vertex->sx += GOL_MUL(m_currentMatrix->m_m[1][0], position->m_y);
+		vertex->sy += GOL_MUL(m_currentMatrix->m_m[1][1], position->m_y);
+		vertex->rhw += GOL_MUL(m_currentMatrix->m_m[1][3], position->m_y);
 
-		vertex->sx += m_currentMatrix->m_m[2][0] * position->m_z;
-		vertex->sy += m_currentMatrix->m_m[2][1] * position->m_z;
-		vertex->rhw += m_currentMatrix->m_m[2][3] * position->m_z;
+		vertex->sx += GOL_MUL(m_currentMatrix->m_m[2][0], position->m_z);
+		vertex->sy += GOL_MUL(m_currentMatrix->m_m[2][1], position->m_z);
+		vertex->rhw += GOL_MUL(m_currentMatrix->m_m[2][3], position->m_z);
 
 		vertex->sx += m_currentMatrix->m_m[3][0];
 		vertex->sy += m_currentMatrix->m_m[3][1];
@@ -4342,33 +4342,33 @@ void GolD3DRenderDevice::FUN_1000d210(LegoU32 p_outputFirst, LegoU32 p_firstVert
 	const GolVec2* uv = m_sourceTexCoords + p_firstVertex;
 
 	for (; position < positionEnd; position++, normal++, uv++, vertex++) {
-		vertex->m_x = (m_currentMatrix->m_m[0][0] * position->m_x) * m_currentScale;
-		vertex->m_y = (m_currentMatrix->m_m[0][1] * position->m_x) * m_currentScale;
-		vertex->m_z = (m_currentMatrix->m_m[0][2] * position->m_x) * m_currentScale;
+		vertex->m_x = GOL_MUL(GOL_MUL(m_currentMatrix->m_m[0][0], position->m_x), m_currentScale);
+		vertex->m_y = GOL_MUL(GOL_MUL(m_currentMatrix->m_m[0][1], position->m_x), m_currentScale);
+		vertex->m_z = GOL_MUL(GOL_MUL(m_currentMatrix->m_m[0][2], position->m_x), m_currentScale);
 
-		vertex->m_x += (m_currentMatrix->m_m[1][0] * position->m_y) * m_currentScale;
-		vertex->m_y += (m_currentMatrix->m_m[1][1] * position->m_y) * m_currentScale;
-		vertex->m_z += (m_currentMatrix->m_m[1][2] * position->m_y) * m_currentScale;
+		vertex->m_x += GOL_MUL(GOL_MUL(m_currentMatrix->m_m[1][0], position->m_y), m_currentScale);
+		vertex->m_y += GOL_MUL(GOL_MUL(m_currentMatrix->m_m[1][1], position->m_y), m_currentScale);
+		vertex->m_z += GOL_MUL(GOL_MUL(m_currentMatrix->m_m[1][2], position->m_y), m_currentScale);
 
-		vertex->m_x += (m_currentMatrix->m_m[2][0] * position->m_z) * m_currentScale;
-		vertex->m_y += (m_currentMatrix->m_m[2][1] * position->m_z) * m_currentScale;
-		vertex->m_z += (m_currentMatrix->m_m[2][2] * position->m_z) * m_currentScale;
+		vertex->m_x += GOL_MUL(GOL_MUL(m_currentMatrix->m_m[2][0], position->m_z), m_currentScale);
+		vertex->m_y += GOL_MUL(GOL_MUL(m_currentMatrix->m_m[2][1], position->m_z), m_currentScale);
+		vertex->m_z += GOL_MUL(GOL_MUL(m_currentMatrix->m_m[2][2], position->m_z), m_currentScale);
 
 		vertex->m_x += m_currentMatrix->m_m[3][0];
 		vertex->m_y += m_currentMatrix->m_m[3][1];
 		vertex->m_z += m_currentMatrix->m_m[3][2];
 
-		vertex->m_nx = m_currentMatrix->m_m[0][0] * normal->m_x;
-		vertex->m_ny = m_currentMatrix->m_m[0][1] * normal->m_y;
-		vertex->m_nz = m_currentMatrix->m_m[0][2] * normal->m_z;
+		vertex->m_nx = GOL_MUL(m_currentMatrix->m_m[0][0], normal->m_x);
+		vertex->m_ny = GOL_MUL(m_currentMatrix->m_m[0][1], normal->m_y);
+		vertex->m_nz = GOL_MUL(m_currentMatrix->m_m[0][2], normal->m_z);
 
-		vertex->m_nx += m_currentMatrix->m_m[1][0] * normal->m_x;
-		vertex->m_ny += m_currentMatrix->m_m[1][1] * normal->m_y;
-		vertex->m_nz += m_currentMatrix->m_m[1][2] * normal->m_z;
+		vertex->m_nx += GOL_MUL(m_currentMatrix->m_m[1][0], normal->m_x);
+		vertex->m_ny += GOL_MUL(m_currentMatrix->m_m[1][1], normal->m_y);
+		vertex->m_nz += GOL_MUL(m_currentMatrix->m_m[1][2], normal->m_z);
 
-		vertex->m_nx += m_currentMatrix->m_m[2][0] * normal->m_x;
-		vertex->m_ny += m_currentMatrix->m_m[2][1] * normal->m_y;
-		vertex->m_nz += m_currentMatrix->m_m[2][2] * normal->m_z;
+		vertex->m_nx += GOL_MUL(m_currentMatrix->m_m[2][0], normal->m_x);
+		vertex->m_ny += GOL_MUL(m_currentMatrix->m_m[2][1], normal->m_y);
+		vertex->m_nz += GOL_MUL(m_currentMatrix->m_m[2][2], normal->m_z);
 
 		vertex->m_u = uv->m_x;
 		vertex->m_v = uv->m_y;
@@ -4390,17 +4390,17 @@ void GolD3DRenderDevice::FUN_1000d440(LegoU32 p_outputFirst, LegoU32 p_firstVert
 	const GolVec2* uv = m_sourceTexCoords + p_firstVertex;
 
 	while (position < positionEnd) {
-		vertex->m_x = m_currentMatrix->m_m[0][0] * position->m_x;
-		vertex->m_y = m_currentMatrix->m_m[0][1] * position->m_x;
-		vertex->m_z = m_currentMatrix->m_m[0][2] * position->m_x;
+		vertex->m_x = GOL_MUL(m_currentMatrix->m_m[0][0], position->m_x);
+		vertex->m_y = GOL_MUL(m_currentMatrix->m_m[0][1], position->m_x);
+		vertex->m_z = GOL_MUL(m_currentMatrix->m_m[0][2], position->m_x);
 
-		vertex->m_x += m_currentMatrix->m_m[1][0] * position->m_y;
-		vertex->m_y += m_currentMatrix->m_m[1][1] * position->m_y;
-		vertex->m_z += m_currentMatrix->m_m[1][2] * position->m_y;
+		vertex->m_x += GOL_MUL(m_currentMatrix->m_m[1][0], position->m_y);
+		vertex->m_y += GOL_MUL(m_currentMatrix->m_m[1][1], position->m_y);
+		vertex->m_z += GOL_MUL(m_currentMatrix->m_m[1][2], position->m_y);
 
-		vertex->m_x += m_currentMatrix->m_m[2][0] * position->m_z;
-		vertex->m_y += m_currentMatrix->m_m[2][1] * position->m_z;
-		vertex->m_z += m_currentMatrix->m_m[2][2] * position->m_z;
+		vertex->m_x += GOL_MUL(m_currentMatrix->m_m[2][0], position->m_z);
+		vertex->m_y += GOL_MUL(m_currentMatrix->m_m[2][1], position->m_z);
+		vertex->m_z += GOL_MUL(m_currentMatrix->m_m[2][2], position->m_z);
 
 		vertex->m_x += m_currentMatrix->m_m[3][0];
 		vertex->m_y += m_currentMatrix->m_m[3][1];
@@ -4437,17 +4437,17 @@ void GolD3DRenderDevice::FUN_1000d5d0(LegoU32 p_outputFirst, LegoU32 p_firstVert
 	const GolVec2* uv = m_sourceTexCoords + p_firstVertex;
 
 	while (position < positionEnd) {
-		vertex->m_x = m_currentMatrix->m_m[0][0] * position->m_x;
-		vertex->m_y = m_currentMatrix->m_m[0][1] * position->m_x;
-		vertex->m_z = m_currentMatrix->m_m[0][2] * position->m_x;
+		vertex->m_x = GOL_MUL(m_currentMatrix->m_m[0][0], position->m_x);
+		vertex->m_y = GOL_MUL(m_currentMatrix->m_m[0][1], position->m_x);
+		vertex->m_z = GOL_MUL(m_currentMatrix->m_m[0][2], position->m_x);
 
-		vertex->m_x += m_currentMatrix->m_m[1][0] * position->m_y;
-		vertex->m_y += m_currentMatrix->m_m[1][1] * position->m_y;
-		vertex->m_z += m_currentMatrix->m_m[1][2] * position->m_y;
+		vertex->m_x += GOL_MUL(m_currentMatrix->m_m[1][0], position->m_y);
+		vertex->m_y += GOL_MUL(m_currentMatrix->m_m[1][1], position->m_y);
+		vertex->m_z += GOL_MUL(m_currentMatrix->m_m[1][2], position->m_y);
 
-		vertex->m_x += m_currentMatrix->m_m[2][0] * position->m_z;
-		vertex->m_y += m_currentMatrix->m_m[2][1] * position->m_z;
-		vertex->m_z += m_currentMatrix->m_m[2][2] * position->m_z;
+		vertex->m_x += GOL_MUL(m_currentMatrix->m_m[2][0], position->m_z);
+		vertex->m_y += GOL_MUL(m_currentMatrix->m_m[2][1], position->m_z);
+		vertex->m_z += GOL_MUL(m_currentMatrix->m_m[2][2], position->m_z);
 
 		vertex->m_x += m_currentMatrix->m_m[3][0];
 		vertex->m_y += m_currentMatrix->m_m[3][1];
@@ -4485,17 +4485,17 @@ void GolD3DRenderDevice::FUN_1000d760(LegoU32 p_outputFirst, LegoU32 p_firstVert
 		const GolVec2* uv = m_sourceTexCoords + p_firstVertex;
 
 		while (position < positionEnd) {
-			commandVertex->m_x = m_currentMatrix->m_m[0][0] * position->m_x;
-			commandVertex->m_y = m_currentMatrix->m_m[0][1] * position->m_x;
-			commandVertex->m_z = m_currentMatrix->m_m[0][2] * position->m_x;
+			commandVertex->m_x = GOL_MUL(m_currentMatrix->m_m[0][0], position->m_x);
+			commandVertex->m_y = GOL_MUL(m_currentMatrix->m_m[0][1], position->m_x);
+			commandVertex->m_z = GOL_MUL(m_currentMatrix->m_m[0][2], position->m_x);
 
-			commandVertex->m_x += m_currentMatrix->m_m[1][0] * position->m_y;
-			commandVertex->m_y += m_currentMatrix->m_m[1][1] * position->m_y;
-			commandVertex->m_z += m_currentMatrix->m_m[1][2] * position->m_y;
+			commandVertex->m_x += GOL_MUL(m_currentMatrix->m_m[1][0], position->m_y);
+			commandVertex->m_y += GOL_MUL(m_currentMatrix->m_m[1][1], position->m_y);
+			commandVertex->m_z += GOL_MUL(m_currentMatrix->m_m[1][2], position->m_y);
 
-			commandVertex->m_x += m_currentMatrix->m_m[2][0] * position->m_z;
-			commandVertex->m_y += m_currentMatrix->m_m[2][1] * position->m_z;
-			commandVertex->m_z += m_currentMatrix->m_m[2][2] * position->m_z;
+			commandVertex->m_x += GOL_MUL(m_currentMatrix->m_m[2][0], position->m_z);
+			commandVertex->m_y += GOL_MUL(m_currentMatrix->m_m[2][1], position->m_z);
+			commandVertex->m_z += GOL_MUL(m_currentMatrix->m_m[2][2], position->m_z);
 
 			commandVertex->m_x += m_currentMatrix->m_m[3][0];
 			commandVertex->m_y += m_currentMatrix->m_m[3][1];
@@ -4531,20 +4531,20 @@ void GolD3DRenderDevice::FUN_1000d760(LegoU32 p_outputFirst, LegoU32 p_firstVert
 	CommandVertex* sourceEnd = source + p_vertexCount;
 
 	for (; source < sourceEnd; source++, cache++, vertex++) {
-		cache->m_x = m_viewProjectionMatrix->m_m[0][0] * source->m_x;
-		cache->m_y = m_viewProjectionMatrix->m_m[0][1] * source->m_x;
-		cache->m_z = m_viewProjectionMatrix->m_m[0][2] * source->m_x;
-		cache->m_w = m_viewProjectionMatrix->m_m[0][3] * source->m_x;
+		cache->m_x = GOL_MUL(m_viewProjectionMatrix->m_m[0][0], source->m_x);
+		cache->m_y = GOL_MUL(m_viewProjectionMatrix->m_m[0][1], source->m_x);
+		cache->m_z = GOL_MUL(m_viewProjectionMatrix->m_m[0][2], source->m_x);
+		cache->m_w = GOL_MUL(m_viewProjectionMatrix->m_m[0][3], source->m_x);
 
-		cache->m_x += m_viewProjectionMatrix->m_m[1][0] * source->m_y;
-		cache->m_y += m_viewProjectionMatrix->m_m[1][1] * source->m_y;
-		cache->m_z += m_viewProjectionMatrix->m_m[1][2] * source->m_y;
-		cache->m_w += m_viewProjectionMatrix->m_m[1][3] * source->m_y;
+		cache->m_x += GOL_MUL(m_viewProjectionMatrix->m_m[1][0], source->m_y);
+		cache->m_y += GOL_MUL(m_viewProjectionMatrix->m_m[1][1], source->m_y);
+		cache->m_z += GOL_MUL(m_viewProjectionMatrix->m_m[1][2], source->m_y);
+		cache->m_w += GOL_MUL(m_viewProjectionMatrix->m_m[1][3], source->m_y);
 
-		cache->m_x += m_viewProjectionMatrix->m_m[2][0] * source->m_z;
-		cache->m_y += m_viewProjectionMatrix->m_m[2][1] * source->m_z;
-		cache->m_z += m_viewProjectionMatrix->m_m[2][2] * source->m_z;
-		cache->m_w += m_viewProjectionMatrix->m_m[2][3] * source->m_z;
+		cache->m_x += GOL_MUL(m_viewProjectionMatrix->m_m[2][0], source->m_z);
+		cache->m_y += GOL_MUL(m_viewProjectionMatrix->m_m[2][1], source->m_z);
+		cache->m_z += GOL_MUL(m_viewProjectionMatrix->m_m[2][2], source->m_z);
+		cache->m_w += GOL_MUL(m_viewProjectionMatrix->m_m[2][3], source->m_z);
 
 		cache->m_x += m_viewProjectionMatrix->m_m[3][0];
 		cache->m_y += m_viewProjectionMatrix->m_m[3][1];
@@ -4587,17 +4587,17 @@ void GolD3DRenderDevice::FUN_1000dbb0(LegoU32 p_outputFirst, LegoU32 p_firstVert
 		LegoU32* color = m_sourceColors + p_firstVertex;
 
 		while (position < positionEnd) {
-			commandVertex->m_x = m_currentMatrix->m_m[0][0] * position->m_x;
-			commandVertex->m_y = m_currentMatrix->m_m[0][1] * position->m_x;
-			commandVertex->m_z = m_currentMatrix->m_m[0][2] * position->m_x;
+			commandVertex->m_x = GOL_MUL(m_currentMatrix->m_m[0][0], position->m_x);
+			commandVertex->m_y = GOL_MUL(m_currentMatrix->m_m[0][1], position->m_x);
+			commandVertex->m_z = GOL_MUL(m_currentMatrix->m_m[0][2], position->m_x);
 
-			commandVertex->m_x += m_currentMatrix->m_m[1][0] * position->m_y;
-			commandVertex->m_y += m_currentMatrix->m_m[1][1] * position->m_y;
-			commandVertex->m_z += m_currentMatrix->m_m[1][2] * position->m_y;
+			commandVertex->m_x += GOL_MUL(m_currentMatrix->m_m[1][0], position->m_y);
+			commandVertex->m_y += GOL_MUL(m_currentMatrix->m_m[1][1], position->m_y);
+			commandVertex->m_z += GOL_MUL(m_currentMatrix->m_m[1][2], position->m_y);
 
-			commandVertex->m_x += m_currentMatrix->m_m[2][0] * position->m_z;
-			commandVertex->m_y += m_currentMatrix->m_m[2][1] * position->m_z;
-			commandVertex->m_z += m_currentMatrix->m_m[2][2] * position->m_z;
+			commandVertex->m_x += GOL_MUL(m_currentMatrix->m_m[2][0], position->m_z);
+			commandVertex->m_y += GOL_MUL(m_currentMatrix->m_m[2][1], position->m_z);
+			commandVertex->m_z += GOL_MUL(m_currentMatrix->m_m[2][2], position->m_z);
 
 			commandVertex->m_x += m_currentMatrix->m_m[3][0];
 			commandVertex->m_y += m_currentMatrix->m_m[3][1];
@@ -4633,20 +4633,20 @@ void GolD3DRenderDevice::FUN_1000dbb0(LegoU32 p_outputFirst, LegoU32 p_firstVert
 	CommandVertex* sourceEnd = source + p_vertexCount;
 
 	for (; source < sourceEnd; source++, cache++, vertex++, cacheIndex++) {
-		cache->m_x = m_viewProjectionMatrix->m_m[0][0] * source->m_x;
-		cache->m_y = m_viewProjectionMatrix->m_m[0][1] * source->m_x;
-		cache->m_z = m_viewProjectionMatrix->m_m[0][2] * source->m_x;
-		cache->m_w = m_viewProjectionMatrix->m_m[0][3] * source->m_x;
+		cache->m_x = GOL_MUL(m_viewProjectionMatrix->m_m[0][0], source->m_x);
+		cache->m_y = GOL_MUL(m_viewProjectionMatrix->m_m[0][1], source->m_x);
+		cache->m_z = GOL_MUL(m_viewProjectionMatrix->m_m[0][2], source->m_x);
+		cache->m_w = GOL_MUL(m_viewProjectionMatrix->m_m[0][3], source->m_x);
 
-		cache->m_x += m_viewProjectionMatrix->m_m[1][0] * source->m_y;
-		cache->m_y += m_viewProjectionMatrix->m_m[1][1] * source->m_y;
-		cache->m_z += m_viewProjectionMatrix->m_m[1][2] * source->m_y;
-		cache->m_w += m_viewProjectionMatrix->m_m[1][3] * source->m_y;
+		cache->m_x += GOL_MUL(m_viewProjectionMatrix->m_m[1][0], source->m_y);
+		cache->m_y += GOL_MUL(m_viewProjectionMatrix->m_m[1][1], source->m_y);
+		cache->m_z += GOL_MUL(m_viewProjectionMatrix->m_m[1][2], source->m_y);
+		cache->m_w += GOL_MUL(m_viewProjectionMatrix->m_m[1][3], source->m_y);
 
-		cache->m_x += m_viewProjectionMatrix->m_m[2][0] * source->m_z;
-		cache->m_y += m_viewProjectionMatrix->m_m[2][1] * source->m_z;
-		cache->m_z += m_viewProjectionMatrix->m_m[2][2] * source->m_z;
-		cache->m_w += m_viewProjectionMatrix->m_m[2][3] * source->m_z;
+		cache->m_x += GOL_MUL(m_viewProjectionMatrix->m_m[2][0], source->m_z);
+		cache->m_y += GOL_MUL(m_viewProjectionMatrix->m_m[2][1], source->m_z);
+		cache->m_z += GOL_MUL(m_viewProjectionMatrix->m_m[2][2], source->m_z);
+		cache->m_w += GOL_MUL(m_viewProjectionMatrix->m_m[2][3], source->m_z);
 
 		cache->m_x += m_viewProjectionMatrix->m_m[3][0];
 		cache->m_y += m_viewProjectionMatrix->m_m[3][1];
@@ -7620,20 +7620,20 @@ void GolD3DRenderDevice::FUN_10013110(LegoU32 p_outputFirst, LegoU32 p_firstVert
 	m_unk0xc3848 += p_vertexCount;
 
 	for (; source < sourceEnd;) {
-		vertex->sx = m_currentMatrix->m_m[0][0] * source->m_x;
-		vertex->sy = m_currentMatrix->m_m[0][1] * source->m_x;
-		vertex->sz = m_currentMatrix->m_m[0][2] * source->m_x;
-		vertex->rhw = m_currentMatrix->m_m[0][3] * source->m_x;
+		vertex->sx = GOL_MUL(m_currentMatrix->m_m[0][0], source->m_x);
+		vertex->sy = GOL_MUL(m_currentMatrix->m_m[0][1], source->m_x);
+		vertex->sz = GOL_MUL(m_currentMatrix->m_m[0][2], source->m_x);
+		vertex->rhw = GOL_MUL(m_currentMatrix->m_m[0][3], source->m_x);
 
-		vertex->sx += m_currentMatrix->m_m[1][0] * source->m_y;
-		vertex->sy += m_currentMatrix->m_m[1][1] * source->m_y;
-		vertex->sz += m_currentMatrix->m_m[1][2] * source->m_y;
-		vertex->rhw += m_currentMatrix->m_m[1][3] * source->m_y;
+		vertex->sx += GOL_MUL(m_currentMatrix->m_m[1][0], source->m_y);
+		vertex->sy += GOL_MUL(m_currentMatrix->m_m[1][1], source->m_y);
+		vertex->sz += GOL_MUL(m_currentMatrix->m_m[1][2], source->m_y);
+		vertex->rhw += GOL_MUL(m_currentMatrix->m_m[1][3], source->m_y);
 
-		vertex->sx += m_currentMatrix->m_m[2][0] * source->m_z;
-		vertex->sy += m_currentMatrix->m_m[2][1] * source->m_z;
-		vertex->sz += m_currentMatrix->m_m[2][2] * source->m_z;
-		vertex->rhw += m_currentMatrix->m_m[2][3] * source->m_z;
+		vertex->sx += GOL_MUL(m_currentMatrix->m_m[2][0], source->m_z);
+		vertex->sy += GOL_MUL(m_currentMatrix->m_m[2][1], source->m_z);
+		vertex->sz += GOL_MUL(m_currentMatrix->m_m[2][2], source->m_z);
+		vertex->rhw += GOL_MUL(m_currentMatrix->m_m[2][3], source->m_z);
 
 		vertex->sx += m_currentMatrix->m_m[3][0];
 		vertex->sy += m_currentMatrix->m_m[3][1];
@@ -7663,20 +7663,20 @@ void GolD3DRenderDevice::FUN_100132f0(LegoU32 p_outputFirst, LegoU32 p_firstVert
 	m_unk0xc3848 = cacheIndex + p_vertexCount;
 
 	for (; source < sourceEnd; source++, cache++, vertex++, cacheIndex++) {
-		cache->m_x = m_currentMatrix->m_m[0][0] * source->m_x;
-		cache->m_y = m_currentMatrix->m_m[0][1] * source->m_x;
-		cache->m_z = m_currentMatrix->m_m[0][2] * source->m_x;
-		cache->m_w = m_currentMatrix->m_m[0][3] * source->m_x;
+		cache->m_x = GOL_MUL(m_currentMatrix->m_m[0][0], source->m_x);
+		cache->m_y = GOL_MUL(m_currentMatrix->m_m[0][1], source->m_x);
+		cache->m_z = GOL_MUL(m_currentMatrix->m_m[0][2], source->m_x);
+		cache->m_w = GOL_MUL(m_currentMatrix->m_m[0][3], source->m_x);
 
-		cache->m_x += m_currentMatrix->m_m[1][0] * source->m_y;
-		cache->m_y += m_currentMatrix->m_m[1][1] * source->m_y;
-		cache->m_z += m_currentMatrix->m_m[1][2] * source->m_y;
-		cache->m_w += m_currentMatrix->m_m[1][3] * source->m_y;
+		cache->m_x += GOL_MUL(m_currentMatrix->m_m[1][0], source->m_y);
+		cache->m_y += GOL_MUL(m_currentMatrix->m_m[1][1], source->m_y);
+		cache->m_z += GOL_MUL(m_currentMatrix->m_m[1][2], source->m_y);
+		cache->m_w += GOL_MUL(m_currentMatrix->m_m[1][3], source->m_y);
 
-		cache->m_x += m_currentMatrix->m_m[2][0] * source->m_z;
-		cache->m_y += m_currentMatrix->m_m[2][1] * source->m_z;
-		cache->m_z += m_currentMatrix->m_m[2][2] * source->m_z;
-		cache->m_w += m_currentMatrix->m_m[2][3] * source->m_z;
+		cache->m_x += GOL_MUL(m_currentMatrix->m_m[2][0], source->m_z);
+		cache->m_y += GOL_MUL(m_currentMatrix->m_m[2][1], source->m_z);
+		cache->m_z += GOL_MUL(m_currentMatrix->m_m[2][2], source->m_z);
+		cache->m_w += GOL_MUL(m_currentMatrix->m_m[2][3], source->m_z);
 
 		cache->m_x += m_currentMatrix->m_m[3][0];
 		cache->m_y += m_currentMatrix->m_m[3][1];
