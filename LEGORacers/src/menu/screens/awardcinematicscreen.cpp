@@ -646,10 +646,13 @@ LegoBool32 AwardCinematicScreen::CreateWinnerCar(undefined4)
 
 				if (g_hashTable) {
 					currentEntry = g_hashTable->GetCurrentEntry();
-					g_hashTable->SetCurrentEntryFromString("MENUDATA\\PIECEDB");
 				}
 				else {
 					currentEntry = NULL;
+				}
+
+				if (g_hashTable) {
+					g_hashTable->SetCurrentEntryFromString("MENUDATA\\PIECEDB");
 				}
 
 				GolAnimatedEntity* primary;

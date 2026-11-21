@@ -271,22 +271,22 @@ LegoS32 HomingProjectile::Update(LegoU32 p_elapsedMs)
 		LegoFloat speed =
 			static_cast<LegoFloat>(sqrt(velocityZ * velocityZ + velocityY * velocityY + velocityX * velocityX));
 		m_velocity.m_x = speed * direction->m_x;
-		m_velocity.m_y = direction->m_y * speed;
-		m_velocity.m_z = direction->m_z * speed;
+		m_velocity.m_y = speed * direction->m_y;
+		m_velocity.m_z = speed * direction->m_z;
 
 		if (targetDistanceSquared < g_homingProjectileTargetDirectHitDistanceSquared) {
-			m_hitPosition = m_targetPosition;
-			m_worldEntity->SetPosition(m_hitPosition);
-			m_state = c_stateExpired;
-			return c_stateExpired;
+			nextPosition = m_position;
+			targetDistanceSquared = 0.0f;
+		}
+		else {
+			nextPosition.m_x = m_position.m_x + m_velocity.m_x * elapsedSeconds;
+			nextPosition.m_y = m_position.m_y + m_velocity.m_y * elapsedSeconds;
+			nextPosition.m_z = m_position.m_z + m_velocity.m_z * elapsedSeconds;
+
+			GolVec3 remaining = m_targetPosition - nextPosition;
+			targetDistanceSquared = DotVectors(remaining, *direction);
 		}
 
-		nextPosition.m_x = m_position.m_x + m_velocity.m_x * elapsedSeconds;
-		nextPosition.m_y = m_position.m_y + m_velocity.m_y * elapsedSeconds;
-		nextPosition.m_z = m_position.m_z + m_velocity.m_z * elapsedSeconds;
-
-		GolVec3 remaining = m_targetPosition - nextPosition;
-		targetDistanceSquared = DotVectors(remaining, *direction);
 		if (targetDistanceSquared <= 0.0f) {
 			m_hitPosition = m_targetPosition;
 			m_worldEntity->SetPosition(m_hitPosition);
@@ -313,8 +313,8 @@ LegoS32 HomingProjectile::Update(LegoU32 p_elapsedMs)
 		GolMath::NormalizeVector3(*direction, direction);
 		LegoFloat speed = m_speed;
 		m_velocity.m_x = speed * direction->m_x;
-		m_velocity.m_y = direction->m_y * speed;
-		m_velocity.m_z = direction->m_z * speed;
+		m_velocity.m_y = speed * direction->m_y;
+		m_velocity.m_z = speed * direction->m_z;
 		nextPosition.m_x = m_position.m_x + m_velocity.m_x * elapsedSeconds;
 		nextPosition.m_y = m_position.m_y + m_velocity.m_y * elapsedSeconds;
 		nextPosition.m_z = m_position.m_z + m_velocity.m_z * elapsedSeconds;
