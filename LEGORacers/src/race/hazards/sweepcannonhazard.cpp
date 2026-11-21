@@ -16,7 +16,6 @@ DECOMP_SIZE_ASSERT(SweepCannonHazard, 0x58)
 
 extern LegoFloat g_cosineTable[1024];
 extern const LegoFloat g_negativeRadiansToTableIndex;
-extern const LegoFloat g_twoPi;
 
 // GLOBAL: LEGORACERS 0x004b03f0
 extern const LegoFloat g_hazardPi = 3.1415927f;
@@ -161,7 +160,7 @@ void SweepCannonHazard::Update(undefined4 p_elapsedMs)
 
 		LegoU32 quarterPeriod = m_periodMs >> 2;
 		LegoFloat verticalAngle = currentTimeFloat / static_cast<LegoFloat>(static_cast<LegoS32>(quarterPeriod));
-		verticalAngle *= g_twoPi;
+		verticalAngle *= 6.2831855f;
 		verticalAngle *= 162.974655f;
 		index = static_cast<LegoS32>(verticalAngle) & 0x3ff;
 		m_source.m_forward.m_z = g_cosineTable[index] * m_verticalRange + m_verticalBase;

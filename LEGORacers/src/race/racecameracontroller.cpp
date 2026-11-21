@@ -218,7 +218,6 @@ extern LegoU32 g_randomTableIndex;
 extern const LegoFloat g_halfPi;
 extern const LegoFloat g_hazardPi;
 extern const LegoFloat g_hazardPi;
-extern const LegoFloat g_twoPi;
 extern const LegoFloat g_unk0x004afde0;
 
 // FUNCTION: LEGORACERS 0x00427e80
@@ -629,10 +628,10 @@ void RaceCameraController::Update(LegoFloat p_elapsedMs)
 				LegoFloat delta = currentAngle - desiredAngle;
 				if (delta < g_unk0x004b0410 || delta > g_viewAngleDeadband) {
 					while (delta < g_unk0x004b0408) {
-						delta += g_twoPi;
+						delta += 6.2831855f;
 					}
 					while (delta > -g_unk0x004b0408) {
-						delta -= g_twoPi;
+						delta -= 6.2831855f;
 					}
 
 					LegoFloat angleAmount = 1.0f / (m_viewAngleRate * m_elapsed + 1.0f);

@@ -360,7 +360,7 @@ void PowerupExplosion::UpdateFlash(LegoU32 p_elapsedMs)
 			m_modelEntity.SetScaleThenInvalidateRadius(value);
 		}
 
-		m_alpha = (g_two - (m_growth + m_growth)) * g_explosionMaxAlpha;
+		m_alpha = GOL_MUL(g_two - (m_growth + m_growth), g_explosionMaxAlpha);
 		if (m_alpha < 0.0f) {
 			m_alpha = 0.0f;
 		}

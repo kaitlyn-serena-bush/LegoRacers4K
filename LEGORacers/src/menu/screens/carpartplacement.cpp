@@ -399,8 +399,8 @@ CarModelScreenBase::CarPartPlacement::CarPartPlacement()
 	for (LegoS32 i = 0; i < 8; i++) {
 		m_viewAngles[i] = angle;
 		angle += g_viewAngleStep;
-		if (angle >= g_twoPi) {
-			angle -= g_twoPi;
+		if (angle >= 6.2831855f) {
+			angle -= 6.2831855f;
 		}
 	}
 
@@ -1023,7 +1023,7 @@ LegoBool32 CarModelScreenBase::CarPartPlacement::Draw()
 		else {
 			LegoFloat scaledTime = static_cast<LegoFloat>(static_cast<LegoS32>(m_bobMs));
 			scaledTime *= 0.001f;
-			scaledTime *= g_twoPi;
+			scaledTime *= 6.2831855f;
 			scaledTime *= g_negativeRadiansToTableIndex;
 			LegoS32 index = (0xffffff00 - static_cast<LegoS32>(scaledTime)) & 0x3ff;
 			LegoFloat interpolation = g_cosineTable[index];
@@ -1228,10 +1228,10 @@ void CarModelScreenBase::CarPartPlacement::UpdateViewRotation(LegoU32 p_elapsed)
 	LegoFloat upperLimit = m_viewAngle;
 	upperLimit += g_halfPi;
 	if (targetAngle > upperLimit) {
-		targetAngle -= g_twoPi;
+		targetAngle -= 6.2831855f;
 	}
 	else if (targetAngle < m_viewAngle - g_halfPi) {
-		targetAngle += g_twoPi;
+		targetAngle += 6.2831855f;
 	}
 
 	ApplyViewAngle(targetAngle + ((m_viewAngle - targetAngle) * interpolation));

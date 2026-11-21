@@ -11,7 +11,6 @@ extern LegoFloat g_cosineTable[1024];
 extern const LegoFloat g_negativeRadiansToTableIndex;
 extern const LegoFloat g_unk0x004b02fc;
 extern const LegoFloat g_selectedPulseAmplitude;
-extern const LegoFloat g_twoPi;
 
 // FUNCTION: LEGORACERS 0x00427160
 RaceDialog::RaceDialog()
@@ -150,7 +149,7 @@ void RaceDialog::Draw()
 
 	if (m_selecting) {
 		LegoFloat blinkPhase = static_cast<LegoFloat>(static_cast<LegoS32>(m_blinkMs)) * g_unk0x004b02fc;
-		blinkPhase *= g_twoPi;
+		blinkPhase *= 6.2831855f;
 		blinkPhase *= g_negativeRadiansToTableIndex;
 
 		LegoS32 index = 0xffffff00 - static_cast<LegoS32>(blinkPhase);

@@ -43,7 +43,6 @@ extern LegoU32 g_silhouetteClearFlag;
 extern LegoU32 g_silhouetteFlattenFlag;
 extern LegoFloat g_cosineTable[1024];
 
-extern const LegoFloat g_twoPi;
 extern const LegoFloat g_pathMinSegmentLengthSquared;
 
 extern const LegoFloat g_unk0x004b02e0;

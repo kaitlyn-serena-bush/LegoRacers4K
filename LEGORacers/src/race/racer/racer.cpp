@@ -273,7 +273,6 @@ extern const LegoFloat g_fadeAlphaScale = 191.0f;
 // GLOBAL: LEGORACERS 0x004b0b50
 extern const LegoFloat g_carShadowScale = 1.15f;
 
-extern const LegoFloat g_twoPi;
 extern const LegoFloat g_pathMinSegmentLengthSquared;
 
 // GLOBAL: LEGORACERS 0x004c67a4
