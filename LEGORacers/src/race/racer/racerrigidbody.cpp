@@ -151,8 +151,7 @@ void RacerCarBody::AddAngularImpulse(GolVec3* p_impulse)
 	GolVec3 transformed;
 	transformed.m_x = m_inertiaTensor.m_m[0][0];
 	transformed.m_x *= local.m_x;
-	transformed.m_y = m_inertiaTensor.m_m[0][1];
-	transformed.m_y *= local.m_x;
+	transformed.m_y = GOL_MUL(m_inertiaTensor.m_m[0][1], local.m_x);
 	transformed.m_z = m_inertiaTensor.m_m[0][2];
 	transformed.m_z *= local.m_x;
 
@@ -238,9 +237,8 @@ void RacerCarBody::CancelAngularMomentum(GolVec3* p_direction, GolVec3* p_point)
 // FUNCTION: LEGORACERS 0x00440da0
 void RacerCarBody::CancelAngularMomentumAlong(GolVec3* p_axis)
 {
-	LegoFloat dot = m_angularMomentum.m_z;
-	dot *= p_axis->m_z;
-	dot += m_angularMomentum.m_y * p_axis->m_y;
+	LegoFloat dot = GOL_MUL(m_angularMomentum.m_z, p_axis->m_z);
+	dot += GOL_MUL(m_angularMomentum.m_y, p_axis->m_y);
 	dot += m_angularMomentum.m_x * p_axis->m_x;
 	GolVec3 scaled;
 	scaled.m_x = dot * p_axis->m_x;
