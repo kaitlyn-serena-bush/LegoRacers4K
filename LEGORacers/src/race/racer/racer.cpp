@@ -294,8 +294,14 @@ const LegoChar* g_racerDatabaseNames[3] = {"drivers", "champs", "chassis"};
 // GLOBAL: LEGORACERS 0x004bef70
 LegoU32 g_raceLapCount = 3;
 
+// Angular rate in radians per millisecond for a frequency in cycles per second.
+inline LegoFloat RadiansPerMillisecond(LegoFloat p_frequency)
+{
+	return p_frequency * 6.2831855f / 1000.0f;
+}
+
 // GLOBAL: LEGORACERS 0x004c6b34
-LegoFloat g_cursePhaseScale = g_twoPi * g_pathMinSegmentLengthSquared;
+LegoFloat g_cursePhaseScale = RadiansPerMillisecond(1.0f);
 
 // FUNCTION: LEGORACERS 0x00436990
 Racer::Racer()
