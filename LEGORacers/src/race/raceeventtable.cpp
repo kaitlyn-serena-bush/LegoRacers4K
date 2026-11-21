@@ -627,8 +627,8 @@ void RaceEventTable::ParseParticles(GolFileParser* p_parser, LegoBool32 p_mirror
 			flagValue = 1;
 		}
 
-		params.m_particleAnimation = m_particleAnimation;
 		memset(params.m_stateEventIds, 0xff, sizeof(params.m_stateEventIds));
+		params.m_particleAnimation = m_particleAnimation;
 		params.m_eventTable = this;
 		params.m_sharedParticleAnimation = m_sharedParticleAnimation;
 		params.m_particleName[0] = '\0';
