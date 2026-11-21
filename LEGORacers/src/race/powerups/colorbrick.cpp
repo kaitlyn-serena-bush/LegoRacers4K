@@ -56,6 +56,8 @@ void ColorBrick::Destroy()
 // FUNCTION: LEGORACERS 0x00457710
 void ColorBrick::Update(LegoU32 p_elapsedMs)
 {
+	SoundVector position;
+
 	if (m_state == c_stateInactive) {
 		return;
 	}
@@ -73,7 +75,6 @@ void ColorBrick::Update(LegoU32 p_elapsedMs)
 			SetTouchable(FALSE);
 
 			if (m_state == c_stateActive && (m_flags & c_flagAudible)) {
-				SoundVector position;
 				m_worldEntity.GetPosition(&position);
 				m_soundSource
 					->PlaySpatialSoundById(c_soundRespawn, &position, g_brickSoundMinDistance, 150.0f, 1.0f, 1.0f);
@@ -92,7 +93,6 @@ void ColorBrick::Update(LegoU32 p_elapsedMs)
 			m_stateTimerMs = 0;
 			m_state = c_stateActive;
 			if (m_flags & c_flagAudible) {
-				SoundVector position;
 				m_worldEntity.GetPosition(&position);
 				m_soundSource
 					->PlaySpatialSoundById(c_soundRespawn, &position, g_brickSoundMinDistance, 150.0f, 1.0f, 1.0f);
