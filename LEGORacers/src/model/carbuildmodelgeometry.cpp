@@ -689,14 +689,14 @@ void CarBuildModel::InterpolateBuildVertex(
 // FUNCTION: LEGORACERS 0x00497360
 void CarBuildModel::BuildBatches(LegoS8 p_buildFlags)
 {
-	LegoS32 primitiveIndex = 0;
+	LegoS32 accumulatedReferenceCount = 0;
 	::memset(g_carBuildModelVertexUses, 0, sizeof(g_carBuildModelVertexUses));
 
-	LegoS32 accumulatedReferenceCount = 0;
 	m_batchVertexCount = 0;
 	LegoS32 vertexCount = 2;
 	LegoS32 materialRunEnd = 0;
 	LegoS32 materialIndex = -1;
+	LegoS32 primitiveIndex = 0;
 
 	for (; primitiveIndex < m_buildPrimitiveCount - 1; primitiveIndex++) {
 		LegoS32 batchVertexCount = m_batchVertexCount;
