@@ -2219,16 +2219,10 @@ void Racer::RemoveCurse()
 		m_curseSound = NULL;
 	}
 
-	LegoU32 flags = m_flags;
 	m_curseTimerMs = 0;
-	flags &= ~c_flagCursed;
-	m_flags = flags;
-
-	LegoU32 controllerFlags = m_driveController.m_flags;
-	controllerFlags &= ~DriveController::c_flagCursed;
-	GolAnimatedEntity* entity = &m_visuals.m_curseEntity;
-	m_driveController.m_flags = controllerFlags;
-	entity->ResetModelState();
+	m_flags &= ~c_flagCursed;
+	m_driveController.ClearFlags(DriveController::c_flagCursed);
+	m_visuals.m_curseEntity.ResetModelState();
 	m_visuals.EndFlash();
 	m_physics.EndCurseSlow();
 }
