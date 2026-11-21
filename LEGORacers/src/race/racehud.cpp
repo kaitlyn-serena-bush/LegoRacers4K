@@ -409,16 +409,12 @@ void RaceHud::DrawMapArrow(LegoS32 p_x, LegoS32 p_y, LegoFloat p_directionX, Leg
 
 	vertices[3].m_x = p_directionX * tailEndLength;
 	vertices[3].m_y = p_directionY * tailEndLength;
-	LegoFloat tailSide = p_directionY;
-	tailSide *= 4.0f;
-	LegoFloat tailForward = p_directionX;
-	tailForward *= 5.0f;
+	LegoFloat tailSide = p_directionY * 4.0f;
+	LegoFloat tailForward = p_directionX * 5.0f;
 	vertices[4].m_x = tailSide - tailForward;
 
-	LegoFloat tailForwardY = p_directionY;
-	tailForwardY *= 5.0f;
-	LegoFloat tailSideX = p_directionX;
-	tailSideX *= 4.0f;
+	LegoFloat tailForwardY = p_directionY * 5.0f;
+	LegoFloat tailSideX = p_directionX * 4.0f;
 	vertices[4].m_y = -tailForwardY - tailSideX;
 	vertices[5].m_x = -tailForward - tailSide;
 	vertices[5].m_y = tailSideX - tailForwardY;
