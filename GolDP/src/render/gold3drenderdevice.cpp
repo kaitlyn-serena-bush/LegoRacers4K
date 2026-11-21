@@ -7046,100 +7046,30 @@ void GolD3DRenderDevice::FUN_10012640(undefined4 p_outputFirst, undefined4 p_fir
 		LegoS32 green = baseGreen;
 		LegoS32 blue = baseBlue;
 
-		LegoFloat intensity = normal->m_z * m_unk0xc8644[0].m_z;
-		intensity += normal->m_y * m_unk0xc8644[0].m_y;
-		intensity += normal->m_x * m_unk0xc8644[0].m_x;
+		LegoFloat intensity = GOL_MUL(m_unk0xc8644[0].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[0].m_y, normal->m_y) + GOL_MUL(m_unk0xc8644[0].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_blu, intensity));
 
-		LegoFloat redProduct = m_unk0xc859c[0].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
+		intensity = GOL_MUL(m_unk0xc8644[1].m_y, normal->m_y) + GOL_MUL(normal->m_z, m_unk0xc8644[1].m_z) + GOL_MUL(m_unk0xc8644[1].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_blu, intensity));
 
-		LegoFloat greenProduct = m_unk0xc859c[0].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
+		intensity = GOL_MUL(m_unk0xc8644[2].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[2].m_y, normal->m_y) + GOL_MUL(m_unk0xc8644[2].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_blu, intensity));
 
-		LegoFloat blueProduct = m_unk0xc859c[0].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
+		intensity = GOL_MUL(m_unk0xc8644[3].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[3].m_y, normal->m_y) + GOL_MUL(m_unk0xc8644[3].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_blu, intensity));
 
-		intensity = normal->m_y * m_unk0xc8644[1].m_y;
-		intensity += normal->m_z * m_unk0xc8644[1].m_z;
-		intensity += normal->m_x * m_unk0xc8644[1].m_x;
-
-		redProduct = m_unk0xc859c[1].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
-
-		greenProduct = m_unk0xc859c[1].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
-
-		blueProduct = m_unk0xc859c[1].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
-
-		intensity = m_unk0xc8644[2].m_z;
-		intensity *= normal->m_z;
-		LegoFloat normalProduct = m_unk0xc8644[2].m_y;
-		normalProduct *= normal->m_y;
-		intensity += normalProduct;
-		normalProduct = m_unk0xc8644[2].m_x;
-		normalProduct *= normal->m_x;
-		intensity += normalProduct;
-
-		redProduct = m_unk0xc859c[2].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
-
-		greenProduct = m_unk0xc859c[2].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
-
-		blueProduct = m_unk0xc859c[2].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
-
-		intensity = m_unk0xc8644[3].m_z;
-		intensity *= normal->m_z;
-		normalProduct = m_unk0xc8644[3].m_y;
-		normalProduct *= normal->m_y;
-		intensity += normalProduct;
-		normalProduct = m_unk0xc8644[3].m_x;
-		normalProduct *= normal->m_x;
-		intensity += normalProduct;
-
-		redProduct = m_unk0xc859c[3].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
-
-		greenProduct = m_unk0xc859c[3].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
-
-		blueProduct = m_unk0xc859c[3].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
-
-		intensity = normal->m_z;
-		intensity *= m_unk0xc8644[4].m_z;
-		normalProduct = m_unk0xc8644[4].m_y;
-		normalProduct *= normal->m_y;
-		intensity += normalProduct;
-		normalProduct = m_unk0xc8644[4].m_x;
-		normalProduct *= normal->m_x;
-		intensity += normalProduct;
-
-		redProduct = m_unk0xc859c[4].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
-
-		greenProduct = m_unk0xc859c[4].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
-
-		blueProduct = m_unk0xc859c[4].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
+		intensity = GOL_MUL(normal->m_z, m_unk0xc8644[4].m_z) + GOL_MUL(m_unk0xc8644[4].m_y, normal->m_y) + GOL_MUL(m_unk0xc8644[4].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_blu, intensity));
 
 		if (red < baseRed) {
 			red = baseRed;
@@ -7192,116 +7122,35 @@ void GolD3DRenderDevice::FUN_100128f0(undefined4 p_outputFirst, undefined4 p_fir
 		LegoS32 green = baseGreen;
 		LegoS32 blue = baseBlue;
 
-		LegoFloat intensity = normal->m_z * m_unk0xc8644[0].m_z;
-		intensity += normal->m_y * m_unk0xc8644[0].m_y;
-		intensity += normal->m_x * m_unk0xc8644[0].m_x;
+		LegoFloat intensity = GOL_MUL(m_unk0xc8644[0].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[0].m_y, normal->m_y) + GOL_MUL(m_unk0xc8644[0].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_blu, intensity));
 
-		LegoFloat redProduct = m_unk0xc859c[0].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
+		intensity = GOL_MUL(m_unk0xc8644[1].m_y, normal->m_y) + GOL_MUL(normal->m_z, m_unk0xc8644[1].m_z) + GOL_MUL(m_unk0xc8644[1].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_blu, intensity));
 
-		LegoFloat greenProduct = m_unk0xc859c[0].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
+		intensity = GOL_MUL(m_unk0xc8644[2].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[2].m_y, normal->m_y) + GOL_MUL(m_unk0xc8644[2].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_blu, intensity));
 
-		LegoFloat blueProduct = m_unk0xc859c[0].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
+		intensity = GOL_MUL(m_unk0xc8644[3].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[3].m_y, normal->m_y) + GOL_MUL(m_unk0xc8644[3].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_blu, intensity));
 
-		intensity = normal->m_y * m_unk0xc8644[1].m_y;
-		intensity += normal->m_z * m_unk0xc8644[1].m_z;
-		intensity += normal->m_x * m_unk0xc8644[1].m_x;
+		intensity = GOL_MUL(normal->m_z, m_unk0xc8644[4].m_z) + GOL_MUL(m_unk0xc8644[4].m_y, normal->m_y) + GOL_MUL(m_unk0xc8644[4].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_blu, intensity));
 
-		redProduct = m_unk0xc859c[1].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
-
-		greenProduct = m_unk0xc859c[1].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
-
-		blueProduct = m_unk0xc859c[1].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
-
-		intensity = m_unk0xc8644[2].m_z;
-		intensity *= normal->m_z;
-		LegoFloat normalProduct = m_unk0xc8644[2].m_y;
-		normalProduct *= normal->m_y;
-		intensity += normalProduct;
-		normalProduct = m_unk0xc8644[2].m_x;
-		normalProduct *= normal->m_x;
-		intensity += normalProduct;
-
-		redProduct = m_unk0xc859c[2].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
-
-		greenProduct = m_unk0xc859c[2].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
-
-		blueProduct = m_unk0xc859c[2].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
-
-		intensity = m_unk0xc8644[3].m_z;
-		intensity *= normal->m_z;
-		normalProduct = m_unk0xc8644[3].m_y;
-		normalProduct *= normal->m_y;
-		intensity += normalProduct;
-		normalProduct = m_unk0xc8644[3].m_x;
-		normalProduct *= normal->m_x;
-		intensity += normalProduct;
-
-		redProduct = m_unk0xc859c[3].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
-
-		greenProduct = m_unk0xc859c[3].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
-
-		blueProduct = m_unk0xc859c[3].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
-
-		intensity = normal->m_z;
-		intensity *= m_unk0xc8644[4].m_z;
-		normalProduct = m_unk0xc8644[4].m_y;
-		normalProduct *= normal->m_y;
-		intensity += normalProduct;
-		normalProduct = m_unk0xc8644[4].m_x;
-		normalProduct *= normal->m_x;
-		intensity += normalProduct;
-
-		redProduct = m_unk0xc859c[4].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
-
-		greenProduct = m_unk0xc859c[4].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
-
-		blueProduct = m_unk0xc859c[4].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
-
-		intensity = normal->m_y * m_unk0xc8644[5].m_y;
-		intensity += normal->m_z * m_unk0xc8644[5].m_z;
-		intensity += normal->m_x * m_unk0xc8644[5].m_x;
-
-		redProduct = m_unk0xc859c[5].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
-
-		greenProduct = m_unk0xc859c[5].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
-
-		blueProduct = m_unk0xc859c[5].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
+		intensity = GOL_MUL(m_unk0xc8644[5].m_y, normal->m_y) + GOL_MUL(normal->m_z, m_unk0xc8644[5].m_z) + GOL_MUL(m_unk0xc8644[5].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[5].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[5].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[5].m_blu, intensity));
 
 		if (red < baseRed) {
 			red = baseRed;
@@ -7354,137 +7203,40 @@ void GolD3DRenderDevice::FUN_10012bf0(undefined4 p_outputFirst, undefined4 p_fir
 		LegoS32 green = baseGreen;
 		LegoS32 blue = baseBlue;
 
-		LegoFloat intensity = normal->m_z * m_unk0xc8644[0].m_z;
-		intensity += normal->m_y * m_unk0xc8644[0].m_y;
-		intensity += normal->m_x * m_unk0xc8644[0].m_x;
+		LegoFloat intensity = GOL_MUL(m_unk0xc8644[0].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[0].m_y, normal->m_y) + GOL_MUL(m_unk0xc8644[0].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_blu, intensity));
 
-		LegoFloat redProduct = m_unk0xc859c[0].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
+		intensity = GOL_MUL(m_unk0xc8644[1].m_y, normal->m_y) + GOL_MUL(normal->m_z, m_unk0xc8644[1].m_z) + GOL_MUL(m_unk0xc8644[1].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_blu, intensity));
 
-		LegoFloat greenProduct = m_unk0xc859c[0].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
+		intensity = GOL_MUL(m_unk0xc8644[2].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[2].m_y, normal->m_y) + GOL_MUL(m_unk0xc8644[2].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_blu, intensity));
 
-		LegoFloat blueProduct = m_unk0xc859c[0].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
+		intensity = GOL_MUL(m_unk0xc8644[3].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[3].m_y, normal->m_y) + GOL_MUL(m_unk0xc8644[3].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_blu, intensity));
 
-		intensity = normal->m_y * m_unk0xc8644[1].m_y;
-		intensity += normal->m_z * m_unk0xc8644[1].m_z;
-		intensity += normal->m_x * m_unk0xc8644[1].m_x;
+		intensity = GOL_MUL(normal->m_z, m_unk0xc8644[4].m_z) + GOL_MUL(m_unk0xc8644[4].m_y, normal->m_y) + GOL_MUL(m_unk0xc8644[4].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_blu, intensity));
 
-		redProduct = m_unk0xc859c[1].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
+		intensity = GOL_MUL(m_unk0xc8644[5].m_y, normal->m_y) + GOL_MUL(normal->m_z, m_unk0xc8644[5].m_z) + GOL_MUL(m_unk0xc8644[5].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[5].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[5].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[5].m_blu, intensity));
 
-		greenProduct = m_unk0xc859c[1].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
-
-		blueProduct = m_unk0xc859c[1].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
-
-		intensity = m_unk0xc8644[2].m_z;
-		intensity *= normal->m_z;
-		LegoFloat normalProduct = m_unk0xc8644[2].m_y;
-		normalProduct *= normal->m_y;
-		intensity += normalProduct;
-		normalProduct = m_unk0xc8644[2].m_x;
-		normalProduct *= normal->m_x;
-		intensity += normalProduct;
-
-		redProduct = m_unk0xc859c[2].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
-
-		greenProduct = m_unk0xc859c[2].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
-
-		blueProduct = m_unk0xc859c[2].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
-
-		intensity = m_unk0xc8644[3].m_z;
-		intensity *= normal->m_z;
-		normalProduct = m_unk0xc8644[3].m_y;
-		normalProduct *= normal->m_y;
-		intensity += normalProduct;
-		normalProduct = m_unk0xc8644[3].m_x;
-		normalProduct *= normal->m_x;
-		intensity += normalProduct;
-
-		redProduct = m_unk0xc859c[3].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
-
-		greenProduct = m_unk0xc859c[3].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
-
-		blueProduct = m_unk0xc859c[3].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
-
-		intensity = normal->m_z;
-		intensity *= m_unk0xc8644[4].m_z;
-		normalProduct = m_unk0xc8644[4].m_y;
-		normalProduct *= normal->m_y;
-		intensity += normalProduct;
-		normalProduct = m_unk0xc8644[4].m_x;
-		normalProduct *= normal->m_x;
-		intensity += normalProduct;
-
-		redProduct = m_unk0xc859c[4].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
-
-		greenProduct = m_unk0xc859c[4].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
-
-		blueProduct = m_unk0xc859c[4].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
-
-		intensity = normal->m_y * m_unk0xc8644[5].m_y;
-		intensity += normal->m_z * m_unk0xc8644[5].m_z;
-		intensity += normal->m_x * m_unk0xc8644[5].m_x;
-
-		redProduct = m_unk0xc859c[5].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
-
-		greenProduct = m_unk0xc859c[5].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
-
-		blueProduct = m_unk0xc859c[5].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
-
-		intensity = m_unk0xc8644[6].m_z;
-		intensity *= normal->m_z;
-		normalProduct = m_unk0xc8644[6].m_y;
-		normalProduct *= normal->m_y;
-		intensity += normalProduct;
-		normalProduct = m_unk0xc8644[6].m_x;
-		normalProduct *= normal->m_x;
-		intensity += normalProduct;
-
-		redProduct = m_unk0xc859c[6].m_red;
-		redProduct *= intensity;
-		red -= static_cast<LegoS32>(redProduct);
-
-		greenProduct = m_unk0xc859c[6].m_grn;
-		greenProduct *= intensity;
-		green -= static_cast<LegoS32>(greenProduct);
-
-		blueProduct = m_unk0xc859c[6].m_blu;
-		blueProduct *= intensity;
-		blue -= static_cast<LegoS32>(blueProduct);
+		intensity = GOL_MUL(m_unk0xc8644[6].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[6].m_y, normal->m_y) + GOL_MUL(m_unk0xc8644[6].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[6].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[6].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[6].m_blu, intensity));
 
 		if (red < baseRed) {
 			red = baseRed;
