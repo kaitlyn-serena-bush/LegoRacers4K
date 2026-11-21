@@ -218,10 +218,14 @@ void GolCameraBase::ComputeFrustumFromBounds(GolViewFrustum* p_view)
 	GolVec3 source;
 	GolVec4 farBounds;
 	source.m_z = m_farClip;
-	farBounds.m_x = m_viewBounds.m_x * farScale;
-	farBounds.m_z = m_viewBounds.m_z * farScale;
-	farBounds.m_y = m_viewBounds.m_y * farScale;
-	farBounds.m_u = m_viewBounds.m_u * farScale;
+	farBounds.m_x = m_viewBounds.m_x;
+	farBounds.m_x *= farScale;
+	farBounds.m_z = m_viewBounds.m_z;
+	farBounds.m_z *= farScale;
+	farBounds.m_y = m_viewBounds.m_y;
+	farBounds.m_y *= farScale;
+	farBounds.m_u = m_viewBounds.m_u;
+	farBounds.m_u *= farScale;
 	m_farHalfHeight = farBounds.m_u - farBounds.m_y;
 	m_farHalfWidth = farBounds.m_z - farBounds.m_x;
 	source.m_x = farBounds.m_x;
