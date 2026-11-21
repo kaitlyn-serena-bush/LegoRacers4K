@@ -127,25 +127,17 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 			}
 
 			if (cornerIndex >= 2 && (cornerIndex < 4 || cornerIndex >= 6)) {
-				corner.m_x -= axisY.m_x;
-				corner.m_y -= axisY.m_y;
-				corner.m_z -= axisY.m_z;
+				corner -= axisY;
 			}
 			else {
-				corner.m_x += axisY.m_x;
-				corner.m_y += axisY.m_y;
-				corner.m_z += axisY.m_z;
+				corner += axisY;
 			}
 
 			if (!cornerIndex || cornerIndex == 2 || cornerIndex == 4 || cornerIndex == 6) {
-				corner.m_x += axisZ.m_x;
-				corner.m_y += axisZ.m_y;
-				corner.m_z += axisZ.m_z;
+				corner += axisZ;
 			}
 			else {
-				corner.m_x -= axisZ.m_x;
-				corner.m_y -= axisZ.m_y;
-				corner.m_z -= axisZ.m_z;
+				corner -= axisZ;
 			}
 
 			LegoFloat projected = DotContactVectors(*p_normal, corner);
