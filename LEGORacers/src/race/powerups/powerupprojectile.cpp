@@ -278,12 +278,10 @@ void PowerupProjectile::LaunchAtPosition(Params* p_params, GolVec3* p_position)
 	m_velocityX = inverseDuration * delta.m_x;
 	m_velocityY = inverseDuration * delta.m_y;
 
-	LegoFloat zVelocity = delta.m_z;
-	zVelocity /= distance;
-	zVelocity *= p_params->m_speed;
+	LegoFloat zVelocity = delta.m_z / distance * p_params->m_speed;
 	m_velocityZ = zVelocity;
 	LegoFloat acceleration = m_gravity;
-	m_velocityZ = zVelocity - (acceleration * distance) / (p_params->m_speed + p_params->m_speed);
+	m_velocityZ = zVelocity - acceleration * distance / (p_params->m_speed + p_params->m_speed);
 	RegisterCollisionEvent(p_params->m_eventQueue);
 }
 
