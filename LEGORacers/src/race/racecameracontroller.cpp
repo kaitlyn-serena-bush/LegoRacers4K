@@ -130,20 +130,9 @@ void RaceCameraController::UpdateListener()
 		*forwardVector = forward;
 
 		GolVec3* orientation = &soundNode->m_orientation;
-		LegoFloat x = forwardVector->m_y * rightVector->m_z;
-		LegoFloat xSub = forwardVector->m_z * rightVector->m_y;
-		x -= xSub;
-		orientation->m_x = x;
-		LegoFloat y = forwardVector->m_z * rightVector->m_x;
-		LegoFloat ySub = rightVector->m_z;
-		ySub *= forwardVector->m_x;
-		y -= ySub;
-		orientation->m_y = y;
-		LegoFloat z = rightVector->m_y;
-		z *= forwardVector->m_x;
-		LegoFloat zSub = forwardVector->m_y * rightVector->m_x;
-		z -= zSub;
-		orientation->m_z = z;
+		orientation->m_x = GOL_MUL(forwardVector->m_y, rightVector->m_z) - GOL_MUL(forwardVector->m_z, rightVector->m_y);
+		orientation->m_y = GOL_MUL(forwardVector->m_z, rightVector->m_x) - GOL_MUL(rightVector->m_z, forwardVector->m_x);
+		orientation->m_z = GOL_MUL(rightVector->m_y, forwardVector->m_x) - GOL_MUL(forwardVector->m_y, rightVector->m_x);
 		GolMath::NormalizeVector3(*orientation, orientation);
 		soundNode->m_unk0x44 = TRUE;
 	}
