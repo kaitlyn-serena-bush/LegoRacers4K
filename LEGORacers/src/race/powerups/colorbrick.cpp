@@ -62,7 +62,6 @@ void ColorBrick::Update(LegoU32 p_elapsedMs)
 
 	PickupBrick::Update(p_elapsedMs);
 
-	LegoBool playSound = FALSE;
 	switch (m_state) {
 	case c_stateTransition:
 		if (m_stateTimerMs > 250) {
@@ -74,7 +73,9 @@ void ColorBrick::Update(LegoU32 p_elapsedMs)
 			SetTouchable(FALSE);
 
 			if (m_state == c_stateActive && (m_flags & c_flagAudible)) {
-				playSound = TRUE;
+				SoundVector position;
+				m_worldEntity.GetPosition(&position);
+				m_soundSource->PlaySpatialSoundById(c_soundRespawn, &position, g_brickSoundMinDistance, 150.0f, 1.0f, 1.0f);
 			}
 		}
 		break;
@@ -86,23 +87,17 @@ void ColorBrick::Update(LegoU32 p_elapsedMs)
 		}
 		break;
 	case c_stateWait: {
-		LegoU32 elapsedMs = m_stateTimerMs;
-		if (m_respawnMs <= elapsedMs) {
-			LegoU8 flags = m_flags;
+		if (m_stateTimerMs >= m_respawnMs) {
 			m_stateTimerMs = 0;
 			m_state = c_stateActive;
-			if (flags & c_flagAudible) {
-				playSound = TRUE;
+			if (m_flags & c_flagAudible) {
+				SoundVector position;
+				m_worldEntity.GetPosition(&position);
+				m_soundSource->PlaySpatialSoundById(c_soundRespawn, &position, g_brickSoundMinDistance, 150.0f, 1.0f, 1.0f);
 			}
 		}
 		break;
 	}
-	}
-
-	if (playSound) {
-		SoundVector position;
-		m_worldEntity.GetPosition(&position);
-		m_soundSource->PlaySpatialSoundById(c_soundRespawn, &position, g_brickSoundMinDistance, 150.0f, 1.0f, 1.0f);
 	}
 }
 
