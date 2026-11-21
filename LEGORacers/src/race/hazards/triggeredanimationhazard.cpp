@@ -90,7 +90,8 @@ void TriggeredAnimationHazard::Load(HazardContext* p_context, GolFileParser* p_p
 	m_collider = nameTable->GetNameEntries() == NULL ? NULL : static_cast<ColliderRecord*>(nameTable->GetName(name));
 
 	GolName* modelName = modelNames;
-	GolAnimatedEntity** entity = m_entities;
+	GolAnimatedEntity** entities = m_entities;
+	GolAnimatedEntity** entity = entities;
 	LegoS32 count = c_entityCount;
 	do {
 		if ((*modelName)[0] != '\0') {
@@ -102,7 +103,7 @@ void TriggeredAnimationHazard::Load(HazardContext* p_context, GolFileParser* p_p
 	} while (--count);
 
 	for (i = 0; i < 3; i++) {
-		m_modelDistances[i] = m_entities[0]->GetModelDistance(i);
+		m_modelDistances[i] = entities[0]->GetModelDistance(i);
 	}
 	m_state = c_stateLoaded;
 }
