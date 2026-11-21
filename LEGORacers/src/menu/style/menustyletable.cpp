@@ -347,7 +347,6 @@ void MenuStyleTable::ParseMultiStateStyle(MultiStateStyle* p_entry)
 		return;
 	}
 
-	GolImage** image = &p_entry->m_stateImages[0][0];
 	do {
 		LegoS32 i;
 
@@ -364,13 +363,10 @@ void MenuStyleTable::ParseMultiStateStyle(MultiStateStyle* p_entry)
 			}
 			break;
 		case c_styleImage: {
-			GolImage** imageCursor = image;
 			for (i = 0; i < 6; i++) {
-				*imageCursor = m_renderer->FindImageByName(m_parser->ReadString());
-				imageCursor += 3;
+				p_entry->m_stateImages[i][imageTripletCount] = m_renderer->FindImageByName(m_parser->ReadString());
 			}
 			imageTripletCount++;
-			image++;
 			break;
 		}
 		default:
