@@ -61,6 +61,11 @@ GolVec3 g_carBodySavedAngularVelocity;
 
 extern LegoFloat g_cosineTable[1024];
 
+inline LegoFloat DotVectors(const GolVec3& p_left, const GolVec3& p_right)
+{
+	return p_left.m_z * p_right.m_z + p_left.m_y * p_right.m_y + p_left.m_x * p_right.m_x;
+}
+
 inline static LegoFloat GetCosineTableValue(LegoS32 p_index)
 {
 	return g_cosineTable[p_index];
@@ -1906,11 +1911,7 @@ LegoU32 RacerCarBody::ResolveWallCollisions(LegoU32 p_elapsedMs, LegoBool32 p_qu
 					collisionNormal = g_carBodyHitTriangle.m_normal;
 					resource->RotateToWorld(collisionNormal, &worldNormal);
 
-					LegoFloat dot = (hitPoint.m_x - g_carBodyRayEndsLocal[pointIndex].m_x) * collisionNormal.m_x;
-					dot += (hitPoint.m_y - g_carBodyRayEndsLocal[pointIndex].m_y) * collisionNormal.m_y;
-					dot += (hitPoint.m_z - g_carBodyRayEndsLocal[pointIndex].m_z) * collisionNormal.m_z;
-
-					if (dot > 0.0f) {
+					if (DotVectors(hitPoint - g_carBodyRayEndsLocal[pointIndex], collisionNormal) > 0.0f) {
 						if (hitRecord && !OnCollisionRecord(&hitPoint, hitRecord, resource, &g_carBodyHitTriangle)) {
 							continue;
 						}
@@ -1948,12 +1949,7 @@ LegoU32 RacerCarBody::ResolveWallCollisions(LegoU32 p_elapsedMs, LegoBool32 p_qu
 					)) {
 					worldNormal = g_carBodyHitTriangle.m_normal;
 
-					LegoFloat dot =
-						(hitPoint.m_x - m_bodyPointsWorld[pointIndex].m_x) * g_carBodyHitTriangle.m_normal.m_x;
-					dot += (hitPoint.m_y - m_bodyPointsWorld[pointIndex].m_y) * g_carBodyHitTriangle.m_normal.m_y;
-					dot += (hitPoint.m_z - m_bodyPointsWorld[pointIndex].m_z) * g_carBodyHitTriangle.m_normal.m_z;
-
-					if (dot >= 0.0f) {
+					if (DotVectors(hitPoint - m_bodyPointsWorld[pointIndex], g_carBodyHitTriangle.m_normal) >= 0.0f) {
 						if (hitRecord && !OnCollisionRecord(&hitPoint, hitRecord, resource, &g_carBodyHitTriangle)) {
 							continue;
 						}
