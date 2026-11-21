@@ -238,12 +238,12 @@ void GolFont::DrawGlyph(Rect* p_sourceRect, Rect* p_destRect)
 	vertices[3].rhw = 1.0f;
 
 	vertices[0].tu =
-		static_cast<LegoFloat>(p_sourceRect->m_left) * m_inverseTextureWidth + (m_inverseTextureWidth * 0.25f);
-	vertices[0].tv = static_cast<LegoFloat>(p_sourceRect->m_top) * m_inverseTextureHeight;
+		((((static_cast<LegoFloat>(p_sourceRect->m_left) * m_inverseTextureWidth)))) + (m_inverseTextureWidth * 0.25f);
+	vertices[0].tv = (((((static_cast<LegoFloat>(p_sourceRect->m_top) * m_inverseTextureHeight)))));
 	vertices[1].tu = vertices[0].tu;
-	vertices[1].tv = static_cast<LegoFloat>(sourceBottom) * m_inverseTextureHeight;
+	vertices[1].tv = (((((static_cast<LegoFloat>(sourceBottom) * m_inverseTextureHeight)))));
 	vertices[2].tu =
-		static_cast<LegoFloat>(p_sourceRect->m_right) * m_inverseTextureWidth + (m_inverseTextureWidth * 0.25f);
+		((((static_cast<LegoFloat>(p_sourceRect->m_right) * m_inverseTextureWidth)))) + (m_inverseTextureWidth * 0.25f);
 	vertices[2].tv = vertices[0].tv;
 	vertices[3].tu = vertices[2].tu;
 	vertices[3].tv = vertices[1].tv;
