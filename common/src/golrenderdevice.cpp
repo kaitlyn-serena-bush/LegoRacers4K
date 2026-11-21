@@ -570,6 +570,50 @@ void GolRenderDevice::SelectTextureFormat(
 			}
 		}
 	}
+	else {
+		if (bits.m_palette != 0) {
+			for (i = 0; i < m_countTextureFormats; i++) {
+				if (m_textureFormats[i].m_bitsPerPixel == bpp &&
+					m_textureFormats[i].GetPaletteBitCount() == bits.m_palette) {
+					m_textureFormatIndex = i;
+					*p_actualTextureFormat = m_textureFormats[i];
+					return;
+				}
+			}
+		}
+		else if (bits.m_intensity != 0) {
+			for (i = 0; i < m_countTextureFormats; i++) {
+				if (m_textureFormats[i].m_bitsPerPixel == bpp &&
+					m_textureFormats[i].GetIntensityBitCount() == bits.m_intensity) {
+					*p_actualTextureFormat = m_textureFormats[i];
+					m_textureFormatIndex = i;
+					return;
+				}
+			}
+		}
+		else {
+			for (i = 0; i < m_countTextureFormats; i++) {
+				if (m_textureFormats[i].m_bitsPerPixel == bpp &&
+					m_textureFormats[i].m_redBitMask == p_requestedTextureFormat.m_redBitMask &&
+					m_textureFormats[i].m_grnBitMask == p_requestedTextureFormat.m_grnBitMask &&
+					m_textureFormats[i].m_bluBitMask == p_requestedTextureFormat.m_bluBitMask) {
+					*p_actualTextureFormat = m_textureFormats[i];
+					m_textureFormatIndex = i;
+					return;
+				}
+			}
+
+			for (i = 0; i < m_countTextureFormats; i++) {
+				if (m_textureFormats[i].m_bitsPerPixel == bpp && m_textureFormats[i].GetRedBitCount() == bits.m_red &&
+					m_textureFormats[i].GetGreenBitCount() == bits.m_green &&
+					m_textureFormats[i].GetBlueBitCount() == bits.m_blue) {
+					m_textureFormatIndex = i;
+					*p_actualTextureFormat = m_textureFormats[i];
+					return;
+				}
+			}
+		}
+	}
 
 	if (bits.m_alpha != 0) {
 		if (bits.m_palette != 0) {
@@ -649,15 +693,6 @@ void GolRenderDevice::SelectTextureFormat(
 	}
 	else {
 		if (bits.m_palette != 0) {
-			for (i = 0; i < m_countTextureFormats; i++) {
-				if (m_textureFormats[i].m_bitsPerPixel == bpp &&
-					m_textureFormats[i].GetPaletteBitCount() == bits.m_palette) {
-					m_textureFormatIndex = i;
-					*p_actualTextureFormat = m_textureFormats[i];
-					return;
-				}
-			}
-
 			if (bits.m_palette < 8) {
 				for (i = 0; i < m_countTextureFormats; i++) {
 					if (m_textureFormats[i].m_bitsPerPixel < 16 &&
@@ -680,15 +715,6 @@ void GolRenderDevice::SelectTextureFormat(
 		}
 		else if (bits.m_intensity != 0) {
 			for (i = 0; i < m_countTextureFormats; i++) {
-				if (m_textureFormats[i].m_bitsPerPixel == bpp &&
-					m_textureFormats[i].GetIntensityBitCount() == bits.m_intensity) {
-					*p_actualTextureFormat = m_textureFormats[i];
-					m_textureFormatIndex = i;
-					return;
-				}
-			}
-
-			for (i = 0; i < m_countTextureFormats; i++) {
 				if (m_textureFormats[i].m_bitsPerPixel > bpp &&
 					m_textureFormats[i].GetIntensityBitCount() >= bits.m_intensity) {
 					*p_actualTextureFormat = m_textureFormats[i];
@@ -709,27 +735,6 @@ void GolRenderDevice::SelectTextureFormat(
 			}
 		}
 		else {
-			for (i = 0; i < m_countTextureFormats; i++) {
-				if (m_textureFormats[i].m_bitsPerPixel == bpp &&
-					m_textureFormats[i].m_redBitMask == p_requestedTextureFormat.m_redBitMask &&
-					m_textureFormats[i].m_grnBitMask == p_requestedTextureFormat.m_grnBitMask &&
-					m_textureFormats[i].m_bluBitMask == p_requestedTextureFormat.m_bluBitMask) {
-					*p_actualTextureFormat = m_textureFormats[i];
-					m_textureFormatIndex = i;
-					return;
-				}
-			}
-
-			for (i = 0; i < m_countTextureFormats; i++) {
-				if (m_textureFormats[i].m_bitsPerPixel == bpp && m_textureFormats[i].GetRedBitCount() == bits.m_red &&
-					m_textureFormats[i].GetGreenBitCount() == bits.m_green &&
-					m_textureFormats[i].GetBlueBitCount() == bits.m_blue) {
-					m_textureFormatIndex = i;
-					*p_actualTextureFormat = m_textureFormats[i];
-					return;
-				}
-			}
-
 			for (i = 0; i < m_countTextureFormats; i++) {
 				if (m_textureFormats[i].m_bitsPerPixel > bpp && m_textureFormats[i].GetRedBitCount() >= bits.m_red &&
 					m_textureFormats[i].GetGreenBitCount() >= bits.m_green &&
