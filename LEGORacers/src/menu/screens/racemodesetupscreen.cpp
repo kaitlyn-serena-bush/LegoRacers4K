@@ -20,9 +20,9 @@ void RaceModeSetupScreen::FormatTime(LegoChar* p_buffer, LegoU32 p_time)
 	LegoU32 millisecondsPerHour = 3600000;
 	LegoS32 divisor = 10;
 	LegoS32 digitOffset;
-	LegoU32 time = p_time % millisecondsPerHour;
 
 	p_buffer[8] = '\0';
+	LegoU32 time = p_time % millisecondsPerHour;
 	if (time >= 600000) {
 		digitOffset = 7;
 		p_buffer[5] = ':';
