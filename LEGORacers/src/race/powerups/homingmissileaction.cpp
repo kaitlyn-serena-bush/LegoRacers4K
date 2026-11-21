@@ -194,7 +194,7 @@ void HomingMissileAction::LaunchProjectile()
 
 		GolVec3 scaledDirection;
 		scaledDirection.m_x = direction.m_x * g_missileAimAheadDistance;
-		scaledDirection.m_y = direction.m_y * g_missileAimAheadDistance;
+		scaledDirection.m_y = GOL_MUL(direction.m_y, g_missileAimAheadDistance);
 		scaledDirection.m_z = direction.m_z * g_missileAimAheadDistance;
 
 		GolVec3 target;
