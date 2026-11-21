@@ -1143,10 +1143,10 @@ void RaceHud::SetLayout(LegoS32 p_mode)
 
 	m_layout = static_cast<LegoU8>(p_mode);
 	m_viewport.m_left = 0;
+	m_viewport.m_right = m_screenWidth;
 	m_mapScale = 0.8f;
-	LegoU32 width = m_screenWidth;
 	m_bannerScale = 0.8f;
-	m_viewport.m_right = width;
+	LegoU32 width = m_viewport.m_right;
 	m_textScale = 0.9f;
 	m_imageScale = 1.0f;
 
