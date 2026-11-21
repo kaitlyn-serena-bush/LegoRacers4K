@@ -234,18 +234,18 @@ void GolTransform::InverseTransformPoint(const GolVec3* p_src, GolVec3* p_dest)
 	z *= p_src->m_x;
 	p_dest->m_z = z;
 
-	x = m_matrix.m_m[0][1];
-	x *= p_src->m_y;
+	x = p_src->m_y;
+	x *= m_matrix.m_m[0][1];
 	p_dest->m_x += x;
-	y = m_matrix.m_m[1][1];
-	y *= p_src->m_y;
+	y = p_src->m_y;
+	y *= m_matrix.m_m[1][1];
 	p_dest->m_y += y;
 	z = m_matrix.m_m[2][1];
 	z *= p_src->m_y;
 	p_dest->m_z += z;
 
-	x = m_matrix.m_m[0][2];
-	x *= p_src->m_z;
+	x = p_src->m_z;
+	x *= m_matrix.m_m[0][2];
 	p_dest->m_x += x;
 	y = p_src->m_z;
 	y *= m_matrix.m_m[1][2];
@@ -265,8 +265,7 @@ void GolTransform::InverseTransformPoint(const GolVec3* p_src, GolVec3* p_dest)
 	x = m_matrix.m_m[3][2];
 	x *= m_matrix.m_m[1][2];
 	y = m_matrix.m_m[1][1];
-	y *= m_matrix.m_m[3][1];
-	x += y;
+	x += y * m_matrix.m_m[3][1];
 	z = m_matrix.m_m[3][0];
 	z *= m_matrix.m_m[1][0];
 	x += z;
