@@ -240,18 +240,15 @@ void RaceDecalManager::Trail::Update(LegoU32 p_elapsedMs)
 			m_decal.GetEntity().GetPosition(&position);
 			m_slots[m_slotIndex].m_entry.m_entity.SetPosition(position);
 
-			LegoU32 index = m_slotIndex;
-			LegoU32 zero = 0;
-			index++;
-			m_slotIndex = index;
-			if (index == sizeOfArray(m_slots)) {
-				m_slotIndex = zero;
+			m_slotIndex++;
+			if (m_slotIndex == sizeOfArray(m_slots)) {
+				m_slotIndex = 0;
 				m_flags |= c_slotsWrapped;
 			}
 
 			m_anchor.m_y = m_lastY;
 			m_anchor.m_z = m_lastZ;
-			m_elapsedMs = zero;
+			m_elapsedMs = 0;
 			m_flags &= ~c_liveSegment;
 			m_anchor.m_x = m_lastX;
 		}
