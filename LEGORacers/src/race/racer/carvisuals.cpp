@@ -1287,7 +1287,7 @@ void CarVisuals::UpdateCurseEntity(LegoU32 p_elapsedMs)
 		GolVec3 movement;
 		GolMath::NormalizeVector3(right, &movement);
 
-		LegoFloat dot = DotVectors(movement, up);
+		LegoFloat dot = (((((((DotVectors(movement, up))))))));
 		GolVec3 projection = movement * dot;
 		up -= projection;
 		GolMath::NormalizeVector3(up, &up);
@@ -1330,12 +1330,9 @@ void CarVisuals::UpdateCurseEntity(LegoU32 p_elapsedMs)
 		if (scale < g_curseMinScale) {
 			scale = g_curseMinScale;
 		}
-		entity->SetScaleThenInvalidateRadius(scale);
-		entity->Update(p_elapsedMs);
+		m_curseEntity.SetScaleThenInvalidateRadius(scale);
 	}
-	else {
-		entity->Update(p_elapsedMs);
-	}
+	entity->Update(p_elapsedMs);
 }
 
 // FUNCTION: LEGORACERS 0x0043fa50
