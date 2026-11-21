@@ -75,7 +75,8 @@ void ColorBrick::Update(LegoU32 p_elapsedMs)
 			if (m_state == c_stateActive && (m_flags & c_flagAudible)) {
 				SoundVector position;
 				m_worldEntity.GetPosition(&position);
-				m_soundSource->PlaySpatialSoundById(c_soundRespawn, &position, g_brickSoundMinDistance, 150.0f, 1.0f, 1.0f);
+				m_soundSource
+					->PlaySpatialSoundById(c_soundRespawn, &position, g_brickSoundMinDistance, 150.0f, 1.0f, 1.0f);
 			}
 		}
 		break;
@@ -93,7 +94,8 @@ void ColorBrick::Update(LegoU32 p_elapsedMs)
 			if (m_flags & c_flagAudible) {
 				SoundVector position;
 				m_worldEntity.GetPosition(&position);
-				m_soundSource->PlaySpatialSoundById(c_soundRespawn, &position, g_brickSoundMinDistance, 150.0f, 1.0f, 1.0f);
+				m_soundSource
+					->PlaySpatialSoundById(c_soundRespawn, &position, g_brickSoundMinDistance, 150.0f, 1.0f, 1.0f);
 			}
 		}
 		break;
