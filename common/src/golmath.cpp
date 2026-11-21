@@ -240,95 +240,15 @@ __declspec(naked) void GolMath::SinCos(LegoFloat p_angle, LegoFloat* p_sin, Lego
 // FUNCTION: LEGORACERS 0x00449190
 void GolMath::MultiplyMatrix3(const LegoFloat* p_left, const LegoFloat* p_right, LegoFloat* p_dest)
 {
-	LegoFloat term = p_left[1];
-	term *= p_right[3];
-	LegoFloat value = p_left[2];
-	value *= p_right[6];
-	value += term;
-	term = p_left[0];
-	term *= p_right[0];
-	value += term;
-	p_dest[0] = value;
-
-	term = p_right[4];
-	term *= p_left[1];
-	value = p_left[2];
-	value *= p_right[7];
-	value += term;
-	term = p_right[1];
-	term *= p_left[0];
-	value += term;
-	p_dest[1] = value;
-
-	term = p_right[8];
-	term *= p_left[2];
-	value = p_left[1];
-	value *= p_right[5];
-	value += term;
-	term = p_right[2];
-	term *= p_left[0];
-	value += term;
-	p_dest[2] = value;
-
-	term = p_left[4];
-	term *= p_right[3];
-	value = p_left[5];
-	value *= p_right[6];
-	value += term;
-	term = p_left[3];
-	term *= p_right[0];
-	value += term;
-	p_dest[3] = value;
-
-	term = p_left[5];
-	term *= p_right[7];
-	value = p_left[3];
-	value *= p_right[1];
-	value += term;
-	term = p_left[4];
-	term *= p_right[4];
-	value += term;
-	p_dest[4] = value;
-
-	term = p_left[3];
-	term *= p_right[2];
-	value = p_right[8];
-	value *= p_left[5];
-	value += term;
-	term = p_left[4];
-	term *= p_right[5];
-	value += term;
-	p_dest[5] = value;
-
-	term = p_left[8];
-	term *= p_right[6];
-	value = p_right[3];
-	value *= p_left[7];
-	value += term;
-	term = p_left[6];
-	term *= p_right[0];
-	value += term;
-	p_dest[6] = value;
-
-	term = p_right[1];
-	term *= p_left[6];
-	value = p_left[8];
-	value *= p_right[7];
-	value += term;
-	term = p_right[4];
-	term *= p_left[7];
-	value += term;
-	p_dest[7] = value;
-
-	term = p_left[7];
-	term *= p_right[5];
-	value = p_left[8];
-	value *= p_right[8];
-	value += term;
-	term = p_left[6];
-	term *= p_right[2];
-	value += term;
-	p_dest[8] = value;
+	p_dest[0] = GOL_MUL(p_left[1], p_right[3]) + GOL_MUL(p_left[2], p_right[6]) + GOL_MUL(p_left[0], p_right[0]);
+	p_dest[1] = GOL_MUL(p_right[4], p_left[1]) + GOL_MUL(p_right[7], p_left[2]) + GOL_MUL(p_right[1], p_left[0]);
+	p_dest[2] = GOL_MUL(p_right[8], p_left[2]) + GOL_MUL(p_left[1], p_right[5]) + GOL_MUL(p_right[2], p_left[0]);
+	p_dest[3] = GOL_MUL(p_left[4], p_right[3]) + GOL_MUL(p_left[5], p_right[6]) + GOL_MUL(p_left[3], p_right[0]);
+	p_dest[4] = GOL_MUL(p_left[5], p_right[7]) + GOL_MUL(p_left[3], p_right[1]) + GOL_MUL(p_left[4], p_right[4]);
+	p_dest[5] = GOL_MUL(p_left[3], p_right[2]) + GOL_MUL(p_right[8], p_left[5]) + GOL_MUL(p_left[4], p_right[5]);
+	p_dest[6] = GOL_MUL(p_left[8], p_right[6]) + GOL_MUL(p_right[3], p_left[7]) + GOL_MUL(p_left[6], p_right[0]);
+	p_dest[7] = GOL_MUL(p_right[1], p_left[6]) + GOL_MUL(p_left[8], p_right[7]) + GOL_MUL(p_right[4], p_left[7]);
+	p_dest[8] = GOL_MUL(p_left[7], p_right[5]) + GOL_MUL(p_left[8], p_right[8]) + GOL_MUL(p_left[6], p_right[2]);
 }
 
 // FUNCTION: GOLDP 0x1002f4e0
@@ -756,93 +676,13 @@ void GolMath::TransformVector(GolVec3 p_src, const LegoFloat* p_matrix, GolVec3*
 // FUNCTION: LEGORACERS 0x00449bf0
 void GolMath::MultiplyMatrixByTranspose(const LegoFloat* p_left, const LegoFloat* p_right, LegoFloat* p_dest)
 {
-	LegoFloat term = p_left[1];
-	term *= p_right[1];
-	LegoFloat value = p_left[2];
-	value *= p_right[2];
-	value += term;
-	term = p_left[0];
-	term *= p_right[0];
-	value += term;
-	p_dest[0] = value;
-
-	term = p_right[4];
-	term *= p_left[1];
-	value = p_left[2];
-	value *= p_right[5];
-	value += term;
-	term = p_right[3];
-	term *= p_left[0];
-	value += term;
-	p_dest[1] = value;
-
-	term = p_right[8];
-	term *= p_left[2];
-	value = p_left[1];
-	value *= p_right[7];
-	value += term;
-	term = p_right[6];
-	term *= p_left[0];
-	value += term;
-	p_dest[2] = value;
-
-	term = p_left[4];
-	term *= p_right[1];
-	value = p_left[5];
-	value *= p_right[2];
-	value += term;
-	term = p_left[3];
-	term *= p_right[0];
-	value += term;
-	p_dest[3] = value;
-
-	term = p_left[5];
-	term *= p_right[5];
-	value = p_left[3];
-	value *= p_right[3];
-	value += term;
-	term = p_left[4];
-	term *= p_right[4];
-	value += term;
-	p_dest[4] = value;
-
-	term = p_left[3];
-	term *= p_right[6];
-	value = p_right[8];
-	value *= p_left[5];
-	value += term;
-	term = p_left[4];
-	term *= p_right[7];
-	value += term;
-	p_dest[5] = value;
-
-	term = p_left[8];
-	term *= p_right[2];
-	value = p_right[1];
-	value *= p_left[7];
-	value += term;
-	term = p_left[6];
-	term *= p_right[0];
-	value += term;
-	p_dest[6] = value;
-
-	term = p_right[3];
-	term *= p_left[6];
-	value = p_left[8];
-	value *= p_right[5];
-	value += term;
-	term = p_right[4];
-	term *= p_left[7];
-	value += term;
-	p_dest[7] = value;
-
-	term = p_left[7];
-	term *= p_right[7];
-	value = p_left[8];
-	value *= p_right[8];
-	value += term;
-	term = p_left[6];
-	term *= p_right[6];
-	value += term;
-	p_dest[8] = value;
+	p_dest[0] = GOL_MUL(p_left[1], p_right[1]) + GOL_MUL(p_left[2], p_right[2]) + GOL_MUL(p_left[0], p_right[0]);
+	p_dest[1] = GOL_MUL(p_right[4], p_left[1]) + GOL_MUL(p_right[5], p_left[2]) + GOL_MUL(p_right[3], p_left[0]);
+	p_dest[2] = GOL_MUL(p_right[8], p_left[2]) + GOL_MUL(p_left[1], p_right[7]) + GOL_MUL(p_right[6], p_left[0]);
+	p_dest[3] = GOL_MUL(p_left[4], p_right[1]) + GOL_MUL(p_left[5], p_right[2]) + GOL_MUL(p_left[3], p_right[0]);
+	p_dest[4] = GOL_MUL(p_left[5], p_right[5]) + GOL_MUL(p_left[3], p_right[3]) + GOL_MUL(p_left[4], p_right[4]);
+	p_dest[5] = GOL_MUL(p_left[3], p_right[6]) + GOL_MUL(p_right[8], p_left[5]) + GOL_MUL(p_left[4], p_right[7]);
+	p_dest[6] = GOL_MUL(p_left[8], p_right[2]) + GOL_MUL(p_right[1], p_left[7]) + GOL_MUL(p_left[6], p_right[0]);
+	p_dest[7] = GOL_MUL(p_right[3], p_left[6]) + GOL_MUL(p_left[8], p_right[5]) + GOL_MUL(p_right[4], p_left[7]);
+	p_dest[8] = GOL_MUL(p_left[7], p_right[7]) + GOL_MUL(p_left[8], p_right[8]) + GOL_MUL(p_left[6], p_right[6]);
 }
