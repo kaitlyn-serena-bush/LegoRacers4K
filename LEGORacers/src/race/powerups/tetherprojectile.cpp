@@ -182,7 +182,7 @@ void TetherProjectile::Draw(GolD3DRenderDevice* p_renderer)
 // FUNCTION: LEGORACERS 0x00444690
 LegoS32 TetherProjectile::UpdateReleased(LegoU32 p_elapsedMs)
 {
-	LegoFloat elapsedSeconds = static_cast<LegoFloat>(static_cast<LegoS32>(p_elapsedMs)) * 0.001f;
+	LegoFloat elapsedSeconds = (((static_cast<LegoFloat>(static_cast<LegoS32>(p_elapsedMs)))) * (0.001f));
 	GolVec3 position;
 	m_ownerRacer->m_visuals.GetPosition(&position);
 	position.m_z += m_attachHeight;
@@ -229,8 +229,7 @@ LegoS32 TetherProjectile::UpdateReleased(LegoU32 p_elapsedMs)
 // FUNCTION: LEGORACERS 0x00444820
 LegoS32 TetherProjectile::UpdateAttached(LegoU32 p_elapsedMs)
 {
-	LegoFloat elapsedSeconds = static_cast<LegoFloat>(static_cast<LegoS32>(p_elapsedMs));
-	elapsedSeconds *= 0.001f;
+	LegoFloat elapsedSeconds = (((static_cast<LegoFloat>(static_cast<LegoS32>(p_elapsedMs)))) * (0.001f));
 	GolVec3 targetPosition;
 	m_hitRacer->m_visuals.GetPosition(&targetPosition);
 	targetPosition.m_z += g_tetherTargetHeightOffset;
