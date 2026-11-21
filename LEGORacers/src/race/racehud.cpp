@@ -1232,13 +1232,13 @@ void RaceHud::SetResolution(LegoS32 p_width, LegoS32 p_height)
 	m_aspectRatio = ratio;
 
 	LegoS32 scaledHeight = p_height << 2;
-	LegoFloat scale = static_cast<LegoFloat>(p_height) * g_hudBaseScale;
+	LegoFloat scale = GOL_MUL(static_cast<LegoFloat>(p_height), g_hudBaseScale);
 	m_scaleY = scale;
-	m_textScaleX = scale * ratio;
+	m_textScaleX = GOL_MUL(scale, ratio);
 
 	LegoFloat aspect = static_cast<LegoFloat>(scaledWidth / static_cast<double>(scaledHeight));
 	m_aspectScale = aspect;
-	m_scaleX = aspect * scale;
+	m_scaleX = GOL_MUL(aspect, scale);
 
 	SetLayout(m_layout);
 }
@@ -1335,14 +1335,11 @@ void RaceHud::Draw()
 
 			m_numberFont->MeasureString(m_scratchString, &textWidth, &textHeight);
 
-			LegoFloat scale = m_bannerScale;
-			scale *= pulseScale;
-			scaleX = m_textScaleX;
-			scaleX *= scale;
-			scaleY = m_scaleY;
-			scaleY *= scale;
-			textWidth = static_cast<LegoS32>(static_cast<LegoFloat>(textWidth) * scaleX);
-			textHeight = static_cast<LegoS32>(static_cast<LegoFloat>(textHeight) * scaleY);
+			LegoFloat scale = GOL_MUL(m_bannerScale, pulseScale);
+			scaleX = GOL_MUL(m_textScaleX, scale);
+			scaleY = GOL_MUL(m_scaleY, scale);
+			textWidth = static_cast<LegoS32>(GOL_MUL(static_cast<LegoFloat>(textWidth), scaleX));
+			textHeight = static_cast<LegoS32>(GOL_MUL(static_cast<LegoFloat>(textHeight), scaleY));
 
 			color.m_uBytes[1] = 0xff;
 			color.m_uBytes[0] = 0xff;
@@ -1677,7 +1674,7 @@ void RaceHud::Draw()
 				m_renderer->DrawString(
 					&m_labelString,
 					m_font,
-					medalX - static_cast<LegoS32>(static_cast<double>(textWidth + 4) * m_textScaleX),
+					medalX - static_cast<LegoS32>(GOL_MUL(static_cast<double>(textWidth + 4), m_textScaleX)),
 					m_timeBehindY,
 					m_textScaleX,
 					m_scaleY,
