@@ -262,14 +262,9 @@ void GolModelRenderState::LightVertices2(
 
 	if (vertex < end) {
 		do {
-			LegoFloat dot = vertex->m_nx;
-			dot *= m_lightDirections[0].m_x;
-			LegoFloat normalProduct = vertex->m_ny;
-			normalProduct *= m_lightDirections[0].m_y;
-			dot += normalProduct;
-			normalProduct = vertex->m_nz;
-			normalProduct *= m_lightDirections[0].m_z;
-			dot += normalProduct;
+			LegoFloat dot = GOL_MUL(vertex->m_nx, m_lightDirections[0].m_x);
+			dot += GOL_MUL(vertex->m_ny, m_lightDirections[0].m_y);
+			dot += GOL_MUL(vertex->m_nz, m_lightDirections[0].m_z);
 
 			LegoFloat redProduct = m_lightColorProducts[0].m_red;
 			redProduct *= dot;
@@ -284,9 +279,14 @@ void GolModelRenderState::LightVertices2(
 			LegoS32 blu = bluBase;
 			blu -= static_cast<LegoS32>(bluProduct);
 
-			dot = vertex->m_ny * m_lightDirections[1].m_y;
-			dot += vertex->m_nz * m_lightDirections[1].m_z;
-			dot += vertex->m_nx * m_lightDirections[1].m_x;
+			dot = m_lightDirections[1].m_y;
+			dot *= vertex->m_ny;
+			LegoFloat normalProduct = m_lightDirections[1].m_z;
+			normalProduct *= vertex->m_nz;
+			dot += normalProduct;
+			normalProduct = m_lightDirections[1].m_x;
+			normalProduct *= vertex->m_nx;
+			dot += normalProduct;
 
 			redProduct = m_lightColorProducts[1].m_red;
 			redProduct *= dot;
@@ -356,14 +356,9 @@ void GolModelRenderState::LightVertices3(
 
 	if (vertex < end) {
 		do {
-			LegoFloat dot = vertex->m_nx;
-			dot *= m_lightDirections[0].m_x;
-			LegoFloat normalProduct = vertex->m_ny;
-			normalProduct *= m_lightDirections[0].m_y;
-			dot += normalProduct;
-			normalProduct = vertex->m_nz;
-			normalProduct *= m_lightDirections[0].m_z;
-			dot += normalProduct;
+			LegoFloat dot = GOL_MUL(vertex->m_nx, m_lightDirections[0].m_x);
+			dot += GOL_MUL(vertex->m_ny, m_lightDirections[0].m_y);
+			dot += GOL_MUL(vertex->m_nz, m_lightDirections[0].m_z);
 
 			LegoFloat redProduct = m_lightColorProducts[0].m_red;
 			redProduct *= dot;
@@ -379,8 +374,8 @@ void GolModelRenderState::LightVertices3(
 
 			dot = m_lightDirections[1].m_y;
 			dot *= vertex->m_ny;
-			normalProduct = vertex->m_nz;
-			normalProduct *= m_lightDirections[1].m_z;
+			LegoFloat normalProduct = m_lightDirections[1].m_z;
+			normalProduct *= vertex->m_nz;
 			dot += normalProduct;
 			normalProduct = m_lightDirections[1].m_x;
 			normalProduct *= vertex->m_nx;
@@ -400,9 +395,7 @@ void GolModelRenderState::LightVertices3(
 
 			dot = m_lightDirections[2].m_z;
 			dot *= vertex->m_nz;
-			normalProduct = vertex->m_ny;
-			normalProduct *= m_lightDirections[2].m_y;
-			dot += normalProduct;
+			dot += (vertex->m_ny * m_lightDirections[2].m_y);
 			normalProduct = m_lightDirections[2].m_x;
 			normalProduct *= vertex->m_nx;
 			dot += normalProduct;
