@@ -305,13 +305,10 @@ void RaceDecalManager::Trail::AddSample(LegoU32 p_elapsedMs, GolVec3 p_position)
 	p_position = up * g_raceDecalTrailOffsetZ;
 	center -= p_position;
 
-	Decal* field = &m_decal;
 	m_decal.SetWidth(m_width);
 	m_decal.SetLength(distance);
-	field->m_center.m_x = center.m_x;
-	field->m_center.m_y = center.m_y;
-	field->m_center.m_z = center.m_z;
-	field->SetOrientation(&up, &direction);
+	m_decal.SetCenter(center);
+	m_decal.SetOrientation(&up, &direction);
 	m_flags |= c_samplePending;
 }
 
