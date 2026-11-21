@@ -146,14 +146,10 @@ void GolModel::Draw(GolD3DRenderDevice* p_renderer, MaterialTable* p_materialTab
 
 		while (group < end) {
 			LegoU32 groupData = *group;
-			LegoU32 groupType = groupData;
-			groupType &= c_groupTypeMask;
+			LegoU32 groupType = groupData & c_groupTypeMask;
 			if (groupType == c_groupTypeTriangleBatch) {
-				LegoU32 firstTriangle = *group;
-				LegoU32 triangleCount = groupData;
-				triangleCount >>= c_groupDataUpperWordShift;
-				triangleCount &= c_triangleCountMask;
-				firstTriangle &= c_materialMatrixIndexMask;
+				LegoU32 triangleCount = (groupData >> c_groupDataUpperWordShift) & c_triangleCountMask;
+				LegoU32 firstTriangle = *group & c_materialMatrixIndexMask;
 				LegoU32 lastVertex = FindMaxVertexIndex(firstTriangle, triangleCount) & c_vertexCountMask;
 				*group = ((((lastVertex | c_vertexIndexHighFlag) << 7) | (triangleCount & c_triangleCountMask))
 						  << c_groupDataUpperWordShift) |
@@ -244,16 +240,11 @@ void GolModel::DrawNode(
 
 		while (group < end) {
 			LegoU32 groupData = *group;
-			LegoU32 groupType = groupData;
-			groupType &= c_groupTypeMask;
+			LegoU32 groupType = groupData & c_groupTypeMask;
 			if (groupType == c_groupTypeTriangleBatch) {
-				LegoU32 firstTriangle = *group;
-				LegoU32 triangleCount = groupData;
-				triangleCount >>= c_groupDataUpperWordShift;
-				triangleCount &= c_triangleCountMask;
-				firstTriangle &= c_materialMatrixIndexMask;
-				LegoU32 lastVertex = FindMaxVertexIndex(firstTriangle, triangleCount);
-				lastVertex &= c_vertexCountMask;
+				LegoU32 triangleCount = (groupData >> c_groupDataUpperWordShift) & c_triangleCountMask;
+				LegoU32 firstTriangle = *group & c_materialMatrixIndexMask;
+				LegoU32 lastVertex = FindMaxVertexIndex(firstTriangle, triangleCount) & c_vertexCountMask;
 				*group = ((((lastVertex | c_vertexIndexHighFlag) << 7) | (triangleCount & c_triangleCountMask))
 						  << c_groupDataUpperWordShift) |
 						 (firstTriangle & c_materialMatrixIndexMask);
