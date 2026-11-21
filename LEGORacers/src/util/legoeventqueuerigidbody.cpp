@@ -63,9 +63,7 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 			axisY.m_y *= halfY;
 			axisY.m_z *= halfY;
 
-			axisZ.m_x = m_body->m_orientation.m_m[2][0];
-			axisZ.m_y = m_body->m_orientation.m_m[2][1];
-			axisZ.m_z = m_body->m_orientation.m_m[2][2];
+			axisZ = m_body->m_orientation.m_rows[2];
 			axisZ *= m_boxSizeZ * 0.5f;
 
 			if (m_boxScale != 1.0f) {
@@ -98,9 +96,7 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 			axisY.m_y *= halfY;
 			axisY.m_z *= halfY;
 
-			axisZ.m_x = p_other->m_body->m_orientation.m_m[2][0];
-			axisZ.m_y = p_other->m_body->m_orientation.m_m[2][1];
-			axisZ.m_z = p_other->m_body->m_orientation.m_m[2][2];
+			axisZ = p_other->m_body->m_orientation.m_rows[2];
 			axisZ *= p_other->m_boxSizeZ * 0.5f;
 
 			if (p_other->m_boxScale != 1.0f) {
