@@ -210,9 +210,9 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::TestBoxOverlap(
 			return FALSE;
 		}
 
-		half0x = m_boxScale * half0x;
-		half0y = m_boxScale * half0y;
-		half0z = m_boxScale * half0z;
+		half0x = GOL_MUL(m_boxScale, half0x);
+		half0y = GOL_MUL(m_boxScale, half0y);
+		half0z = GOL_MUL(m_boxScale, half0z);
 	}
 
 	half1x = p_other->m_boxSizeX * 0.5f;
@@ -223,9 +223,9 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::TestBoxOverlap(
 			return FALSE;
 		}
 
-		half1x = p_other->m_boxScale * half1x;
-		half1y = p_other->m_boxScale * half1y;
-		half1z = p_other->m_boxScale * half1z;
+		half1x = GOL_MUL(p_other->m_boxScale, half1x);
+		half1y = GOL_MUL(p_other->m_boxScale, half1y);
+		half1z = GOL_MUL(p_other->m_boxScale, half1z);
 	}
 
 	absOrientation.m_m[0][0] = static_cast<LegoFloat>(fabs(relativeOrientation.m_m[0][0]));

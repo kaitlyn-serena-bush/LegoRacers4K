@@ -1834,9 +1834,8 @@ void CarBuildModel::BuildOverlay(LegoBool32 p_visible, LegoS32 p_height)
 
 	LegoU32 groupIndex = m_modelGroupCount++;
 	GolModelBase* overlayModel = m_overlayModel;
-	LegoFloat z = static_cast<LegoFloat>(p_height);
 	m_overlayVisible = disabled;
-	z *= g_carBuildModelHeightScale;
+	LegoFloat z = static_cast<LegoFloat>(p_height) * g_carBuildModelHeightScale;
 	overlayModel->GetMutableGroups()[groupIndex] = c_modelMaterialGroup;
 	overlayModel->GetMutableGroups()[groupIndex] |= enabled;
 	overlayModel->SetDirty(enabled);
