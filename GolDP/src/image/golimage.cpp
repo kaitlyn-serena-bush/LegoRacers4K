@@ -430,27 +430,22 @@ void GolImage::UploadTiles()
 	LegoU32 sourcePitch;
 	m_surface.LockPixels(&sourcePixels, &sourcePitch, GolSurface::c_lockRequestRead | GolSurface::c_lockRequestWrite);
 
-	ColorRGBA* paletteEntries;
-	LegoU32 paletteSize;
+	ColorRGBA* paletteEntries = NULL;
+	LegoU32 paletteSize = 0;
 	if (textureFormat.m_paletteMask != 0) {
 		paletteEntries = m_surface.GetPaletteEntries();
 		paletteSize = m_surface.GetPaletteSize();
-	}
-	else {
-		paletteEntries = NULL;
-		paletteSize = 0;
 	}
 
 	ColorRGBA* colorKey;
 	if (m_flags & GolTexture::c_textureFlagColorKeyed) {
 		if (m_renderer->GetFlags() & GolRenderDevice::c_flagBlackColorKey) {
 			g_tileImgFile.SetColorKeyReplacement(g_transparentBlack);
-			colorKey = &m_colorKey;
 		}
 		else {
 			g_tileImgFile.SetColorKeyReplacement(m_colorKey);
-			colorKey = &m_colorKey;
 		}
+		colorKey = &m_colorKey;
 	}
 	else {
 		colorKey = NULL;
