@@ -253,7 +253,7 @@ void GolWorldDatabaseEx::LoadResources()
 
 	if (m_spriteCount) {
 		for (i = 0; i < m_spriteCount; i++) {
-			LegoFloat maxDistanceSquared = m_spriteRecords[i].m_maxDistance * m_spriteRecords[i].m_maxDistance;
+			LegoFloat maxDistanceSquared = GOL_MUL(m_spriteRecords[i].m_maxDistance, m_spriteRecords[i].m_maxDistance);
 
 			if (m_spriteRecords[i].m_flags & WdbBillboardSprite::c_flagMaterialAssignment) {
 				if (m_spriteRecords[i].m_materialTableIndex >= m_materialTableCount) {

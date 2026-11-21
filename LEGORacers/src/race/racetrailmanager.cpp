@@ -259,7 +259,7 @@ void RaceTrailManager::Trail::AdvanceTail(LegoU32 p_elapsedMs)
 				}
 
 				LegoFloat duration = static_cast<LegoFloat>(static_cast<LegoS32>(durationMs));
-				LegoFloat amount = static_cast<LegoFloat>(static_cast<LegoS32>(stepMs)) / duration;
+				LegoFloat amount = (((static_cast<LegoFloat>(static_cast<LegoS32>(stepMs))))) / duration;
 				m_samples[nextIndex].m_durationMs = durationMs - stepMs;
 
 				GolVec3 delta;

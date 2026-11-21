@@ -369,10 +369,9 @@ void RaceDecalManager::Trail::Decal::BeginGeometry(GolModelBase* p_model)
 
 	model = m_model;
 	m_indexBytes = destIndexBytes;
-	LegoU32 one = 1;
-	model->SetDirty(one);
+	model->SetDirty(TRUE);
 	model->GetMutableGroups()[0] = c_commandModelFlags;
-	m_groupIndex = one;
+	m_groupIndex = 1;
 }
 
 // FUNCTION: LEGORACERS 0x00414b30
