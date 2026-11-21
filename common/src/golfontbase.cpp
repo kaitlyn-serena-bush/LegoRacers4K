@@ -1051,7 +1051,7 @@ LegoS32 GolFontBase::DrawGlyphRun(
 		result = p_x;
 
 		for (LegoU32 i = 0; i < p_count; i++) {
-			LegoU8 glyphIndex = g_glyphIndexBuffer[i];
+			LegoU32 glyphIndex = g_glyphIndexBuffer[i];
 			Rect destRect;
 			destRect.m_left = result;
 
@@ -1059,8 +1059,8 @@ LegoS32 GolFontBase::DrawGlyphRun(
 				break;
 			}
 
+			LegoS32 glyphWidth = font->m_glyphs[glyphIndex].m_width;
 			Glyph* glyph = &font->m_glyphs[glyphIndex];
-			LegoS32 glyphWidth = glyph->m_width;
 			LegoFloat scaledWidth = static_cast<LegoFloat>(glyphWidth) * p_scaleX;
 			LegoS32 right = result + static_cast<LegoS32>(scaledWidth);
 			destRect.m_right = right;

@@ -283,7 +283,7 @@ void RaceHud::ClipTriangleBottom(
 {
 	const GolRenderDevice::TexturedVertex* temporaryVertex;
 
-	if (p_v1->m_y > m_clipBottom) {
+	if ((p_v1->m_y) > m_clipBottom) {
 		if (p_v0->m_y > m_clipBottom) {
 			if (p_v2->m_y > m_clipBottom) {
 				return;
