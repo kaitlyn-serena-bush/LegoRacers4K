@@ -689,8 +689,9 @@ void CarBuildModel::InterpolateBuildVertex(
 }
 
 // FUNCTION: LEGORACERS 0x00497360
-LegoS32 CarBuildModel::BuildBatches(LegoS8 p_buildFlags)
+void CarBuildModel::BuildBatches(LegoS8 p_buildFlags)
 {
+	LegoS32 primitiveIndex = 0;
 	::memset(g_carBuildModelVertexUses, 0, sizeof(g_carBuildModelVertexUses));
 
 	LegoS32 accumulatedReferenceCount = 0;
@@ -699,7 +700,7 @@ LegoS32 CarBuildModel::BuildBatches(LegoS8 p_buildFlags)
 	LegoS32 materialRunEnd = 0;
 	LegoS32 materialIndex = -1;
 
-	for (LegoS32 primitiveIndex = 0; primitiveIndex < m_buildPrimitiveCount - 1; primitiveIndex++) {
+	for (; primitiveIndex < m_buildPrimitiveCount - 1; primitiveIndex++) {
 		LegoS32 batchVertexCount = m_batchVertexCount;
 		LegoS32 bestAddedVertexCount = 0x42;
 		LegoS32 bestPrimitiveIndex = 0;
@@ -802,8 +803,6 @@ LegoS32 CarBuildModel::BuildBatches(LegoS8 p_buildFlags)
 			}
 		}
 	}
-
-	return m_buildPrimitiveCount - 1;
 }
 
 // FUNCTION: LEGORACERS 0x00497690
