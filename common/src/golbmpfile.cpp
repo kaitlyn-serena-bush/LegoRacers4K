@@ -609,7 +609,7 @@ void GolBmpFile::ReadPixels(LegoU8* p_buffer)
 		LegoS32 availableDecompressedSize = 0;
 		LegoU8* availableDecompressedPtr = NULL;
 		LegoU8* decompBuffer = m_decompressBuffer;
-		LegoU8* writePtr = p_buffer + m_rowByteStride * m_height;
+		LegoU8* writePtr = p_buffer + m_rowByteStride * GetHeight();
 		if (decompBuffer == NULL) {
 			GOL_FATALERROR(c_golErrorOutOfMemory);
 		}
