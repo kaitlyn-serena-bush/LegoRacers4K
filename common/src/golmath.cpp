@@ -306,24 +306,18 @@ void GolMath::QuatToMatrix3(const GolQuat* p_quat, LegoFloat* p_dest)
 	LegoFloat z = p_quat->m_z;
 	LegoFloat w = p_quat->m_w;
 	LegoFloat scale = g_two / (w * w + z * z + y * y + x * x);
-	LegoFloat sx = scale * p_quat->m_x;
-	LegoFloat sy = p_quat->m_y;
-	sy *= scale;
-	LegoFloat sz = scale * p_quat->m_z;
-	LegoFloat wx = p_quat->m_w;
-	wx *= sx;
-	LegoFloat wy = p_quat->m_w;
-	wy *= sy;
-	LegoFloat wz = p_quat->m_w;
-	wz *= sz;
-	LegoFloat xx = sx * p_quat->m_x;
-	LegoFloat xy = sy * p_quat->m_x;
-	LegoFloat xz = sz * p_quat->m_x;
-	LegoFloat yy = p_quat->m_y;
-	yy *= sy;
-	LegoFloat yz = p_quat->m_y;
-	yz *= sz;
-	LegoFloat zz = sz * p_quat->m_z;
+	LegoFloat sx = GOL_MUL(scale, p_quat->m_x);
+	LegoFloat sy = GOL_MUL(p_quat->m_y, scale);
+	LegoFloat sz = GOL_MUL(scale, p_quat->m_z);
+	LegoFloat wx = GOL_MUL(p_quat->m_w, sx);
+	LegoFloat wy = GOL_MUL(p_quat->m_w, sy);
+	LegoFloat wz = GOL_MUL(p_quat->m_w, sz);
+	LegoFloat xx = GOL_MUL(sx, p_quat->m_x);
+	LegoFloat xy = GOL_MUL(sy, p_quat->m_x);
+	LegoFloat xz = GOL_MUL(sz, p_quat->m_x);
+	LegoFloat yy = GOL_MUL(p_quat->m_y, sy);
+	LegoFloat yz = GOL_MUL(p_quat->m_y, sz);
+	LegoFloat zz = GOL_MUL(sz, p_quat->m_z);
 
 	p_dest[0] = 1.0f - (zz + yy);
 	p_dest[1] = xy - wz;
@@ -467,33 +461,26 @@ void GolMath::RotateAboutAxis(const GolVec3* p_src, GolVec3* p_dest, const GolVe
 	LegoFloat oneMinusC = 1.0f - c;
 	LegoFloat matrix[3][3];
 
-	LegoFloat xy = p_axis->m_y;
-	xy *= p_axis->m_x;
-	xy *= oneMinusC;
-	LegoFloat xz = p_axis->m_z;
-	xz *= p_axis->m_x;
-	xz *= oneMinusC;
-	LegoFloat yz = p_axis->m_z * p_axis->m_y;
-	yz *= oneMinusC;
-	LegoFloat xs = s * p_axis->m_x;
-	LegoFloat ys = p_axis->m_y;
-	ys *= s;
-	LegoFloat zs = s * p_axis->m_z;
+	LegoFloat xy = GOL_MUL(GOL_MUL(p_axis->m_y, p_axis->m_x), oneMinusC);
+	LegoFloat xz = GOL_MUL(GOL_MUL(p_axis->m_z, p_axis->m_x), oneMinusC);
+	LegoFloat yz = GOL_MUL(GOL_MUL(p_axis->m_z, p_axis->m_y), oneMinusC);
+	LegoFloat xs = GOL_MUL(s, p_axis->m_x);
+	LegoFloat ys = GOL_MUL(p_axis->m_y, s);
+	LegoFloat zs = GOL_MUL(s, p_axis->m_z);
 
-	matrix[0][0] = p_axis->m_x * p_axis->m_x * oneMinusC + c;
+	matrix[0][0] = GOL_MUL(GOL_MUL(p_axis->m_x, p_axis->m_x), oneMinusC) + c;
 	matrix[0][1] = xy + zs;
 	matrix[0][2] = xz - ys;
 	matrix[1][0] = xy - zs;
-	matrix[1][1] = p_axis->m_y * p_axis->m_y * oneMinusC + c;
+	matrix[1][1] = GOL_MUL(GOL_MUL(p_axis->m_y, p_axis->m_y), oneMinusC) + c;
 	matrix[1][2] = yz + xs;
 	matrix[2][0] = xz + ys;
 	matrix[2][1] = yz - xs;
-	GolVec3* dest = p_dest;
-	matrix[2][2] = p_axis->m_z * p_axis->m_z * oneMinusC + c;
+	matrix[2][2] = GOL_MUL(GOL_MUL(p_axis->m_z, p_axis->m_z), oneMinusC) + c;
 
-	dest->m_x = src.m_z * matrix[0][2] + src.m_y * matrix[0][1] + src.m_x * matrix[0][0];
-	dest->m_y = src.m_z * matrix[1][2] + src.m_y * matrix[1][1] + src.m_x * matrix[1][0];
-	dest->m_z = src.m_z * matrix[2][2] + src.m_y * matrix[2][1] + src.m_x * matrix[2][0];
+	p_dest->m_x = GOL_MUL(src.m_z, matrix[0][2]) + GOL_MUL(src.m_y, matrix[0][1]) + GOL_MUL(src.m_x, matrix[0][0]);
+	p_dest->m_y = GOL_MUL(src.m_z, matrix[1][2]) + GOL_MUL(src.m_y, matrix[1][1]) + GOL_MUL(src.m_x, matrix[1][0]);
+	p_dest->m_z = GOL_MUL(src.m_z, matrix[2][2]) + GOL_MUL(src.m_y, matrix[2][1]) + GOL_MUL(src.m_x, matrix[2][0]);
 }
 
 // FUNCTION: LEGORACERS 0x004497f0
