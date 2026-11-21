@@ -38,9 +38,6 @@ const RaceCameraController::Profile g_cameraProfiles[8] = {
 // GLOBAL: LEGORACERS 0x004b03e8
 extern const LegoFloat g_lagTimeScale = 250.0f;
 
-// GLOBAL: LEGORACERS 0x004b03ec
-extern const LegoFloat g_degreesToRadians = 0.017453292f;
-
 // GLOBAL: LEGORACERS 0x004b03f8
 extern const LegoFloat g_transitionTurnRate = 0.0015707964f;
 
@@ -86,16 +83,14 @@ void RaceCameraController::SetRotationLag(LegoFloat p_amount)
 // FUNCTION: LEGORACERS 0x00427bb0
 void RaceCameraController::SetPitchAngle(LegoFloat p_degrees)
 {
-	LegoFloat radians = p_degrees;
-	radians *= g_degreesToRadians;
+	LegoFloat radians = p_degrees * 0.017453292f;
 	GolMath::SinCos(radians, &m_pitchSine, &m_pitchCosine);
 }
 
 // FUNCTION: LEGORACERS 0x00427be0
 void RaceCameraController::SetHeightAngle(LegoFloat p_degrees)
 {
-	LegoFloat radians = p_degrees;
-	radians *= g_degreesToRadians;
+	LegoFloat radians = p_degrees * 0.017453292f;
 	m_heightSine = static_cast<LegoFloat>(sin(radians));
 }
 

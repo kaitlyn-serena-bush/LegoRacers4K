@@ -1629,15 +1629,15 @@ void GolD3DRenderDevice::DrawRectangle(
 	bottomLeft.m_y = bottom;
 
 	LegoFloat right = static_cast<LegoFloat>(p_rect.m_right);
-	topRight.m_z = p_z;
 	topRight.m_y = top;
+	topRight.m_z = p_z;
 	topRight.m_color = p_color3;
 	topRight.m_x = right;
 
+	bottomRight.m_z = p_z;
 	bottomRight.m_x = right;
 	bottomRight.m_color = p_color4;
 	bottomRight.m_y = bottom;
-	bottomRight.m_z = p_z;
 
 	topLeft.m_u = 0.0f;
 	topLeft.m_v = 0.0f;
