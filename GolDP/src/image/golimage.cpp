@@ -306,7 +306,7 @@ void GolImage::DrawStretched(
 	LegoFloat sourcePerDestY = 1.0f / scaleY;
 
 	if (clip.m_left - dest.m_left > 0.0f) {
-		source.m_left += (clip.m_left - dest.m_left) * sourcePerDestX;
+		source.m_left += GOL_MUL(clip.m_left - dest.m_left, sourcePerDestX);
 		dest.m_left = clip.m_left;
 	}
 	if (clip.m_top - dest.m_top > 0.0f) {
@@ -385,7 +385,7 @@ void GolImage::DrawStretched(
 				LegoFloat invTileWidth = 1.0f / tileWidth;
 				LegoFloat invTileHeight = 1.0f / tileHeight;
 
-				g_imageQuad[0].sx = (tileClip.m_left - source.m_left) * scaleX + dest.m_left;
+				g_imageQuad[0].sx = (((((((((((tileClip.m_left - source.m_left))))))))))) * scaleX + dest.m_left;
 				g_imageQuad[0].sy = (tileClip.m_top - source.m_top) * scaleY + dest.m_top;
 				g_imageQuad[0].tu = (tileClip.m_left - tileLeft) * invTileWidth;
 				g_imageQuad[0].tv = (tileClip.m_top - tileTop) * invTileHeight;
@@ -402,9 +402,9 @@ void GolImage::DrawStretched(
 				g_imageQuad[3].tu = g_imageQuad[2].tu;
 
 				g_imageQuad[2].tv = g_imageQuad[0].tv;
-				g_imageQuad[3].tv = g_imageQuad[1].tv;
 				g_imageQuad[3].sx = g_imageQuad[2].sx;
 				g_imageQuad[3].sy = g_imageQuad[1].sy;
+				g_imageQuad[3].tv = g_imageQuad[1].tv;
 				p_renderer->DrawTriangleStrip(g_imageQuad, sizeOfArray(g_imageQuad));
 			}
 
