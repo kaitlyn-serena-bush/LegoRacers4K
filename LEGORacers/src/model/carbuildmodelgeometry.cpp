@@ -474,9 +474,8 @@ void CarBuildModel::ResolvePrimitiveIntersections()
 		primitive = m_buildPrimitiveOrder[lhsIndex];                                                                   \
 		ROTATE_BUILD_PRIMITIVE_TO_MIN(coordMember, minField);                                                          \
 		ALLOCATE_OUTSIDE_BUILD_PRIMITIVE_MIN();                                                                        \
-		rightScale = rhsBounds.minField - lhsBounds.minField;                                                          \
 		BuildVertex* firstLowVertex = &m_buildVertices[primitive->m_vertexIndices[0]];                                 \
-		rightScale = rightScale / (lhsBounds.maxField - lhsBounds.minField);                                           \
+		rightScale = ((((rhsBounds.minField - lhsBounds.minField))) / (((lhsBounds.maxField - lhsBounds.minField))));  \
 		BuildVertex* firstHighVertex = &m_buildVertices[primitive->m_vertexIndices[2]];                                \
 		setPosition(firstLowVertex, minField, rhsBounds.minField);                                                     \
 		leftScale = 1.0f - rightScale;                                                                                 \
@@ -501,9 +500,8 @@ void CarBuildModel::ResolvePrimitiveIntersections()
 		primitive = m_buildPrimitiveOrder[lhsIndex];                                                                   \
 		ROTATE_BUILD_PRIMITIVE_TO_MAX(coordMember, maxField);                                                          \
 		ALLOCATE_OUTSIDE_BUILD_PRIMITIVE_MAX();                                                                        \
-		rightScale = rhsBounds.maxField - lhsBounds.minField;                                                          \
 		BuildVertex* firstLowVertex = &m_buildVertices[primitive->m_vertexIndices[0]];                                 \
-		rightScale = rightScale / (lhsBounds.maxField - lhsBounds.minField);                                           \
+		rightScale = ((((rhsBounds.maxField - lhsBounds.minField))) / (((lhsBounds.maxField - lhsBounds.minField))));  \
 		BuildVertex* firstHighVertex = &m_buildVertices[primitive->m_vertexIndices[2]];                                \
 		setPosition(firstLowVertex, maxField, rhsBounds.maxField);                                                     \
 		leftScale = 1.0f - rightScale;                                                                                 \
