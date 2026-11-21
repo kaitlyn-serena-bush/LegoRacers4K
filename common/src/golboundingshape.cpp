@@ -413,8 +413,8 @@ void GolBoundingShape::CollectLeavesFromPvs(
 	TreeNode::Node** p_last
 )
 {
-	LegoS16 indexListStart = p_entry->m_data.m_node.m_pvsStart;
 	TreeNode::Node* first = &p_entry->m_data.m_node;
+	LegoS16 indexListStart = first->m_pvsStart;
 	first->m_next = NULL;
 	first->m_previous = NULL;
 	if (indexListStart < 0 || first->m_pvsCount == 0) {
@@ -422,32 +422,28 @@ void GolBoundingShape::CollectLeavesFromPvs(
 		*p_first = first;
 		return;
 	}
-	LegoS32 i = 0;
-	LegoU16* childIndex = &m_pvsIndices[indexListStart];
-	while (i < static_cast<LegoS16>(first->m_pvsCount)) {
-		TreeNode* child = &m_nodes[*childIndex];
+	TreeNode* last = p_entry;
+	LegoU16* indices = &m_pvsIndices[indexListStart];
+	for (LegoS32 i = 0; i < static_cast<LegoS16>(first->m_pvsCount); i++) {
+		TreeNode* child = &m_nodes[indices[i]];
 		TreeNode::Node* node = &child->m_data.m_node;
 		node->m_linked = 1;
-		LegoBool32 append = TRUE;
 		LegoS16 boundsIndex = static_cast<LegoS16>(node->m_boundsIndex);
 		if (boundsIndex >= 0) {
-			LegoS32 classification = p_frustum->ClassifyBox(&m_bounds[boundsIndex].m_minX);
+			Bounds* bounds = &m_bounds[boundsIndex];
+			LegoS32 classification = p_frustum->ClassifyBox(&bounds->m_minX);
 			if (classification == 0) {
-				append = FALSE;
+				continue;
 			}
-			else if (classification == 2) {
+			if (classification == 2) {
 				node->m_linked = 0;
 			}
 		}
-		if (append) {
-			p_entry->m_data.m_node.m_next = node;
-			node->m_previous = &p_entry->m_data.m_node;
-			node->m_next = NULL;
-			p_entry = child;
-		}
-		childIndex++;
-		i++;
+		last->m_data.m_node.m_next = node;
+		node->m_previous = &last->m_data.m_node;
+		node->m_next = NULL;
+		last = child;
 	}
 	*p_first = first;
-	*p_last = &p_entry->m_data.m_node;
+	*p_last = &last->m_data.m_node;
 }
