@@ -1314,7 +1314,7 @@ void RaceHud::Draw()
 	LegoBool32 drawLapTime = TRUE;
 	LegoU32 elapsedMs = m_elapsedMs;
 	LegoS32 textWidth;
-	ColorRGBA fontColor;
+	FourBytes color;
 	LegoS32 textHeight;
 	LegoFloat scaleX;
 	LegoFloat scaleY;
@@ -1345,11 +1345,11 @@ void RaceHud::Draw()
 			textWidth = static_cast<LegoS32>(static_cast<LegoFloat>(textWidth) * scaleX);
 			textHeight = static_cast<LegoS32>(static_cast<LegoFloat>(textHeight) * scaleY);
 
-			fontColor.m_red = 0xff;
-			fontColor.m_grn = 0xff;
-			fontColor.m_blu = 0;
-			fontColor.m_alp = 0xff;
-			m_numberFont->SetColor(fontColor);
+			color.m_uBytes[1] = 0xff;
+			color.m_uBytes[0] = 0xff;
+			color.m_uBytes[3] = 0xff;
+			color.m_uBytes[2] = 0;
+			m_numberFont->SetColor(color.m_u32);
 			if (m_visible) {
 				m_renderer->DrawString(
 					m_scratchString,
@@ -1362,11 +1362,8 @@ void RaceHud::Draw()
 					0
 				);
 			}
-			fontColor.m_red = 0xff;
-			fontColor.m_grn = 0xff;
-			fontColor.m_blu = 0xff;
-			fontColor.m_alp = 0xff;
-			m_numberFont->SetColor(fontColor);
+			color.m_uBytes[2] = 0xff;
+			m_numberFont->SetColor(color.m_u32);
 
 			if ((previousState == 1 || previousState / 1000 != countdownState) && m_soundSource) {
 				m_soundSource->PlaySoundById(0);
@@ -1390,11 +1387,11 @@ void RaceHud::Draw()
 			textWidth = static_cast<LegoS32>(static_cast<LegoFloat>(textWidth) * scaleX);
 			textHeight = static_cast<LegoS32>(static_cast<LegoFloat>(textHeight) * scaleY);
 
-			fontColor.m_red = 0xff;
-			fontColor.m_grn = 0xff;
-			fontColor.m_blu = 0;
-			fontColor.m_alp = 0xff;
-			m_numberFont->SetColor(fontColor);
+			color.m_uBytes[1] = 0xff;
+			color.m_uBytes[0] = 0xff;
+			color.m_uBytes[3] = 0xff;
+			color.m_uBytes[2] = 0;
+			m_numberFont->SetColor(color.m_u32);
 			if (m_visible) {
 				m_renderer->DrawString(
 					&m_labelString,
@@ -1407,11 +1404,8 @@ void RaceHud::Draw()
 					0
 				);
 			}
-			fontColor.m_red = 0xff;
-			fontColor.m_grn = 0xff;
-			fontColor.m_blu = 0xff;
-			fontColor.m_alp = 0xff;
-			m_numberFont->SetColor(fontColor);
+			color.m_uBytes[2] = 0xff;
+			m_numberFont->SetColor(color.m_u32);
 
 			if (m_soundSource && countdownState == 3 && previousState / 1000 != 3) {
 				m_soundSource->PlaySoundById(c_soundCountdown);
@@ -1618,7 +1612,7 @@ void RaceHud::Draw()
 
 			CopyToGolString(g_positionDigits[positionIndex], m_scratchString);
 			m_numberFont->MeasureString(m_scratchString, &textWidth, &textHeight);
-			textWidth = static_cast<LegoS32>(static_cast<double>(textWidth) * m_textScaleX);
+			textWidth = static_cast<LegoS32>(static_cast<LegoFloat>(textWidth) * m_textScaleX);
 			textWidth = static_cast<LegoS32>(static_cast<double>(textWidth) * m_textScale);
 
 			if (m_positionPulseMs) {
@@ -1640,13 +1634,17 @@ void RaceHud::Draw()
 				}
 				positionScale *= m_textScale;
 
+				scaleY = m_scaleY;
+				scaleY *= positionScale;
+				scaleX = m_textScaleX;
+				scaleX *= positionScale;
 				m_renderer->DrawString(
 					m_scratchString,
 					m_numberFont,
 					m_positionX - textWidth,
 					m_positionY,
-					m_textScaleX * positionScale,
-					m_scaleY * positionScale,
+					scaleX,
+					scaleY,
 					NULL,
 					0
 				);
@@ -1702,38 +1700,37 @@ void RaceHud::Draw()
 	LegoS32 itemLevel = m_racer->m_whiteBrickCount;
 	LegoS32 itemType = m_racer->m_heldPowerupColor - 1;
 	GolImage* itemResource;
-	FourBytes itemColor;
-	itemColor.m_uBytes[3] = 0xff;
+	color.m_uBytes[3] = 0xff;
 
 	switch (itemType) {
 	case 0:
-		itemColor.m_uBytes[0] = 0xff;
-		itemColor.m_uBytes[1] = 0;
-		itemColor.m_uBytes[2] = 0;
+		color.m_uBytes[0] = 0xff;
+		color.m_uBytes[1] = 0;
+		color.m_uBytes[2] = 0;
 		itemResource = m_images->GetItem(itemLevel + 2);
 		break;
 	case 3:
-		itemColor.m_uBytes[0] = 0xff;
-		itemColor.m_uBytes[1] = 0xff;
-		itemColor.m_uBytes[2] = 0;
+		color.m_uBytes[0] = 0xff;
+		color.m_uBytes[1] = 0xff;
+		color.m_uBytes[2] = 0;
 		itemResource = m_images->GetItem(itemLevel + 6);
 		break;
 	case 1:
-		itemColor.m_uBytes[0] = 0x50;
-		itemColor.m_uBytes[1] = 0x50;
-		itemColor.m_uBytes[2] = 0xff;
+		color.m_uBytes[0] = 0x50;
+		color.m_uBytes[1] = 0x50;
+		color.m_uBytes[2] = 0xff;
 		itemResource = m_images->GetItem(itemLevel + 16);
 		break;
 	case 2:
-		itemColor.m_uBytes[0] = 0;
-		itemColor.m_uBytes[1] = 0xff;
-		itemColor.m_uBytes[2] = 0;
+		color.m_uBytes[0] = 0;
+		color.m_uBytes[1] = 0xff;
+		color.m_uBytes[2] = 0;
 		itemResource = m_images->GetItem(itemLevel + 20);
 		break;
 	default:
-		itemColor.m_uBytes[0] = 0xff;
-		itemColor.m_uBytes[1] = 0xff;
-		itemColor.m_uBytes[2] = 0xff;
+		color.m_uBytes[0] = 0xff;
+		color.m_uBytes[1] = 0xff;
+		color.m_uBytes[2] = 0xff;
 		itemResource = NULL;
 		break;
 	}
@@ -1751,7 +1748,7 @@ void RaceHud::Draw()
 		m_renderer->DrawImage(background, 0, m_powerupX, m_powerupY, width, height);
 
 		GolImage* colorResource = m_images->GetItem(12);
-		colorResource->m_tintColor = itemColor;
+		colorResource->m_tintColor = color;
 		m_renderer->DrawImage(colorResource, 0, m_powerupX, m_powerupY, width, height);
 
 		if (itemResource) {
