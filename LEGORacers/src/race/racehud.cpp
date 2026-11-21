@@ -721,14 +721,15 @@ void RaceHud::DrawRotatingMap()
 		vertices[2].m_y = baseY1 - offsetY1;
 		vertices[3].m_y = baseY0 - offsetY1;
 
-		LegoFloat scaledDirectionX = m_aspectScale * cameraDirection.m_x;
-		LegoFloat scaledDirectionY = m_aspectScale * cameraDirection.m_y;
-		LegoFloat baseX0 = deltaX0 * scaledDirectionY + static_cast<LegoFloat>(mapCenterX);
-		LegoFloat offsetX0 = deltaY0 * scaledDirectionX;
-		LegoFloat baseX1 = deltaX1 * scaledDirectionY + static_cast<LegoFloat>(mapCenterX);
+		GolVec3 scaledDirection;
+		scaledDirection.m_x = m_aspectScale * cameraDirection.m_x;
+		scaledDirection.m_y = m_aspectScale * cameraDirection.m_y;
+		LegoFloat baseX0 = scaledDirection.m_y * deltaX0 + static_cast<LegoFloat>(mapCenterX);
+		LegoFloat offsetX0 = deltaY0 * scaledDirection.m_x;
 		vertices[0].m_x = baseX0 - offsetX0;
+		LegoFloat baseX1 = scaledDirection.m_y * deltaX1 + static_cast<LegoFloat>(mapCenterX);
 		vertices[1].m_x = baseX1 - offsetX0;
-		LegoFloat offsetX1 = deltaY1 * scaledDirectionX;
+		LegoFloat offsetX1 = scaledDirection.m_x * deltaY1;
 		vertices[2].m_x = baseX1 - offsetX1;
 		vertices[3].m_x = baseX0 - offsetX1;
 
@@ -849,12 +850,14 @@ void RaceHud::DrawRotatingMap()
 
 	vertices[0].m_x = static_cast<LegoFloat>(mapRect.m_left);
 	vertices[0].m_y = static_cast<LegoFloat>(mapRect.m_top);
-	vertices[1].m_x = static_cast<LegoFloat>(mapRect.m_right);
+	LegoFloat value = static_cast<LegoFloat>(mapRect.m_right);
+	vertices[1].m_x = value;
 	vertices[1].m_y = static_cast<LegoFloat>(mapRect.m_top);
-	vertices[2].m_x = vertices[1].m_x;
-	vertices[2].m_y = static_cast<LegoFloat>(mapRect.m_bottom);
+	vertices[2].m_x = value;
+	value = static_cast<LegoFloat>(mapRect.m_bottom);
+	vertices[2].m_y = value;
 	vertices[3].m_x = static_cast<LegoFloat>(mapRect.m_left);
-	vertices[3].m_y = vertices[2].m_y;
+	vertices[3].m_y = value;
 	vertices[4].m_x = vertices[0].m_x + 1.0f;
 	vertices[4].m_y = vertices[0].m_y + 1.0f;
 	vertices[5].m_x = vertices[1].m_x - 1.0f;
