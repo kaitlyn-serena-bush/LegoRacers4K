@@ -2036,31 +2036,25 @@ LegoS32 CarBuildModel::ComputeHighPieceCentroid(LegoFloat* p_centroidX, LegoFloa
 	LegoS32 result = 0;
 
 	LegoS32 entryCount = m_pieceList.m_entryCount;
-	if (entryCount > 0) {
-		LegoS32 entryIndex = 0;
-		LegoS32 remaining = entryCount;
-		do {
-			PieceList::Entry* entry = &m_pieceList.m_entries[entryIndex];
-			LegoPieceLibrary::PieceRecord* pieceRecord = entry->m_pieceRecord;
-			if (pieceRecord->m_pieceType >= g_highPieceTypeBase) {
-				LegoS32 x;
-				LegoS32 y;
-				LegoS32 height;
-				LegoS32 rotation;
-				entry->GetPlacement(&x, &y, &height, &rotation);
+	for (LegoS32 i = 0; i < entryCount; i++) {
+		PieceList::Entry* entry = &m_pieceList.m_entries[i];
+		LegoPieceLibrary::PieceRecord* pieceRecord = entry->m_pieceRecord;
+		if (pieceRecord->m_pieceType >= g_highPieceTypeBase) {
+			LegoS32 x;
+			LegoS32 y;
+			LegoS32 height;
+			LegoS32 rotation;
+			entry->GetPlacement(&x, &y, &height, &rotation);
 
-				LegoS32 pieceX;
-				LegoS32 pieceY;
-				LegoS32 pieceZ;
-				LegoS32 count = pieceRecord->ComputeVolumeMoments(x, y, height, rotation, &pieceX, &pieceY, &pieceZ);
-				result += count;
-				xTotal += pieceX;
-				yTotal += pieceY;
-				zTotal += pieceZ;
-			}
-
-			entryIndex++;
-		} while (--remaining != 0);
+			LegoS32 pieceX;
+			LegoS32 pieceY;
+			LegoS32 pieceZ;
+			LegoS32 count = pieceRecord->ComputeVolumeMoments(x, y, height, rotation, &pieceX, &pieceY, &pieceZ);
+			result += count;
+			xTotal += pieceX;
+			yTotal += pieceY;
+			zTotal += pieceZ;
+		}
 	}
 
 	if (result) {
