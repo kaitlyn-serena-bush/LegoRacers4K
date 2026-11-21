@@ -2828,7 +2828,7 @@ void GolD3DRenderDevice::FUN_1000b8e0(LegoU32 p_outputFirst, LegoU32 p_firstVert
 	vertexMap[0] = static_cast<LegoU16>(m_unk0xc3848);
 	m_unk0xc3848 += p_vertexCount;
 
-	for (; position < positionEnd; position++) {
+	while (position < positionEnd) {
 		vertex->sx = GOL_MUL(m_currentMatrix->m_m[0][0], position->m_x);
 		vertex->sy = GOL_MUL(m_currentMatrix->m_m[0][1], position->m_x);
 		vertex->rhw = GOL_MUL(m_currentMatrix->m_m[0][3], position->m_x);
@@ -2844,6 +2844,7 @@ void GolD3DRenderDevice::FUN_1000b8e0(LegoU32 p_outputFirst, LegoU32 p_firstVert
 		vertex->sx += m_currentMatrix->m_m[3][0];
 		vertex->sy += m_currentMatrix->m_m[3][1];
 		vertex->rhw = 1.0f / (vertex->rhw + m_currentMatrix->m_m[3][3]);
+		position++;
 
 		vertexMap[1] = static_cast<LegoU16>(vertexMap[0] + 1);
 		vertexMap++;
@@ -2852,8 +2853,8 @@ void GolD3DRenderDevice::FUN_1000b8e0(LegoU32 p_outputFirst, LegoU32 p_firstVert
 		vertex->tu = uv->m_x;
 		vertex->tv = uv->m_y;
 		uv++;
-		vertex->sx *= vertex->rhw;
-		vertex->sy *= vertex->rhw;
+		vertex->sx = GOL_MUL(vertex->rhw, vertex->sx);
+		vertex->sy = GOL_MUL(vertex->rhw, vertex->sy);
 		vertex++;
 	}
 
@@ -2873,7 +2874,7 @@ void GolD3DRenderDevice::FUN_1000baa0(LegoU32 p_outputFirst, LegoU32 p_firstVert
 	vertexMap[0] = static_cast<LegoU16>(m_unk0xc3848);
 	m_unk0xc3848 += p_vertexCount;
 
-	for (; position < positionEnd; position++) {
+	while (position < positionEnd) {
 		vertex->sx = GOL_MUL(m_currentMatrix->m_m[0][0], position->m_x);
 		vertex->sy = GOL_MUL(m_currentMatrix->m_m[0][1], position->m_x);
 		vertex->rhw = GOL_MUL(m_currentMatrix->m_m[0][3], position->m_x);
@@ -2889,17 +2890,14 @@ void GolD3DRenderDevice::FUN_1000baa0(LegoU32 p_outputFirst, LegoU32 p_firstVert
 		vertex->sx += m_currentMatrix->m_m[3][0];
 		vertex->sy += m_currentMatrix->m_m[3][1];
 		vertex->rhw = 1.0f / (vertex->rhw + m_currentMatrix->m_m[3][3]);
+		position++;
 
 		vertexMap[1] = static_cast<LegoU16>(vertexMap[0] + 1);
 		vertexMap++;
 		vertex->color = *color;
 		color++;
-		LegoFloat screenX = vertex->rhw;
-		screenX *= vertex->sx;
-		vertex->sx = screenX;
-		LegoFloat screenY = vertex->rhw;
-		screenY *= vertex->sy;
-		vertex->sy = screenY;
+		vertex->sx = GOL_MUL(vertex->rhw, vertex->sx);
+		vertex->sy = GOL_MUL(vertex->rhw, vertex->sy);
 		vertex++;
 	}
 
@@ -2920,7 +2918,7 @@ void GolD3DRenderDevice::FUN_1000bc40(LegoU32 p_outputFirst, LegoU32 p_firstVert
 	vertexMap[0] = static_cast<LegoU16>(m_unk0xc3848);
 	m_unk0xc3848 += p_vertexCount;
 
-	for (; position < positionEnd; position++) {
+	while (position < positionEnd) {
 		vertex->sx = GOL_MUL(m_currentMatrix->m_m[0][0], position->m_x);
 		vertex->sy = GOL_MUL(m_currentMatrix->m_m[0][1], position->m_x);
 		vertex->rhw = GOL_MUL(m_currentMatrix->m_m[0][3], position->m_x);
@@ -2936,6 +2934,7 @@ void GolD3DRenderDevice::FUN_1000bc40(LegoU32 p_outputFirst, LegoU32 p_firstVert
 		vertex->sx += m_currentMatrix->m_m[3][0];
 		vertex->sy += m_currentMatrix->m_m[3][1];
 		vertex->rhw = 1.0f / (vertex->rhw + m_currentMatrix->m_m[3][3]);
+		position++;
 
 		vertexMap[1] = static_cast<LegoU16>(vertexMap[0] + 1);
 		vertexMap++;
@@ -2944,8 +2943,8 @@ void GolD3DRenderDevice::FUN_1000bc40(LegoU32 p_outputFirst, LegoU32 p_firstVert
 		vertex->tv = uv->m_y;
 		uv++;
 		color++;
-		vertex->sx *= vertex->rhw;
-		vertex->sy *= vertex->rhw;
+		vertex->sx = GOL_MUL(vertex->rhw, vertex->sx);
+		vertex->sy = GOL_MUL(vertex->rhw, vertex->sy);
 		vertex++;
 	}
 
@@ -4341,7 +4340,7 @@ void GolD3DRenderDevice::FUN_1000d210(LegoU32 p_outputFirst, LegoU32 p_firstVert
 	CommandVertex* vertex = m_unk0xc428c + p_outputFirst;
 	const GolVec2* uv = m_sourceTexCoords + p_firstVertex;
 
-	for (; position < positionEnd; position++, normal++, uv++, vertex++) {
+	for (; position < positionEnd; position++, uv++, normal++, vertex++) {
 		vertex->m_x = GOL_MUL(GOL_MUL(m_currentMatrix->m_m[0][0], position->m_x), m_currentScale);
 		vertex->m_y = GOL_MUL(GOL_MUL(m_currentMatrix->m_m[0][1], position->m_x), m_currentScale);
 		vertex->m_z = GOL_MUL(GOL_MUL(m_currentMatrix->m_m[0][2], position->m_x), m_currentScale);
@@ -7619,7 +7618,7 @@ void GolD3DRenderDevice::FUN_10013110(LegoU32 p_outputFirst, LegoU32 p_firstVert
 	vertexMap[0] = static_cast<LegoU16>(m_unk0xc3848);
 	m_unk0xc3848 += p_vertexCount;
 
-	for (; source < sourceEnd;) {
+	while (source < sourceEnd) {
 		vertex->sx = GOL_MUL(m_currentMatrix->m_m[0][0], source->m_x);
 		vertex->sy = GOL_MUL(m_currentMatrix->m_m[0][1], source->m_x);
 		vertex->sz = GOL_MUL(m_currentMatrix->m_m[0][2], source->m_x);
@@ -7640,13 +7639,13 @@ void GolD3DRenderDevice::FUN_10013110(LegoU32 p_outputFirst, LegoU32 p_firstVert
 		vertex->sz += m_currentMatrix->m_m[3][2];
 		vertex->rhw = 1.0f / (m_currentMatrix->m_m[3][3] + vertex->rhw);
 		vertexMap[1] = vertexMap[0] + 1;
-		vertex->color = 0;
-		vertex->sx *= vertex->rhw;
-		vertex->sy *= vertex->rhw;
-		source++;
-		vertex++;
 		vertexMap++;
-		vertex[-1].sz = vertex[-1].rhw * vertex[-1].sz;
+		source++;
+		vertex->color = 0;
+		vertex->sx = GOL_MUL(vertex->rhw, vertex->sx);
+		vertex->sy = GOL_MUL(vertex->rhw, vertex->sy);
+		vertex->sz = GOL_MUL(vertex->rhw, vertex->sz);
+		vertex++;
 	}
 
 	vertexMap[p_vertexCount] = savedMapEntry;
