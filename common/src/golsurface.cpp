@@ -287,9 +287,9 @@ void GolSurface::Blit(LegoU32 p_x, LegoU32 p_y, GolSurface* p_source, Rect* p_so
 			LegoU32 rows = copyHeight;
 			do {
 				LegoU32 rowDestMask = destMask;
+				LegoU32 rowDestShift = destShift;
 				LegoU32 rowSourceMask = sourceMask;
 				LegoU32 rowSourceShift = sourceShift;
-				LegoU32 rowDestShift = destShift;
 				for (LegoU32 x = 0; x < copyWidth; x++) {
 					LegoU8 color = (sourcePixels[(p_sourceRect->m_left + x) >> 1] & rowSourceMask) >> rowSourceShift;
 					LegoU32 shift = rowDestShift;
