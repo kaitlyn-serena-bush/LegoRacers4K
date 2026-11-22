@@ -226,24 +226,27 @@ void GolFont::DrawGlyph(Rect* p_sourceRect, Rect* p_destRect)
 	vertices[1].sz = 0.0f;
 	vertices[2].sz = 0.0f;
 
-	vertices[1].sx = vertices[0].sx = static_cast<LegoFloat>(p_destRect->m_left);
+	vertices[0].sx = (static_cast<LegoFloat>(p_destRect->m_left));
 	vertices[3].sz = 0.0f;
 	vertices[0].rhw = 1.0f;
-	vertices[0].sy = static_cast<LegoFloat>(p_destRect->m_top);
+	vertices[0].sy = (static_cast<LegoFloat>(p_destRect->m_top));
 	vertices[1].rhw = 1.0f;
 	vertices[2].rhw = 1.0f;
-	vertices[3].sy = vertices[1].sy = static_cast<LegoFloat>(p_destRect->m_bottom);
-	vertices[3].sx = vertices[2].sx = static_cast<LegoFloat>(p_destRect->m_right);
-	vertices[3].rhw = 1.0f;
-
-	vertices[0].tu =
-		((((static_cast<LegoFloat>(p_sourceRect->m_left) * m_inverseTextureWidth)))) + (m_inverseTextureWidth * 0.25f);
+	vertices[1].sx = vertices[0].sx;
+	vertices[1].sy = (static_cast<LegoFloat>(p_destRect->m_bottom));
+	vertices[2].sx = (static_cast<LegoFloat>(p_destRect->m_right));
+	vertices[3].sx = vertices[2].sx;
 	vertices[2].sy = vertices[0].sy;
-	vertices[0].tv = (((((static_cast<LegoFloat>(p_sourceRect->m_top) * m_inverseTextureHeight)))));
+	vertices[3].rhw = 1.0f;
+	vertices[3].sy = vertices[1].sy;
+
+	LegoFloat quarter = m_inverseTextureWidth;
+	quarter *= 0.25f;
+	vertices[0].tu = ((((static_cast<LegoFloat>(p_sourceRect->m_left))) * m_inverseTextureWidth)) + quarter;
+	vertices[0].tv = (((((static_cast<LegoFloat>(p_sourceRect->m_top))) * m_inverseTextureHeight)));
 	vertices[1].tu = vertices[0].tu;
-	vertices[1].tv = (((((static_cast<LegoFloat>(sourceBottom) * m_inverseTextureHeight)))));
-	vertices[2].tu =
-		((((static_cast<LegoFloat>(p_sourceRect->m_right) * m_inverseTextureWidth)))) + (m_inverseTextureWidth * 0.25f);
+	vertices[1].tv = ((((static_cast<LegoFloat>(sourceBottom))) * m_inverseTextureHeight));
+	vertices[2].tu = ((((static_cast<LegoFloat>(p_sourceRect->m_right))) * m_inverseTextureWidth)) + quarter;
 	vertices[2].tv = vertices[0].tv;
 	vertices[3].tu = vertices[2].tu;
 	vertices[3].tv = vertices[1].tv;
