@@ -732,7 +732,6 @@ void GolBmpFile::LoadTiledTexture(GolTiledTexture* p_image, LegoU32 p_flags, Col
 	LegoS32 rowByteCount;
 	LegoU8* availableDecompressedPtr;
 	LegoS32 amount;
-	LegoS32 tileHeight;
 
 	if (m_height != p_image->GetHeight() || m_width != p_image->GetWidth()) {
 		GOL_FATALERROR_MESSAGE("Invalid image size for given storage");
@@ -804,18 +803,22 @@ void GolBmpFile::LoadTiledTexture(GolTiledTexture* p_image, LegoU32 p_flags, Col
 		}
 		LegoS32 bitsPerPixel = m_format.m_bitsPerPixel;
 		if (bitsPerPixel == 4) {
-			rowByteCount = static_cast<LegoS32>(m_width * 4 + 4) >> 3;
+			rowByteCount = m_width * 4 + 4;
 		}
 		else {
-			rowByteCount = static_cast<LegoS32>(m_width * bitsPerPixel) >> 3;
+			rowByteCount = m_width * bitsPerPixel;
 		}
+		rowByteCount >>= 3;
 		availableDecompressedSize = 0;
 		for (y = 0; y < m_height; y++) {
-			if (rowByteCount > availableDecompressedSize) {
+			if (availableDecompressedSize < rowByteCount) {
 				if (availableDecompressedSize != 0) {
 					::memcpy(rowBuffer, availableDecompressedPtr, availableDecompressedSize);
+					rowAmount = availableDecompressedSize;
 				}
-				rowAmount = availableDecompressedSize;
+				else {
+					rowAmount = 0;
+				}
 				while (rowAmount < rowByteCount) {
 					result = m_file.BufferedRead(fileOffset, readBuffer, 4, &amount);
 					if (result != GolStream::e_ioSuccess) {
@@ -871,7 +874,7 @@ void GolBmpFile::LoadTiledTexture(GolTiledTexture* p_image, LegoU32 p_flags, Col
 			}
 			ConvertRow(rowBuffer, convertedRow, format);
 
-			tileHeight = 0;
+			LegoS32 tileHeight = 0;
 			LegoU32 sourceOffset = 0;
 			for (column = 0; column < p_image->GetTileColumnCount(); column++) {
 				LegoS32 tileWidth = p_image->GetTileWidth(column);
@@ -929,7 +932,7 @@ void GolBmpFile::LoadTiledTexture(GolTiledTexture* p_image, LegoU32 p_flags, Col
 				GOL_FATALERROR_MESSAGE(GolStream::ErrorCodeToString(result));
 			}
 			ConvertRow(rowBuffer, convertedRow, format);
-			tileHeight = 0;
+			LegoS32 tileHeight = 0;
 			LegoU32 sourceOffset = 0;
 			for (column = 0; column < p_image->GetTileColumnCount(); column++) {
 				LegoS32 tileWidth = p_image->GetTileWidth(column);
@@ -969,8 +972,8 @@ void GolBmpFile::LoadTiledTexture(GolTiledTexture* p_image, LegoU32 p_flags, Col
 	if (readBuffer != NULL && readBuffer != m_decompressBuffer) {
 		delete[] readBuffer;
 	}
-	delete[] tilePitches;
 	delete[] tilePixels;
+	delete[] tilePitches;
 	delete[] convertedRow;
 	for (column = 0; column < p_image->GetTileColumnCount(); column++) {
 		for (row = 0; row < p_image->GetTileRowCount(); row++) {
