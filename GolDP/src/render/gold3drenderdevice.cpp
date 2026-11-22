@@ -6008,8 +6008,9 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 
 		D3DTLVERTEX* fanFirst = vertexIn[0];
 		D3DTLVERTEX* fanSecond = vertexIn[1];
+		D3DTLVERTEX** fanThird = &vertexIn[2];
 
-		if (ComputeScreenArea(*fanFirst, *fanSecond, *vertexIn[2]) <= 0.0f) {
+		if (ComputeScreenArea(*fanFirst, *fanSecond, **fanThird) <= 0.0f) {
 			triangle += 4;
 			continue;
 		}
@@ -6035,17 +6036,17 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		clippedVertexCount++;
 		LegoU16 previousIndex = clippedVertexCount++;
 
-		D3DTLVERTEX** fanCursor = &vertexIn[2];
 		D3DTLVERTEX** fanEnd = &vertexIn[vertexCount];
+		D3DTLVERTEX** fanCursor = fanThird;
 
 		if (fanCursor < fanEnd) {
 			do {
+				fanCursor++;
 				*clippedIndices++ = firstVertex;
 				*clippedIndices++ = previousIndex;
 				previousIndex = clippedVertexCount++;
 				*clippedIndices++ = previousIndex;
-				*output++ = **fanCursor;
-				fanCursor++;
+				*output++ = *fanCursor[-1];
 			} while (fanCursor < fanEnd);
 		}
 
