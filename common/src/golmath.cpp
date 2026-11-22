@@ -4,12 +4,6 @@
 
 #include <math.h>
 
-#ifdef BUILDING_GOL
-static const LegoFloat g_two = 2.0f;
-#else
-extern const LegoFloat g_two;
-#endif
-
 DECOMP_SIZE_ASSERT(GolVec2, 0x8)
 DECOMP_SIZE_ASSERT(GolVec3, 0xc)
 DECOMP_SIZE_ASSERT(GolMatrix4, 0x40)
@@ -305,7 +299,7 @@ void GolMath::QuatToMatrix3(const GolQuat* p_quat, LegoFloat* p_dest)
 	LegoFloat y = p_quat->m_y;
 	LegoFloat z = p_quat->m_z;
 	LegoFloat w = p_quat->m_w;
-	LegoFloat scale = g_two / (w * w + z * z + y * y + x * x);
+	LegoFloat scale = 2.0f / (w * w + z * z + y * y + x * x);
 	LegoFloat sx = GOL_MUL(scale, p_quat->m_x);
 	LegoFloat sy = GOL_MUL(p_quat->m_y, scale);
 	LegoFloat sz = GOL_MUL(scale, p_quat->m_z);

@@ -45,8 +45,6 @@ LegoFloat g_explosionScarAlpha = 180.0f;
 // GLOBAL: LEGORACERS 0x004b0160
 static const LegoFloat g_explosionPositionLimit = 2048.0f;
 
-extern const LegoFloat g_two;
-
 // FUNCTION: LEGORACERS 0x004210b0
 PowerupExplosion::PowerupExplosion()
 {
@@ -360,7 +358,7 @@ void PowerupExplosion::UpdateFlash(LegoU32 p_elapsedMs)
 			m_modelEntity.SetScaleThenInvalidateRadius(value);
 		}
 
-		m_alpha = GOL_MUL(g_two - (m_growth + m_growth), g_explosionMaxAlpha);
+		m_alpha = GOL_MUL(2.0f - (m_growth + m_growth), g_explosionMaxAlpha);
 		if (m_alpha < 0.0f) {
 			m_alpha = 0.0f;
 		}

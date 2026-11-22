@@ -13,7 +13,6 @@
 #include <math.h>
 #include <string.h>
 
-extern const LegoFloat g_two;
 extern const LegoFloat g_carBuildModelHeightScale;
 
 DECOMP_SIZE_ASSERT(CarModelScreenBase::CarPartPlacement, 0x2d0)
@@ -680,7 +679,7 @@ LegoBool32 CarModelScreenBase::CarPartPlacement::PitchViewAnalog(LegoFloat p_del
 	}
 
 	if (p_delta > 0.0f) {
-		if (m_viewPitch >= g_two) {
+		if (m_viewPitch >= 2.0f) {
 			return FALSE;
 		}
 	}
@@ -692,7 +691,7 @@ LegoBool32 CarModelScreenBase::CarPartPlacement::PitchViewAnalog(LegoFloat p_del
 	if (m_viewPitch < 0.0f) {
 		m_viewPitch = 0.0f;
 	}
-	else if (m_viewPitch > g_two) {
+	else if (m_viewPitch > 2.0f) {
 		m_viewPitch = 2.0f;
 	}
 
