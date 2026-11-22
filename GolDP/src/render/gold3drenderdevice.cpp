@@ -5674,7 +5674,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newVertex->sx =
 						GOL_MUL(GOL_MUL(newVertex->rhw, newCache->m_x), m_viewportMetrics[0]) + m_viewportMetrics[2];
 					newVertex->sy =
-						GOL_MUL(GOL_MUL(newCache->m_y, newVertex->rhw), m_viewportMetrics[1]) + m_viewportMetrics[3];
+						(newCache->m_y * newVertex->rhw) * m_viewportMetrics[1] + m_viewportMetrics[3];
 				}
 
 				if (!outside) {
@@ -5735,7 +5735,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newVertex->sx =
 						GOL_MUL(GOL_MUL(newVertex->rhw, newCache->m_x), m_viewportMetrics[0]) + m_viewportMetrics[2];
 					newVertex->sy =
-						GOL_MUL(GOL_MUL(newCache->m_y, newVertex->rhw), m_viewportMetrics[1]) + m_viewportMetrics[3];
+						(newCache->m_y * newVertex->rhw) * m_viewportMetrics[1] + m_viewportMetrics[3];
 				}
 
 				if (!outside) {
@@ -5795,7 +5795,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newCache->m_clipFlags = BuildClipYFlags(newCache->m_y, newCache->m_w);
 					newVertex->sx = m_viewportMetrics[2];
 					newVertex->sy =
-						GOL_MUL(GOL_MUL(newCache->m_y, newVertex->rhw), m_viewportMetrics[1]) + m_viewportMetrics[3];
+						(newCache->m_y * newVertex->rhw) * m_viewportMetrics[1] + m_viewportMetrics[3];
 					newVertex->sz = newCache->m_z * newVertex->rhw;
 				}
 
@@ -5856,7 +5856,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newCache->m_clipFlags = BuildClipYFlags(newCache->m_y, newCache->m_w);
 					newVertex->sx = m_viewportMetrics[0] + m_viewportMetrics[2];
 					newVertex->sy =
-						GOL_MUL(GOL_MUL(newCache->m_y, newVertex->rhw), m_viewportMetrics[1]) + m_viewportMetrics[3];
+						(newCache->m_y * newVertex->rhw) * m_viewportMetrics[1] + m_viewportMetrics[3];
 					newVertex->sz = newCache->m_z * newVertex->rhw;
 				}
 
@@ -6199,8 +6199,8 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 	LegoU32* firstIndex;
 	LegoU32* lastIndex;
 
-	LegoFloat farClip = m_currentCamera->m_farClip;
 	LegoFloat nearClip = m_currentCamera->m_nearClip;
+	LegoFloat farClip = m_currentCamera->m_farClip;
 
 	if ((m_activeMaterialFlags | m_forcedMaterialFlags) & GolMaterial::c_flagRotateVertices) {
 		firstIndex = &indexA[2];
