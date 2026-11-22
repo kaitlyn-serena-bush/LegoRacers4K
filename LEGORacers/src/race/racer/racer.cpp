@@ -415,8 +415,10 @@ void Racer::Reset()
 	m_aiGreenUseChance = invalidIndex;
 	m_aiBlueUseChance = invalidIndex;
 	m_driverStat4 = invalidIndex;
-	m_driverStat5 = invalidIndex;
-	m_lookTargetPosition.m_y = 0;
+	LegoU8& sweepRef0 = m_driverStat5;
+	sweepRef0 = invalidIndex;
+	LegoFloat& sweepRef1 = m_lookTargetPosition.m_y;
+	sweepRef1 = 0;
 
 	DroppableBrick* brick = NULL;
 	m_lookTargetPosition.m_z = 0;
