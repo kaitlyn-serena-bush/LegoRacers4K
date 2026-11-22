@@ -5782,20 +5782,20 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 
 				if (outside ^ previousOutside) {
 					LegoFloat distance = previousCache->m_x;
-					LegoFloat t = distance / (distance - cache->m_x);
+					LegoFloat t = ((((distance / (distance - cache->m_x)))));
 					D3DTLVERTEX* newVertex = clipVertex++;
 					vertexOut[outputCount] = newVertex;
 					VertexCacheEntry* newCache = clipCache++;
 					newCache->m_x = 0.0f;
 					cacheOut[outputCount] = newCache;
-					newCache->m_y = (((((cache->m_y - previousCache->m_y) * t)))) + previousCache->m_y;
+					newCache->m_y = (cache->m_y - previousCache->m_y) * t + previousCache->m_y;
 					newCache->m_z = (((((cache->m_z - previousCache->m_z) * t)))) + previousCache->m_z;
 					newCache->m_w = (cache->m_w - previousCache->m_w) * t + previousCache->m_w;
 					newVertex->tu = (vertex->tu - previousVertex->tu) * t + previousVertex->tu;
 					newVertex->tv = (vertex->tv - previousVertex->tv) * t + previousVertex->tv;
 					newVertex->color = InterpolateClipColor(previousVertex->color, vertex->color, t);
 					outputCount++;
-					newVertex->rhw = 1.0f / (newCache->m_w);
+					newVertex->rhw = (((((1.0f / (newCache->m_w))))));
 					newCache->m_clipFlags = BuildClipYFlags(newCache->m_y, newCache->m_w);
 					newVertex->sx = m_viewportMetrics[2];
 					newVertex->sy =
@@ -5972,7 +5972,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					vertexOut[outputCount] = newVertex;
 					VertexCacheEntry* newCache = clipCache++;
 					cacheOut[outputCount] = newCache;
-					newCache->m_x = ((cache->m_x - previousCache->m_x) * t) + previousCache->m_x;
+					newCache->m_x = (cache->m_x - previousCache->m_x) * t + previousCache->m_x;
 					newCache->m_z = ((cache->m_z - previousCache->m_z) * t) + previousCache->m_z;
 					newCache->m_w = ((cache->m_w - previousCache->m_w) * t) + previousCache->m_w;
 					newVertex->tu = ((vertex->tu - previousVertex->tu) * t) + previousVertex->tu;
