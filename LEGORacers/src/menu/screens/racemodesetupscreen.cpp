@@ -195,7 +195,12 @@ void RaceModeSetupScreen::OnWidgetValueChanged(MenuWidget* p_source)
 
 	if (p_source == &m_trackSelector) {
 		LegoU32 circuitIndex = m_trackCarousel.GetSelectedIndex();
-		m_circuitEntry = m_context->m_circuitList.GetEntry(circuitIndex);
+		if (circuitIndex >= m_context->m_circuitList.GetEntryCount()) {
+			m_circuitEntry = NULL;
+		}
+		else {
+			m_circuitEntry = &m_context->m_circuitList.m_entries[circuitIndex];
+		}
 
 		if (m_circuitEntry) {
 			LegoU8 mask = static_cast<LegoU8>(1 << m_context->m_circuitList.GetEntryIndex(m_circuitEntry));

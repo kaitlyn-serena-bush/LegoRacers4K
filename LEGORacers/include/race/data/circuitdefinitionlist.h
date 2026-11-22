@@ -83,6 +83,8 @@ public:
 	LegoU32 GetEntryIndex(CircuitDefinition* p_entry) const;
 
 private:
+	friend class RaceModeSetupScreen;
+
 	enum {
 		c_tokenCircuitDefinition = 0x27
 	};
