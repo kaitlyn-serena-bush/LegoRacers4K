@@ -331,15 +331,15 @@ private:
 	GolD3DRenderState::DrawCommand m_drawCommand;                                  // 0xc8530
 	GolD3DRenderState::MaterialCommand m_materialCommand;                          // 0xc854c
 	LegoBool32 m_unk0xc8568;                                                       // 0xc8568
-	ColorRGBA m_unk0xc856c;                                                        // 0xc856c
-	undefined4 m_unk0xc8570;                                                       // 0xc8570
-	undefined4 m_unk0xc8574;                                                       // 0xc8574
-	undefined4 m_unk0xc8578;                                                       // 0xc8578
-	undefined4 m_unk0xc857c;                                                       // 0xc857c
-	ColorRGBA m_unk0xc8580[7];                                                     // 0xc8580
-	FColorRGB m_unk0xc859c[7];                                                     // 0xc859c
-	GolVec3 m_unk0xc85f0[7];                                                       // 0xc85f0
-	GolVec3 m_unk0xc8644[7];                                                       // 0xc8644
+	ColorRGBA m_ambientLightColor;                                                 // 0xc856c
+	undefined4 m_ambientProductRed;                                                // 0xc8570
+	undefined4 m_ambientProductGrn;                                                // 0xc8574
+	undefined4 m_ambientProductBlu;                                                // 0xc8578
+	undefined4 m_ambientProductAlp;                                                // 0xc857c
+	ColorRGBA m_lightColors[7];                                                    // 0xc8580
+	FColorRGB m_lightColorProducts[7];                                             // 0xc859c
+	GolVec3 m_lightDirections[7];                                                  // 0xc85f0
+	GolVec3 m_transformedLightDirections[7];                                       // 0xc8644
 	GolSoftwareRenderer m_softwareRenderer;                                        // 0xc8698
 	GolSoftwareRenderer::TriangleCommand* m_unk0xc86f0;                            // 0xc86f0
 	LegoS32 m_unk0xc86f4;                                                          // 0xc86f4

@@ -1966,18 +1966,18 @@ void GolD3DRenderDevice::ApplyMaterialHw(GolMaterial* p_material)
 	m_drawCommand.m_material = p_material;
 	if (m_unk0xc8568 != 0) {
 		GolMaterialColor c = p_material->GetAmbient();
-		m_unk0xc8570 = static_cast<LegoU32>(m_unk0xc856c.m_red * c.m_red) >> 8;
-		m_unk0xc8574 = static_cast<LegoU32>(m_unk0xc856c.m_grn * c.m_grn) >> 8;
-		m_unk0xc8578 = static_cast<LegoU32>(m_unk0xc856c.m_blu * c.m_blu) >> 8;
-		m_unk0xc857c = c.m_alp & 0xff;
+		m_ambientProductRed = static_cast<LegoU32>(m_ambientLightColor.m_red * c.m_red) >> 8;
+		m_ambientProductGrn = static_cast<LegoU32>(m_ambientLightColor.m_grn * c.m_grn) >> 8;
+		m_ambientProductBlu = static_cast<LegoU32>(m_ambientLightColor.m_blu * c.m_blu) >> 8;
+		m_ambientProductAlp = c.m_alp & 0xff;
 		c = p_material->GetDiffuse();
 		for (LegoU32 i = 0; i < m_lightCount; i++) {
-			m_unk0xc859c[i].m_red =
-				static_cast<LegoFloat>(m_unk0xc8580[i].m_red) * static_cast<LegoFloat>(c.m_red & 0xff) / 256.0f;
-			m_unk0xc859c[i].m_grn =
-				static_cast<LegoFloat>(m_unk0xc8580[i].m_grn) * static_cast<LegoFloat>(c.m_grn & 0xff) / 256.0f;
-			m_unk0xc859c[i].m_blu =
-				static_cast<LegoFloat>(m_unk0xc8580[i].m_blu) * static_cast<LegoFloat>(c.m_blu & 0xff) / 256.0f;
+			m_lightColorProducts[i].m_red =
+				static_cast<LegoFloat>(m_lightColors[i].m_red) * static_cast<LegoFloat>(c.m_red & 0xff) / 256.0f;
+			m_lightColorProducts[i].m_grn =
+				static_cast<LegoFloat>(m_lightColors[i].m_grn) * static_cast<LegoFloat>(c.m_grn & 0xff) / 256.0f;
+			m_lightColorProducts[i].m_blu =
+				static_cast<LegoFloat>(m_lightColors[i].m_blu) * static_cast<LegoFloat>(c.m_blu & 0xff) / 256.0f;
 		}
 	}
 
@@ -2213,16 +2213,16 @@ void GolD3DRenderDevice::ApplyMaterialSw(GolMaterial* p_material)
 
 	if (m_unk0xc8568 != 0) {
 		GolMaterialColor color = p_material->GetAmbient();
-		m_unk0xc8570 = (static_cast<LegoU32>(m_unk0xc856c.m_red) * static_cast<LegoU32>(color.m_red & 0xff)) >> 8;
-		m_unk0xc8574 = (static_cast<LegoU32>(m_unk0xc856c.m_grn) * static_cast<LegoU32>(color.m_grn & 0xff)) >> 8;
-		m_unk0xc8578 = (static_cast<LegoU32>(m_unk0xc856c.m_blu) * static_cast<LegoU32>(color.m_blu & 0xff)) >> 8;
-		m_unk0xc857c = color.m_alp & 0xff;
+		m_ambientProductRed = (static_cast<LegoU32>(m_ambientLightColor.m_red) * static_cast<LegoU32>(color.m_red & 0xff)) >> 8;
+		m_ambientProductGrn = (static_cast<LegoU32>(m_ambientLightColor.m_grn) * static_cast<LegoU32>(color.m_grn & 0xff)) >> 8;
+		m_ambientProductBlu = (static_cast<LegoU32>(m_ambientLightColor.m_blu) * static_cast<LegoU32>(color.m_blu & 0xff)) >> 8;
+		m_ambientProductAlp = color.m_alp & 0xff;
 
 		color = p_material->GetDiffuse();
 		for (LegoU32 i = 0; i < m_lightCount; i++) {
-			m_unk0xc859c[i].m_red = ScaleColorChannel(m_unk0xc8580[i].m_red, color.m_red & 0xff);
-			m_unk0xc859c[i].m_grn = ScaleColorChannel(m_unk0xc8580[i].m_grn, color.m_grn & 0xff);
-			m_unk0xc859c[i].m_blu = ScaleColorChannel(m_unk0xc8580[i].m_blu, color.m_blu & 0xff);
+			m_lightColorProducts[i].m_red = ScaleColorChannel(m_lightColors[i].m_red, color.m_red & 0xff);
+			m_lightColorProducts[i].m_grn = ScaleColorChannel(m_lightColors[i].m_grn, color.m_grn & 0xff);
+			m_lightColorProducts[i].m_blu = ScaleColorChannel(m_lightColors[i].m_blu, color.m_blu & 0xff);
 		}
 	}
 
@@ -2339,31 +2339,31 @@ void GolD3DRenderDevice::SetCurrentMatrixIndex(LegoU32 p_index)
 	if (m_unk0xc8568 != 0) {
 		GolMatrix4* lightMatrix = &(*orbits)[p_index].m_worldMatrix;
 		for (LegoU32 i = 0; i < m_lightCount; i++) {
-			LegoFloat product = m_unk0xc85f0[i].m_x;
+			LegoFloat product = m_lightDirections[i].m_x;
 			product *= lightMatrix->m_m[0][0];
-			m_unk0xc8644[i].m_x = product;
-			product = m_unk0xc85f0[i].m_x;
+			m_transformedLightDirections[i].m_x = product;
+			product = m_lightDirections[i].m_x;
 			product *= lightMatrix->m_m[1][0];
-			m_unk0xc8644[i].m_y = product;
-			product = m_unk0xc85f0[i].m_x;
+			m_transformedLightDirections[i].m_y = product;
+			product = m_lightDirections[i].m_x;
 			product *= lightMatrix->m_m[2][0];
-			m_unk0xc8644[i].m_z = product;
+			m_transformedLightDirections[i].m_z = product;
 
 			product = lightMatrix->m_m[0][1];
-			product *= m_unk0xc85f0[i].m_y;
-			m_unk0xc8644[i].m_x += product;
+			product *= m_lightDirections[i].m_y;
+			m_transformedLightDirections[i].m_x += product;
 			product = lightMatrix->m_m[1][1];
-			product *= m_unk0xc85f0[i].m_y;
-			m_unk0xc8644[i].m_y += product;
+			product *= m_lightDirections[i].m_y;
+			m_transformedLightDirections[i].m_y += product;
 			product = lightMatrix->m_m[2][1];
-			product *= m_unk0xc85f0[i].m_y;
-			m_unk0xc8644[i].m_z += product;
+			product *= m_lightDirections[i].m_y;
+			m_transformedLightDirections[i].m_z += product;
 
-			m_unk0xc8644[i].m_x += m_unk0xc85f0[i].m_z * lightMatrix->m_m[0][2];
-			product = m_unk0xc85f0[i].m_z;
+			m_transformedLightDirections[i].m_x += m_lightDirections[i].m_z * lightMatrix->m_m[0][2];
+			product = m_lightDirections[i].m_z;
 			product *= lightMatrix->m_m[1][2];
-			m_unk0xc8644[i].m_y += product;
-			m_unk0xc8644[i].m_z += m_unk0xc85f0[i].m_z * lightMatrix->m_m[2][2];
+			m_transformedLightDirections[i].m_y += product;
+			m_transformedLightDirections[i].m_z += m_lightDirections[i].m_z * lightMatrix->m_m[2][2];
 		}
 	}
 }
@@ -2384,35 +2384,35 @@ void GolD3DRenderDevice::FUN_1000add0(GolWorldEntity* p_model, GolModel* p_model
 	m_sourceNormals = vertexArray->GetNormals();
 
 	for (LegoU32 i = 0; i < m_lightCount; i++) {
-		LegoFloat product = m_unk0xc85f0[i].m_x;
+		LegoFloat product = m_lightDirections[i].m_x;
 		product *= m_unk0xc8450.m_m[0][0];
-		m_unk0xc8644[i].m_x = product;
-		product = m_unk0xc85f0[i].m_x;
+		m_transformedLightDirections[i].m_x = product;
+		product = m_lightDirections[i].m_x;
 		product *= m_unk0xc8450.m_m[1][0];
-		m_unk0xc8644[i].m_y = product;
-		product = m_unk0xc85f0[i].m_x;
+		m_transformedLightDirections[i].m_y = product;
+		product = m_lightDirections[i].m_x;
 		product *= m_unk0xc8450.m_m[2][0];
-		m_unk0xc8644[i].m_z = product;
+		m_transformedLightDirections[i].m_z = product;
 
 		product = m_unk0xc8450.m_m[0][1];
-		product *= m_unk0xc85f0[i].m_y;
-		m_unk0xc8644[i].m_x += product;
+		product *= m_lightDirections[i].m_y;
+		m_transformedLightDirections[i].m_x += product;
 		product = m_unk0xc8450.m_m[1][1];
-		product *= m_unk0xc85f0[i].m_y;
-		m_unk0xc8644[i].m_y += product;
+		product *= m_lightDirections[i].m_y;
+		m_transformedLightDirections[i].m_y += product;
 		product = m_unk0xc8450.m_m[2][1];
-		product *= m_unk0xc85f0[i].m_y;
-		m_unk0xc8644[i].m_z += product;
+		product *= m_lightDirections[i].m_y;
+		m_transformedLightDirections[i].m_z += product;
 
-		product = m_unk0xc85f0[i].m_z;
+		product = m_lightDirections[i].m_z;
 		product *= m_unk0xc8450.m_m[0][2];
-		m_unk0xc8644[i].m_x += product;
-		product = m_unk0xc85f0[i].m_z;
+		m_transformedLightDirections[i].m_x += product;
+		product = m_lightDirections[i].m_z;
 		product *= m_unk0xc8450.m_m[1][2];
-		m_unk0xc8644[i].m_y += product;
+		m_transformedLightDirections[i].m_y += product;
 		product = m_unk0xc8450.m_m[2][2];
-		product *= m_unk0xc85f0[i].m_z;
-		m_unk0xc8644[i].m_z += product;
+		product *= m_lightDirections[i].m_z;
+		m_transformedLightDirections[i].m_z += product;
 	}
 }
 
@@ -2451,17 +2451,17 @@ void GolD3DRenderDevice::ClearColorOverride()
 void GolD3DRenderDevice::ClearLights()
 {
 	GolRenderDevice::ClearLights();
-	m_unk0xc856c.m_red = 0xff;
-	m_unk0xc856c.m_grn = 0xff;
-	m_unk0xc856c.m_blu = 0xff;
-	m_unk0xc856c.m_alp = 0xff;
+	m_ambientLightColor.m_red = 0xff;
+	m_ambientLightColor.m_grn = 0xff;
+	m_ambientLightColor.m_blu = 0xff;
+	m_ambientLightColor.m_alp = 0xff;
 
 	if (m_drawCommand.m_material != NULL) {
 		GolMaterialColor color = m_drawCommand.m_material->GetAmbient();
-		m_unk0xc8570 = color.m_red & 0xff;
-		m_unk0xc8574 = color.m_grn & 0xff;
-		m_unk0xc8578 = color.m_blu & 0xff;
-		m_unk0xc857c = color.m_alp & 0xff;
+		m_ambientProductRed = color.m_red & 0xff;
+		m_ambientProductGrn = color.m_grn & 0xff;
+		m_ambientProductBlu = color.m_blu & 0xff;
+		m_ambientProductAlp = color.m_alp & 0xff;
 	}
 }
 
@@ -2469,20 +2469,20 @@ void GolD3DRenderDevice::ClearLights()
 void GolD3DRenderDevice::SetAmbient(const MaterialColor* p_param)
 {
 	GolRenderDevice::SetAmbient(p_param);
-	m_unk0xc856c = p_param->m_color;
+	m_ambientLightColor = p_param->m_color;
 
 	if (m_drawCommand.m_material != NULL) {
 		GolMaterialColor color = m_drawCommand.m_material->GetAmbient();
-		m_unk0xc8570 = (static_cast<LegoU32>(m_unk0xc856c.m_red) * static_cast<LegoU32>(color.m_red & 0xff)) >> 8;
-		m_unk0xc8574 = (static_cast<LegoU32>(m_unk0xc856c.m_grn) * static_cast<LegoU32>(color.m_grn & 0xff)) >> 8;
-		m_unk0xc8578 = (static_cast<LegoU32>(m_unk0xc856c.m_blu) * static_cast<LegoU32>(color.m_blu & 0xff)) >> 8;
-		m_unk0xc857c = color.m_alp & 0xff;
+		m_ambientProductRed = (static_cast<LegoU32>(m_ambientLightColor.m_red) * static_cast<LegoU32>(color.m_red & 0xff)) >> 8;
+		m_ambientProductGrn = (static_cast<LegoU32>(m_ambientLightColor.m_grn) * static_cast<LegoU32>(color.m_grn & 0xff)) >> 8;
+		m_ambientProductBlu = (static_cast<LegoU32>(m_ambientLightColor.m_blu) * static_cast<LegoU32>(color.m_blu & 0xff)) >> 8;
+		m_ambientProductAlp = color.m_alp & 0xff;
 	}
 	else {
-		m_unk0xc8570 = 0;
-		m_unk0xc8574 = 0;
-		m_unk0xc8578 = 0;
-		m_unk0xc857c = 0xff;
+		m_ambientProductRed = 0;
+		m_ambientProductGrn = 0;
+		m_ambientProductBlu = 0;
+		m_ambientProductAlp = 0xff;
 	}
 }
 
@@ -2499,8 +2499,8 @@ void GolD3DRenderDevice::AddLight(const Light* p_param)
 // FUNCTION: GOLDP 0x1000b0f0
 void GolD3DRenderDevice::SetLight(LegoU32 p_index, const Light* p_param)
 {
-	m_unk0xc8580[p_index] = p_param->m_color;
-	m_unk0xc85f0[p_index] = p_param->m_direction;
+	m_lightColors[p_index] = p_param->m_color;
+	m_lightDirections[p_index] = p_param->m_direction;
 
 	GolMaterialColor color;
 	if (m_drawCommand.m_material != NULL) {
@@ -2513,10 +2513,10 @@ void GolD3DRenderDevice::SetLight(LegoU32 p_index, const Light* p_param)
 	}
 
 	// Ghost form: the two extra paren pairs keep the fild of the material colour ahead of the light colour load.
-	m_unk0xc859c[p_index].m_red =
-		ScaleColorChannel((((double) (color.m_red & 0xff))), m_unk0xc8580[p_index].m_red);
-	m_unk0xc859c[p_index].m_grn = ScaleColorChannel(m_unk0xc8580[p_index].m_grn, color.m_grn & 0xff);
-	m_unk0xc859c[p_index].m_blu = ScaleColorChannel(m_unk0xc8580[p_index].m_blu, color.m_blu & 0xff);
+	m_lightColorProducts[p_index].m_red =
+		ScaleColorChannel((((double) (color.m_red & 0xff))), m_lightColors[p_index].m_red);
+	m_lightColorProducts[p_index].m_grn = ScaleColorChannel(m_lightColors[p_index].m_grn, color.m_grn & 0xff);
+	m_lightColorProducts[p_index].m_blu = ScaleColorChannel(m_lightColors[p_index].m_blu, color.m_blu & 0xff);
 }
 
 // FUNCTION: GOLDP 0x1000b1f0
@@ -6890,13 +6890,13 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 void GolD3DRenderDevice::FUN_10011e60(undefined4 p_outputFirst, undefined4 p_firstVertex, undefined4 p_vertexCount)
 {
 	LegoU32 vertexCount = p_vertexCount;
-	LegoU32 color = m_unk0xc857c;
-	LegoU32 red = m_unk0xc8570;
+	LegoU32 color = m_ambientProductAlp;
+	LegoU32 red = m_ambientProductRed;
 	color <<= 8;
-	LegoU32 blue = m_unk0xc8578;
+	LegoU32 blue = m_ambientProductBlu;
 	LegoU32 firstVertex = p_firstVertex;
 	color |= red;
-	LegoU32 green = m_unk0xc8574;
+	LegoU32 green = m_ambientProductGrn;
 	color <<= 8;
 	color |= green;
 	LegoU32 endIndex = firstVertex + vertexCount;
@@ -6921,25 +6921,25 @@ void GolD3DRenderDevice::FUN_10011ed0(undefined4 p_outputFirst, undefined4 p_fir
 	LegoU32* color = m_sourceColors + firstVertex;
 	LegoU32* colorEnd = m_sourceColors + endIndex;
 	const GolVec3* normal = m_sourceNormals + firstVertex;
-	LegoS32 baseRed = static_cast<LegoS32>(m_unk0xc8570);
-	LegoS32 baseGreen = static_cast<LegoS32>(m_unk0xc8574);
-	LegoS32 baseBlue = static_cast<LegoS32>(m_unk0xc8578);
-	LegoU32 alpha = m_unk0xc857c;
+	LegoS32 baseRed = static_cast<LegoS32>(m_ambientProductRed);
+	LegoS32 baseGreen = static_cast<LegoS32>(m_ambientProductGrn);
+	LegoS32 baseBlue = static_cast<LegoS32>(m_ambientProductBlu);
+	LegoU32 alpha = m_ambientProductAlp;
 
 	for (; color < colorEnd; color++, normal++) {
-		LegoFloat intensity = normal->m_z * m_unk0xc8644[0].m_z;
-		intensity += normal->m_y * m_unk0xc8644[0].m_y;
-		intensity += normal->m_x * m_unk0xc8644[0].m_x;
+		LegoFloat intensity = normal->m_z * m_transformedLightDirections[0].m_z;
+		intensity += normal->m_y * m_transformedLightDirections[0].m_y;
+		intensity += normal->m_x * m_transformedLightDirections[0].m_x;
 
-		LegoFloat redProduct = m_unk0xc859c[0].m_red;
+		LegoFloat redProduct = m_lightColorProducts[0].m_red;
 		redProduct *= intensity;
 		LegoS32 red = baseRed - static_cast<LegoS32>(redProduct);
 
-		LegoFloat greenProduct = m_unk0xc859c[0].m_grn;
+		LegoFloat greenProduct = m_lightColorProducts[0].m_grn;
 		greenProduct *= intensity;
 		LegoS32 green = baseGreen - static_cast<LegoS32>(greenProduct);
 
-		LegoFloat blueProduct = m_unk0xc859c[0].m_blu;
+		LegoFloat blueProduct = m_lightColorProducts[0].m_blu;
 		blueProduct *= intensity;
 		LegoS32 blue = baseBlue - static_cast<LegoS32>(blueProduct);
 
@@ -6984,45 +6984,45 @@ void GolD3DRenderDevice::FUN_10012030(undefined4 p_outputFirst, undefined4 p_fir
 	LegoU32* color = m_sourceColors + firstVertex;
 	LegoU32* colorEnd = m_sourceColors + endIndex;
 	const GolVec3* normal = m_sourceNormals + firstVertex;
-	LegoS32 baseRed = static_cast<LegoS32>(m_unk0xc8570);
-	LegoS32 baseGreen = static_cast<LegoS32>(m_unk0xc8574);
-	LegoS32 baseBlue = static_cast<LegoS32>(m_unk0xc8578);
-	LegoU32 alpha = m_unk0xc857c;
+	LegoS32 baseRed = static_cast<LegoS32>(m_ambientProductRed);
+	LegoS32 baseGreen = static_cast<LegoS32>(m_ambientProductGrn);
+	LegoS32 baseBlue = static_cast<LegoS32>(m_ambientProductBlu);
+	LegoU32 alpha = m_ambientProductAlp;
 
 	for (; color < colorEnd; color++, normal++) {
 		LegoS32 red = baseRed;
 		LegoS32 green = baseGreen;
 		LegoS32 blue = baseBlue;
 
-		LegoFloat intensity = normal->m_z * m_unk0xc8644[0].m_z;
-		intensity += normal->m_y * m_unk0xc8644[0].m_y;
-		intensity += normal->m_x * m_unk0xc8644[0].m_x;
+		LegoFloat intensity = normal->m_z * m_transformedLightDirections[0].m_z;
+		intensity += normal->m_y * m_transformedLightDirections[0].m_y;
+		intensity += normal->m_x * m_transformedLightDirections[0].m_x;
 
-		LegoFloat redProduct = m_unk0xc859c[0].m_red;
+		LegoFloat redProduct = m_lightColorProducts[0].m_red;
 		redProduct *= intensity;
 		red -= static_cast<LegoS32>(redProduct);
 
-		LegoFloat greenProduct = m_unk0xc859c[0].m_grn;
+		LegoFloat greenProduct = m_lightColorProducts[0].m_grn;
 		greenProduct *= intensity;
 		green -= static_cast<LegoS32>(greenProduct);
 
-		LegoFloat blueProduct = m_unk0xc859c[0].m_blu;
+		LegoFloat blueProduct = m_lightColorProducts[0].m_blu;
 		blueProduct *= intensity;
 		blue -= static_cast<LegoS32>(blueProduct);
 
-		intensity = normal->m_y * m_unk0xc8644[1].m_y;
-		intensity += normal->m_z * m_unk0xc8644[1].m_z;
-		intensity += normal->m_x * m_unk0xc8644[1].m_x;
+		intensity = normal->m_y * m_transformedLightDirections[1].m_y;
+		intensity += normal->m_z * m_transformedLightDirections[1].m_z;
+		intensity += normal->m_x * m_transformedLightDirections[1].m_x;
 
-		redProduct = m_unk0xc859c[1].m_red;
+		redProduct = m_lightColorProducts[1].m_red;
 		redProduct *= intensity;
 		red -= static_cast<LegoS32>(redProduct);
 
-		greenProduct = m_unk0xc859c[1].m_grn;
+		greenProduct = m_lightColorProducts[1].m_grn;
 		greenProduct *= intensity;
 		green -= static_cast<LegoS32>(greenProduct);
 
-		blueProduct = m_unk0xc859c[1].m_blu;
+		blueProduct = m_lightColorProducts[1].m_blu;
 		blueProduct *= intensity;
 		blue -= static_cast<LegoS32>(blueProduct);
 
@@ -7067,66 +7067,66 @@ void GolD3DRenderDevice::FUN_100121e0(undefined4 p_outputFirst, undefined4 p_fir
 	LegoU32* color = m_sourceColors + firstVertex;
 	LegoU32* colorEnd = m_sourceColors + endIndex;
 	const GolVec3* normal = m_sourceNormals + firstVertex;
-	LegoS32 baseRed = static_cast<LegoS32>(m_unk0xc8570);
-	LegoS32 baseGreen = static_cast<LegoS32>(m_unk0xc8574);
-	LegoS32 baseBlue = static_cast<LegoS32>(m_unk0xc8578);
-	LegoU32 alpha = m_unk0xc857c;
+	LegoS32 baseRed = static_cast<LegoS32>(m_ambientProductRed);
+	LegoS32 baseGreen = static_cast<LegoS32>(m_ambientProductGrn);
+	LegoS32 baseBlue = static_cast<LegoS32>(m_ambientProductBlu);
+	LegoU32 alpha = m_ambientProductAlp;
 
 	for (; color < colorEnd; color++, normal++) {
 		LegoS32 red = baseRed;
 		LegoS32 green = baseGreen;
 		LegoS32 blue = baseBlue;
 
-		LegoFloat intensity = normal->m_z * m_unk0xc8644[0].m_z;
-		intensity += normal->m_y * m_unk0xc8644[0].m_y;
-		intensity += normal->m_x * m_unk0xc8644[0].m_x;
+		LegoFloat intensity = normal->m_z * m_transformedLightDirections[0].m_z;
+		intensity += normal->m_y * m_transformedLightDirections[0].m_y;
+		intensity += normal->m_x * m_transformedLightDirections[0].m_x;
 
-		LegoFloat redProduct = m_unk0xc859c[0].m_red;
+		LegoFloat redProduct = m_lightColorProducts[0].m_red;
 		redProduct *= intensity;
 		red -= static_cast<LegoS32>(redProduct);
 
-		LegoFloat greenProduct = m_unk0xc859c[0].m_grn;
+		LegoFloat greenProduct = m_lightColorProducts[0].m_grn;
 		greenProduct *= intensity;
 		green -= static_cast<LegoS32>(greenProduct);
 
-		LegoFloat blueProduct = m_unk0xc859c[0].m_blu;
+		LegoFloat blueProduct = m_lightColorProducts[0].m_blu;
 		blueProduct *= intensity;
 		blue -= static_cast<LegoS32>(blueProduct);
 
-		intensity = normal->m_y * m_unk0xc8644[1].m_y;
-		intensity += normal->m_z * m_unk0xc8644[1].m_z;
-		intensity += normal->m_x * m_unk0xc8644[1].m_x;
+		intensity = normal->m_y * m_transformedLightDirections[1].m_y;
+		intensity += normal->m_z * m_transformedLightDirections[1].m_z;
+		intensity += normal->m_x * m_transformedLightDirections[1].m_x;
 
-		redProduct = m_unk0xc859c[1].m_red;
+		redProduct = m_lightColorProducts[1].m_red;
 		redProduct *= intensity;
 		red -= static_cast<LegoS32>(redProduct);
 
-		greenProduct = m_unk0xc859c[1].m_grn;
+		greenProduct = m_lightColorProducts[1].m_grn;
 		greenProduct *= intensity;
 		green -= static_cast<LegoS32>(greenProduct);
 
-		blueProduct = m_unk0xc859c[1].m_blu;
+		blueProduct = m_lightColorProducts[1].m_blu;
 		blueProduct *= intensity;
 		blue -= static_cast<LegoS32>(blueProduct);
 
-		intensity = m_unk0xc8644[2].m_z;
+		intensity = m_transformedLightDirections[2].m_z;
 		intensity *= normal->m_z;
-		LegoFloat normalProduct = m_unk0xc8644[2].m_y;
+		LegoFloat normalProduct = m_transformedLightDirections[2].m_y;
 		normalProduct *= normal->m_y;
 		intensity += normalProduct;
-		normalProduct = m_unk0xc8644[2].m_x;
+		normalProduct = m_transformedLightDirections[2].m_x;
 		normalProduct *= normal->m_x;
 		intensity += normalProduct;
 
-		redProduct = m_unk0xc859c[2].m_red;
+		redProduct = m_lightColorProducts[2].m_red;
 		redProduct *= intensity;
 		red -= static_cast<LegoS32>(redProduct);
 
-		greenProduct = m_unk0xc859c[2].m_grn;
+		greenProduct = m_lightColorProducts[2].m_grn;
 		greenProduct *= intensity;
 		green -= static_cast<LegoS32>(greenProduct);
 
-		blueProduct = m_unk0xc859c[2].m_blu;
+		blueProduct = m_lightColorProducts[2].m_blu;
 		blueProduct *= intensity;
 		blue -= static_cast<LegoS32>(blueProduct);
 
@@ -7171,87 +7171,87 @@ void GolD3DRenderDevice::FUN_100123e0(undefined4 p_outputFirst, undefined4 p_fir
 	LegoU32* color = m_sourceColors + firstVertex;
 	LegoU32* colorEnd = m_sourceColors + endIndex;
 	const GolVec3* normal = m_sourceNormals + firstVertex;
-	LegoS32 baseRed = static_cast<LegoS32>(m_unk0xc8570);
-	LegoS32 baseGreen = static_cast<LegoS32>(m_unk0xc8574);
-	LegoS32 baseBlue = static_cast<LegoS32>(m_unk0xc8578);
-	LegoU32 alpha = m_unk0xc857c;
+	LegoS32 baseRed = static_cast<LegoS32>(m_ambientProductRed);
+	LegoS32 baseGreen = static_cast<LegoS32>(m_ambientProductGrn);
+	LegoS32 baseBlue = static_cast<LegoS32>(m_ambientProductBlu);
+	LegoU32 alpha = m_ambientProductAlp;
 
 	for (; color < colorEnd; color++, normal++) {
 		LegoS32 red = baseRed;
 		LegoS32 green = baseGreen;
 		LegoS32 blue = baseBlue;
 
-		LegoFloat intensity = normal->m_z * m_unk0xc8644[0].m_z;
-		intensity += normal->m_y * m_unk0xc8644[0].m_y;
-		intensity += normal->m_x * m_unk0xc8644[0].m_x;
+		LegoFloat intensity = normal->m_z * m_transformedLightDirections[0].m_z;
+		intensity += normal->m_y * m_transformedLightDirections[0].m_y;
+		intensity += normal->m_x * m_transformedLightDirections[0].m_x;
 
-		LegoFloat redProduct = m_unk0xc859c[0].m_red;
+		LegoFloat redProduct = m_lightColorProducts[0].m_red;
 		redProduct *= intensity;
 		red -= static_cast<LegoS32>(redProduct);
 
-		LegoFloat greenProduct = m_unk0xc859c[0].m_grn;
+		LegoFloat greenProduct = m_lightColorProducts[0].m_grn;
 		greenProduct *= intensity;
 		green -= static_cast<LegoS32>(greenProduct);
 
-		LegoFloat blueProduct = m_unk0xc859c[0].m_blu;
+		LegoFloat blueProduct = m_lightColorProducts[0].m_blu;
 		blueProduct *= intensity;
 		blue -= static_cast<LegoS32>(blueProduct);
 
-		intensity = normal->m_y * m_unk0xc8644[1].m_y;
-		intensity += normal->m_z * m_unk0xc8644[1].m_z;
-		intensity += normal->m_x * m_unk0xc8644[1].m_x;
+		intensity = normal->m_y * m_transformedLightDirections[1].m_y;
+		intensity += normal->m_z * m_transformedLightDirections[1].m_z;
+		intensity += normal->m_x * m_transformedLightDirections[1].m_x;
 
-		redProduct = m_unk0xc859c[1].m_red;
+		redProduct = m_lightColorProducts[1].m_red;
 		redProduct *= intensity;
 		red -= static_cast<LegoS32>(redProduct);
 
-		greenProduct = m_unk0xc859c[1].m_grn;
+		greenProduct = m_lightColorProducts[1].m_grn;
 		greenProduct *= intensity;
 		green -= static_cast<LegoS32>(greenProduct);
 
-		blueProduct = m_unk0xc859c[1].m_blu;
+		blueProduct = m_lightColorProducts[1].m_blu;
 		blueProduct *= intensity;
 		blue -= static_cast<LegoS32>(blueProduct);
 
-		intensity = m_unk0xc8644[2].m_z;
+		intensity = m_transformedLightDirections[2].m_z;
 		intensity *= normal->m_z;
-		LegoFloat normalProduct = m_unk0xc8644[2].m_y;
+		LegoFloat normalProduct = m_transformedLightDirections[2].m_y;
 		normalProduct *= normal->m_y;
 		intensity += normalProduct;
-		normalProduct = m_unk0xc8644[2].m_x;
+		normalProduct = m_transformedLightDirections[2].m_x;
 		normalProduct *= normal->m_x;
 		intensity += normalProduct;
 
-		redProduct = m_unk0xc859c[2].m_red;
+		redProduct = m_lightColorProducts[2].m_red;
 		redProduct *= intensity;
 		red -= static_cast<LegoS32>(redProduct);
 
-		greenProduct = m_unk0xc859c[2].m_grn;
+		greenProduct = m_lightColorProducts[2].m_grn;
 		greenProduct *= intensity;
 		green -= static_cast<LegoS32>(greenProduct);
 
-		blueProduct = m_unk0xc859c[2].m_blu;
+		blueProduct = m_lightColorProducts[2].m_blu;
 		blueProduct *= intensity;
 		blue -= static_cast<LegoS32>(blueProduct);
 
-		intensity = m_unk0xc8644[3].m_z;
+		intensity = m_transformedLightDirections[3].m_z;
 		intensity *= normal->m_z;
-		normalProduct = m_unk0xc8644[3].m_y;
+		normalProduct = m_transformedLightDirections[3].m_y;
 		normalProduct *= normal->m_y;
 		intensity += normalProduct;
-		normalProduct = m_unk0xc8644[3].m_x;
+		normalProduct = m_transformedLightDirections[3].m_x;
 		normalProduct *= normal->m_x;
 		intensity += normalProduct;
 
-		redProduct = m_unk0xc859c[3].m_red;
+		redProduct = m_lightColorProducts[3].m_red;
 		redProduct *= intensity;
 		red -= static_cast<LegoS32>(redProduct);
 
-		greenProduct = m_unk0xc859c[3].m_grn;
+		greenProduct = m_lightColorProducts[3].m_grn;
 		greenProduct *= intensity;
 		green -= static_cast<LegoS32>(greenProduct);
 
-		blueProduct = m_unk0xc859c[3].m_blu;
+		blueProduct = m_lightColorProducts[3].m_blu;
 		blueProduct *= intensity;
 		blue -= static_cast<LegoS32>(blueProduct);
 
@@ -7296,45 +7296,45 @@ void GolD3DRenderDevice::FUN_10012640(undefined4 p_outputFirst, undefined4 p_fir
 	LegoU32* color = m_sourceColors + firstVertex;
 	LegoU32* colorEnd = m_sourceColors + endIndex;
 	const GolVec3* normal = m_sourceNormals + firstVertex;
-	LegoS32 baseRed = static_cast<LegoS32>(m_unk0xc8570);
-	LegoS32 baseGreen = static_cast<LegoS32>(m_unk0xc8574);
-	LegoS32 baseBlue = static_cast<LegoS32>(m_unk0xc8578);
-	LegoU32 alpha = m_unk0xc857c;
+	LegoS32 baseRed = static_cast<LegoS32>(m_ambientProductRed);
+	LegoS32 baseGreen = static_cast<LegoS32>(m_ambientProductGrn);
+	LegoS32 baseBlue = static_cast<LegoS32>(m_ambientProductBlu);
+	LegoU32 alpha = m_ambientProductAlp;
 
 	for (; color < colorEnd; color++, normal++) {
 		LegoS32 red = baseRed;
 		LegoS32 green = baseGreen;
 		LegoS32 blue = baseBlue;
 
-		LegoFloat intensity = GOL_MUL(m_unk0xc8644[0].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[0].m_y, normal->m_y) +
-							  GOL_MUL(m_unk0xc8644[0].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_blu, intensity));
+		LegoFloat intensity = GOL_MUL(m_transformedLightDirections[0].m_z, normal->m_z) + GOL_MUL(m_transformedLightDirections[0].m_y, normal->m_y) +
+							  GOL_MUL(m_transformedLightDirections[0].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[0].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[0].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[0].m_blu, intensity));
 
-		intensity = GOL_MUL(m_unk0xc8644[1].m_y, normal->m_y) + GOL_MUL(normal->m_z, m_unk0xc8644[1].m_z) +
-					GOL_MUL(m_unk0xc8644[1].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_blu, intensity));
+		intensity = GOL_MUL(m_transformedLightDirections[1].m_y, normal->m_y) + GOL_MUL(normal->m_z, m_transformedLightDirections[1].m_z) +
+					GOL_MUL(m_transformedLightDirections[1].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[1].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[1].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[1].m_blu, intensity));
 
-		intensity = GOL_MUL(m_unk0xc8644[2].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[2].m_y, normal->m_y) +
-					GOL_MUL(m_unk0xc8644[2].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_blu, intensity));
+		intensity = GOL_MUL(m_transformedLightDirections[2].m_z, normal->m_z) + GOL_MUL(m_transformedLightDirections[2].m_y, normal->m_y) +
+					GOL_MUL(m_transformedLightDirections[2].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[2].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[2].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[2].m_blu, intensity));
 
-		intensity = GOL_MUL(m_unk0xc8644[3].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[3].m_y, normal->m_y) +
-					GOL_MUL(m_unk0xc8644[3].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_blu, intensity));
+		intensity = GOL_MUL(m_transformedLightDirections[3].m_z, normal->m_z) + GOL_MUL(m_transformedLightDirections[3].m_y, normal->m_y) +
+					GOL_MUL(m_transformedLightDirections[3].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[3].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[3].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[3].m_blu, intensity));
 
-		intensity = GOL_MUL(normal->m_z, m_unk0xc8644[4].m_z) + GOL_MUL(m_unk0xc8644[4].m_y, normal->m_y) +
-					GOL_MUL(m_unk0xc8644[4].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_blu, intensity));
+		intensity = GOL_MUL(normal->m_z, m_transformedLightDirections[4].m_z) + GOL_MUL(m_transformedLightDirections[4].m_y, normal->m_y) +
+					GOL_MUL(m_transformedLightDirections[4].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[4].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[4].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[4].m_blu, intensity));
 
 		if (red < baseRed) {
 			red = baseRed;
@@ -7377,51 +7377,51 @@ void GolD3DRenderDevice::FUN_100128f0(undefined4 p_outputFirst, undefined4 p_fir
 	LegoU32* color = m_sourceColors + firstVertex;
 	LegoU32* colorEnd = m_sourceColors + endIndex;
 	const GolVec3* normal = m_sourceNormals + firstVertex;
-	LegoS32 baseRed = static_cast<LegoS32>(m_unk0xc8570);
-	LegoS32 baseGreen = static_cast<LegoS32>(m_unk0xc8574);
-	LegoS32 baseBlue = static_cast<LegoS32>(m_unk0xc8578);
-	LegoU32 alpha = m_unk0xc857c;
+	LegoS32 baseRed = static_cast<LegoS32>(m_ambientProductRed);
+	LegoS32 baseGreen = static_cast<LegoS32>(m_ambientProductGrn);
+	LegoS32 baseBlue = static_cast<LegoS32>(m_ambientProductBlu);
+	LegoU32 alpha = m_ambientProductAlp;
 
 	for (; color < colorEnd; color++, normal++) {
 		LegoS32 red = baseRed;
 		LegoS32 green = baseGreen;
 		LegoS32 blue = baseBlue;
 
-		LegoFloat intensity = GOL_MUL(m_unk0xc8644[0].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[0].m_y, normal->m_y) +
-							  GOL_MUL(m_unk0xc8644[0].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_blu, intensity));
+		LegoFloat intensity = GOL_MUL(m_transformedLightDirections[0].m_z, normal->m_z) + GOL_MUL(m_transformedLightDirections[0].m_y, normal->m_y) +
+							  GOL_MUL(m_transformedLightDirections[0].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[0].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[0].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[0].m_blu, intensity));
 
-		intensity = GOL_MUL(m_unk0xc8644[1].m_y, normal->m_y) + GOL_MUL(normal->m_z, m_unk0xc8644[1].m_z) +
-					GOL_MUL(m_unk0xc8644[1].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_blu, intensity));
+		intensity = GOL_MUL(m_transformedLightDirections[1].m_y, normal->m_y) + GOL_MUL(normal->m_z, m_transformedLightDirections[1].m_z) +
+					GOL_MUL(m_transformedLightDirections[1].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[1].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[1].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[1].m_blu, intensity));
 
-		intensity = GOL_MUL(m_unk0xc8644[2].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[2].m_y, normal->m_y) +
-					GOL_MUL(m_unk0xc8644[2].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_blu, intensity));
+		intensity = GOL_MUL(m_transformedLightDirections[2].m_z, normal->m_z) + GOL_MUL(m_transformedLightDirections[2].m_y, normal->m_y) +
+					GOL_MUL(m_transformedLightDirections[2].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[2].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[2].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[2].m_blu, intensity));
 
-		intensity = GOL_MUL(m_unk0xc8644[3].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[3].m_y, normal->m_y) +
-					GOL_MUL(m_unk0xc8644[3].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_blu, intensity));
+		intensity = GOL_MUL(m_transformedLightDirections[3].m_z, normal->m_z) + GOL_MUL(m_transformedLightDirections[3].m_y, normal->m_y) +
+					GOL_MUL(m_transformedLightDirections[3].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[3].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[3].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[3].m_blu, intensity));
 
-		intensity = GOL_MUL(normal->m_z, m_unk0xc8644[4].m_z) + GOL_MUL(m_unk0xc8644[4].m_y, normal->m_y) +
-					GOL_MUL(m_unk0xc8644[4].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_blu, intensity));
+		intensity = GOL_MUL(normal->m_z, m_transformedLightDirections[4].m_z) + GOL_MUL(m_transformedLightDirections[4].m_y, normal->m_y) +
+					GOL_MUL(m_transformedLightDirections[4].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[4].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[4].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[4].m_blu, intensity));
 
-		intensity = GOL_MUL(m_unk0xc8644[5].m_y, normal->m_y) + GOL_MUL(normal->m_z, m_unk0xc8644[5].m_z) +
-					GOL_MUL(m_unk0xc8644[5].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[5].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[5].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[5].m_blu, intensity));
+		intensity = GOL_MUL(m_transformedLightDirections[5].m_y, normal->m_y) + GOL_MUL(normal->m_z, m_transformedLightDirections[5].m_z) +
+					GOL_MUL(m_transformedLightDirections[5].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[5].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[5].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[5].m_blu, intensity));
 
 		if (red < baseRed) {
 			red = baseRed;
@@ -7464,57 +7464,57 @@ void GolD3DRenderDevice::FUN_10012bf0(undefined4 p_outputFirst, undefined4 p_fir
 	LegoU32* color = m_sourceColors + firstVertex;
 	LegoU32* colorEnd = m_sourceColors + endIndex;
 	const GolVec3* normal = m_sourceNormals + firstVertex;
-	LegoS32 baseRed = static_cast<LegoS32>(m_unk0xc8570);
-	LegoS32 baseGreen = static_cast<LegoS32>(m_unk0xc8574);
-	LegoS32 baseBlue = static_cast<LegoS32>(m_unk0xc8578);
-	LegoU32 alpha = m_unk0xc857c;
+	LegoS32 baseRed = static_cast<LegoS32>(m_ambientProductRed);
+	LegoS32 baseGreen = static_cast<LegoS32>(m_ambientProductGrn);
+	LegoS32 baseBlue = static_cast<LegoS32>(m_ambientProductBlu);
+	LegoU32 alpha = m_ambientProductAlp;
 
 	for (; color < colorEnd; color++, normal++) {
 		LegoS32 red = baseRed;
 		LegoS32 green = baseGreen;
 		LegoS32 blue = baseBlue;
 
-		LegoFloat intensity = GOL_MUL(m_unk0xc8644[0].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[0].m_y, normal->m_y) +
-							  GOL_MUL(m_unk0xc8644[0].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[0].m_blu, intensity));
+		LegoFloat intensity = GOL_MUL(m_transformedLightDirections[0].m_z, normal->m_z) + GOL_MUL(m_transformedLightDirections[0].m_y, normal->m_y) +
+							  GOL_MUL(m_transformedLightDirections[0].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[0].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[0].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[0].m_blu, intensity));
 
-		intensity = GOL_MUL(m_unk0xc8644[1].m_y, normal->m_y) + GOL_MUL(normal->m_z, m_unk0xc8644[1].m_z) +
-					GOL_MUL(m_unk0xc8644[1].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[1].m_blu, intensity));
+		intensity = GOL_MUL(m_transformedLightDirections[1].m_y, normal->m_y) + GOL_MUL(normal->m_z, m_transformedLightDirections[1].m_z) +
+					GOL_MUL(m_transformedLightDirections[1].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[1].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[1].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[1].m_blu, intensity));
 
-		intensity = GOL_MUL(m_unk0xc8644[2].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[2].m_y, normal->m_y) +
-					GOL_MUL(m_unk0xc8644[2].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[2].m_blu, intensity));
+		intensity = GOL_MUL(m_transformedLightDirections[2].m_z, normal->m_z) + GOL_MUL(m_transformedLightDirections[2].m_y, normal->m_y) +
+					GOL_MUL(m_transformedLightDirections[2].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[2].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[2].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[2].m_blu, intensity));
 
-		intensity = GOL_MUL(m_unk0xc8644[3].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[3].m_y, normal->m_y) +
-					GOL_MUL(m_unk0xc8644[3].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[3].m_blu, intensity));
+		intensity = GOL_MUL(m_transformedLightDirections[3].m_z, normal->m_z) + GOL_MUL(m_transformedLightDirections[3].m_y, normal->m_y) +
+					GOL_MUL(m_transformedLightDirections[3].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[3].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[3].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[3].m_blu, intensity));
 
-		intensity = GOL_MUL(normal->m_z, m_unk0xc8644[4].m_z) + GOL_MUL(m_unk0xc8644[4].m_y, normal->m_y) +
-					GOL_MUL(m_unk0xc8644[4].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[4].m_blu, intensity));
+		intensity = GOL_MUL(normal->m_z, m_transformedLightDirections[4].m_z) + GOL_MUL(m_transformedLightDirections[4].m_y, normal->m_y) +
+					GOL_MUL(m_transformedLightDirections[4].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[4].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[4].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[4].m_blu, intensity));
 
-		intensity = GOL_MUL(m_unk0xc8644[5].m_y, normal->m_y) + GOL_MUL(normal->m_z, m_unk0xc8644[5].m_z) +
-					GOL_MUL(m_unk0xc8644[5].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[5].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[5].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[5].m_blu, intensity));
+		intensity = GOL_MUL(m_transformedLightDirections[5].m_y, normal->m_y) + GOL_MUL(normal->m_z, m_transformedLightDirections[5].m_z) +
+					GOL_MUL(m_transformedLightDirections[5].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[5].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[5].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[5].m_blu, intensity));
 
-		intensity = GOL_MUL(m_unk0xc8644[6].m_z, normal->m_z) + GOL_MUL(m_unk0xc8644[6].m_y, normal->m_y) +
-					GOL_MUL(m_unk0xc8644[6].m_x, normal->m_x);
-		red -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[6].m_red, intensity));
-		green -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[6].m_grn, intensity));
-		blue -= static_cast<LegoS32>(GOL_MUL(m_unk0xc859c[6].m_blu, intensity));
+		intensity = GOL_MUL(m_transformedLightDirections[6].m_z, normal->m_z) + GOL_MUL(m_transformedLightDirections[6].m_y, normal->m_y) +
+					GOL_MUL(m_transformedLightDirections[6].m_x, normal->m_x);
+		red -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[6].m_red, intensity));
+		green -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[6].m_grn, intensity));
+		blue -= static_cast<LegoS32>(GOL_MUL(m_lightColorProducts[6].m_blu, intensity));
 
 		if (red < baseRed) {
 			red = baseRed;
