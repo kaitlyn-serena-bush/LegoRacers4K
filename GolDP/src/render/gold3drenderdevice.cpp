@@ -5685,9 +5685,9 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					outputCount++;
 				}
 
+				previousOutside = outside;
 				previousVertex = vertex;
 				previousCache = cache;
-				previousOutside = outside;
 			}
 
 			if (outputCount < 3) {
@@ -5747,9 +5747,9 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					outputCount++;
 				}
 
+				previousOutside = outside;
 				previousVertex = vertex;
 				previousCache = cache;
-				previousOutside = outside;
 			}
 
 			if (outputCount < 3) {
@@ -5809,9 +5809,9 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					outputCount++;
 				}
 
+				previousOutside = outside;
 				previousVertex = vertex;
 				previousCache = cache;
-				previousOutside = outside;
 			}
 
 			if (outputCount < 3) {
@@ -5871,9 +5871,9 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					outputCount++;
 				}
 
+				previousOutside = outside;
 				previousVertex = vertex;
 				previousCache = cache;
-				previousOutside = outside;
 			}
 
 			if (outputCount < 3) {
@@ -5932,9 +5932,9 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					outputCount++;
 				}
 
+				previousOutside = outside;
 				previousVertex = vertex;
 				previousCache = cache;
-				previousOutside = outside;
 			}
 
 			if (outputCount < 3) {
@@ -5992,9 +5992,9 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					outputCount++;
 				}
 
+				previousOutside = outside;
 				previousVertex = vertex;
 				previousCache = cache;
-				previousOutside = outside;
 			}
 
 			if (outputCount < 3) {
