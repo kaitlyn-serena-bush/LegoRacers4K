@@ -24,7 +24,6 @@
 #include <string.h>
 
 extern LegoFloat g_cosineTable[1024];
-extern const LegoFloat g_fadeAlphaScale;
 extern const LegoFloat g_carShadowScale;
 extern LegoU16 g_randomTable[1024];
 extern LegoU32 g_randomTableIndex;
@@ -1438,7 +1437,7 @@ void CarVisuals::DrawTransparent(GolD3DRenderDevice* p_renderer)
 			!(alpha = c_fadeAlphaMax - static_cast<LegoS32>(
 										   ((distanceSquared - g_shadowFadeNearSquared) /
 											(g_shadowFadeFarSquared - g_shadowFadeNearSquared)) *
-										   g_fadeAlphaScale
+										   191.0f
 									   ))
 		) {
 			alpha = 0;

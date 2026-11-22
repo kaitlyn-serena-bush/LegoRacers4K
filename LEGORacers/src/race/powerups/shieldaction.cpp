@@ -17,8 +17,6 @@ extern const LegoFloat g_shieldSoundMinDistance;
 
 extern const LegoFloat g_shieldSoundMaxDistance;
 
-extern const LegoFloat g_fadeAlphaScale;
-
 extern const LegoFloat g_shieldExpireSoundMinDistance;
 
 extern const LegoFloat g_shieldExpireSoundMaxDistance;
@@ -247,7 +245,7 @@ void ShieldAction::DrawTransparent(GolD3DRenderDevice* p_renderer)
 	if (m_state == c_stateFade) {
 		LegoFloat alphaValue = static_cast<LegoFloat>(static_cast<LegoS32>(m_stateTimerMs));
 		alphaValue *= 0.001f;
-		alphaValue *= g_fadeAlphaScale;
+		alphaValue *= 191.0f;
 		LegoS32 alpha = static_cast<LegoS32>(alphaValue);
 		p_renderer->SetAlphaOverride(alpha, TRUE);
 	}

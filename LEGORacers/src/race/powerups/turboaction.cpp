@@ -15,8 +15,6 @@
 #include <float.h>
 #include <math.h>
 
-extern const LegoFloat g_fadeAlphaScale;
-
 // GLOBAL: LEGORACERS 0x004b19d4
 const LegoFloat g_turboSoundMinDistance = 30.0f;
 
@@ -353,7 +351,7 @@ void TurboAction::DrawTransparent(GolD3DRenderDevice* p_renderer)
 		}
 
 		LegoFloat amount = static_cast<LegoFloat>(elapsed) * g_turboFadeAlphaScale;
-		LegoS32 alpha = static_cast<LegoS32>(amount * g_fadeAlphaScale);
+		LegoS32 alpha = static_cast<LegoS32>(amount * 191.0f);
 		p_renderer->SetAlphaOverride(alpha, TRUE);
 	}
 

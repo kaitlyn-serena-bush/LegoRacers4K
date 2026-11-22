@@ -261,9 +261,6 @@ extern const LegoFloat g_lookAtDotBehind = -0.60000002f;
 // GLOBAL: LEGORACERS 0x004b0b44
 extern const LegoFloat g_lookAtDotBeside = -0.2f;
 
-// GLOBAL: LEGORACERS 0x004b0b4c
-extern const LegoFloat g_fadeAlphaScale = 191.0f;
-
 // GLOBAL: LEGORACERS 0x004b0b50
 extern const LegoFloat g_carShadowScale = 1.15f;
 
