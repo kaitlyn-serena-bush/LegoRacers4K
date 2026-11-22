@@ -167,28 +167,30 @@ void GolFont::CreateSurfaces(GolD3DRenderDevice* p_renderer, GolSurfaceFormat* p
 	}
 
 	m_textures[m_surfaceCount - 1].AllocateDeviceOnly(*p_renderer, *p_textureFormat, m_textureWidth, m_textureHeight);
-	GolMaterialParams params;
-	params.m_flags = c_fontMaterialFlags;
-	params.m_ambient.m_red = 0xff;
-	params.m_ambient.m_grn = 0xff;
-	params.m_ambient.m_blu = 0xff;
-	params.m_ambient.m_alp = 0xff;
-	params.m_diffuse.m_red = 0xff;
-	params.m_diffuse.m_grn = 0xff;
-	params.m_diffuse.m_blu = 0xff;
-	params.m_diffuse.m_alp = 0xff;
-	params.m_alphaFunc = 2;
-	params.m_alphaRef = 0;
-	params.m_srcBlend = 1;
-	params.m_destBlend = 0;
-
 	m_textures[m_surfaceCount - 1].SetName(m_name);
 
-	GolSoftwareMaterial* material = &m_materials[m_surfaceCount - 1];
-	params.m_texture = &m_textures[m_surfaceCount - 1];
+	{
+		GolMaterialParams params;
+		params.m_flags = c_fontMaterialFlags;
+		params.m_ambient.m_red = 0xff;
+		params.m_ambient.m_grn = 0xff;
+		params.m_ambient.m_blu = 0xff;
+		params.m_ambient.m_alp = 0xff;
+		params.m_diffuse.m_red = 0xff;
+		params.m_diffuse.m_grn = 0xff;
+		params.m_diffuse.m_blu = 0xff;
+		params.m_diffuse.m_alp = 0xff;
+		params.m_alphaFunc = 2;
+		params.m_alphaRef = 0;
+		params.m_srcBlend = 1;
+		params.m_destBlend = 0;
 
-	material->SetParams(p_renderer, params);
-	material->Create(*p_renderer);
+		GolSoftwareMaterial* material = &m_materials[m_surfaceCount - 1];
+		params.m_texture = &m_textures[m_surfaceCount - 1];
+
+		material->SetParams(p_renderer, params);
+		material->Create(*p_renderer);
+	}
 }
 
 // FUNCTION: GOLDP 0x10004b60
