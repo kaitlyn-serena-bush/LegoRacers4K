@@ -6042,14 +6042,13 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		}
 
 		D3DTLVERTEX* output = &m_unk0xc53a0[clippedVertexCount];
-		LegoU32 firstVertex = clippedVertexCount;
 		*output++ = *fanFirst;
 		*output++ = *fanSecond;
-		clippedVertexCount++;
+		LegoU16 firstVertex = clippedVertexCount++;
 		LegoU16 previousIndex = clippedVertexCount++;
 
 		D3DTLVERTEX** fanEnd = &vertexIn[vertexCount];
-		D3DTLVERTEX** fanCursor = fanThird;
+		D3DTLVERTEX** fanCursor = &vertexIn[2];
 
 		if (fanCursor < fanEnd) {
 			do {
