@@ -24,7 +24,6 @@
 DECOMP_SIZE_ASSERT(GhostHazard, 0x220)
 
 extern LegoFloat g_cosineTable[1024];
-extern const LegoFloat g_unk0x004b02fc;
 extern LegoU16 g_randomTable[1024];
 extern LegoU32 g_randomTableIndex;
 
@@ -282,7 +281,7 @@ void GhostHazard::Update(undefined4 p_elapsedMs)
 			}
 
 			LegoFloat phase = static_cast<LegoFloat>(static_cast<LegoS32>(m_soundJitterMs));
-			phase *= g_unk0x004b02fc;
+			phase *= 0.002f;
 			phase *= 3.1415927f;
 			phase *= -162.97466f;
 			LegoS32 index = 0xffffff00 - static_cast<LegoS32>(phase);

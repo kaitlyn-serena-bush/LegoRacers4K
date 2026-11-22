@@ -21,8 +21,6 @@ extern LegoFloat g_cosineTable[1024];
 
 extern const LegoFloat g_homingProjectileCollisionProbeDepth;
 
-extern const LegoFloat g_unk0x004b02fc;
-
 // GLOBAL: LEGORACERS 0x004b1a60
 const LegoFloat g_warpSoundMinDistance = 200.0f;
 
@@ -307,7 +305,7 @@ void WarpAction::DrawTransparent(GolD3DRenderDevice* p_renderer)
 
 	GolVec3 position;
 	LegoFloat phase = static_cast<LegoFloat>(static_cast<LegoS32>(m_stateTimerMs));
-	phase *= g_unk0x004b02fc;
+	phase *= 0.002f;
 	phase *= 3.1415927f;
 	phase *= -162.97466f;
 	LegoS32 tableIndex = (0xffffff00 - static_cast<LegoS32>(phase)) & 0x3ff;
