@@ -289,8 +289,8 @@ void GolWorldDatabaseEx::LoadResources()
 			}
 
 			m_billboards[i].SetPosition(m_spriteRecords[i].m_position);
-			const GolVec3& axis = m_spriteRecords[i].m_axis;
 			if (m_spriteRecords[i].m_flags & WdbBillboardSprite::c_flagAxisLocked) {
+				const GolVec3& axis = m_spriteRecords[i].m_axis;
 				GolBillboardEx& billboard = m_billboards[i];
 				billboard.EnableAxisLock();
 				billboard.SetAxis(axis);
