@@ -70,18 +70,6 @@ inline static LegoU32 BuildClipXYFlags(const LegoFloat& p_x, const LegoFloat& p_
 	return lowFlags | (highFlags & ~(lowFlags << 1));
 }
 
-// Same flags as BuildClipXYFlags; x is read in place (no local), which FUN_1000edf0 needs.
-inline static LegoU32 BuildClipXYFlagsInPlace(const LegoFloat& p_x, const LegoFloat& p_y, const LegoFloat& p_w)
-{
-	const LegoU32 y = *reinterpret_cast<const LegoU32*>(&p_y);
-	const LegoU32 w = *reinterpret_cast<const LegoU32*>(&p_w);
-
-	LegoU32 lowFlags = (*reinterpret_cast<const LegoU32*>(&p_x) >> 31) | ((y & 0x80000000) >> 29);
-	LegoU32 highFlags =
-		(((w - *reinterpret_cast<const LegoU32*>(&p_x)) & 0x80000000) >> 30) | (((w - y) & 0x80000000) >> 28);
-	return lowFlags | (highFlags & ~(lowFlags << 1));
-}
-
 inline static LegoU32 BuildClipYFlags(const LegoFloat& p_y, const LegoFloat& p_w)
 {
 	const LegoU32 y = *reinterpret_cast<const LegoU32*>(&p_y);
@@ -5654,24 +5642,50 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		LegoU32 vertexCount = 3;
 		LegoU32 outputCount = 0;
 
+		D3DTLVERTEX** vertexEnd;
+		D3DTLVERTEX* previousVertex;
+		D3DTLVERTEX** vertexCursor;
+		VertexCacheEntry** cacheCursor;
+		VertexCacheEntry* previousCache;
+		LegoU32 previousOutside;
+		VertexCacheEntry* cache;
+		D3DTLVERTEX* vertex;
+		LegoU32 outside;
+		LegoFloat t;
+		D3DTLVERTEX* newVertex;
+		VertexCacheEntry* newCache;
+		D3DTLVERTEX** swapVertex;
+		VertexCacheEntry** swapCache;
+		LegoU32 from;
+		LegoS32 fromRed;
+		LegoS32 fromGreen;
+		LegoS32 fromBlue;
+		LegoS32 fromAlpha;
+		LegoU32 to;
+		LegoU32 x;
+		LegoU32 y;
+		LegoU32 w;
+		LegoU32 lowFlags;
+		LegoU32 highFlags;
+
 		if (clipFlags & c_clipNear) {
-			D3DTLVERTEX** vertexEnd = &vertexIn[vertexCount];
-			D3DTLVERTEX* previousVertex = vertexEnd[-1];
-			D3DTLVERTEX** vertexCursor = vertexIn;
-			VertexCacheEntry** cacheCursor = cacheIn;
-			VertexCacheEntry* previousCache = cacheIn[vertexCount - 1];
-			LegoU32 previousOutside = previousCache->m_clipFlags & c_clipNear;
+			vertexEnd = &vertexIn[vertexCount];
+			previousVertex = vertexEnd[-1];
+			vertexCursor = vertexIn;
+			cacheCursor = cacheIn;
+			previousCache = cacheIn[vertexCount - 1];
+			previousOutside = previousCache->m_clipFlags & c_clipNear;
 
 			for (; vertexCursor < vertexEnd; vertexCursor++, cacheCursor++) {
-				VertexCacheEntry* cache = *cacheCursor;
-				D3DTLVERTEX* vertex = *vertexCursor;
-				LegoU32 outside = cache->m_clipFlags & c_clipNear;
+				cache = *cacheCursor;
+				vertex = *vertexCursor;
+				outside = cache->m_clipFlags & c_clipNear;
 
 				if (outside ^ previousOutside) {
-					LegoFloat t = (previousCache->m_z - 0.0f) / (previousCache->m_z - cache->m_z);
-					D3DTLVERTEX* newVertex = clipVertex++;
+					t = (previousCache->m_z - 0.0f) / (previousCache->m_z - cache->m_z);
+					newVertex = clipVertex++;
 					vertexOut[outputCount] = newVertex;
-					VertexCacheEntry* newCache = clipCache++;
+					newCache = clipCache++;
 					cacheOut[outputCount] = newCache;
 					newCache->m_z = 0.0f;
 					newCache->m_w = nearClip;
@@ -5679,10 +5693,26 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newCache->m_y = ((((cache->m_y - previousCache->m_y) * t))) + previousCache->m_y;
 					newVertex->tu = ((((vertex->tu - previousVertex->tu) * t))) + previousVertex->tu;
 					newVertex->tv = ((((vertex->tv - previousVertex->tv) * t))) + previousVertex->tv;
-					newVertex->color = InterpolateClipColor(previousVertex->color, vertex->color, t);
+					from = previousVertex->color;
+					fromRed = RGBA_GETRED(from);
+					fromGreen = RGBA_GETGREEN(from);
+					fromBlue = RGBA_GETBLUE(from);
+					fromAlpha = RGBA_GETALPHA(from);
+					to = vertex->color;
+					newVertex->color = RGBA_MAKE(
+						fromRed + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETRED(to)) - fromRed) * t),
+						fromGreen + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETGREEN(to)) - fromGreen) * t),
+						fromBlue + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETBLUE(to)) - fromBlue) * t),
+						fromAlpha + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETALPHA(to)) - fromAlpha) * t)
+					);
 					outputCount++;
 					newVertex->rhw = 1.0f / nearClip;
-					newCache->m_clipFlags = BuildClipXYFlagsInPlace(newCache->m_x, newCache->m_y, nearClip);
+					y = *reinterpret_cast<const LegoU32*>(&newCache->m_y);
+					x = *reinterpret_cast<const LegoU32*>(&newCache->m_x);
+					w = *reinterpret_cast<const LegoU32*>(&nearClip);
+					lowFlags = (x >> 31) | ((y & 0x80000000) >> 29);
+					highFlags = (((w - x) & 0x80000000) >> 30) | (((w - y) & 0x80000000) >> 28);
+					newCache->m_clipFlags = lowFlags | (highFlags & ~(lowFlags << 1));
 					clipFlags |= newCache->m_clipFlags;
 					newVertex->sz = 0.0f;
 					newVertex->sx =
@@ -5707,10 +5737,10 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 				continue;
 			}
 
-			D3DTLVERTEX** swapVertex = vertexIn;
+			swapVertex = vertexIn;
 			vertexIn = vertexOut;
 			vertexOut = swapVertex;
-			VertexCacheEntry** swapCache = cacheIn;
+			swapCache = cacheIn;
 			cacheIn = cacheOut;
 			cacheOut = swapCache;
 			vertexCount = outputCount;
@@ -5718,23 +5748,23 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		}
 
 		if (clipFlags & c_clipFar) {
-			D3DTLVERTEX** vertexEnd = &vertexIn[vertexCount];
-			D3DTLVERTEX* previousVertex = vertexEnd[-1];
-			D3DTLVERTEX** vertexCursor = vertexIn;
-			VertexCacheEntry** cacheCursor = cacheIn;
-			VertexCacheEntry* previousCache = cacheIn[vertexCount - 1];
-			LegoU32 previousOutside = previousCache->m_clipFlags & c_clipFar;
+			vertexEnd = &vertexIn[vertexCount];
+			previousVertex = vertexEnd[-1];
+			vertexCursor = vertexIn;
+			cacheCursor = cacheIn;
+			previousCache = cacheIn[vertexCount - 1];
+			previousOutside = previousCache->m_clipFlags & c_clipFar;
 
 			for (; vertexCursor < vertexEnd; vertexCursor++, cacheCursor++) {
-				VertexCacheEntry* cache = *cacheCursor;
-				D3DTLVERTEX* vertex = *vertexCursor;
-				LegoU32 outside = cache->m_clipFlags & c_clipFar;
+				cache = *cacheCursor;
+				vertex = *vertexCursor;
+				outside = cache->m_clipFlags & c_clipFar;
 
 				if (outside ^ previousOutside) {
-					LegoFloat t = (previousCache->m_z - farClip) / (previousCache->m_z - cache->m_z);
-					D3DTLVERTEX* newVertex = clipVertex++;
+					t = (previousCache->m_z - farClip) / (previousCache->m_z - cache->m_z);
+					newVertex = clipVertex++;
 					vertexOut[outputCount] = newVertex;
-					VertexCacheEntry* newCache = clipCache++;
+					newCache = clipCache++;
 					cacheOut[outputCount] = newCache;
 					newCache->m_z = farClip;
 					newCache->m_w = farClip;
@@ -5742,10 +5772,26 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newCache->m_y = ((((cache->m_y - previousCache->m_y) * t))) + previousCache->m_y;
 					newVertex->tu = (((vertex->tu - previousVertex->tu) * t)) + previousVertex->tu;
 					newVertex->tv = (((vertex->tv - previousVertex->tv) * t)) + previousVertex->tv;
-					newVertex->color = InterpolateClipColor(previousVertex->color, vertex->color, t);
+					from = previousVertex->color;
+					fromRed = RGBA_GETRED(from);
+					fromGreen = RGBA_GETGREEN(from);
+					fromBlue = RGBA_GETBLUE(from);
+					fromAlpha = RGBA_GETALPHA(from);
+					to = vertex->color;
+					newVertex->color = RGBA_MAKE(
+						fromRed + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETRED(to)) - fromRed) * t),
+						fromGreen + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETGREEN(to)) - fromGreen) * t),
+						fromBlue + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETBLUE(to)) - fromBlue) * t),
+						fromAlpha + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETALPHA(to)) - fromAlpha) * t)
+					);
 					outputCount++;
-					newVertex->rhw = 1.0f / farClip;
-					newCache->m_clipFlags = BuildClipXYFlagsInPlace(newCache->m_x, newCache->m_y, farClip);
+					newVertex->rhw = ((((1.0f / farClip))));
+					y = *reinterpret_cast<const LegoU32*>(&newCache->m_y);
+					x = *reinterpret_cast<const LegoU32*>(&newCache->m_x);
+					w = *reinterpret_cast<const LegoU32*>(&farClip);
+					lowFlags = (x >> 31) | ((y & 0x80000000) >> 29);
+					highFlags = (((w - x) & 0x80000000) >> 30) | (((w - y) & 0x80000000) >> 28);
+					newCache->m_clipFlags = lowFlags | (highFlags & ~(lowFlags << 1));
 					newVertex->sz = 1.0f;
 					newVertex->sx =
 						GOL_MUL(GOL_MUL(newVertex->rhw, newCache->m_x), m_viewportMetrics[0]) + m_viewportMetrics[2];
@@ -5769,10 +5815,10 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 				continue;
 			}
 
-			D3DTLVERTEX** swapVertex = vertexIn;
+			swapVertex = vertexIn;
 			vertexIn = vertexOut;
 			vertexOut = swapVertex;
-			VertexCacheEntry** swapCache = cacheIn;
+			swapCache = cacheIn;
 			cacheIn = cacheOut;
 			cacheOut = swapCache;
 			vertexCount = outputCount;
@@ -5780,24 +5826,24 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		}
 
 		if (clipFlags & c_clipLeft) {
-			D3DTLVERTEX** vertexEnd = &vertexIn[vertexCount];
-			D3DTLVERTEX* previousVertex = vertexEnd[-1];
-			D3DTLVERTEX** vertexCursor = vertexIn;
-			VertexCacheEntry** cacheCursor = cacheIn;
-			VertexCacheEntry* previousCache = cacheIn[vertexCount - 1];
-			LegoU32 previousOutside = previousCache->m_clipFlags & c_clipLeft;
+			vertexEnd = &vertexIn[vertexCount];
+			previousVertex = vertexEnd[-1];
+			vertexCursor = vertexIn;
+			cacheCursor = cacheIn;
+			previousCache = cacheIn[vertexCount - 1];
+			previousOutside = previousCache->m_clipFlags & c_clipLeft;
 
 			for (; vertexCursor < vertexEnd; vertexCursor++, cacheCursor++) {
-				VertexCacheEntry* cache = *cacheCursor;
-				D3DTLVERTEX* vertex = *vertexCursor;
-				LegoU32 outside = cache->m_clipFlags & c_clipLeft;
+				cache = *cacheCursor;
+				vertex = *vertexCursor;
+				outside = cache->m_clipFlags & c_clipLeft;
 
 				if (outside ^ previousOutside) {
 					LegoFloat distance = previousCache->m_x;
-					LegoFloat t = ((((distance / (distance - cache->m_x)))));
-					D3DTLVERTEX* newVertex = clipVertex++;
+					t = ((((distance / (distance - cache->m_x)))));
+					newVertex = clipVertex++;
 					vertexOut[outputCount] = newVertex;
-					VertexCacheEntry* newCache = clipCache++;
+					newCache = clipCache++;
 					newCache->m_x = 0.0f;
 					cacheOut[outputCount] = newCache;
 					newCache->m_y = (cache->m_y - previousCache->m_y) * t + previousCache->m_y;
@@ -5805,7 +5851,18 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newCache->m_w = (cache->m_w - previousCache->m_w) * t + previousCache->m_w;
 					newVertex->tu = (vertex->tu - previousVertex->tu) * t + previousVertex->tu;
 					newVertex->tv = (vertex->tv - previousVertex->tv) * t + previousVertex->tv;
-					newVertex->color = InterpolateClipColor(previousVertex->color, vertex->color, t);
+					from = previousVertex->color;
+					fromRed = RGBA_GETRED(from);
+					fromGreen = RGBA_GETGREEN(from);
+					fromBlue = RGBA_GETBLUE(from);
+					fromAlpha = RGBA_GETALPHA(from);
+					to = vertex->color;
+					newVertex->color = RGBA_MAKE(
+						fromRed + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETRED(to)) - fromRed) * t),
+						fromGreen + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETGREEN(to)) - fromGreen) * t),
+						fromBlue + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETBLUE(to)) - fromBlue) * t),
+						fromAlpha + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETALPHA(to)) - fromAlpha) * t)
+					);
 					outputCount++;
 					newVertex->rhw = (((((1.0f / (newCache->m_w))))));
 					newCache->m_clipFlags = BuildClipYFlags(newCache->m_y, newCache->m_w);
@@ -5831,10 +5888,10 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 				continue;
 			}
 
-			D3DTLVERTEX** swapVertex = vertexIn;
+			swapVertex = vertexIn;
 			vertexIn = vertexOut;
 			vertexOut = swapVertex;
-			VertexCacheEntry** swapCache = cacheIn;
+			swapCache = cacheIn;
 			cacheIn = cacheOut;
 			cacheOut = swapCache;
 			vertexCount = outputCount;
@@ -5842,31 +5899,42 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		}
 
 		if (clipFlags & c_clipRight) {
-			D3DTLVERTEX** vertexEnd = &vertexIn[vertexCount];
-			D3DTLVERTEX* previousVertex = vertexEnd[-1];
-			D3DTLVERTEX** vertexCursor = vertexIn;
-			VertexCacheEntry** cacheCursor = cacheIn;
-			VertexCacheEntry* previousCache = cacheIn[vertexCount - 1];
-			LegoU32 previousOutside = previousCache->m_clipFlags & c_clipRight;
+			vertexEnd = &vertexIn[vertexCount];
+			previousVertex = vertexEnd[-1];
+			vertexCursor = vertexIn;
+			cacheCursor = cacheIn;
+			previousCache = cacheIn[vertexCount - 1];
+			previousOutside = previousCache->m_clipFlags & c_clipRight;
 
 			for (; vertexCursor < vertexEnd; vertexCursor++, cacheCursor++) {
-				VertexCacheEntry* cache = *cacheCursor;
-				D3DTLVERTEX* vertex = *vertexCursor;
-				LegoU32 outside = cache->m_clipFlags & c_clipRight;
+				cache = *cacheCursor;
+				vertex = *vertexCursor;
+				outside = cache->m_clipFlags & c_clipRight;
 
 				if (outside ^ previousOutside) {
-					LegoFloat t = (previousCache->m_x - previousCache->m_w) /
+					t = (previousCache->m_x - previousCache->m_w) /
 								  ((cache->m_w - previousCache->m_w) - (cache->m_x - previousCache->m_x));
-					D3DTLVERTEX* newVertex = clipVertex++;
+					newVertex = clipVertex++;
 					vertexOut[outputCount] = newVertex;
-					VertexCacheEntry* newCache = clipCache++;
+					newCache = clipCache++;
 					cacheOut[outputCount] = newCache;
 					newCache->m_y = ((cache->m_y - previousCache->m_y) * t) + previousCache->m_y;
 					newCache->m_z = ((cache->m_z - previousCache->m_z) * t) + previousCache->m_z;
 					newCache->m_w = ((cache->m_w - previousCache->m_w) * t) + previousCache->m_w;
 					newVertex->tu = ((vertex->tu - previousVertex->tu) * t) + previousVertex->tu;
 					newVertex->tv = ((vertex->tv - previousVertex->tv) * t) + previousVertex->tv;
-					newVertex->color = InterpolateClipColor(previousVertex->color, vertex->color, t);
+					from = previousVertex->color;
+					fromRed = RGBA_GETRED(from);
+					fromGreen = RGBA_GETGREEN(from);
+					fromBlue = RGBA_GETBLUE(from);
+					fromAlpha = RGBA_GETALPHA(from);
+					to = vertex->color;
+					newVertex->color = RGBA_MAKE(
+						fromRed + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETRED(to)) - fromRed) * t),
+						fromGreen + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETGREEN(to)) - fromGreen) * t),
+						fromBlue + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETBLUE(to)) - fromBlue) * t),
+						fromAlpha + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETALPHA(to)) - fromAlpha) * t)
+					);
 					newCache->m_x = newCache->m_w;
 					outputCount++;
 					newVertex->rhw = ((((((((((1.0f / (newCache->m_w)))))))))));
@@ -5893,10 +5961,10 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 				continue;
 			}
 
-			D3DTLVERTEX** swapVertex = vertexIn;
+			swapVertex = vertexIn;
 			vertexIn = vertexOut;
 			vertexOut = swapVertex;
-			VertexCacheEntry** swapCache = cacheIn;
+			swapCache = cacheIn;
 			cacheIn = cacheOut;
 			cacheOut = swapCache;
 			vertexCount = outputCount;
@@ -5904,23 +5972,23 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		}
 
 		if (clipFlags & c_clipTop) {
-			D3DTLVERTEX** vertexEnd = &vertexIn[vertexCount];
-			D3DTLVERTEX* previousVertex = vertexEnd[-1];
-			D3DTLVERTEX** vertexCursor = vertexIn;
-			VertexCacheEntry** cacheCursor = cacheIn;
-			VertexCacheEntry* previousCache = cacheIn[vertexCount - 1];
-			LegoU32 previousOutside = previousCache->m_clipFlags & c_clipTop;
+			vertexEnd = &vertexIn[vertexCount];
+			previousVertex = vertexEnd[-1];
+			vertexCursor = vertexIn;
+			cacheCursor = cacheIn;
+			previousCache = cacheIn[vertexCount - 1];
+			previousOutside = previousCache->m_clipFlags & c_clipTop;
 
 			for (; vertexCursor < vertexEnd; vertexCursor++, cacheCursor++) {
-				VertexCacheEntry* cache = *cacheCursor;
-				D3DTLVERTEX* vertex = *vertexCursor;
-				LegoU32 outside = cache->m_clipFlags & c_clipTop;
+				cache = *cacheCursor;
+				vertex = *vertexCursor;
+				outside = cache->m_clipFlags & c_clipTop;
 
 				if (outside ^ previousOutside) {
-					LegoFloat t = (previousCache->m_y - 0.0f) / (previousCache->m_y - cache->m_y);
-					D3DTLVERTEX* newVertex = clipVertex++;
+					t = (previousCache->m_y - 0.0f) / (previousCache->m_y - cache->m_y);
+					newVertex = clipVertex++;
 					vertexOut[outputCount] = newVertex;
-					VertexCacheEntry* newCache = clipCache++;
+					newCache = clipCache++;
 					newCache->m_y = 0.0f;
 					cacheOut[outputCount] = newCache;
 					newCache->m_x = (cache->m_x - previousCache->m_x) * t + previousCache->m_x;
@@ -5928,7 +5996,18 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newCache->m_w = (cache->m_w - previousCache->m_w) * t + previousCache->m_w;
 					newVertex->tu = (vertex->tu - previousVertex->tu) * t + previousVertex->tu;
 					newVertex->tv = (vertex->tv - previousVertex->tv) * t + previousVertex->tv;
-					newVertex->color = InterpolateClipColor(previousVertex->color, vertex->color, t);
+					from = previousVertex->color;
+					fromRed = RGBA_GETRED(from);
+					fromGreen = RGBA_GETGREEN(from);
+					fromBlue = RGBA_GETBLUE(from);
+					fromAlpha = RGBA_GETALPHA(from);
+					to = vertex->color;
+					newVertex->color = RGBA_MAKE(
+						fromRed + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETRED(to)) - fromRed) * t),
+						fromGreen + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETGREEN(to)) - fromGreen) * t),
+						fromBlue + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETBLUE(to)) - fromBlue) * t),
+						fromAlpha + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETALPHA(to)) - fromAlpha) * t)
+					);
 					newVertex->rhw = ((((((((1.0f / (newCache->m_w)))))))));
 					outputCount++;
 					newCache->m_clipFlags = 0;
@@ -5954,10 +6033,10 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 				continue;
 			}
 
-			D3DTLVERTEX** swapVertex = vertexIn;
+			swapVertex = vertexIn;
 			vertexIn = vertexOut;
 			vertexOut = swapVertex;
-			VertexCacheEntry** swapCache = cacheIn;
+			swapCache = cacheIn;
 			cacheIn = cacheOut;
 			cacheOut = swapCache;
 			vertexCount = outputCount;
@@ -5965,31 +6044,42 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		}
 
 		if (clipFlags & c_clipBottom) {
-			D3DTLVERTEX** vertexEnd = &vertexIn[vertexCount];
-			D3DTLVERTEX* previousVertex = vertexEnd[-1];
-			D3DTLVERTEX** vertexCursor = vertexIn;
-			VertexCacheEntry** cacheCursor = cacheIn;
-			VertexCacheEntry* previousCache = cacheIn[vertexCount - 1];
-			LegoU32 previousOutside = previousCache->m_clipFlags & c_clipBottom;
+			vertexEnd = &vertexIn[vertexCount];
+			previousVertex = vertexEnd[-1];
+			vertexCursor = vertexIn;
+			cacheCursor = cacheIn;
+			previousCache = cacheIn[vertexCount - 1];
+			previousOutside = previousCache->m_clipFlags & c_clipBottom;
 
 			for (; vertexCursor < vertexEnd; vertexCursor++, cacheCursor++) {
-				VertexCacheEntry* cache = *cacheCursor;
-				D3DTLVERTEX* vertex = *vertexCursor;
-				LegoU32 outside = cache->m_clipFlags & c_clipBottom;
+				cache = *cacheCursor;
+				vertex = *vertexCursor;
+				outside = cache->m_clipFlags & c_clipBottom;
 
 				if (outside ^ previousOutside) {
-					LegoFloat t = (previousCache->m_y - previousCache->m_w) /
+					t = (previousCache->m_y - previousCache->m_w) /
 								  ((cache->m_w - previousCache->m_w) - (cache->m_y - previousCache->m_y));
-					D3DTLVERTEX* newVertex = clipVertex++;
+					newVertex = clipVertex++;
 					vertexOut[outputCount] = newVertex;
-					VertexCacheEntry* newCache = clipCache++;
+					newCache = clipCache++;
 					cacheOut[outputCount] = newCache;
 					newCache->m_x = (((cache->m_x - previousCache->m_x) * t)) + previousCache->m_x;
 					newCache->m_z = ((cache->m_z - previousCache->m_z) * t) + previousCache->m_z;
 					newCache->m_w = ((cache->m_w - previousCache->m_w) * t) + previousCache->m_w;
 					newVertex->tu = ((vertex->tu - previousVertex->tu) * t) + previousVertex->tu;
 					newVertex->tv = (vertex->tv - previousVertex->tv) * t + previousVertex->tv;
-					newVertex->color = InterpolateClipColor(previousVertex->color, vertex->color, t);
+					from = previousVertex->color;
+					fromRed = RGBA_GETRED(from);
+					fromGreen = RGBA_GETGREEN(from);
+					fromBlue = RGBA_GETBLUE(from);
+					fromAlpha = RGBA_GETALPHA(from);
+					to = vertex->color;
+					newVertex->color = RGBA_MAKE(
+						fromRed + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETRED(to)) - fromRed) * t),
+						fromGreen + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETGREEN(to)) - fromGreen) * t),
+						fromBlue + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETBLUE(to)) - fromBlue) * t),
+						fromAlpha + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETALPHA(to)) - fromAlpha) * t)
+					);
 					newVertex->rhw = 1.0f / (newCache->m_w);
 					outputCount++;
 					newVertex->sy = m_viewportMetrics[1] + m_viewportMetrics[3];
