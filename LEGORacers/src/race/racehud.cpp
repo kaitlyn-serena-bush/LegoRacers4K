@@ -1527,16 +1527,16 @@ void RaceHud::Draw()
 
 		m_font->MeasureString(m_scratchString, &textWidth, &textHeight);
 
-		textWidth = static_cast<LegoS32>(static_cast<LegoFloat>(textWidth) * m_textScale);
+		textWidth = static_cast<LegoS32>(GOL_MUL((static_cast<LegoFloat>(textWidth)), m_textScale));
 		LegoFloat paddingScale = m_textScale;
 		paddingScale *= g_unk0x004b02ec;
 		LegoS32 labelPadding = static_cast<LegoS32>(paddingScale);
-		LegoS32 labelOffset = static_cast<LegoS32>(static_cast<LegoFloat>(textWidth - labelPadding) * m_textScaleX);
+		LegoS32 labelOffset =
+			static_cast<LegoS32>(GOL_MUL(static_cast<LegoFloat>(textWidth - labelPadding), m_textScaleX));
 		LegoS32 lapLabelX = m_lapTimeX - labelOffset;
-		scaleY = m_scaleY;
+		scaleY = (m_scaleY);
 		scaleY *= m_textScale;
-		scaleX = m_textScale;
-		scaleX *= m_textScaleX;
+		scaleX = GOL_MUL((m_textScale), m_textScaleX);
 		m_renderer->DrawString(m_scratchString, m_font, lapLabelX, m_lapTimeY, scaleX, scaleY, NULL, 0);
 
 		m_stringTable->CopyStringByIndex(&m_labelString, 0x27);
@@ -1549,8 +1549,7 @@ void RaceHud::Draw()
 		lapLabelX -= labelOffset;
 		scaleY = m_scaleY;
 		scaleY *= m_textScale;
-		scaleX = m_textScale;
-		scaleX *= m_textScaleX;
+		scaleX = GOL_MUL(m_textScale, m_textScaleX);
 		m_renderer->DrawString(&m_labelString, m_font, lapLabelX, m_lapTimeY, scaleX, scaleY, NULL, 0);
 
 		if (drawLapTime) {
