@@ -99,15 +99,15 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 
 		do {
 			GolVec3 corner;
-			if (cornerIndex >= 4) {
-				corner.m_x = -axisX.m_x;
-				corner.m_y = -axisX.m_y;
-				corner.m_z = -axisX.m_z;
-			}
-			else {
+			if (cornerIndex < 4) {
 				corner.m_x = axisX.m_x;
 				corner.m_y = axisX.m_y;
 				corner.m_z = axisX.m_z;
+			}
+			else {
+				corner.m_x = -axisX.m_x;
+				corner.m_y = -axisX.m_y;
+				corner.m_z = -axisX.m_z;
 			}
 
 			if (cornerIndex >= 2 && (cornerIndex < 4 || cornerIndex >= 6)) {
