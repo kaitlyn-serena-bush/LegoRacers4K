@@ -62,7 +62,18 @@ extern LegoFloat g_cosineTable[1024];
 
 inline LegoFloat DotVectors(const GolVec3& p_left, const GolVec3& p_right)
 {
-	return p_left.m_z * p_right.m_z + p_left.m_y * p_right.m_y + p_left.m_x * p_right.m_x;
+	LegoFloat result = p_left.m_z;
+	LegoFloat z = p_right.m_z;
+	result *= z;
+	LegoFloat y = p_left.m_y;
+	LegoFloat rightY = p_right.m_y;
+	y *= rightY;
+	result += y;
+	LegoFloat x = p_left.m_x;
+	x *= p_right.m_x;
+	result += x;
+
+	return result;
 }
 
 inline static LegoFloat GetCosineTableValue(LegoS32 p_index)
@@ -1907,7 +1918,9 @@ LegoU32 RacerCarBody::ResolveWallCollisions(LegoU32 p_elapsedMs, LegoBool32 p_qu
 						&hitRecord,
 						&hitAmount
 					)) {
-					collisionNormal = g_carBodyHitTriangle.m_normal;
+					collisionNormal.m_x = g_carBodyHitTriangle.m_normal.m_x;
+					collisionNormal.m_y = g_carBodyHitTriangle.m_normal.m_y;
+					collisionNormal.m_z = g_carBodyHitTriangle.m_normal.m_z;
 					resource->RotateToWorld(collisionNormal, &worldNormal);
 
 					if (DotVectors(hitPoint - g_carBodyRayEndsLocal[pointIndex], collisionNormal) > 0.0f) {
