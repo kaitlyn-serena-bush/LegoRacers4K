@@ -228,7 +228,7 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::TestBoxOverlap(
 	*p_penetration = FLT_MAX;
 	p_normal->Clear();
 
-	LegoFloat distance = static_cast<LegoFloat>(fabs(delta.m_x));
+	LegoFloat distance = (static_cast<LegoFloat>(fabs(delta.m_x)));
 	projection =
 		GOL_MUL(absOrientation.m_m[2][0], half1z) + absOrientation.m_m[1][0] * half1y + absOrientation.m_m[0][0] * half1x;
 	LegoFloat total = projection + half0x;
