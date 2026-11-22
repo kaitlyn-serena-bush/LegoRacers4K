@@ -1816,16 +1816,13 @@ void CarBuildModel::MarkOverlayCell(LegoS32 p_x, LegoS32 p_y)
 // FUNCTION: LEGORACERS 0x0049be70
 void CarBuildModel::BuildOverlay(LegoBool32 p_visible, LegoS32 p_height)
 {
-	LegoS32 disabled = FALSE;
-	LegoS32 enabled = TRUE;
-
 	ColorRGBA color;
 	color.m_red = 0xff;
 	color.m_grn = 0xff;
 	color.m_blu = 0xff;
 	color.m_alp = 0xff;
 
-	p_visible &= enabled;
+	p_visible &= TRUE;
 	if (p_height < 0) {
 		p_height = m_overlayHeight;
 	}
@@ -1834,24 +1831,21 @@ void CarBuildModel::BuildOverlay(LegoBool32 p_visible, LegoS32 p_height)
 
 	LegoU32 groupIndex = m_modelGroupCount++;
 	GolModelBase* overlayModel = m_overlayModel;
-	m_overlayVisible = disabled;
-	LegoFloat z = static_cast<LegoFloat>(p_height) * g_carBuildModelHeightScale;
+	m_overlayVisible = 0;
 	overlayModel->GetMutableGroups()[groupIndex] = c_modelMaterialGroup;
-	overlayModel->GetMutableGroups()[groupIndex] |= enabled;
-	overlayModel->SetDirty(enabled);
+	LegoFloat z = ((static_cast<LegoFloat>(p_height))) * g_carBuildModelHeightScale;
+	overlayModel->GetMutableGroups()[groupIndex] |= 1;
+	overlayModel->SetDirty(TRUE);
 
 	GolVec3 position;
 	position.m_z = z + m_offsetZ;
 	GolVec2 texCoord;
-	LegoS32 quadVertexCount = 4;
-	LegoS32 quadTriangleCount = 2;
 
-	LegoS32 x = disabled;
-	for (; x < 12; x++) {
-		for (LegoS32 y = disabled; y < 8; y++) {
+	for (LegoS32 x = 0; x < 12; x++) {
+		for (LegoS32 y = 0; y < 8; y++) {
 			if ((m_overlayCells[x][y].m_flags & c_overlayCellFlagOccupied) &&
 				(m_overlayCells[x][y].m_flags & c_overlayCellFlagDraw)) {
-				if (static_cast<LegoU32>(m_batchVertexCount + quadVertexCount) > c_modelBatchVertexCapacity) {
+				if (static_cast<LegoU32>(m_batchVertexCount + 4) > c_modelBatchVertexCapacity) {
 					m_overlayVisible += m_batchTriangleCount;
 					FlushBatch(m_overlayModel);
 				}
@@ -1899,9 +1893,9 @@ void CarBuildModel::BuildOverlay(LegoBool32 p_visible, LegoS32 p_height)
 				triangles[0].m_b = static_cast<LegoU8>(m_batchVertexCount + 1);
 				triangles[0].m_c = static_cast<LegoU8>(m_batchVertexCount + 2);
 
-				m_batchVertexCount += quadVertexCount;
-				m_modelTriangleCount += quadTriangleCount;
-				m_batchTriangleCount += quadTriangleCount;
+				m_batchVertexCount += 4;
+				m_modelTriangleCount += 2;
+				m_batchTriangleCount += 2;
 			}
 		}
 	}
