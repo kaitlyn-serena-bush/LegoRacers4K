@@ -159,7 +159,8 @@ void GolCameraBase::ComputeFrustum(GolViewFrustum* p_view)
 	edge1.m_z = p_view->m_corners[6].m_z - p_view->m_corners[4].m_z;
 	GolMath::CrossVector3(&edge1, &edge0, &normal);
 	GolMath::NormalizeVector3(normal, &normal);
-	p_view->m_planes[0].Set(normal, p_view->m_corners[4]);
+	p_view->m_planes[0].SetNormal(normal);
+	p_view->m_planes[0].m_distance = -Dot(&p_view->m_planes[0].m_normal, &p_view->m_corners[4]);
 
 	edge0.m_x = p_view->m_corners[1].m_x - p_view->m_corners[5].m_x;
 	edge0.m_y = p_view->m_corners[1].m_y - p_view->m_corners[5].m_y;
@@ -169,7 +170,8 @@ void GolCameraBase::ComputeFrustum(GolViewFrustum* p_view)
 	edge1.m_z = p_view->m_corners[7].m_z - p_view->m_corners[5].m_z;
 	GolMath::CrossVector3(&edge0, &edge1, &normal);
 	GolMath::NormalizeVector3(normal, &normal);
-	p_view->m_planes[1].Set(normal, p_view->m_corners[5]);
+	p_view->m_planes[1].SetNormal(normal);
+	p_view->m_planes[1].m_distance = -Dot(&p_view->m_planes[1].m_normal, &p_view->m_corners[5]);
 
 	edge0.m_x = p_view->m_corners[2].m_x - p_view->m_corners[6].m_x;
 	edge0.m_y = p_view->m_corners[2].m_y - p_view->m_corners[6].m_y;
@@ -179,7 +181,8 @@ void GolCameraBase::ComputeFrustum(GolViewFrustum* p_view)
 	edge1.m_z = p_view->m_corners[7].m_z - p_view->m_corners[6].m_z;
 	GolMath::CrossVector3(&edge1, &edge0, &normal);
 	GolMath::NormalizeVector3(normal, &normal);
-	p_view->m_planes[2].Set(normal, p_view->m_corners[6]);
+	p_view->m_planes[2].SetNormal(normal);
+	p_view->m_planes[2].m_distance = -Dot(&p_view->m_planes[2].m_normal, &p_view->m_corners[6]);
 
 	edge0.m_x = p_view->m_corners[0].m_x - p_view->m_corners[4].m_x;
 	edge0.m_y = p_view->m_corners[0].m_y - p_view->m_corners[4].m_y;
@@ -189,17 +192,17 @@ void GolCameraBase::ComputeFrustum(GolViewFrustum* p_view)
 	edge1.m_z = p_view->m_corners[5].m_z - p_view->m_corners[4].m_z;
 	GolMath::CrossVector3(&edge0, &edge1, &normal);
 	GolMath::NormalizeVector3(normal, &normal);
-	p_view->m_planes[3].Set(normal, p_view->m_corners[4]);
+	p_view->m_planes[3].SetNormal(normal);
+	p_view->m_planes[3].m_distance = -Dot(&p_view->m_planes[3].m_normal, &p_view->m_corners[4]);
 
 	m_transform->GetRight(&normal);
-	p_view->m_planes[5].Set(normal, p_view->m_corners[4]);
+	p_view->m_planes[5].SetNormal(normal);
+	p_view->m_planes[5].m_distance = -Dot(&p_view->m_planes[5].m_normal, &p_view->m_corners[4]);
 
 	p_view->m_planes[4].m_normal.m_x = -normal.m_x;
 	p_view->m_planes[4].m_normal.m_y = -normal.m_y;
 	p_view->m_planes[4].m_normal.m_z = -normal.m_z;
-	p_view->m_planes[4].m_distance =
-		(normal.m_z * p_view->m_corners[2].m_z + normal.m_y * p_view->m_corners[2].m_y +
-		 normal.m_x * p_view->m_corners[2].m_x);
+	p_view->m_planes[4].m_distance = Dot(&p_view->m_corners[2], &normal);
 }
 
 // FUNCTION: GOLDP 0x1001c450
@@ -255,7 +258,8 @@ void GolCameraBase::ComputeFrustumFromBounds(GolViewFrustum* p_view)
 	edge1.m_z = p_view->m_corners[6].m_z - p_view->m_corners[4].m_z;
 	GolMath::CrossVector3(&edge1, &edge0, &normal);
 	GolMath::NormalizeVector3(normal, &normal);
-	p_view->m_planes[0].Set(normal, p_view->m_corners[4]);
+	p_view->m_planes[0].SetNormal(normal);
+	p_view->m_planes[0].m_distance = -Dot(&p_view->m_planes[0].m_normal, &p_view->m_corners[4]);
 
 	edge0.m_x = p_view->m_corners[1].m_x - p_view->m_corners[5].m_x;
 	edge0.m_y = p_view->m_corners[1].m_y - p_view->m_corners[5].m_y;
@@ -265,7 +269,8 @@ void GolCameraBase::ComputeFrustumFromBounds(GolViewFrustum* p_view)
 	edge1.m_z = p_view->m_corners[7].m_z - p_view->m_corners[5].m_z;
 	GolMath::CrossVector3(&edge0, &edge1, &normal);
 	GolMath::NormalizeVector3(normal, &normal);
-	p_view->m_planes[1].Set(normal, p_view->m_corners[5]);
+	p_view->m_planes[1].SetNormal(normal);
+	p_view->m_planes[1].m_distance = -Dot(&p_view->m_planes[1].m_normal, &p_view->m_corners[5]);
 
 	edge0.m_x = p_view->m_corners[2].m_x - p_view->m_corners[6].m_x;
 	edge0.m_y = p_view->m_corners[2].m_y - p_view->m_corners[6].m_y;
@@ -275,7 +280,8 @@ void GolCameraBase::ComputeFrustumFromBounds(GolViewFrustum* p_view)
 	edge1.m_z = p_view->m_corners[7].m_z - p_view->m_corners[6].m_z;
 	GolMath::CrossVector3(&edge1, &edge0, &normal);
 	GolMath::NormalizeVector3(normal, &normal);
-	p_view->m_planes[2].Set(normal, p_view->m_corners[6]);
+	p_view->m_planes[2].SetNormal(normal);
+	p_view->m_planes[2].m_distance = -Dot(&p_view->m_planes[2].m_normal, &p_view->m_corners[6]);
 
 	edge0.m_x = p_view->m_corners[0].m_x - p_view->m_corners[4].m_x;
 	edge0.m_y = p_view->m_corners[0].m_y - p_view->m_corners[4].m_y;
@@ -285,17 +291,17 @@ void GolCameraBase::ComputeFrustumFromBounds(GolViewFrustum* p_view)
 	edge1.m_z = p_view->m_corners[5].m_z - p_view->m_corners[4].m_z;
 	GolMath::CrossVector3(&edge0, &edge1, &normal);
 	GolMath::NormalizeVector3(normal, &normal);
-	p_view->m_planes[3].Set(normal, p_view->m_corners[4]);
+	p_view->m_planes[3].SetNormal(normal);
+	p_view->m_planes[3].m_distance = -Dot(&p_view->m_planes[3].m_normal, &p_view->m_corners[4]);
 
 	m_transform->GetRight(&normal);
-	p_view->m_planes[5].Set(normal, p_view->m_corners[4]);
+	p_view->m_planes[5].SetNormal(normal);
+	p_view->m_planes[5].m_distance = -Dot(&p_view->m_planes[5].m_normal, &p_view->m_corners[4]);
 
 	p_view->m_planes[4].m_normal.m_x = -normal.m_x;
 	p_view->m_planes[4].m_normal.m_y = -normal.m_y;
 	p_view->m_planes[4].m_normal.m_z = -normal.m_z;
-	p_view->m_planes[4].m_distance =
-		(normal.m_z * p_view->m_corners[2].m_z + normal.m_y * p_view->m_corners[2].m_y +
-		 normal.m_x * p_view->m_corners[2].m_x);
+	p_view->m_planes[4].m_distance = Dot(&p_view->m_corners[2], &normal);
 }
 
 // FUNCTION: GOLDP 0x1001c900
