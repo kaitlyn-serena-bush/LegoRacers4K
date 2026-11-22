@@ -6305,9 +6305,9 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 
 				if (outside ^ previousOutside) {
 					VertexCacheEntry& previousCache = m_unk0xc38ec[indicesIn[previous]];
-					D3DTLVERTEX& previousVertex = m_unk0x348[previousCache.m_unk0x10];
 					VertexCacheEntry& cache = m_unk0xc38ec[indicesIn[i]];
 					LegoFloat t = (previousCache.m_z - 0.0f) / (previousCache.m_z - cache.m_z);
+					D3DTLVERTEX& previousVertex = m_unk0x348[previousCache.m_unk0x10];
 					D3DTLVERTEX& vertex = m_unk0x348[cache.m_unk0x10];
 					indicesOut[outputCount] = nextClip;
 					VertexCacheEntry& newCache = m_unk0xc38ec[nextClip++];
@@ -6324,10 +6324,10 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 
 					newVertex.rhw = 1.0f / nearClip;
 					LegoU32 newFlags = BuildClipXYFlags(newCache.m_x, newCache.m_y, nearClip);
-					newVertex.sx = (newVertex.rhw * newCache.m_x) * m_viewportMetrics[0] + m_viewportMetrics[2];
 					clipFlags |= newFlags;
 					flagsOut[outputCount] = newFlags;
 					outputCount++;
+					newVertex.sx = (newVertex.rhw * newCache.m_x) * m_viewportMetrics[0] + m_viewportMetrics[2];
 					newVertex.sy = GOL_MUL(GOL_MUL(newCache.m_y, newVertex.rhw), m_viewportMetrics[1]) + m_viewportMetrics[3];
 					newVertex.sz = 0.0f;
 				}
