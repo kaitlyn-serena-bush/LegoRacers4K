@@ -211,10 +211,9 @@ void GolCameraBase::ComputeFrustum(GolViewFrustum* p_view)
 void GolCameraBase::ComputeFrustumFromBounds(GolViewFrustum* p_view)
 {
 	m_transform->GetPosition(&p_view->m_position);
-	LegoFloat farScale = m_farClip / m_nearClip;
+	LegoFloat farScale = ((((((m_farClip)))))) / m_nearClip;
 	GolVec3 source;
 	GolVec4 farBounds;
-	source.m_z = m_farClip;
 	farBounds.m_x = m_viewBounds.m_x;
 	farBounds.m_x *= farScale;
 	farBounds.m_z = m_viewBounds.m_z;
@@ -227,6 +226,7 @@ void GolCameraBase::ComputeFrustumFromBounds(GolViewFrustum* p_view)
 	m_farHalfWidth = farBounds.m_z - farBounds.m_x;
 	source.m_x = farBounds.m_x;
 	source.m_y = farBounds.m_y;
+	source.m_z = m_farClip;
 	m_transform->TransformPoint(&source, &p_view->m_corners[0]);
 	source.m_y = farBounds.m_u;
 	m_transform->TransformPoint(&source, &p_view->m_corners[2]);
@@ -290,7 +290,7 @@ void GolCameraBase::ComputeFrustumFromBounds(GolViewFrustum* p_view)
 	edge0.m_z = p_view->m_corners[0].m_z - p_view->m_corners[4].m_z;
 	edge1.m_x = p_view->m_corners[5].m_x - p_view->m_corners[4].m_x;
 	edge1.m_y = p_view->m_corners[5].m_y - p_view->m_corners[4].m_y;
-	edge1.m_z = p_view->m_corners[5].m_z - p_view->m_corners[4].m_z;
+	edge1.m_z = ((p_view->m_corners[5].m_z - p_view->m_corners[4].m_z));
 	GolMath::CrossVector3(&edge0, &edge1, &normal);
 	GolMath::NormalizeVector3(normal, &normal);
 	p_view->m_planes[3].SetNormal(normal);
