@@ -5675,7 +5675,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newVertex->sx =
 						GOL_MUL(GOL_MUL(newVertex->rhw, newCache->m_x), m_viewportMetrics[0]) + m_viewportMetrics[2];
 					newVertex->sy =
-						(newCache->m_y * newVertex->rhw) * m_viewportMetrics[1] + m_viewportMetrics[3];
+						GOL_MUL(GOL_MUL(newCache->m_y, newVertex->rhw), m_viewportMetrics[1]) + m_viewportMetrics[3];
 				}
 
 				if (!outside) {
@@ -5736,7 +5736,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newVertex->sx =
 						GOL_MUL(GOL_MUL(newVertex->rhw, newCache->m_x), m_viewportMetrics[0]) + m_viewportMetrics[2];
 					newVertex->sy =
-						(newCache->m_y * newVertex->rhw) * m_viewportMetrics[1] + m_viewportMetrics[3];
+						GOL_MUL(GOL_MUL(newCache->m_y, newVertex->rhw), m_viewportMetrics[1]) + m_viewportMetrics[3];
 				}
 
 				if (!outside) {
@@ -5792,11 +5792,11 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newVertex->tv = (vertex->tv - previousVertex->tv) * t + previousVertex->tv;
 					newVertex->color = InterpolateClipColor(previousVertex->color, vertex->color, t);
 					outputCount++;
-					newVertex->rhw = 1.0f / newCache->m_w;
+					newVertex->rhw = 1.0f / (newCache->m_w);
 					newCache->m_clipFlags = BuildClipYFlags(newCache->m_y, newCache->m_w);
 					newVertex->sx = m_viewportMetrics[2];
 					newVertex->sy =
-						(newCache->m_y * newVertex->rhw) * m_viewportMetrics[1] + m_viewportMetrics[3];
+						GOL_MUL(GOL_MUL(newCache->m_y, newVertex->rhw), m_viewportMetrics[1]) + m_viewportMetrics[3];
 					newVertex->sz = newCache->m_z * newVertex->rhw;
 				}
 
@@ -5853,11 +5853,11 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newVertex->color = InterpolateClipColor(previousVertex->color, vertex->color, t);
 					newCache->m_x = newCache->m_w;
 					outputCount++;
-					newVertex->rhw = 1.0f / newCache->m_w;
+					newVertex->rhw = 1.0f / (newCache->m_w);
 					newCache->m_clipFlags = BuildClipYFlags(newCache->m_y, newCache->m_w);
 					newVertex->sx = m_viewportMetrics[0] + m_viewportMetrics[2];
 					newVertex->sy =
-						(newCache->m_y * newVertex->rhw) * m_viewportMetrics[1] + m_viewportMetrics[3];
+						GOL_MUL(GOL_MUL(newCache->m_y, newVertex->rhw), m_viewportMetrics[1]) + m_viewportMetrics[3];
 					newVertex->sz = newCache->m_z * newVertex->rhw;
 				}
 
@@ -5912,7 +5912,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newVertex->tu = (vertex->tu - previousVertex->tu) * t + previousVertex->tu;
 					newVertex->tv = (vertex->tv - previousVertex->tv) * t + previousVertex->tv;
 					newVertex->color = InterpolateClipColor(previousVertex->color, vertex->color, t);
-					newVertex->rhw = 1.0f / newCache->m_w;
+					newVertex->rhw = 1.0f / (newCache->m_w);
 					outputCount++;
 					newCache->m_clipFlags = 0;
 					newVertex->sy = m_viewportMetrics[3];
@@ -5972,7 +5972,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newVertex->tu = (vertex->tu - previousVertex->tu) * t + previousVertex->tu;
 					newVertex->tv = (vertex->tv - previousVertex->tv) * t + previousVertex->tv;
 					newVertex->color = InterpolateClipColor(previousVertex->color, vertex->color, t);
-					newVertex->rhw = 1.0f / newCache->m_w;
+					newVertex->rhw = 1.0f / (newCache->m_w);
 					outputCount++;
 					newVertex->sy = m_viewportMetrics[1] + m_viewportMetrics[3];
 					newVertex->sx =
