@@ -491,10 +491,15 @@ Rect* MenuWidget::TranslateRectByOffset(Rect* p_rect)
 	LegoS32 right = p_rect->m_right - p_rect->m_left + left;
 	LegoS32 bottom = p_rect->m_bottom - p_rect->m_top + top;
 
-	p_rect->m_left = left;
-	p_rect->m_top = top;
-	p_rect->m_right = right;
-	p_rect->m_bottom = bottom;
+	LegoS32& rectLeft = p_rect->m_left;
+	LegoS32& rectTop = p_rect->m_top;
+	LegoS32& rectRight = p_rect->m_right;
+	LegoS32& rectBottom = p_rect->m_bottom;
+
+	rectLeft = left;
+	rectTop = top;
+	rectRight = right;
+	rectBottom = bottom;
 
 	return p_rect;
 }
