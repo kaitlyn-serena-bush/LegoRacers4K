@@ -113,29 +113,26 @@ void GolTransform::SetDirectionUp(GolVec3* p_direction, GolVec3* p_up)
 	GolMath::NormalizeVector3(up, &up);
 
 	GolVec3 right;
-	right.m_x = direction.m_z;
-	right.m_x *= up.m_y;
-	right.m_x -= up.m_z * direction.m_y;
+	LegoFloat x = direction.m_z;
+	x *= up.m_y;
+	x -= up.m_z * direction.m_y;
+	right.m_x = x;
 	right.m_y = up.m_z * direction.m_x;
-	LegoFloat directionZUpX = direction.m_z;
-	directionZUpX *= up.m_x;
-	right.m_y -= directionZUpX;
+	LegoFloat ySub = direction.m_z;
+	ySub *= up.m_x;
+	right.m_y -= ySub;
 	right.m_z = direction.m_y;
 	right.m_z *= up.m_x;
-	right.m_z -= up.m_y * direction.m_x;
-
-	LegoFloat* row0 = &m_matrix.m_m[0][0];
-	LegoFloat* row1 = &m_matrix.m_m[1][0];
-	LegoFloat* row2 = &m_matrix.m_m[2][0];
-	row0[0] = right.m_x;
-	row0[1] = right.m_y;
-	row0[2] = right.m_z;
-	row1[0] = up.m_x;
-	row1[1] = up.m_y;
-	row1[2] = up.m_z;
-	row2[0] = direction.m_x;
-	row2[1] = direction.m_y;
-	row2[2] = direction.m_z;
+	right.m_z -= ((((((((((up.m_y * direction.m_x))))))))));
+	m_matrix.m_m[0][0] = right.m_x;
+	m_matrix.m_m[0][1] = right.m_y;
+	m_matrix.m_m[0][2] = right.m_z;
+	m_matrix.m_m[1][0] = up.m_x;
+	m_matrix.m_m[1][1] = up.m_y;
+	m_matrix.m_m[1][2] = up.m_z;
+	m_matrix.m_m[2][0] = direction.m_x;
+	m_matrix.m_m[2][1] = direction.m_y;
+	m_matrix.m_m[2][2] = direction.m_z;
 }
 
 // FUNCTION: GOLDP 0x10002b20
@@ -156,29 +153,26 @@ void GolTransform::SetRightDirection(GolVec3* p_right, GolVec3* p_direction)
 	GolMath::NormalizeVector3(direction, &direction);
 
 	GolVec3 up;
-	up.m_x = right.m_z;
-	up.m_x *= direction.m_y;
-	up.m_x -= direction.m_z * right.m_y;
+	LegoFloat x = right.m_z;
+	x *= direction.m_y;
+	x -= direction.m_z * right.m_y;
+	up.m_x = x;
 	up.m_y = direction.m_z * right.m_x;
-	LegoFloat rightZDirectionX = right.m_z;
-	rightZDirectionX *= direction.m_x;
-	up.m_y -= rightZDirectionX;
+	LegoFloat ySub = right.m_z;
+	ySub *= direction.m_x;
+	up.m_y -= ySub;
 	up.m_z = right.m_y;
 	up.m_z *= direction.m_x;
-	up.m_z -= direction.m_y * right.m_x;
-
-	LegoFloat* row0 = &m_matrix.m_m[0][0];
-	LegoFloat* row1 = &m_matrix.m_m[1][0];
-	LegoFloat* row2 = &m_matrix.m_m[2][0];
-	row0[0] = right.m_x;
-	row0[1] = right.m_y;
-	row1[0] = up.m_x;
-	row0[2] = right.m_z;
-	row1[1] = up.m_y;
-	row1[2] = up.m_z;
-	row2[0] = direction.m_x;
-	row2[1] = direction.m_y;
-	row2[2] = direction.m_z;
+	up.m_z -= ((((((((((direction.m_y * right.m_x))))))))));
+	m_matrix.m_m[0][0] = right.m_x;
+	m_matrix.m_m[0][1] = right.m_y;
+	m_matrix.m_m[0][2] = right.m_z;
+	m_matrix.m_m[1][0] = up.m_x;
+	m_matrix.m_m[1][1] = up.m_y;
+	m_matrix.m_m[1][2] = up.m_z;
+	m_matrix.m_m[2][0] = direction.m_x;
+	m_matrix.m_m[2][1] = direction.m_y;
+	m_matrix.m_m[2][2] = direction.m_z;
 }
 
 // FUNCTION: GOLDP 0x10002c10
