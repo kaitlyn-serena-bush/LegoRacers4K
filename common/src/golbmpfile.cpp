@@ -153,6 +153,7 @@ void GolBmpFile::ReadHeader()
 			m_width = BUF_U16LE(header2, 0x4);  // bcWidth
 			m_height = BUF_U16LE(header2, 0x6); // bcHeight
 			bpp = BUF_U16LE(header2, 0xa);
+			compression = 0;
 			m_paletteSize = 0;
 
 			if (bpp <= 8) {
