@@ -336,7 +336,8 @@ void GolTgaFile::LoadTiledTexture(GolTiledTexture* p_image, LegoU32 p_flags, Col
 	LegoS32 tileHeight;
 	LegoS32 amount;
 
-	if (m_height != p_image->GetHeight() || m_width != p_image->GetWidth()) {
+	LegoBool32 sizeMismatch = m_height != p_image->GetHeight() || m_width != p_image->GetWidth();
+	if (sizeMismatch) {
 		GOL_FATALERROR_MESSAGE("Invalid image size for given storage");
 	}
 
@@ -370,7 +371,7 @@ void GolTgaFile::LoadTiledTexture(GolTiledTexture* p_image, LegoU32 p_flags, Col
 				&pitch,
 				GolSurface::c_lockRequestRead | GolSurface::c_lockRequestWrite
 			);
-			tilePitches[row + column * p_image->m_tileRowCount] = pitch;
+			tilePitches[row + column * p_image->GetTileRowCount()] = pitch;
 		}
 	}
 
@@ -442,10 +443,9 @@ void GolTgaFile::LoadTiledTexture(GolTiledTexture* p_image, LegoU32 p_flags, Col
 				rowBytes = totalRowBytes - sourceOffset;
 			}
 
-			const LegoU32& tileRowCount = p_image->m_tileRowCount;
 			::memcpy(
-				tilePixels[tileRow + i * tileRowCount] +
-					rowInTile * tilePitches[tileRow + i * tileRowCount],
+				tilePixels[tileRow + i * p_image->GetTileRowCount()] +
+					rowInTile * tilePitches[tileRow + i * p_image->GetTileRowCount()],
 				convertedRow + sourceOffset,
 				rowBytes
 			);
