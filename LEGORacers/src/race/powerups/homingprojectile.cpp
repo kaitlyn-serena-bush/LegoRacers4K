@@ -245,7 +245,7 @@ LegoS32 HomingProjectile::Update(LegoU32 p_elapsedMs)
 	LegoFloat elapsedSeconds = static_cast<LegoFloat>(static_cast<LegoS32>(p_elapsedMs)) * 0.001f;
 	LegoFloat targetDistanceSquared;
 	GolVec3 nextPosition;
-	GolVec3 previousPosition;
+
 	GolVec3 start;
 	GolVec3 end;
 	GolBoundingVolume::HitTriangle record;
@@ -270,18 +270,18 @@ LegoS32 HomingProjectile::Update(LegoU32 p_elapsedMs)
 		LegoFloat velocityZ = m_velocityZ;
 		LegoFloat speed =
 			static_cast<LegoFloat>(sqrt(velocityZ * velocityZ + velocityY * velocityY + velocityX * velocityX));
-		m_velocity.m_x = speed * direction->m_x;
-		m_velocity.m_y = speed * direction->m_y;
-		m_velocity.m_z = speed * direction->m_z;
+		GolMath::ScaleVector3(direction, speed, &m_velocity);
 
 		if (targetDistanceSquared < g_homingProjectileTargetDirectHitDistanceSquared) {
 			nextPosition = m_position;
 			targetDistanceSquared = 0.0f;
 		}
 		else {
-			nextPosition.m_x = m_position.m_x + m_velocity.m_x * elapsedSeconds;
-			nextPosition.m_y = m_position.m_y + m_velocity.m_y * elapsedSeconds;
-			nextPosition.m_z = m_position.m_z + m_velocity.m_z * elapsedSeconds;
+			GolVec3 step;
+			GolMath::ScaleVector3(&m_velocity, elapsedSeconds, &step);
+			nextPosition.m_x = step.m_x + m_position.m_x;
+			nextPosition.m_y = step.m_y + m_position.m_y;
+			nextPosition.m_z = step.m_z + m_position.m_z;
 
 			GolVec3 remaining = m_targetPosition - nextPosition;
 			targetDistanceSquared = DotVectors(remaining, *direction);
@@ -296,13 +296,12 @@ LegoS32 HomingProjectile::Update(LegoU32 p_elapsedMs)
 	}
 	else {
 		if (m_hasWaypoint) {
-			end.m_x = m_waypointPosition.m_x - m_position.m_x;
-			end.m_y = m_waypointPosition.m_y - m_position.m_y;
-			end.m_z = m_waypointPosition.m_z - m_position.m_z;
-			if (DotVectors(m_direction, end) > 0.0f) {
-				m_direction.m_x = end.m_x;
-				m_direction.m_y = end.m_y;
-				m_direction.m_z = end.m_z;
+			GolVec3 delta;
+			delta.m_x = m_waypointPosition.m_x - m_position.m_x;
+			delta.m_y = m_waypointPosition.m_y - m_position.m_y;
+			delta.m_z = m_waypointPosition.m_z - m_position.m_z;
+			if (DotVectors(m_direction, delta) > 0.0f) {
+				m_direction = delta;
 			}
 			else {
 				m_hasWaypoint = 0;
@@ -311,22 +310,19 @@ LegoS32 HomingProjectile::Update(LegoU32 p_elapsedMs)
 
 		GolVec3* direction = &m_direction;
 		GolMath::NormalizeVector3(*direction, direction);
-		LegoFloat speed = m_speed;
-		m_velocity.m_x = speed * direction->m_x;
-		m_velocity.m_y = speed * direction->m_y;
-		m_velocity.m_z = speed * direction->m_z;
-		nextPosition.m_x = m_position.m_x + m_velocity.m_x * elapsedSeconds;
-		nextPosition.m_y = m_position.m_y + m_velocity.m_y * elapsedSeconds;
-		nextPosition.m_z = m_position.m_z + m_velocity.m_z * elapsedSeconds;
+		GolMath::ScaleVector3(direction, m_speed, &m_velocity);
+		GolVec3 step;
+		GolMath::ScaleVector3(&m_velocity, elapsedSeconds, &step);
+		nextPosition.m_x = step.m_x + m_position.m_x;
+		nextPosition.m_y = step.m_y + m_position.m_y;
+		nextPosition.m_z = step.m_z + m_position.m_z;
 
 		start.m_x = nextPosition.m_x;
 		start.m_y = nextPosition.m_y;
-		start.m_z = nextPosition.m_z;
+		start.m_z = nextPosition.m_z + g_homingProjectileGroundProbeStartOffset;
 		end.m_x = nextPosition.m_x;
 		end.m_y = nextPosition.m_y;
-		end.m_z = nextPosition.m_z;
-		start.m_z += g_homingProjectileGroundProbeStartOffset;
-		end.m_z -= g_homingProjectileCollisionHitLift;
+		end.m_z = nextPosition.m_z - g_homingProjectileCollisionHitLift;
 
 		if (m_collisionWorld->IntersectSegmentAndFireEvents(&start, &end, &record, &m_hitPosition)) {
 			nextPosition.m_z = m_hitPosition.m_z + g_homingProjectileCollisionHitLift;
@@ -342,9 +338,9 @@ LegoS32 HomingProjectile::Update(LegoU32 p_elapsedMs)
 	m_position = nextPosition;
 	ApplySpiral(elapsedSeconds, &m_direction, &nextPosition);
 
-	m_worldEntity->GetPosition(&previousPosition);
+	m_worldEntity->GetPosition(&start);
 
-	if (m_collisionWorld->IntersectSegmentAndFireEvents(&previousPosition, &nextPosition, &record, &m_hitPosition)) {
+	if (m_collisionWorld->IntersectSegmentAndFireEvents(&start, &nextPosition, &record, &m_hitPosition)) {
 		m_hitNormal.m_x = record.m_normal.m_x;
 		m_hitNormal.m_y = record.m_normal.m_y;
 		m_hitNormal.m_z = record.m_normal.m_z;
