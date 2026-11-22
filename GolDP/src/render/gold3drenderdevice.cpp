@@ -5633,12 +5633,12 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			continue;
 		}
 
+		D3DTLVERTEX* clipVertex = &m_unk0x348[c_firstClipVertex];
+		VertexCacheEntry* clipCache = &m_unk0xc38ec[c_firstClipVertex];
 		D3DTLVERTEX** vertexIn = vertexA;
 		VertexCacheEntry** cacheIn = cacheA;
 		D3DTLVERTEX** vertexOut = vertexB;
 		VertexCacheEntry** cacheOut = cacheB;
-		D3DTLVERTEX* clipVertex = &m_unk0x348[c_firstClipVertex];
-		VertexCacheEntry* clipCache = &m_unk0xc38ec[c_firstClipVertex];
 		LegoU32 vertexCount = 3;
 		LegoU32 outputCount = 0;
 
@@ -6037,7 +6037,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		clippedVertexCount++;
 		LegoU16 previousIndex = clippedVertexCount++;
 
-		D3DTLVERTEX** fanEnd = fanCursor + (vertexCount - 2);
+		D3DTLVERTEX** fanEnd = &vertexIn[vertexCount];
 
 		if (fanCursor < fanEnd) {
 			do {
