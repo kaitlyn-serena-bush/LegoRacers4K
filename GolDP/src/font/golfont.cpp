@@ -241,8 +241,8 @@ void GolFont::DrawGlyph(Rect* p_sourceRect, Rect* p_destRect)
 	vertices[3].sy = vertices[1].sy;
 
 	LegoFloat quarter = m_inverseTextureWidth;
-	quarter *= 0.25f;
-	vertices[0].tu = ((((static_cast<LegoFloat>(p_sourceRect->m_left))) * m_inverseTextureWidth)) + quarter;
+	quarter = (quarter * 0.25f);
+	vertices[0].tu = (((static_cast<LegoFloat>(p_sourceRect->m_left))) * m_inverseTextureWidth) + quarter;
 	vertices[0].tv = (((((static_cast<LegoFloat>(p_sourceRect->m_top))) * m_inverseTextureHeight)));
 	vertices[1].tu = vertices[0].tu;
 	vertices[1].tv = ((((static_cast<LegoFloat>(sourceBottom))) * m_inverseTextureHeight));
