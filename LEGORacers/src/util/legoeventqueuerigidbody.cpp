@@ -48,32 +48,24 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 		GolVec3 axisZ;
 		if (!shapeIndex) {
 			axisX.m_x = m_body->m_orientation.m_m[0][0];
-			LegoFloat halfX = m_boxSizeX * 0.5f;
 			axisX.m_y = m_body->m_orientation.m_m[0][1];
 			axisX.m_z = m_body->m_orientation.m_m[0][2];
-			axisX.m_x *= halfX;
-			axisX.m_y *= halfX;
-			axisX.m_z *= halfX;
-
+			GolMath::ScaleVector3(&axisX, m_boxSizeX * 0.5f, &axisX);
 			axisY.m_x = m_body->m_orientation.m_m[1][0];
-			LegoFloat halfY = m_boxSizeY * 0.5f;
 			axisY.m_y = m_body->m_orientation.m_m[1][1];
 			axisY.m_z = m_body->m_orientation.m_m[1][2];
-			axisY.m_x *= halfY;
-			axisY.m_y *= halfY;
-			axisY.m_z *= halfY;
-
+			GolMath::ScaleVector3(&axisY, m_boxSizeY * 0.5f, &axisY);
 			axisZ = m_body->m_orientation.m_rows[2];
-			axisZ *= m_boxSizeZ * 0.5f;
+			GolMath::ScaleVector3(&axisZ, m_boxSizeZ * 0.5f, &axisZ);
 
 			if (m_boxScale != 1.0f) {
 				if (m_boxScale == 0.0f) {
 					return FALSE;
 				}
 
-				axisX *= m_boxScale;
-				axisY *= m_boxScale;
-				axisZ *= m_boxScale;
+				GolMath::ScaleVector3(&axisX, m_boxScale, &axisX);
+				GolMath::ScaleVector3(&axisY, m_boxScale, &axisY);
+				GolMath::ScaleVector3(&axisZ, m_boxScale, &axisZ);
 			}
 
 			position = &m_centerOfMassWorld;
@@ -83,30 +75,22 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 			axisX.m_x = p_other->m_body->m_orientation.m_m[0][0];
 			axisX.m_y = p_other->m_body->m_orientation.m_m[0][1];
 			axisX.m_z = p_other->m_body->m_orientation.m_m[0][2];
-			LegoFloat halfX = p_other->m_boxSizeX * 0.5f;
-			axisX.m_x *= halfX;
-			axisX.m_y *= halfX;
-			axisX.m_z *= halfX;
-
+			GolMath::ScaleVector3(&axisX, p_other->m_boxSizeX * 0.5f, &axisX);
 			axisY.m_x = p_other->m_body->m_orientation.m_m[1][0];
 			axisY.m_y = p_other->m_body->m_orientation.m_m[1][1];
 			axisY.m_z = p_other->m_body->m_orientation.m_m[1][2];
-			LegoFloat halfY = p_other->m_boxSizeY * 0.5f;
-			axisY.m_x *= halfY;
-			axisY.m_y *= halfY;
-			axisY.m_z *= halfY;
-
+			GolMath::ScaleVector3(&axisY, p_other->m_boxSizeY * 0.5f, &axisY);
 			axisZ = p_other->m_body->m_orientation.m_rows[2];
-			axisZ *= p_other->m_boxSizeZ * 0.5f;
+			GolMath::ScaleVector3(&axisZ, p_other->m_boxSizeZ * 0.5f, &axisZ);
 
 			if (p_other->m_boxScale != 1.0f) {
 				if (p_other->m_boxScale == 0.0f) {
 					return FALSE;
 				}
 
-				axisX *= p_other->m_boxScale;
-				axisY *= p_other->m_boxScale;
-				axisZ *= p_other->m_boxScale;
+				GolMath::ScaleVector3(&axisX, p_other->m_boxScale, &axisX);
+				GolMath::ScaleVector3(&axisY, p_other->m_boxScale, &axisY);
+				GolMath::ScaleVector3(&axisZ, p_other->m_boxScale, &axisZ);
 			}
 
 			position = &p_other->m_centerOfMassWorld;
