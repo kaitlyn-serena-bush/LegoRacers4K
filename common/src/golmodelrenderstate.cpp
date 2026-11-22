@@ -763,9 +763,9 @@ void GolModelRenderState::LightVertices6(
 
 	if (vertex < end) {
 		do {
-			LegoFloat dot = GOL_MUL(vertex->m_nx, m_lightDirections[0].m_x);
+			LegoFloat dot = (GOL_MUL(vertex->m_nx, m_lightDirections[0].m_x));
 			dot += GOL_MUL(vertex->m_ny, m_lightDirections[0].m_y);
-			dot += GOL_MUL(vertex->m_nz, m_lightDirections[0].m_z);
+			dot += (GOL_MUL(vertex->m_nz, m_lightDirections[0].m_z));
 
 			LegoFloat redProduct = m_lightColorProducts[0].m_red;
 			redProduct *= dot;
@@ -809,11 +809,11 @@ void GolModelRenderState::LightVertices6(
 			normalProduct *= vertex->m_nx;
 			dot += normalProduct;
 
-			redProduct = m_lightColorProducts[2].m_red;
+			redProduct = ((m_lightColorProducts[2].m_red));
 			redProduct *= dot;
 			red -= static_cast<LegoS32>(redProduct);
 
-			grnProduct = m_lightColorProducts[2].m_grn;
+			grnProduct = ((((((m_lightColorProducts[2].m_grn))))));
 			grnProduct *= dot;
 			grn -= static_cast<LegoS32>(grnProduct);
 
@@ -855,7 +855,7 @@ void GolModelRenderState::LightVertices6(
 			redProduct *= dot;
 			red -= static_cast<LegoS32>(redProduct);
 
-			grnProduct = m_lightColorProducts[4].m_grn;
+			grnProduct = ((m_lightColorProducts[4].m_grn));
 			grnProduct *= dot;
 			grn -= static_cast<LegoS32>(grnProduct);
 
