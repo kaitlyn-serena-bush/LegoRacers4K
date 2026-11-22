@@ -198,7 +198,9 @@ void GolModelEntity::ComputeBoundsFromModel(LegoU32 p_index)
 	LegoFloat scale = m_scale;
 	GolVec3 center = model->GetCenter();
 	LegoFloat radius = model->GetRadius();
-	center *= scale;
+	center.m_x = GOL_MUL(center.m_x, scale);
+	center.m_y = GOL_MUL(center.m_y, scale);
+	center.m_z *= scale;
 	LocalToWorld(center, &position);
 	SetBoundsCenterAndSpan(position);
 
