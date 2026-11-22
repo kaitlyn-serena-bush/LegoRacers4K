@@ -22,9 +22,6 @@ DECOMP_SIZE_ASSERT(RaceHud::TimeText, 0x09)
 // GLOBAL: LEGORACERS 0x004c4814
 undefined2 g_textConversionBuffer[42];
 
-// GLOBAL: LEGORACERS 0x004afde0
-extern const LegoFloat g_unk0x004afde0 = 10.0f;
-
 extern const LegoFloat g_ghostAnimationRateScale;
 
 // GLOBAL: LEGORACERS 0x004b02a0
@@ -1213,7 +1210,7 @@ void RaceHud::SetLayout(LegoS32 p_mode)
 	m_powerupX = m_viewport.m_left + (width >> 5);
 
 	p_mode = static_cast<LegoS32>(
-		(static_cast<double>(static_cast<LegoS32>(resource->GetHeight())) * m_imageScale + g_unk0x004afde0) * m_scaleY
+		(static_cast<LegoFloat>(static_cast<LegoS32>(resource->GetHeight())) * m_imageScale + 10.0f) * m_scaleY
 	);
 	m_powerupY = m_viewport.m_bottom - p_mode;
 }

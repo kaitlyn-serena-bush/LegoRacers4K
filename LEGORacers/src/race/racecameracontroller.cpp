@@ -199,7 +199,6 @@ void RaceCameraController::UpdateFollow()
 
 extern LegoU16 g_randomTable[1024];
 extern LegoU32 g_randomTableIndex;
-extern const LegoFloat g_unk0x004afde0;
 
 // FUNCTION: LEGORACERS 0x00427e80
 void RaceCameraController::UpdateShake()
@@ -775,7 +774,7 @@ void RaceCameraController::Update(LegoFloat p_elapsedMs)
 			return;
 		}
 
-		m_rawTransform.m_position.m_z += g_unk0x004afde0;
+		m_rawTransform.m_position.m_z += 10.0f;
 		ApplySmoothing();
 		return;
 	}

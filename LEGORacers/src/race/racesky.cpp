@@ -29,8 +29,6 @@ extern const LegoFloat g_raceSkyMaxFloat = FLT_MAX;
 // GLOBAL: LEGORACERS 0x004afddc
 extern const LegoFloat g_raceSkyDomeDepth = 40.0f;
 
-extern const LegoFloat g_unk0x004afde0;
-
 // GLOBAL: LEGORACERS 0x004b4764
 const LegoFloat g_raceSkyNegativeHalfPi = -1.5707964f;
 
@@ -449,7 +447,7 @@ void RaceSkyState::ApplyColors(
 // FUNCTION: LEGORACERS 0x0041d040
 void RaceSkyState::SetPosition(GolVec3* p_position)
 {
-	p_position->m_z -= g_unk0x004afde0 - m_heightOffset;
+	p_position->m_z -= 10.0f - m_heightOffset;
 	m_domeEntity.SetPosition(*p_position);
 	p_position->m_z += g_raceSkyDomeDepth - m_heightOffset;
 
