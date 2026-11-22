@@ -1351,7 +1351,6 @@ void GolWorldDatabase::InitializeEntities()
 	LegoU32 lod;
 	LegoFloat maxDistances[3];
 	LegoChar name[sizeof(GolName) + 1];
-	LegoU32 bindingIndex;
 
 	if (m_modelEntityCount) {
 		GolModelEntity* runtime = m_modelEntities;
@@ -1416,23 +1415,17 @@ void GolWorldDatabase::InitializeEntities()
 				flags |= GolModelEntity::c_flagBit2;
 			}
 
-			j = 0;
-			if (model->m_animationBindingCount > 0) {
-				bindingIndex = 0;
-				do {
-					Rect* assignment = &model->m_animationBindings[bindingIndex];
-					if (static_cast<LegoU32>(assignment->m_left) < m_materialAnimationCount) {
-						LegoU32 trackIndex = assignment->m_top;
-						MabMaterialTrack* item = &GetMaterialAnimation(assignment->m_left)->GetTracks()[trackIndex];
-						LegoU32 targetIndex = assignment->m_bottom;
-						MaterialTable* target = runtime->m_materialTables[targetIndex]
-													? runtime->m_materialTables[targetIndex]
-													: runtime->m_models[targetIndex]->GetMaterialTable();
-						item->Assign(target, assignment->m_right, TRUE);
-					}
-					j++;
-					bindingIndex++;
-				} while (j < model->m_animationBindingCount);
+			for (j = 0; j < model->m_animationBindingCount; j++) {
+				Rect* assignment = &model->m_animationBindings[j];
+				if (static_cast<LegoU32>(assignment->m_left) < m_materialAnimationCount) {
+					LegoU32 trackIndex = assignment->m_top;
+					MabMaterialTrack* item = &GetMaterialAnimation(assignment->m_left)->GetTracks()[trackIndex];
+					LegoU32 targetIndex = assignment->m_bottom;
+					MaterialTable* target = runtime->m_materialTables[targetIndex]
+												? runtime->m_materialTables[targetIndex]
+												: runtime->m_models[targetIndex]->GetMaterialTable();
+					item->Assign(target, assignment->m_right, TRUE);
+				}
 			}
 
 			if (model->m_name[0] != '\0') {
@@ -1540,29 +1533,24 @@ void GolWorldDatabase::InitializeEntities()
 			}
 
 			if (model->m_flags & WdbModel::e_flagBit1) {
-				runtime->m_flags |= GolModelEntity::c_flagBit1;
+				LegoU32& flags = runtime->m_flags;
+				flags |= GolModelEntity::c_flagBit1;
 			}
 			if (model->m_flags & WdbModel::e_flagBit2) {
 				runtime->m_flags |= GolModelEntity::c_flagBit2;
 			}
 
-			j = 0;
-			if (model->m_animationBindingCount > 0) {
-				bindingIndex = 0;
-				do {
-					Rect* assignment = &model->m_animationBindings[bindingIndex];
-					if (static_cast<LegoU32>(assignment->m_left) < m_materialAnimationCount) {
-						LegoU32 trackIndex = assignment->m_top;
-						MabMaterialTrack* item = &GetMaterialAnimation(assignment->m_left)->GetTracks()[trackIndex];
-						LegoU32 targetIndex = assignment->m_bottom;
-						MaterialTable* target = runtime->m_materialTables[targetIndex]
-													? runtime->m_materialTables[targetIndex]
-													: runtime->m_models[targetIndex]->GetMaterialTable();
-						item->Assign(target, assignment->m_right, TRUE);
-					}
-					j++;
-					bindingIndex++;
-				} while (j < model->m_animationBindingCount);
+			for (j = 0; j < model->m_animationBindingCount; j++) {
+				Rect* assignment = &model->m_animationBindings[j];
+				if (static_cast<LegoU32>(assignment->m_left) < m_materialAnimationCount) {
+					LegoU32 trackIndex = assignment->m_top;
+					MabMaterialTrack* item = &GetMaterialAnimation(assignment->m_left)->GetTracks()[trackIndex];
+					LegoU32 targetIndex = assignment->m_bottom;
+					MaterialTable* target = runtime->m_materialTables[targetIndex]
+												? runtime->m_materialTables[targetIndex]
+												: runtime->m_models[targetIndex]->GetMaterialTable();
+					item->Assign(target, assignment->m_right, TRUE);
+				}
 			}
 
 			if (model->m_name[0] != '\0') {
@@ -1638,23 +1626,17 @@ void GolWorldDatabase::InitializeEntities()
 				runtime->m_flags |= GolModelEntity::c_flagBit1;
 			}
 
-			j = 0;
-			if (model->m_animationBindingCount > 0) {
-				bindingIndex = 0;
-				do {
-					Rect* assignment = &model->m_animationBindings[bindingIndex];
-					if (static_cast<LegoU32>(assignment->m_left) < m_materialAnimationCount) {
-						LegoU32 trackIndex = assignment->m_top;
-						MabMaterialTrack* item = &GetMaterialAnimation(assignment->m_left)->GetTracks()[trackIndex];
-						LegoU32 targetIndex = assignment->m_bottom;
-						MaterialTable* target = runtime->m_materialTables[targetIndex]
-													? runtime->m_materialTables[targetIndex]
-													: runtime->m_models[targetIndex]->GetMaterialTable();
-						item->Assign(target, assignment->m_right, TRUE);
-					}
-					j++;
-					bindingIndex++;
-				} while (j < model->m_animationBindingCount);
+			for (j = 0; j < model->m_animationBindingCount; j++) {
+				Rect* assignment = &model->m_animationBindings[j];
+				if (static_cast<LegoU32>(assignment->m_left) < m_materialAnimationCount) {
+					LegoU32 trackIndex = assignment->m_top;
+					MabMaterialTrack* item = &GetMaterialAnimation(assignment->m_left)->GetTracks()[trackIndex];
+					LegoU32 targetIndex = assignment->m_bottom;
+					MaterialTable* target = runtime->m_materialTables[targetIndex]
+												? runtime->m_materialTables[targetIndex]
+												: runtime->m_models[targetIndex]->GetMaterialTable();
+					item->Assign(target, assignment->m_right, TRUE);
+				}
 			}
 
 			if (model->m_name[0] != '\0') {
