@@ -6618,7 +6618,7 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					outputCount++;
 					newVertex.sx = (newVertex.rhw * newCache.m_x) * m_viewportMetrics[0] + m_viewportMetrics[2];
 					newVertex.sy = m_viewportMetrics[1] + m_viewportMetrics[3];
-					newVertex.sz = newVertex.rhw * newCache.m_z;
+					newVertex.sz = (newVertex.rhw) * newCache.m_z;
 				}
 
 				if (!outside) {
