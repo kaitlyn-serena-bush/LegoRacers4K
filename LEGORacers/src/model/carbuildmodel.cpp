@@ -2129,10 +2129,9 @@ void CarBuildModel::ExportModel(GolModelBase* p_model, GolMaterialLibrary* p_mat
 	for (i = 0; i < static_cast<LegoS32>(m_finalGroupCount); i++) {
 		LegoU32 group = m_model->GetGroups()[i];
 		if ((group & 0xe0000000) == 0x80000000) {
-			LegoU32 materialIndex = group & 0xffff;
-			LegoU32 materialOrder = materialUsage[materialIndex].m_order & 0xffffff;
+			LegoU32 materialOrder = materialUsage[group & 0xffff].m_order;
 			outputModel->GetMutableGroups()[i] = 0x80000000;
-			outputModel->GetMutableGroups()[i] |= materialOrder;
+			outputModel->GetMutableGroups()[i] |= materialOrder & 0xffffff;
 			outputModel->SetDirty(TRUE);
 		}
 		else {
