@@ -130,9 +130,7 @@ LegoS32 TetherProjectile::Update(LegoU32 p_elapsedMs)
 // FUNCTION: LEGORACERS 0x00444540
 void TetherProjectile::RebuildBeam(const GolVec3* p_position, LegoFloat p_elapsedMs, LegoFloat p_amount)
 {
-	LegoFloat elapsedStep = p_elapsedMs;
-	elapsedStep *= 0.2f;
-	elapsedStep *= 0.001f;
+	LegoFloat elapsedStep = GOL_MUL(GOL_MUL(p_elapsedMs, 0.2f), 0.001f);
 
 	GolVec3 origin;
 	m_ownerRacer->m_visuals.GetPosition(&origin);
