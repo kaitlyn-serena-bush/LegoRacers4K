@@ -1591,7 +1591,7 @@ void CutscenePlayer::OnDirectionalLightEnded(void*, void* p_name, void* p_payloa
 void CutscenePlayer::Update(LegoU32 p_elapsedMs)
 {
 	if (m_golExport != NULL) {
-		LegoFloat elapsedSeconds = static_cast<LegoS32>(p_elapsedMs) * 0.001f;
+		LegoFloat elapsedSeconds = (((static_cast<LegoS32>(p_elapsedMs) * 0.001f)));
 		LegoU32 i;
 
 		for (i = 0; i < m_moveEventCount; i++) {
