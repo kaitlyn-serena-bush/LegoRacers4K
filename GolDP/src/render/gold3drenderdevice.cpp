@@ -6258,9 +6258,11 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			VertexCacheEntry& cache0 = m_unk0xc38ec[indexA[0]];
 			VertexCacheEntry& cache1 = m_unk0xc38ec[indexA[1]];
 			VertexCacheEntry& cache2 = m_unk0xc38ec[indexA[2]];
+			D3DTLVERTEX& vertex0 = m_unk0x348[cache0.m_unk0x10];
+			D3DTLVERTEX& vertex1 = m_unk0x348[cache1.m_unk0x10];
 			LegoFloat area = ComputeScreenArea(
-				m_unk0x348[cache0.m_unk0x10],
-				m_unk0x348[cache1.m_unk0x10],
+				vertex0,
+				vertex1,
 				m_unk0x348[cache2.m_unk0x10]
 			);
 
@@ -6628,11 +6630,9 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 
 		if (vertexCount >= 3) {
 			VertexCacheEntry& cache0 = m_unk0xc38ec[indicesIn[0]];
-			LegoFloat area = ComputeScreenArea(
-				m_unk0x348[cache0.m_unk0x10],
-				m_unk0x348[m_unk0xc38ec[indicesIn[1]].m_unk0x10],
-				m_unk0x348[m_unk0xc38ec[indicesIn[2]].m_unk0x10]
-			);
+			D3DTLVERTEX& vertex0 = m_unk0x348[cache0.m_unk0x10];
+			D3DTLVERTEX& vertex1 = m_unk0x348[m_unk0xc38ec[indicesIn[1]].m_unk0x10];
+			LegoFloat area = ComputeScreenArea(vertex0, vertex1, m_unk0x348[m_unk0xc38ec[indicesIn[2]].m_unk0x10]);
 
 			if (area > 0.0f) {
 				for (LegoS32 i = 1; i < vertexCount - 1; i++) {
