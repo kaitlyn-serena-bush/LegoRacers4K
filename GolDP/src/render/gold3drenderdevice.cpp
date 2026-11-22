@@ -5643,10 +5643,10 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		LegoU32 outputCount = 0;
 
 		if (clipFlags & c_clipNear) {
-			D3DTLVERTEX** vertexCursor = vertexIn;
-			VertexCacheEntry** cacheCursor = cacheIn;
 			D3DTLVERTEX** vertexEnd = &vertexIn[vertexCount];
 			D3DTLVERTEX* previousVertex = vertexEnd[-1];
+			D3DTLVERTEX** vertexCursor = vertexIn;
+			VertexCacheEntry** cacheCursor = cacheIn;
 			VertexCacheEntry* previousCache = cacheIn[vertexCount - 1];
 			LegoU32 previousOutside = previousCache->m_clipFlags & c_clipNear;
 
@@ -5658,8 +5658,8 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 				if (outside ^ previousOutside) {
 					LegoFloat t = (previousCache->m_z - 0.0f) / (previousCache->m_z - cache->m_z);
 					D3DTLVERTEX* newVertex = clipVertex++;
-					VertexCacheEntry* newCache = clipCache++;
 					vertexOut[outputCount] = newVertex;
+					VertexCacheEntry* newCache = clipCache++;
 					cacheOut[outputCount] = newCache;
 					newCache->m_z = 0.0f;
 					newCache->m_w = nearClip;
@@ -5706,10 +5706,10 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		}
 
 		if (clipFlags & c_clipFar) {
-			D3DTLVERTEX** vertexCursor = vertexIn;
-			VertexCacheEntry** cacheCursor = cacheIn;
 			D3DTLVERTEX** vertexEnd = &vertexIn[vertexCount];
 			D3DTLVERTEX* previousVertex = vertexEnd[-1];
+			D3DTLVERTEX** vertexCursor = vertexIn;
+			VertexCacheEntry** cacheCursor = cacheIn;
 			VertexCacheEntry* previousCache = cacheIn[vertexCount - 1];
 			LegoU32 previousOutside = previousCache->m_clipFlags & c_clipFar;
 
@@ -5721,8 +5721,8 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 				if (outside ^ previousOutside) {
 					LegoFloat t = (previousCache->m_z - farClip) / (previousCache->m_z - cache->m_z);
 					D3DTLVERTEX* newVertex = clipVertex++;
-					VertexCacheEntry* newCache = clipCache++;
 					vertexOut[outputCount] = newVertex;
+					VertexCacheEntry* newCache = clipCache++;
 					cacheOut[outputCount] = newCache;
 					newCache->m_z = farClip;
 					newCache->m_w = farClip;
@@ -5768,10 +5768,10 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		}
 
 		if (clipFlags & c_clipLeft) {
-			D3DTLVERTEX** vertexCursor = vertexIn;
-			VertexCacheEntry** cacheCursor = cacheIn;
 			D3DTLVERTEX** vertexEnd = &vertexIn[vertexCount];
 			D3DTLVERTEX* previousVertex = vertexEnd[-1];
+			D3DTLVERTEX** vertexCursor = vertexIn;
+			VertexCacheEntry** cacheCursor = cacheIn;
 			VertexCacheEntry* previousCache = cacheIn[vertexCount - 1];
 			LegoU32 previousOutside = previousCache->m_clipFlags & c_clipLeft;
 
@@ -5784,8 +5784,8 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					LegoFloat distance = previousCache->m_x;
 					LegoFloat t = distance / (distance - cache->m_x);
 					D3DTLVERTEX* newVertex = clipVertex++;
-					VertexCacheEntry* newCache = clipCache++;
 					vertexOut[outputCount] = newVertex;
+					VertexCacheEntry* newCache = clipCache++;
 					newCache->m_x = 0.0f;
 					cacheOut[outputCount] = newCache;
 					newCache->m_y = (cache->m_y - previousCache->m_y) * t + previousCache->m_y;
@@ -5830,10 +5830,10 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		}
 
 		if (clipFlags & c_clipRight) {
-			D3DTLVERTEX** vertexCursor = vertexIn;
-			VertexCacheEntry** cacheCursor = cacheIn;
 			D3DTLVERTEX** vertexEnd = &vertexIn[vertexCount];
 			D3DTLVERTEX* previousVertex = vertexEnd[-1];
+			D3DTLVERTEX** vertexCursor = vertexIn;
+			VertexCacheEntry** cacheCursor = cacheIn;
 			VertexCacheEntry* previousCache = cacheIn[vertexCount - 1];
 			LegoU32 previousOutside = previousCache->m_clipFlags & c_clipRight;
 
@@ -5846,8 +5846,8 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					LegoFloat t = (previousCache->m_x - previousCache->m_w) /
 								  ((cache->m_w - previousCache->m_w) - (cache->m_x - previousCache->m_x));
 					D3DTLVERTEX* newVertex = clipVertex++;
-					VertexCacheEntry* newCache = clipCache++;
 					vertexOut[outputCount] = newVertex;
+					VertexCacheEntry* newCache = clipCache++;
 					cacheOut[outputCount] = newCache;
 					newCache->m_y = (cache->m_y - previousCache->m_y) * t + previousCache->m_y;
 					newCache->m_z = (cache->m_z - previousCache->m_z) * t + previousCache->m_z;
@@ -5892,10 +5892,10 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		}
 
 		if (clipFlags & c_clipTop) {
-			D3DTLVERTEX** vertexCursor = vertexIn;
-			VertexCacheEntry** cacheCursor = cacheIn;
 			D3DTLVERTEX** vertexEnd = &vertexIn[vertexCount];
 			D3DTLVERTEX* previousVertex = vertexEnd[-1];
+			D3DTLVERTEX** vertexCursor = vertexIn;
+			VertexCacheEntry** cacheCursor = cacheIn;
 			VertexCacheEntry* previousCache = cacheIn[vertexCount - 1];
 			LegoU32 previousOutside = previousCache->m_clipFlags & c_clipTop;
 
@@ -5907,8 +5907,8 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 				if (outside ^ previousOutside) {
 					LegoFloat t = (previousCache->m_y - 0.0f) / (previousCache->m_y - cache->m_y);
 					D3DTLVERTEX* newVertex = clipVertex++;
-					VertexCacheEntry* newCache = clipCache++;
 					vertexOut[outputCount] = newVertex;
+					VertexCacheEntry* newCache = clipCache++;
 					newCache->m_y = 0.0f;
 					cacheOut[outputCount] = newCache;
 					newCache->m_x = (cache->m_x - previousCache->m_x) * t + previousCache->m_x;
@@ -5953,10 +5953,10 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		}
 
 		if (clipFlags & c_clipBottom) {
-			D3DTLVERTEX** vertexCursor = vertexIn;
-			VertexCacheEntry** cacheCursor = cacheIn;
 			D3DTLVERTEX** vertexEnd = &vertexIn[vertexCount];
 			D3DTLVERTEX* previousVertex = vertexEnd[-1];
+			D3DTLVERTEX** vertexCursor = vertexIn;
+			VertexCacheEntry** cacheCursor = cacheIn;
 			VertexCacheEntry* previousCache = cacheIn[vertexCount - 1];
 			LegoU32 previousOutside = previousCache->m_clipFlags & c_clipBottom;
 
@@ -5969,8 +5969,8 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					LegoFloat t = (previousCache->m_y - previousCache->m_w) /
 								  ((cache->m_w - previousCache->m_w) - (cache->m_y - previousCache->m_y));
 					D3DTLVERTEX* newVertex = clipVertex++;
-					VertexCacheEntry* newCache = clipCache++;
 					vertexOut[outputCount] = newVertex;
+					VertexCacheEntry* newCache = clipCache++;
 					cacheOut[outputCount] = newCache;
 					newCache->m_x = (cache->m_x - previousCache->m_x) * t + previousCache->m_x;
 					newCache->m_z = (cache->m_z - previousCache->m_z) * t + previousCache->m_z;
