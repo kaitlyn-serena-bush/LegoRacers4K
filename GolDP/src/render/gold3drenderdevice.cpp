@@ -5582,7 +5582,6 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 	LegoU32 index0;
 	LegoU32* firstIndex;
 	LegoU32* lastIndex;
-	LegoU32 i;
 
 	LegoU16 clippedVertexCount = 0;
 	LegoFloat nearClip = m_currentCamera->m_nearClip;
@@ -5602,7 +5601,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 	LegoU8* triangle = &m_sourceIndices[p_firstTriangle * 4];
 	LegoU8* triangleEnd = &triangle[p_triangleCount * 4];
 
-	for (; triangle < triangleEnd; triangle += 4) {
+	while (triangle < triangleEnd) {
 		*firstIndex = triangle[0];
 		LegoU32 index1 = triangle[1];
 		*lastIndex = triangle[2];
@@ -5612,6 +5611,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		cacheA[2] = &m_unk0xc38ec[index2];
 
 		if (cacheA[0]->m_clipFlags & cacheA[1]->m_clipFlags & cacheA[2]->m_clipFlags) {
+			triangle += 4;
 			continue;
 		}
 
@@ -5629,6 +5629,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 				*directIndices++ = index0;
 			}
 
+			triangle += 4;
 			continue;
 		}
 
@@ -5690,6 +5691,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			}
 
 			if (outputCount < 3) {
+				triangle += 4;
 				continue;
 			}
 
@@ -5751,6 +5753,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			}
 
 			if (outputCount < 3) {
+				triangle += 4;
 				continue;
 			}
 
@@ -5812,6 +5815,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			}
 
 			if (outputCount < 3) {
+				triangle += 4;
 				continue;
 			}
 
@@ -5873,6 +5877,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			}
 
 			if (outputCount < 3) {
+				triangle += 4;
 				continue;
 			}
 
@@ -5933,6 +5938,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			}
 
 			if (outputCount < 3) {
+				triangle += 4;
 				continue;
 			}
 
@@ -5992,6 +5998,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			}
 
 			if (outputCount < 3) {
+				triangle += 4;
 				continue;
 			}
 
@@ -5999,7 +6006,13 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			vertexCount = outputCount;
 		}
 
-		if (ComputeScreenArea(*vertexIn[0], *vertexIn[1], *vertexIn[2]) <= 0.0f) {
+		D3DTLVERTEX** fanCursor = vertexIn;
+		D3DTLVERTEX* fanFirst = fanCursor[0];
+		D3DTLVERTEX* fanSecond = fanCursor[1];
+		fanCursor += 2;
+
+		if (ComputeScreenArea(*fanFirst, *fanSecond, **fanCursor) <= 0.0f) {
+			triangle += 4;
 			continue;
 		}
 
@@ -6019,18 +6032,25 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 
 		LegoU16 firstVertex = clippedVertexCount;
 		D3DTLVERTEX* output = &m_unk0xc53a0[clippedVertexCount];
-		*output++ = *vertexIn[0];
-		*output++ = *vertexIn[1];
+		*output++ = *fanFirst;
+		*output++ = *fanSecond;
 		clippedVertexCount++;
 		LegoU16 previousIndex = clippedVertexCount++;
 
-		for (i = 2; i < vertexCount; i++) {
-			*clippedIndices++ = firstVertex;
-			*clippedIndices++ = previousIndex;
-			previousIndex = clippedVertexCount++;
-			*clippedIndices++ = previousIndex;
-			*output++ = *vertexIn[i];
+		D3DTLVERTEX** fanEnd = fanCursor + (vertexCount - 2);
+
+		if (fanCursor < fanEnd) {
+			do {
+				*clippedIndices++ = firstVertex;
+				*clippedIndices++ = previousIndex;
+				previousIndex = clippedVertexCount++;
+				*clippedIndices++ = previousIndex;
+				*output++ = **fanCursor;
+				fanCursor++;
+			} while (fanCursor < fanEnd);
 		}
+
+		triangle += 4;
 	}
 
 	if (directIndices > m_unk0xc4c20) {
