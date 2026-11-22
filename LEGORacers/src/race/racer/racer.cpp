@@ -696,8 +696,8 @@ void Racer::InitializePhysics(RacerContext* p_context, SetupParams* p_params)
 		5.0f,
 		6.2f
 	);
-	m_physics.m_soundsEnabled = 0;
-	m_physics.m_racer = this;
+	m_physics.SetSoundsEnabled(FALSE);
+	m_physics.SetRacer(this);
 
 	if (m_flags & c_flagCheatNslwj) {
 		physics->m_flags |= RacerPhysics::c_flagIgnoreSurfaces;
