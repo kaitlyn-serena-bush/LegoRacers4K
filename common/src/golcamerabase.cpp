@@ -44,7 +44,7 @@ GolVec3* GolBoundingVolume::BspNode::GetPlaneNormal(GolVec3* p_dest) const
 // FUNCTION: LEGORACERS 0x00404680
 LegoFloat GolCameraBase::Dot(GolVec3* p_left, GolVec3* p_right)
 {
-	return p_left->m_z * p_right->m_z + p_left->m_y * p_right->m_y + p_left->m_x * p_right->m_x;
+	return (p_left->m_z * p_right->m_z) + (p_left->m_y * p_right->m_y) + (p_left->m_x * p_right->m_x);
 }
 
 // FUNCTION: LEGORACERS 0x004046a0
@@ -202,7 +202,9 @@ void GolCameraBase::ComputeFrustum(GolViewFrustum* p_view)
 	p_view->m_planes[4].m_normal.m_x = -normal.m_x;
 	p_view->m_planes[4].m_normal.m_y = -normal.m_y;
 	p_view->m_planes[4].m_normal.m_z = -normal.m_z;
-	p_view->m_planes[4].m_distance = Dot(&p_view->m_corners[2], &normal);
+	p_view->m_planes[4].m_distance =
+		(p_view->m_corners[2].m_z) * (normal.m_z) + (p_view->m_corners[2].m_y) * (normal.m_y) +
+		p_view->m_corners[2].m_x * normal.m_x;
 }
 
 // FUNCTION: GOLDP 0x1001c450
@@ -301,7 +303,9 @@ void GolCameraBase::ComputeFrustumFromBounds(GolViewFrustum* p_view)
 	p_view->m_planes[4].m_normal.m_x = -normal.m_x;
 	p_view->m_planes[4].m_normal.m_y = -normal.m_y;
 	p_view->m_planes[4].m_normal.m_z = -normal.m_z;
-	p_view->m_planes[4].m_distance = Dot(&p_view->m_corners[2], &normal);
+	p_view->m_planes[4].m_distance =
+		(p_view->m_corners[2].m_z) * (normal.m_z) + (p_view->m_corners[2].m_y) * (normal.m_y) +
+		p_view->m_corners[2].m_x * normal.m_x;
 }
 
 // FUNCTION: GOLDP 0x1001c900
