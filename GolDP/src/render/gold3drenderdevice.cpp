@@ -61,8 +61,8 @@ inline static LegoFloat ComputeScreenArea(
 
 inline static LegoU32 BuildClipXYFlags(const LegoFloat& p_x, const LegoFloat& p_y, const LegoFloat& p_w)
 {
-	const LegoU32 x = *reinterpret_cast<const LegoU32*>(&p_x);
 	const LegoU32 y = *reinterpret_cast<const LegoU32*>(&p_y);
+	const LegoU32 x = *reinterpret_cast<const LegoU32*>(&p_x);
 	const LegoU32 w = *reinterpret_cast<const LegoU32*>(&p_w);
 
 	LegoU32 lowFlags = (x >> 31) | ((y & 0x80000000) >> 29);
@@ -6281,19 +6281,19 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					rasterizerIndex++;
 				}
 
-				p_triangleCount++;
 				command->m_rasterizer = m_unk0xc83b4.m_unk0x00[rasterizerIndex];
+				p_triangleCount++;
 				command++;
 			}
 			triangle += 4;
 			continue;
 		}
 
+		LegoU32 nextClip = c_firstClipVertex;
+		LegoU32* indicesOut = indexB;
 		LegoU32* indicesIn = indexA;
 		LegoU32* flagsIn = flagsA;
-		LegoU32* indicesOut = indexB;
 		LegoU32* flagsOut = flagsB;
-		LegoU32 nextClip = c_firstClipVertex;
 		LegoS32 vertexCount = 3;
 		LegoS32 outputCount = 0;
 
@@ -6419,7 +6419,7 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					VertexCacheEntry& previousCache = m_unk0xc38ec[indicesIn[previous]];
 					VertexCacheEntry& cache = m_unk0xc38ec[indicesIn[i]];
 					LegoFloat distance = previousCache.m_x;
-					LegoFloat t = distance / (distance - cache.m_x);
+					LegoFloat t = (distance / (distance - cache.m_x));
 					D3DTLVERTEX& previousVertex = m_unk0x348[previousCache.m_unk0x10];
 					D3DTLVERTEX& vertex = m_unk0x348[cache.m_unk0x10];
 					indicesOut[outputCount] = nextClip;
@@ -6428,7 +6428,7 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					D3DTLVERTEX& newVertex = m_unk0x348[m_unk0xc3848];
 					m_unk0xc3848++;
 					newCache.m_x = 0.0f;
-					newCache.m_y = (((((((cache.m_y - previousCache.m_y) * t)))))) + previousCache.m_y;
+					newCache.m_y = ((((((cache.m_y - previousCache.m_y) * t))))) + previousCache.m_y;
 					newCache.m_z = (cache.m_z - previousCache.m_z) * t + previousCache.m_z;
 					newCache.m_w = (cache.m_w - previousCache.m_w) * t + previousCache.m_w;
 					newVertex.tu = (vertex.tu - previousVertex.tu) * t + previousVertex.tu;
