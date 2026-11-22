@@ -647,6 +647,13 @@ void GolD3DTexture::CreateDirectDrawSurface(GolCommonDrawState* p_drawState, Gol
 	}
 }
 
+inline void ClampMax(LegoU16* p_value, LegoU16 p_max)
+{
+	if (*p_value > p_max) {
+		*p_value = p_max;
+	}
+}
+
 // FUNCTION: GOLDP 0x100168c0
 void GolD3DTexture::CreateMipmapBuffers(GolD3DRenderDevice& p_renderer)
 {
@@ -664,9 +671,7 @@ void GolD3DTexture::CreateMipmapBuffers(GolD3DRenderDevice& p_renderer)
 		m_mipmapCount = 1;
 	}
 
-	if (m_mipmapCount > 4) {
-		m_mipmapCount = 4;
-	}
+	ClampMax(&m_mipmapCount, 4);
 
 	width = m_deviceWidth;
 	height = m_deviceHeight;
