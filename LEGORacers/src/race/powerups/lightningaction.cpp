@@ -500,7 +500,8 @@ void LightningAction::UpdateBoltPath()
 		m_boltLength = distance * 0.25f;
 	} while (FALSE);
 
-	direction *= m_boltLength;
+	scale = m_boltLength;
+	direction *= scale;
 	for (LegoS32 i = 0; i < sizeOfArray(m_boltPoints); i++) {
 		position += direction;
 		m_boltPoints[i] = position;

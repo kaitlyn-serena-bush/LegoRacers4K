@@ -159,6 +159,45 @@ public:
 		return result;
 	}
 
+	static void ScaleVector3(const GolVec3* p_src, LegoFloat p_scale, GolVec3* p_dest)
+	{
+		p_dest->m_x = p_scale * p_src->m_x;
+
+		LegoFloat y = p_src->m_y;
+		y *= p_scale;
+		p_dest->m_y = y;
+
+		LegoFloat z = p_src->m_z;
+		z *= p_scale;
+		p_dest->m_z = z;
+	}
+
+	static void CrossVector3(const GolVec3* p_left, const GolVec3* p_right, GolVec3* p_dest)
+	{
+		LegoFloat x = p_left->m_y;
+		LegoFloat xRight = p_right->m_z;
+		x *= xRight;
+		LegoFloat xSub = p_left->m_z;
+		LegoFloat xSubRight = p_right->m_y;
+		xSub *= xSubRight;
+		x -= xSub;
+		p_dest->m_x = x;
+
+		LegoFloat y = p_left->m_z;
+		y *= p_right->m_x;
+		LegoFloat ySub = p_right->m_z;
+		ySub *= p_left->m_x;
+		y -= ySub;
+		p_dest->m_y = y;
+
+		LegoFloat z = p_right->m_y;
+		z *= p_left->m_x;
+		LegoFloat zSub = p_left->m_y;
+		zSub *= p_right->m_x;
+		z -= zSub;
+		p_dest->m_z = z;
+	}
+
 	static void MultiplyMatrix4(const GolMatrix4& p_left, const GolMatrix4& p_right, GolMatrix4* p_dest);
 	static void MultiplyMatrix4Affine(const GolMatrix4& p_left, const GolMatrix4& p_right, GolMatrix4* p_dest);
 	static void SinCos(LegoFloat p_angle, LegoFloat* p_sin, LegoFloat* p_cos);

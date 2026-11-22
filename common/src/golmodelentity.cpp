@@ -213,8 +213,9 @@ void GolModelEntity::Update(LegoS32 p_elapsed)
 {
 	GolVec3 v;
 	GetPosition(&v);
-	LegoFloat f = static_cast<LegoFloat>(p_elapsed);
-	v += m_velocity * f;
+	GolVec3 delta;
+	GolMath::ScaleVector3(&m_velocity, static_cast<LegoFloat>(p_elapsed), &delta);
+	v += delta;
 	SetPosition(v);
 	m_radius = -1.0f;
 	if (m_textureScrollSpeedU != 0 || m_textureScrollSpeedV != 0) {
