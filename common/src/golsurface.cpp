@@ -110,6 +110,7 @@ void GolSurface::Fill(LegoU32 p_color)
 	LegoU32 height = m_height;
 	LegoU32 width = m_width;
 
+	LegoU32 y;
 	switch (m_textureFormat.m_bitsPerPixel) {
 	case 4:
 		p_color &= 0x0f;
@@ -117,39 +118,32 @@ void GolSurface::Fill(LegoU32 p_color)
 		p_color |= p_color << 4;
 		// fall through
 	case 8:
-		if (height > 0) {
-			LegoU32 rows = height;
-			do {
-				LegoU8* rowEnd = pixels + width;
-				LegoU8* row = pixels;
-				while (row < rowEnd) {
-					*row++ = (LegoU8) p_color;
-				}
-				pixels += pitch;
-			} while (--rows);
+		for (y = 0; y < height; y++) {
+			LegoU8* rowEnd = pixels + width;
+			LegoU8* row = pixels;
+			while (row < rowEnd) {
+				*row++ = (LegoU8) p_color;
+			}
+			pixels += pitch;
 		}
 		break;
 	case 16:
-		if (height > 0) {
-			LegoU32 rows = height;
-			do {
-				LegoU16* row = (LegoU16*) pixels;
-				LegoU16* rowEnd = row + width;
-				while (row < rowEnd) {
-					*row++ = (LegoU16) p_color;
-				}
-				pixels += pitch;
-			} while (--rows);
+		for (y = 0; y < height; y++) {
+			LegoU16* row = (LegoU16*) pixels;
+			LegoU16* rowEnd = row + width;
+			while (row < rowEnd) {
+				*row++ = (LegoU16) p_color;
+			}
+			pixels += pitch;
 		}
 		break;
 	case 24: {
 		LegoU8 color0 = p_color;
 		LegoU8 color1 = p_color >> 8;
 		LegoU8 color2 = p_color >> 16;
-		width *= 3;
 		if (height > 0) {
-			LegoU32 rows = height;
-			do {
+			width *= 3;
+			for (y = 0; y < height; y++) {
 				LegoU8* rowEnd = pixels + width;
 				LegoU8* row = pixels;
 				while (row < rowEnd) {
@@ -158,21 +152,18 @@ void GolSurface::Fill(LegoU32 p_color)
 					*row++ = color2;
 				}
 				pixels += pitch;
-			} while (--rows);
+			}
 		}
 		break;
 	}
 	case 32:
-		if (height > 0) {
-			LegoU32 rows = height;
-			do {
-				LegoU32* row = (LegoU32*) pixels;
-				LegoU32* rowEnd = row + width;
-				while (row < rowEnd) {
-					*row++ = p_color;
-				}
-				pixels += pitch;
-			} while (--rows);
+		for (y = 0; y < height; y++) {
+			LegoU32* row = (LegoU32*) pixels;
+			LegoU32* rowEnd = row + width;
+			while (row < rowEnd) {
+				*row++ = p_color;
+			}
+			pixels += pitch;
 		}
 		break;
 	}
