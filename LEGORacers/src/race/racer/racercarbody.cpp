@@ -538,7 +538,7 @@ void RacerCarBody::UpdateVisualBank(LegoS32 p_elapsedMs)
 			targetAngle *= m_powerslideFactor;
 
 			LegoFloat speedScale = m_speed;
-			speedScale *= g_floatConst1000;
+			speedScale *= 1000.0f;
 			speedScale /= m_maxSpeed;
 			targetAngle *= speedScale;
 
