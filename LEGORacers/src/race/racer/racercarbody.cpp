@@ -2742,7 +2742,7 @@ void RacerCarBody::ComputeWheelPositions()
 	LegoFloat lengthScale = m_wheelbase;
 	LegoFloat lengthY = lengthOffset.m_y;
 	lengthOffset.m_x *= lengthScale;
-	lengthOffset.m_y = lengthY * lengthScale;
+	lengthOffset.m_y = (lengthY * lengthScale);
 	lengthOffset.m_z *= lengthScale;
 
 	GolVec3 widthOffset;
