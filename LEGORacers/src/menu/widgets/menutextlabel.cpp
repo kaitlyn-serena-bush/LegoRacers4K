@@ -78,10 +78,8 @@ void MenuTextLabel::SetString(GolString* p_string, LegoBool32 p_remeasure)
 		for (LegoS32 i = 0; i < m_string.CountLines(); i++) {
 			m_font->MeasureString(&m_string, &width, &height);
 
-			LegoU32 right = m_rect.m_left + width;
-			LegoU32 currentRight = m_rect.m_right;
-			if (right > currentRight) {
-				m_rect.m_right = right;
+			if ((LegoU32) (m_rect.m_left + width) > (LegoU32) m_rect.m_right) {
+				m_rect.m_right = m_rect.m_left + width;
 			}
 
 			m_rect.m_bottom += height;
