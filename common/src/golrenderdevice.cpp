@@ -672,24 +672,6 @@ void GolRenderDevice::SelectTextureFormat(
 				}
 			}
 		}
-
-		if (bits.m_alpha >= 4) {
-			for (i = 0; i < m_countTextureFormats; i++) {
-				if (m_textureFormats[i].GetAlphaBitCount() >= 4) {
-					*p_actualTextureFormat = m_textureFormats[i];
-					m_textureFormatIndex = i;
-					return;
-				}
-			}
-		}
-
-		for (i = 0; i < m_countTextureFormats; i++) {
-			if (m_textureFormats[i].GetAlphaBitCount() != 0) {
-				*p_actualTextureFormat = m_textureFormats[i];
-				m_textureFormatIndex = i;
-				return;
-			}
-		}
 	}
 	else {
 		if (bits.m_palette != 0) {
@@ -745,7 +727,28 @@ void GolRenderDevice::SelectTextureFormat(
 				}
 			}
 		}
+	}
 
+	if (bits.m_alpha != 0) {
+		if (bits.m_alpha >= 4) {
+			for (i = 0; i < m_countTextureFormats; i++) {
+				if (m_textureFormats[i].GetAlphaBitCount() >= 4) {
+					*p_actualTextureFormat = m_textureFormats[i];
+					m_textureFormatIndex = i;
+					return;
+				}
+			}
+		}
+
+		for (i = 0; i < m_countTextureFormats; i++) {
+			if (m_textureFormats[i].GetAlphaBitCount() != 0) {
+				*p_actualTextureFormat = m_textureFormats[i];
+				m_textureFormatIndex = i;
+				return;
+			}
+		}
+	}
+	else {
 		for (i = 0; i < m_countTextureFormats; i++) {
 			if (m_textureFormats[i].m_bitsPerPixel >= 15 && m_textureFormats[i].GetRedBitCount() >= 5 &&
 				m_textureFormats[i].GetGreenBitCount() >= 5 && m_textureFormats[i].GetBlueBitCount() >= 5) {
