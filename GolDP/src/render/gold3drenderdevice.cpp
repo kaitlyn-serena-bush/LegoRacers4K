@@ -86,12 +86,13 @@ inline static LegoU32 InterpolateClipColor(LegoU32 p_from, LegoU32 p_to, LegoFlo
 	LegoS32 fromGreen = RGBA_GETGREEN(p_from);
 	LegoS32 fromBlue = RGBA_GETBLUE(p_from);
 	LegoS32 fromAlpha = RGBA_GETALPHA(p_from);
+	LegoU32 to = p_to;
 
 	return RGBA_MAKE(
-		fromRed + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETRED(p_to)) - fromRed) * p_amount),
-		fromGreen + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETGREEN(p_to)) - fromGreen) * p_amount),
-		fromBlue + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETBLUE(p_to)) - fromBlue) * p_amount),
-		fromAlpha + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETALPHA(p_to)) - fromAlpha) * p_amount)
+		fromRed + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETRED(to)) - fromRed) * p_amount),
+		fromGreen + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETGREEN(to)) - fromGreen) * p_amount),
+		fromBlue + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETBLUE(to)) - fromBlue) * p_amount),
+		fromAlpha + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETALPHA(to)) - fromAlpha) * p_amount)
 	);
 }
 
