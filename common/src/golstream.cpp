@@ -94,7 +94,7 @@ void GolStream::Initialize()
 	m_flags = 0;
 	m_position = 0;
 	m_size = 0;
-	m_unk0x10 = 0;
+	m_mappedOffset = 0;
 	m_bufferCapacity = 0;
 	m_bufferStart = 0;
 	m_bufferEnd = 0;
@@ -191,7 +191,7 @@ LegoS32 GolStream::BufferedOpen(const LegoChar* p_fileName, LegoS32 p_mode, Lego
 
 	m_mode = p_mode;
 	m_flags = 0;
-	m_unk0x10 = 0;
+	m_mappedOffset = 0;
 	m_bufferStart = 0;
 	m_bufferEnd = 0;
 	m_position = 0;
@@ -446,7 +446,7 @@ LegoS32 GolStream::ReadLine(void* p_buf, LegoU32 p_size)
 	LegoS32 bytesRead;
 
 	if (flags & c_flagMapped) {
-		LegoU32 pos = m_unk0x10;
+		LegoU32 pos = m_mappedOffset;
 		LegoU32 size = m_size;
 
 		if (pos >= size) {
@@ -460,7 +460,7 @@ LegoS32 GolStream::ReadLine(void* p_buf, LegoU32 p_size)
 		result = g_fileSources[m_handle].Read(pos + m_position, p_buf, p_size, maxSize, (LegoS32*) &p_buf);
 
 		if (!result) {
-			m_unk0x10 += (LegoS32) p_buf;
+			m_mappedOffset += (LegoS32) p_buf;
 			return e_ioSuccess;
 		}
 	}
