@@ -32,7 +32,7 @@ public:
 
 	// SIZE 0x10
 	struct RasterizerPipelineSet {
-		GolSoftwareRenderer::RasterizerPipeline* m_unk0x00[4]; // 0x00
+		GolSoftwareRenderer::RasterizerPipeline* m_pipelines[4]; // 0x00
 	};
 
 	// SIZE 0x20
@@ -297,9 +297,9 @@ private:
 	LegoFloat m_uvOffsetU;                                                         // 0xc83a0
 	LegoFloat m_uvOffsetV;                                                         // 0xc83a4
 	GolTexture* m_currentTexture;                                                  // 0xc83a8
-	undefined4 m_unk0xc83ac;                                                       // 0xc83ac
-	undefined4 m_unk0xc83b0;                                                       // 0xc83b0
-	RasterizerPipelineSet m_unk0xc83b4;                                            // 0xc83b4
+	undefined4 m_maxRasterizerIndex;                                               // 0xc83ac
+	undefined4 m_rasterizerMaskBase;                                               // 0xc83b0
+	RasterizerPipelineSet m_rasterizerPipelines;                                   // 0xc83b4
 	undefined4 m_unk0xc83c4;                                                       // 0xc83c4
 	undefined4 m_activeMaterialFlags;                                              // 0xc83c8
 	undefined4 m_forcedMaterialFlags;                                              // 0xc83cc
@@ -341,8 +341,8 @@ private:
 	GolVec3 m_lightDirections[7];                                                  // 0xc85f0
 	GolVec3 m_transformedLightDirections[7];                                       // 0xc8644
 	GolSoftwareRenderer m_softwareRenderer;                                        // 0xc8698
-	GolSoftwareRenderer::TriangleCommand* m_unk0xc86f0;                            // 0xc86f0
-	LegoS32 m_unk0xc86f4;                                                          // 0xc86f4
+	GolSoftwareRenderer::TriangleCommand* m_triangleCommands;                      // 0xc86f0
+	LegoS32 m_triangleCommandCount;                                                // 0xc86f4
 	LegoS32 m_unk0xc86f8;                                                          // 0xc86f8
 	LegoFloat m_flatDepth;                                                         // 0xc86fc
 	undefined4 m_paletteMode;                                                      // 0xc8700

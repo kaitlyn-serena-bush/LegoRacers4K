@@ -227,13 +227,13 @@ void GolD3DRenderDevice::Reset()
 	::memset(m_tlVertices, 0, 0xcc8 - 0x348);
 	::memset(m_vertexCache, 0, sizeof(m_vertexCache));
 	::memset(m_commandVertices, 0, sizeof(m_commandVertices));
-	m_unk0xc86f0 = NULL;
-	m_unk0xc86f4 = 0;
+	m_triangleCommands = NULL;
+	m_triangleCommandCount = 0;
 	m_unk0xc86f8 = 0;
-	m_unk0xc83ac = 0;
-	m_unk0xc83b0 = 0;
+	m_maxRasterizerIndex = 0;
+	m_rasterizerMaskBase = 0;
 	m_currentScale = 1.0f;
-	::memset(&m_unk0xc83b4, 0, sizeof(m_unk0xc83b4));
+	::memset(&m_rasterizerPipelines, 0, sizeof(m_rasterizerPipelines));
 	m_unk0xc83c4 = 0;
 	m_flatDepth = 0.0f;
 	m_nextVertexIndex = 0;
@@ -518,7 +518,7 @@ LegoS32 GolD3DRenderDevice::CreateRenderer(LegoU32 p_flags)
 
 		m_softwareRenderer.SetTlVertices(m_tlVertices);
 		FUN_1000b4a0();
-		::memset(&m_unk0xc83b4, 0, sizeof(m_unk0xc83b4));
+		::memset(&m_rasterizerPipelines, 0, sizeof(m_rasterizerPipelines));
 	}
 
 	SetClearColor(m_clearColor);
@@ -1279,9 +1279,9 @@ void GolD3DRenderDevice::BeginFrame(undefined4 p_flags)
 		}
 	}
 	else {
-		m_unk0xc86f4 = 0;
+		m_triangleCommandCount = 0;
 		m_softwareRenderer.SetDimensions(m_renderTargetInfo->m_width, m_renderTargetInfo->m_height);
-		m_unk0xc86f0 = m_softwareRenderer.GetCommands();
+		m_triangleCommands = m_softwareRenderer.GetCommands();
 		m_unk0xc86f8 = m_softwareRenderer.GetNodeCapacity();
 	}
 }
@@ -1296,8 +1296,8 @@ void GolD3DRenderDevice::EndFrame()
 		}
 	}
 	else {
-		m_softwareRenderer.FUN_10041830(m_unk0xc86f4, TRUE);
-		if (m_unk0xc86f4 != 0) {
+		m_softwareRenderer.FUN_10041830(m_triangleCommandCount, TRUE);
+		if (m_triangleCommandCount != 0) {
 			m_softwareRenderer.SetTlVertexCount(m_nextVertexIndex);
 
 			LegoU8* pixels;
@@ -1763,15 +1763,15 @@ void GolD3DRenderDevice::DrawTriangle(
 	}
 
 	if (m_unk0xc83c4) {
-		LegoS32 commandIndex = m_unk0xc86f4;
+		LegoS32 commandIndex = m_triangleCommandCount;
 		LegoS32 nextCommandIndex = commandIndex + 1;
 		if (nextCommandIndex < m_unk0xc86f8) {
-			GolSoftwareRenderer::TriangleCommand* cmd = m_unk0xc86f0 + commandIndex;
-			m_unk0xc86f4 = nextCommandIndex;
+			GolSoftwareRenderer::TriangleCommand* cmd = m_triangleCommands + commandIndex;
+			m_triangleCommandCount = nextCommandIndex;
 			cmd->m_vertexIndex0 = m_nextVertexIndex++;
 			cmd->m_vertexIndex1 = m_nextVertexIndex++;
 			cmd->m_vertexIndex2 = m_nextVertexIndex++;
-			cmd->m_rasterizer = m_unk0xc83b4.m_unk0x00[0];
+			cmd->m_rasterizer = m_rasterizerPipelines.m_pipelines[0];
 			if (m_flags & c_flagZBufferActive) {
 				m_softwareRenderer.FUN_100417c0(cmd, 1);
 			}
@@ -1807,11 +1807,11 @@ void GolD3DRenderDevice::DrawTriangleStrip(D3DTLVERTEX* p_vertices, LegoU32 p_co
 
 		LegoS32 triangleCount = p_count - 2;
 		if (triangleCount >= 0) {
-			LegoS32 commandIndex = m_unk0xc86f4;
+			LegoS32 commandIndex = m_triangleCommandCount;
 			LegoS32 nextCommandIndex = commandIndex + triangleCount;
 			if (nextCommandIndex < m_unk0xc86f8) {
-				GolSoftwareRenderer::TriangleCommand* cmd = m_unk0xc86f0 + commandIndex;
-				m_unk0xc86f4 = nextCommandIndex;
+				GolSoftwareRenderer::TriangleCommand* cmd = m_triangleCommands + commandIndex;
+				m_triangleCommandCount = nextCommandIndex;
 
 				LegoS32 winding = 1;
 				GolSoftwareRenderer::TriangleCommand* command = cmd;
@@ -1820,7 +1820,7 @@ void GolD3DRenderDevice::DrawTriangleStrip(D3DTLVERTEX* p_vertices, LegoU32 p_co
 					command->m_vertexIndex0 = static_cast<LegoU16>(m_nextVertexIndex + i + winding);
 					command->m_vertexIndex1 = static_cast<LegoU16>(m_nextVertexIndex + i);
 					command->m_vertexIndex2 = static_cast<LegoU16>(m_nextVertexIndex + i - winding);
-					command->m_rasterizer = m_unk0xc83b4.m_unk0x00[0];
+					command->m_rasterizer = m_rasterizerPipelines.m_pipelines[0];
 					winding = -winding;
 					command++;
 				}
@@ -2203,11 +2203,11 @@ void GolD3DRenderDevice::ApplyMaterialSw(GolMaterial* p_material)
 	else {
 		textureCount = p_material->GetTexture()->GetMipmapCount();
 	}
-	m_unk0xc83ac = textureCount - 1;
+	m_maxRasterizerIndex = textureCount - 1;
 
 	if (textureCount > 0) {
 		for (LegoU32 i = 0; i < textureCount; i++) {
-			m_unk0xc83b4.m_unk0x00[i] = static_cast<GolSoftwareMaterial*>(p_material)->GetPipelines() + i;
+			m_rasterizerPipelines.m_pipelines[i] = static_cast<GolSoftwareMaterial*>(p_material)->GetPipelines() + i;
 		}
 	}
 
@@ -2298,7 +2298,7 @@ void GolD3DRenderDevice::SetCurrentTexture(GolTexture* p_texture)
 	m_currentTexture = p_texture;
 	if (m_unk0xc83c4) {
 		if (p_texture != NULL) {
-			m_unk0xc83b0 = ~((p_texture->GetHeight() * p_texture->GetWidth() * 2) - 1);
+			m_rasterizerMaskBase = ~((p_texture->GetHeight() * p_texture->GetWidth() * 2) - 1);
 		}
 		return;
 	}
@@ -6182,7 +6182,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 // FUNCTION: GOLDP 0x10010330
 void GolD3DRenderDevice::FUN_10010330(LegoU32 p_firstTriangle, LegoU32 p_triangleCount, LegoU32)
 {
-	LegoU32 commandIndex = m_unk0xc86f4;
+	LegoU32 commandIndex = m_triangleCommandCount;
 	if (commandIndex + p_triangleCount >= static_cast<LegoU32>(m_unk0xc86f8)) {
 		return;
 	}
@@ -6190,10 +6190,10 @@ void GolD3DRenderDevice::FUN_10010330(LegoU32 p_firstTriangle, LegoU32 p_triangl
 	LegoU8* triangle = m_sourceIndices + (p_firstTriangle * 4);
 	LegoU8* triangleEnd = m_sourceIndices + ((p_firstTriangle + p_triangleCount) * 4);
 	p_triangleCount = 0;
-	GolSoftwareRenderer::TriangleCommand* command = m_unk0xc86f0 + commandIndex;
+	GolSoftwareRenderer::TriangleCommand* command = m_triangleCommands + commandIndex;
 	GolSoftwareRenderer::TriangleCommand* commandStart = command;
-	LegoS32 maxRasterizerIndex = static_cast<LegoS32>(m_unk0xc83ac);
-	LegoS32 rasterizerMaskBase = static_cast<LegoS32>(m_unk0xc83b0);
+	LegoS32 maxRasterizerIndex = static_cast<LegoS32>(m_maxRasterizerIndex);
+	LegoS32 rasterizerMaskBase = static_cast<LegoS32>(m_rasterizerMaskBase);
 
 	while (triangle < triangleEnd) {
 		command->m_vertexIndex0 = m_vertexMap[triangle[2]];
@@ -6222,7 +6222,7 @@ void GolD3DRenderDevice::FUN_10010330(LegoU32 p_firstTriangle, LegoU32 p_triangl
 
 		triangle += 4;
 		p_triangleCount++;
-		command->m_rasterizer = m_unk0xc83b4.m_unk0x00[p_firstTriangle];
+		command->m_rasterizer = m_rasterizerPipelines.m_pipelines[p_firstTriangle];
 		command++;
 	}
 
@@ -6237,13 +6237,13 @@ void GolD3DRenderDevice::FUN_10010330(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		m_softwareRenderer.FUN_100417a0(commandStart, p_triangleCount, m_flatDepth);
 	}
 
-	m_unk0xc86f4 += p_triangleCount;
+	m_triangleCommandCount += p_triangleCount;
 }
 
 // FUNCTION: GOLDP 0x10010500
 void GolD3DRenderDevice::FUN_10010500(LegoU32 p_firstTriangle, LegoU32 p_triangleCount, LegoU32)
 {
-	LegoU32 commandIndex = m_unk0xc86f4;
+	LegoU32 commandIndex = m_triangleCommandCount;
 	if (commandIndex + p_triangleCount >= static_cast<LegoU32>(m_unk0xc86f8)) {
 		return;
 	}
@@ -6251,10 +6251,10 @@ void GolD3DRenderDevice::FUN_10010500(LegoU32 p_firstTriangle, LegoU32 p_triangl
 	LegoU8* triangle = m_sourceIndices + (p_firstTriangle * 4);
 	LegoU8* triangleEnd = m_sourceIndices + ((p_firstTriangle + p_triangleCount) * 4);
 	p_triangleCount = 0;
-	GolSoftwareRenderer::TriangleCommand* command = m_unk0xc86f0 + commandIndex;
+	GolSoftwareRenderer::TriangleCommand* command = m_triangleCommands + commandIndex;
 	GolSoftwareRenderer::TriangleCommand* commandStart = command;
-	LegoS32 maxRasterizerIndex = static_cast<LegoS32>(m_unk0xc83ac);
-	LegoS32 rasterizerMaskBase = static_cast<LegoS32>(m_unk0xc83b0);
+	LegoS32 maxRasterizerIndex = static_cast<LegoS32>(m_maxRasterizerIndex);
+	LegoS32 rasterizerMaskBase = static_cast<LegoS32>(m_rasterizerMaskBase);
 
 	while (triangle < triangleEnd) {
 		command->m_vertexIndex0 = m_vertexMap[triangle[0]];
@@ -6283,7 +6283,7 @@ void GolD3DRenderDevice::FUN_10010500(LegoU32 p_firstTriangle, LegoU32 p_triangl
 
 		triangle += 4;
 		p_triangleCount++;
-		command->m_rasterizer = m_unk0xc83b4.m_unk0x00[p_firstTriangle];
+		command->m_rasterizer = m_rasterizerPipelines.m_pipelines[p_firstTriangle];
 		command++;
 	}
 
@@ -6298,7 +6298,7 @@ void GolD3DRenderDevice::FUN_10010500(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		m_softwareRenderer.FUN_100417a0(commandStart, p_triangleCount, m_flatDepth);
 	}
 
-	m_unk0xc86f4 += p_triangleCount;
+	m_triangleCommandCount += p_triangleCount;
 }
 
 // FUNCTION: GOLDP 0x100106d0
@@ -6332,10 +6332,10 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		order[2] = &indexA[2];
 	}
 
-	GolSoftwareRenderer::TriangleCommand* commandStart = &m_unk0xc86f0[m_unk0xc86f4];
+	GolSoftwareRenderer::TriangleCommand* commandStart = &m_triangleCommands[m_triangleCommandCount];
 	GolSoftwareRenderer::TriangleCommand* command = commandStart;
-	LegoS32 maxRasterizerIndex = static_cast<LegoS32>(m_unk0xc83ac);
-	LegoS32 rasterizerMaskBase = static_cast<LegoS32>(m_unk0xc83b0);
+	LegoS32 maxRasterizerIndex = static_cast<LegoS32>(m_maxRasterizerIndex);
+	LegoS32 rasterizerMaskBase = static_cast<LegoS32>(m_rasterizerMaskBase);
 	LegoU8* triangle = &m_sourceIndices[p_firstTriangle * 4];
 	LegoU8* triangleEnd = &m_sourceIndices[(p_firstTriangle + p_triangleCount) * 4];
 	p_triangleCount = 0;
@@ -6382,7 +6382,7 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					rasterizerIndex++;
 				}
 
-				command->m_rasterizer = m_unk0xc83b4.m_unk0x00[rasterizerIndex];
+				command->m_rasterizer = m_rasterizerPipelines.m_pipelines[rasterizerIndex];
 				p_triangleCount++;
 				command++;
 			}
@@ -6870,7 +6870,7 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			command->m_vertexIndex1 = m_vertexCache[indicesIn[i + 1]].m_unk0x10;
 			command->m_vertexIndex2 = m_vertexCache[indicesIn[i]].m_unk0x10;
 			p_triangleCount++;
-			command->m_rasterizer = m_unk0xc83b4.m_unk0x00[0];
+			command->m_rasterizer = m_rasterizerPipelines.m_pipelines[0];
 			command++;
 		}
 		triangle += 4;
@@ -6883,7 +6883,7 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		m_softwareRenderer.FUN_100417a0(commandStart, p_triangleCount, m_flatDepth);
 	}
 
-	m_unk0xc86f4 += p_triangleCount;
+	m_triangleCommandCount += p_triangleCount;
 }
 
 // FUNCTION: GOLDP 0x10011e60
