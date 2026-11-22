@@ -430,11 +430,15 @@ void GolImage::UploadTiles()
 	LegoU32 sourcePitch;
 	m_surface.LockPixels(&sourcePixels, &sourcePitch, GolSurface::c_lockRequestRead | GolSurface::c_lockRequestWrite);
 
-	ColorRGBA* paletteEntries = NULL;
-	LegoU32 paletteSize = 0;
+	ColorRGBA* paletteEntries;
+	LegoU32 paletteSize;
 	if (textureFormat.m_paletteMask != 0) {
-		paletteEntries = m_surface.GetPaletteEntries();
-		paletteSize = m_surface.GetPaletteSize();
+		paletteEntries = m_surface.m_unk0x40.GetEntries();
+		paletteSize = m_surface.m_unk0x40.GetPaletteSize();
+	}
+	else {
+		paletteEntries = NULL;
+		paletteSize = 0;
 	}
 
 	ColorRGBA* colorKey;

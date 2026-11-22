@@ -33,6 +33,8 @@ public:
 	LegoU32 GetPaletteSize() { return m_unk0x40.GetPaletteSize(); }
 
 protected:
+	friend class GolImage;
+
 	undefined m_unk0x38[0x40 - 0x38]; // 0x38
 	GolTexturePalette m_unk0x40;      // 0x40
 };
