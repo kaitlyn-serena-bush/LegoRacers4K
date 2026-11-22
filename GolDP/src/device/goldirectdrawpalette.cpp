@@ -335,10 +335,14 @@ void GolDirectDrawPalette::Set332PaletteEntries()
 					blueValue |= blue;
 					blueValue <<= 2;
 					blueValue |= blue;
-					entry[2] = PC_NOCOLLAPSE;
-					entry[-1] = redValue;
-					entry[0] = greenValue;
-					entry[1] = blueValue;
+					LegoU8& entryRed = entry[-1];
+					LegoU8& entryGreen = entry[0];
+					LegoU8& entryBlue = entry[1];
+					LegoU8& entryFlags = entry[2];
+					entryRed = redValue;
+					entryGreen = greenValue;
+					entryBlue = blueValue;
+					entryFlags = PC_NOCOLLAPSE;
 					entry += sizeof(ColorRGBA);
 					blue++;
 				} while (blue < c_332BlueLevels);
