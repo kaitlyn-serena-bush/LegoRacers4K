@@ -882,8 +882,12 @@ void GolBmpFile::LoadTiledTexture(GolTiledTexture* p_image, LegoU32 p_flags, Col
 				if (rowBytes + sourceOffset > totalRowBytes) {
 					rowBytes = totalRowBytes - sourceOffset;
 				}
-				LegoU32 index = tileRow + column * p_image->GetTileRowCount();
-				::memcpy(tilePixels[index] + rowInTile * tilePitches[index], convertedRow + sourceOffset, rowBytes);
+				::memcpy(
+					tilePixels[tileRow + column * p_image->GetTileRowCount()] +
+						rowInTile * tilePitches[tileRow + column * p_image->GetTileRowCount()],
+					convertedRow + sourceOffset,
+					rowBytes
+				);
 				sourceOffset += rowBytes;
 			}
 			rowInTile += rowStep;
@@ -936,8 +940,12 @@ void GolBmpFile::LoadTiledTexture(GolTiledTexture* p_image, LegoU32 p_flags, Col
 				if (rowBytes + sourceOffset > totalRowBytes) {
 					rowBytes = totalRowBytes - sourceOffset;
 				}
-				LegoU32 index = tileRow + column * p_image->GetTileRowCount();
-				::memcpy(tilePixels[index] + rowInTile * tilePitches[index], convertedRow + sourceOffset, rowBytes);
+				::memcpy(
+					tilePixels[tileRow + column * p_image->GetTileRowCount()] +
+						rowInTile * tilePitches[tileRow + column * p_image->GetTileRowCount()],
+					convertedRow + sourceOffset,
+					rowBytes
+				);
 				sourceOffset += rowBytes;
 			}
 
