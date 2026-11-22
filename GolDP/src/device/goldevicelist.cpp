@@ -412,6 +412,7 @@ BOOL GolDeviceList::EnumerateDirectDrawDriversCallback(
 	::strcpy(driver->m_name, p_name);
 
 	LPDIRECTDRAW ddraw;
+	LPDIRECT3D3 d3d;
 	if (DirectDrawCreate(p_guid, &ddraw, NULL) == DD_OK) {
 		DDCAPS hwCaps;
 		::memset(&hwCaps, 0, sizeof(hwCaps));
@@ -433,7 +434,6 @@ BOOL GolDeviceList::EnumerateDirectDrawDriversCallback(
 			driver->m_accelerated = FALSE;
 		}
 
-		LPDIRECT3D3 d3d;
 		if (ddraw->QueryInterface(IID_IDirect3D3, reinterpret_cast<LPVOID*>(&d3d)) == DD_OK) {
 			LegoU32 countDevices = 0;
 
