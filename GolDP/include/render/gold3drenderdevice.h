@@ -280,13 +280,13 @@ private:
 	GolRenderTarget* m_renderTargetInfo;                                           // 0x308
 	GolD3DRenderSurface* m_renderSurfaces;                                         // 0x30c
 	GolDepthBuffer m_depthBuffer;                                                  // 0x310
-	D3DTLVERTEX m_unk0x348[25000];                                                 // 0x348
-	LegoU32 m_unk0xc3848;                                                          // 0xc3848
-	LegoU32 m_unk0xc384c;                                                          // 0xc384c
-	LegoU16 m_unk0xc3850[(0xc38ec - 0xc3850) / sizeof(LegoU16)];                   // 0xc3850
-	VertexCacheEntry m_unk0xc38ec[(0xc426c - 0xc38ec) / sizeof(VertexCacheEntry)]; // 0xc38ec
+	D3DTLVERTEX m_tlVertices[25000];                                               // 0x348
+	LegoU32 m_nextVertexIndex;                                                     // 0xc3848
+	LegoU32 m_vertexIndexMask;                                                     // 0xc384c
+	LegoU16 m_vertexMap[(0xc38ec - 0xc3850) / sizeof(LegoU16)];                    // 0xc3850
+	VertexCacheEntry m_vertexCache[(0xc426c - 0xc38ec) / sizeof(VertexCacheEntry)]; // 0xc38ec
 	undefined m_unk0xc426c[0xc428c - 0xc426c];                                     // 0xc426c
-	CommandVertex m_unk0xc428c[(0xc4c0c - 0xc428c) / sizeof(CommandVertex)];       // 0xc428c
+	CommandVertex m_commandVertices[(0xc4c0c - 0xc428c) / sizeof(CommandVertex)];   // 0xc428c
 	GolVec3* m_sourcePositions;                                                    // 0xc4c0c
 	GolVec2* m_sourceTexCoords;                                                    // 0xc4c10
 	LegoU32* m_sourceColors;                                                       // 0xc4c14
