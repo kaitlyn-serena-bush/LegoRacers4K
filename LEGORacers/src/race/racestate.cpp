@@ -29,7 +29,6 @@
 
 extern LegoU16 g_randomTable[1024];
 extern LegoU32 g_randomTableIndex;
-extern LegoFloat g_carBuildPreviewMouseScale;
 
 DECOMP_SIZE_ASSERT(RaceState, 0x320)
 DECOMP_SIZE_ASSERT(RaceState::RacerProgressEntry, 0x0c)

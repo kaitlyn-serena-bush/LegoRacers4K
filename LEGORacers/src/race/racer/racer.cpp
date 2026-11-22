@@ -26,7 +26,6 @@
 
 extern LegoU16 g_randomTable[1024];
 extern LegoU32 g_randomTableIndex;
-extern LegoFloat g_carBuildPreviewMouseScale;
 DECOMP_SIZE_ASSERT(RaceState, 0x320)
 DECOMP_SIZE_ASSERT(Racer, 0xe34)
 DECOMP_SIZE_ASSERT(RaceEventRecord, 0x24)
@@ -514,7 +513,7 @@ void Racer::Initialize(
 	LegoU32 colorValue = p_params->m_driverStats[0];
 	LegoFloat colorScale = static_cast<LegoFloat>(colorValue);
 	colorScale *= g_statChanceScale;
-	colorScale *= g_carBuildPreviewMouseScale;
+	colorScale *= 0.01f;
 	colorScale += g_statChanceBase;
 	if (colorScale > 1.0f) {
 		colorScale = 1.0f;
@@ -524,7 +523,7 @@ void Racer::Initialize(
 	colorValue = p_params->m_driverStats[1];
 	colorScale = static_cast<LegoFloat>(colorValue);
 	colorScale *= g_statChanceScale;
-	colorScale *= g_carBuildPreviewMouseScale;
+	colorScale *= 0.01f;
 	colorScale += g_statChanceBase;
 	if (colorScale > 1.0f) {
 		colorScale = 1.0f;
@@ -534,7 +533,7 @@ void Racer::Initialize(
 	colorValue = p_params->m_driverStats[2];
 	colorScale = static_cast<LegoFloat>(colorValue);
 	colorScale *= g_statChanceScale;
-	colorScale *= g_carBuildPreviewMouseScale;
+	colorScale *= 0.01f;
 	colorScale += g_statChanceBase;
 	if (colorScale > 1.0f) {
 		colorScale = 1.0f;
@@ -544,7 +543,7 @@ void Racer::Initialize(
 	colorValue = p_params->m_driverStats[3];
 	colorScale = static_cast<LegoFloat>(colorValue);
 	colorScale *= g_statChanceScale;
-	colorScale *= g_carBuildPreviewMouseScale;
+	colorScale *= 0.01f;
 	colorScale += g_statChanceBase;
 	if (colorScale > 1.0f) {
 		colorScale = 1.0f;
@@ -554,7 +553,7 @@ void Racer::Initialize(
 	colorValue = p_params->m_driverStats[4];
 	colorScale = static_cast<LegoFloat>(colorValue);
 	colorScale *= g_statChanceScale;
-	colorScale *= g_carBuildPreviewMouseScale;
+	colorScale *= 0.01f;
 	colorScale += g_statChanceBase;
 	if (colorScale > 1.0f) {
 		colorScale = 1.0f;
@@ -564,7 +563,7 @@ void Racer::Initialize(
 	colorValue = p_params->m_driverStats[5];
 	colorScale = static_cast<LegoFloat>(colorValue);
 	colorScale *= g_statChanceScale;
-	colorScale *= g_carBuildPreviewMouseScale;
+	colorScale *= 0.01f;
 	colorScale += g_statChanceBase;
 	if (colorScale > 1.0f) {
 		colorScale = 1.0f;

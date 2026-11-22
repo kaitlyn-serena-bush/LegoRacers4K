@@ -23,7 +23,6 @@
 #include <math.h>
 #include <string.h>
 
-extern LegoFloat g_carBuildPreviewMouseScale;
 extern LegoFloat g_cosineTable[1024];
 extern const LegoFloat g_fadeAlphaScale;
 extern const LegoFloat g_carShadowScale;
@@ -923,7 +922,7 @@ void CarVisuals::UpdateDriver(LegoU32 p_elapsedMs)
 		return;
 	}
 
-	if (m_lastSpeed > g_unk0x004b0544 && speed < g_carBuildPreviewMouseScale && activePart != c_animationPart0) {
+	if (m_lastSpeed > g_unk0x004b0544 && speed < 0.01f && activePart != c_animationPart0) {
 		m_racer->PlayReaction(FALSE);
 		m_driverEntity->PlayPart(c_animationPart0);
 		m_driverEntity->QueuePartTransition(c_animationPart9);

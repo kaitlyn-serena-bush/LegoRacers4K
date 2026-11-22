@@ -27,7 +27,6 @@ extern LegoFloat g_cosineTable[1024];
 extern const LegoFloat g_unk0x004b02fc;
 extern LegoU16 g_randomTable[1024];
 extern LegoU32 g_randomTableIndex;
-extern LegoFloat g_carBuildPreviewMouseScale;
 extern const LegoFloat g_hazardPi;
 
 // GLOBAL: LEGORACERS 0x004b43c0
@@ -278,7 +277,7 @@ void GhostHazard::Update(undefined4 p_elapsedMs)
 				LegoS32 randomFrequency =
 					static_cast<LegoS32>(g_randomTable[g_randomTableIndex]) % c_randomFrequencyVariantCount;
 				LegoFloat frequencyScale = static_cast<LegoFloat>(randomFrequency);
-				frequencyScale *= g_carBuildPreviewMouseScale;
+				frequencyScale *= 0.01f;
 				frequencyScale *= g_ghostFrequencyScaleJitter;
 				m_frequencyJitter = frequencyScale;
 			}
