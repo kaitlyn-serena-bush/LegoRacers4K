@@ -63,12 +63,13 @@ LegoBool32 CarPartCarousel::Create(CreateParams* p_createParams, MenuStyleTable:
 // FUNCTION: LEGORACERS 0x00485350
 LegoBool32 CarPartCarousel::Destroy()
 {
+	CarPartCarousel& self = *this;
 	LegoBool32 result = TRUE;
 
-	if (result & m_flags) {
-		for (LegoS32 i = 0; i < m_slotCount; i++) {
-			m_golExport->DestroyModel(m_items[i].m_model);
-			m_items[i].m_model = NULL;
+	if (result & self.m_flags) {
+		for (LegoS32 i = 0; i < self.m_slotCount; i++) {
+			self.m_golExport->DestroyModel(self.m_items[i].m_model);
+			self.m_items[i].m_model = NULL;
 		}
 
 		result = MenuModelCarousel::Destroy();
