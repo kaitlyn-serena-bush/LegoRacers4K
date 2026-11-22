@@ -6836,22 +6836,28 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			outputCount = 0;
 		}
 
-		if (vertexCount >= 3) {
-			VertexCacheEntry& cache0 = m_unk0xc38ec[indicesIn[0]];
-			D3DTLVERTEX& vertex0 = m_unk0x348[cache0.m_unk0x10];
-			D3DTLVERTEX& vertex1 = m_unk0x348[m_unk0xc38ec[indicesIn[1]].m_unk0x10];
-			LegoFloat area = ComputeScreenArea(vertex0, vertex1, m_unk0x348[m_unk0xc38ec[indicesIn[2]].m_unk0x10]);
+		if (vertexCount < 3) {
+			triangle += 4;
+			continue;
+		}
 
-			if (area > 0.0f) {
-				for (LegoS32 i = 1; i < vertexCount - 1; i++) {
-					command->m_vertexIndex0 = cache0.m_unk0x10;
-					command->m_vertexIndex1 = m_unk0xc38ec[indicesIn[i + 1]].m_unk0x10;
-					command->m_vertexIndex2 = m_unk0xc38ec[indicesIn[i]].m_unk0x10;
-					p_triangleCount++;
-					command->m_rasterizer = m_unk0xc83b4.m_unk0x00[0];
-					command++;
-				}
-			}
+		VertexCacheEntry& cache0 = m_unk0xc38ec[indicesIn[0]];
+		D3DTLVERTEX& vertex0 = m_unk0x348[cache0.m_unk0x10];
+		D3DTLVERTEX& vertex1 = m_unk0x348[m_unk0xc38ec[indicesIn[1]].m_unk0x10];
+		LegoFloat area = ComputeScreenArea(vertex0, vertex1, m_unk0x348[m_unk0xc38ec[indicesIn[2]].m_unk0x10]);
+
+		if (!(area > 0.0f)) {
+			triangle += 4;
+			continue;
+		}
+
+		for (i = 1; i < vertexCount - 1; i++) {
+			command->m_vertexIndex0 = cache0.m_unk0x10;
+			command->m_vertexIndex1 = m_unk0xc38ec[indicesIn[i + 1]].m_unk0x10;
+			command->m_vertexIndex2 = m_unk0xc38ec[indicesIn[i]].m_unk0x10;
+			p_triangleCount++;
+			command->m_rasterizer = m_unk0xc83b4.m_unk0x00[0];
+			command++;
 		}
 		triangle += 4;
 	}
