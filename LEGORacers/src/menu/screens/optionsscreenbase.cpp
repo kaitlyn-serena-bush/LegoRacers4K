@@ -89,8 +89,10 @@ void OptionsScreenBase::CreateAudioOptionWidgets()
 	CreateCarousel(&m_stereoCarousel, 0xfb, 0x3b);
 	CreateSelector(&m_stereoSelector, &m_stereoCarousel, 0xfc, 0x4c);
 
-	m_musicVolumeSlider.SetValue(static_cast<LegoS32>(m_gameState->GetMusicVolume() * 0.003921569f * 20.0f + 0.5f));
-	m_soundVolumeSlider.SetValue(static_cast<LegoS32>(m_gameState->GetSoundVolume() * 0.003921569f * 20.0f + 0.5f));
+	LegoFloat musicVolume = m_gameState->GetMusicVolume() * 0.003921569f;
+	m_musicVolumeSlider.SetValue(static_cast<LegoS32>(musicVolume * 20.0f + 0.5f));
+	LegoFloat soundVolume = m_gameState->GetSoundVolume() * 0.003921569f;
+	m_soundVolumeSlider.SetValue(static_cast<LegoS32>(soundVolume * 20.0f + 0.5f));
 	OnWidgetValueChanged(&m_musicVolumeSlider);
 	OnWidgetValueChanged(&m_soundVolumeSlider);
 

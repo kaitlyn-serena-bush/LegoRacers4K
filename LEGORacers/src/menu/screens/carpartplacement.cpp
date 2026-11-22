@@ -13,6 +13,8 @@
 #include <math.h>
 #include <string.h>
 
+extern const LegoFloat g_carBuildModelHeightScale;
+
 DECOMP_SIZE_ASSERT(CarModelScreenBase::CarPartPlacement, 0x2d0)
 DECOMP_SIZE_ASSERT(CarModelScreenBase::CarPartPlacement::CreateParams, 0x30)
 
@@ -1137,7 +1139,7 @@ void CarModelScreenBase::CarPartPlacement::UpdatePieceBob(LegoS32 p_elapsed)
 	}
 
 	m_pieceRestHeight =
-		(m_context->m_carBuildModel.GetOverlayHeight() * 0.4f) + (g_pieceCommitHeight - 8.4f);
+		(m_context->m_carBuildModel.GetOverlayHeight() * g_carBuildModelHeightScale) + (g_pieceCommitHeight - 8.4f);
 
 	feedbackFlags = m_pieceAnimPhase;
 	if (feedbackFlags & c_placementFeedbackMask) {
