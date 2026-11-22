@@ -6264,27 +6264,24 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 				m_unk0x348[cache2.m_unk0x10]
 			);
 
-			if (area <= 0.0f) {
-				triangle += 4;
-				continue;
+			if (area > 0.0f) {
+				command->m_vertexIndex0 = cache2.m_unk0x10;
+				command->m_vertexIndex1 = cache1.m_unk0x10;
+				command->m_vertexIndex2 = cache0.m_unk0x10;
+
+				LegoS32 areaBucket = static_cast<LegoS32>(area);
+				LegoS32 rasterizerMask = rasterizerMaskBase;
+				LegoS32 rasterizerIndex = 0;
+
+				while (((areaBucket & rasterizerMask) == 0) & (rasterizerIndex < maxRasterizerIndex)) {
+					rasterizerMask >>= 2;
+					rasterizerIndex++;
+				}
+
+				p_triangleCount++;
+				command->m_rasterizer = m_unk0xc83b4.m_unk0x00[rasterizerIndex];
+				command++;
 			}
-
-			command->m_vertexIndex0 = cache2.m_unk0x10;
-			command->m_vertexIndex1 = cache1.m_unk0x10;
-			command->m_vertexIndex2 = cache0.m_unk0x10;
-
-			LegoS32 areaBucket = static_cast<LegoS32>(area);
-			LegoS32 rasterizerMask = rasterizerMaskBase;
-			LegoS32 rasterizerIndex = 0;
-
-			while (((areaBucket & rasterizerMask) == 0) & (rasterizerIndex < maxRasterizerIndex)) {
-				rasterizerMask >>= 2;
-				rasterizerIndex++;
-			}
-
-			p_triangleCount++;
-			command->m_rasterizer = m_unk0xc83b4.m_unk0x00[rasterizerIndex];
-			command++;
 			triangle += 4;
 			continue;
 		}
