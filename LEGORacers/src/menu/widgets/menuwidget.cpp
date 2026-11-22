@@ -427,9 +427,8 @@ void MenuWidget::ComputeScale(Rect* p_sourceRect, Rect* p_destRect)
 		m_scaleY = 0.0f;
 	}
 	else {
-		LegoFloat sourceHeight = static_cast<LegoFloat>(p_sourceRect->m_bottom - p_sourceRect->m_top);
-		LegoFloat destHeight = static_cast<LegoFloat>(p_destRect->m_bottom - p_destRect->m_top);
-		m_scaleY = sourceHeight / destHeight;
+		m_scaleY = ((static_cast<LegoFloat>(p_sourceRect->m_bottom - p_sourceRect->m_top))) /
+				   (static_cast<LegoFloat>(p_destRect->m_bottom - p_destRect->m_top));
 	}
 }
 
