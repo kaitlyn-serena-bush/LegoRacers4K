@@ -641,8 +641,7 @@ void GolBmpFile::ReadPixels(LegoU8* p_buffer)
 			rowByteCount = width * 4 + 4;
 		}
 		else {
-			rowByteCount = width;
-			rowByteCount *= bitsPerPixel;
+			rowByteCount = width * bitsPerPixel;
 		}
 		rowByteCount >>= 3;
 
