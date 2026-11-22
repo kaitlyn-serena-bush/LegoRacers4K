@@ -389,7 +389,8 @@ void ParticleSystem::Draw(GolD3DRenderDevice* p_renderer)
 					m_scaledCameraForward.m_y = forwardY;
 					LegoFloat forwardZ = cameraForward.m_z;
 					forwardZ *= scale;
-					m_scaledCameraForward.m_z = forwardZ;
+					LegoFloat& tmpRef0 = m_scaledCameraForward.m_z;
+					tmpRef0 = forwardZ;
 
 					m_materialCount = 0;
 					m_groupCount = 0;
