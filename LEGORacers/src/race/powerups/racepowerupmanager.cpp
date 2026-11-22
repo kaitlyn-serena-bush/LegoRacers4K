@@ -1872,9 +1872,9 @@ PowerupAction* RacePowerupManager::ReclaimAction(
 // FUNCTION: LEGORACERS 0x0045b3a0
 PowerupExplosion* __stdcall RacePowerupManager::ReclaimExplosion(PowerupExplosion** p_head)
 {
+	PowerupExplosion* selected = NULL;
 	PowerupExplosion* current = *p_head;
 	LegoU32 selectedRemaining = 0xffffffff;
-	PowerupExplosion* selected = NULL;
 	PowerupExplosion* selectedPrevious = NULL;
 	LegoS32 targetState = PowerupExplosion::c_stateScarFading;
 	LegoU32 pass;
@@ -1894,15 +1894,7 @@ PowerupExplosion* __stdcall RacePowerupManager::ReclaimExplosion(PowerupExplosio
 			} while (current != NULL);
 
 			if (selected != NULL) {
-				if (selectedPrevious == NULL) {
-					*p_head = selected->GetNext();
-					selected->SetNext(selectedPrevious);
-					return selected;
-				}
-
-				selectedPrevious->SetNext(selected->GetNext());
-				selected->SetNext(NULL);
-				return selected;
+				break;
 			}
 
 			current = head;
@@ -1910,10 +1902,20 @@ PowerupExplosion* __stdcall RacePowerupManager::ReclaimExplosion(PowerupExplosio
 		targetState = PowerupExplosion::c_stateExploding;
 	}
 
-	PowerupExplosion* result = current;
-	*p_head = result->GetNext();
-	result->SetNext(NULL);
-	return result;
+	if (selected == NULL) {
+		selected = current;
+		selectedPrevious = NULL;
+	}
+
+	if (selectedPrevious == NULL) {
+		*p_head = selected->GetNext();
+	}
+	else {
+		selectedPrevious->SetNext(selected->GetNext());
+	}
+
+	selected->SetNext(NULL);
+	return selected;
 }
 
 // FUNCTION: LEGORACERS 0x0045b470
