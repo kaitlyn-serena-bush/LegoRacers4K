@@ -2776,8 +2776,8 @@ void RacerCarBody::ComputeWheelRaysLocal(GolBoundedEntity* p_world, LegoFloat p_
 
 	LegoFloat resourceUpZ = p_world->GetOrientation().m_m[2][2];
 	GolVec3 zDistance;
-	zDistance.m_x = row0.m_z * p_sweepDistance;
-	zDistance.m_y = row1.m_z * p_sweepDistance;
+	zDistance.m_x = GOL_MUL(row0.m_z, p_sweepDistance);
+	zDistance.m_y = GOL_MUL(row1.m_z, p_sweepDistance);
 	zDistance.m_z = resourceUpZ * p_sweepDistance;
 
 	GolVec3 zHeight;
@@ -2793,8 +2793,8 @@ void RacerCarBody::ComputeWheelRaysLocal(GolBoundedEntity* p_world, LegoFloat p_
 	entries[1].m_rayStart.m_x = center.m_x + zHeight.m_x;
 	entries[1].m_rayStart.m_y = center.m_y + zHeight.m_y;
 	entries[1].m_rayStart.m_z = center.m_z + zHeight.m_z;
-	entries[1].m_rayEnd.m_x = center.m_x - zDistance.m_x;
-	entries[1].m_rayEnd.m_y = center.m_y - zDistance.m_y;
+	entries[1].m_rayEnd.m_x = ((((center.m_x - zDistance.m_x))));
+	entries[1].m_rayEnd.m_y = ((((center.m_y - zDistance.m_y))));
 	entries[1].m_rayEnd.m_z = center.m_z - zDistance.m_z;
 
 	row0.m_x = m_physicsEntity.GetOrientation().m_m[0][0];
@@ -2812,13 +2812,13 @@ void RacerCarBody::ComputeWheelRaysLocal(GolBoundedEntity* p_world, LegoFloat p_
 	p_world->RotateToLocal(row1, &localRow1);
 
 	LegoFloat wheelbase = m_wheelbase;
-	localRow0.m_x = localRow0.m_x * wheelbase;
-	localRow0.m_y = localRow0.m_y * wheelbase;
-	localRow0.m_z = localRow0.m_z * wheelbase;
+	localRow0.m_x = GOL_MUL(localRow0.m_x, wheelbase);
+	localRow0.m_y = GOL_MUL(localRow0.m_y, wheelbase);
+	localRow0.m_z = GOL_MUL(localRow0.m_z, wheelbase);
 	LegoFloat trackWidth = m_trackWidth;
-	localRow1.m_x = localRow1.m_x * trackWidth;
-	localRow1.m_y = localRow1.m_y * trackWidth;
-	localRow1.m_z = localRow1.m_z * trackWidth;
+	localRow1.m_x = (GOL_MUL(localRow1.m_x, trackWidth));
+	localRow1.m_y = (GOL_MUL(localRow1.m_y, trackWidth));
+	localRow1.m_z = (GOL_MUL(localRow1.m_z, trackWidth));
 
 	GolVec3 corner;
 	corner.m_x = center.m_x - localRow1.m_x;
@@ -2837,7 +2837,9 @@ void RacerCarBody::ComputeWheelRaysLocal(GolBoundedEntity* p_world, LegoFloat p_
 	corner2.m_y = center.m_y - localRow0.m_y;
 	corner2.m_z = center.m_z - localRow0.m_z;
 
-	entries[3].m_rayStart = corner2 + zHeight;
+	entries[3].m_rayStart.m_x = corner2.m_x + zHeight.m_x;
+	entries[3].m_rayStart.m_y = corner2.m_y + zHeight.m_y;
+	entries[3].m_rayStart.m_z = corner2.m_z + zHeight.m_z;
 	GolCameraBase::Subtract(&corner2, &zDistance, &entries[3].m_rayEnd);
 
 	GolCameraBase::Subtract(&corner, &localRow0, &corner2);
