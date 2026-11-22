@@ -2023,21 +2023,20 @@ void CarBuildModel::RefreshOverlay(Placement* p_placement, GolModelEntity* p_ent
 // FUNCTION: LEGORACERS 0x0049c6a0
 LegoS32 CarBuildModel::ComputeHighPieceCentroid(LegoFloat* p_centroidX, LegoFloat* p_centroidY, LegoFloat* p_centroidZ)
 {
+	LegoS32 result = 0;
 	LegoS32 zTotal = 0;
 	LegoS32 yTotal = 0;
 	LegoS32 xTotal = 0;
-	LegoS32 result = 0;
 
 	LegoS32 entryCount = m_pieceList.m_entryCount;
 	for (LegoS32 i = 0; i < entryCount; i++) {
-		PieceList::Entry* entry = &m_pieceList.m_entries[i];
-		LegoPieceLibrary::PieceRecord* pieceRecord = entry->m_pieceRecord;
+		LegoPieceLibrary::PieceRecord* pieceRecord = m_pieceList.m_entries[i].m_pieceRecord;
 		if (pieceRecord->m_pieceType >= g_highPieceTypeBase) {
 			LegoS32 x;
 			LegoS32 y;
 			LegoS32 height;
 			LegoS32 rotation;
-			entry->GetPlacement(&x, &y, &height, &rotation);
+			m_pieceList.m_entries[i].GetPlacement(&x, &y, &height, &rotation);
 
 			LegoS32 pieceX;
 			LegoS32 pieceY;
@@ -2057,8 +2056,8 @@ LegoS32 CarBuildModel::ComputeHighPieceCentroid(LegoFloat* p_centroidX, LegoFloa
 		*p_centroidZ = static_cast<LegoFloat>(zTotal) / count;
 	}
 	else {
-		*p_centroidY = 0.0f;
 		*p_centroidZ = 0.0f;
+		*p_centroidY = 0.0f;
 		*p_centroidX = 0.0f;
 	}
 
