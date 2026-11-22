@@ -6327,9 +6327,9 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			LegoU32* swapIndices = indicesIn;
 			indicesIn = indicesOut;
 			indicesOut = swapIndices;
-			LegoU32* swapFlags = flagsOut;
-			flagsOut = flagsIn;
-			flagsIn = swapFlags;
+			LegoU32* swapFlags = flagsIn;
+			flagsIn = flagsOut;
+			flagsOut = swapFlags;
 			vertexCount = outputCount;
 			outputCount = 0;
 		}
@@ -6382,9 +6382,9 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			LegoU32* swapIndices = indicesIn;
 			indicesIn = indicesOut;
 			indicesOut = swapIndices;
-			LegoU32* swapFlags = flagsOut;
-			flagsOut = flagsIn;
-			flagsIn = swapFlags;
+			LegoU32* swapFlags = flagsIn;
+			flagsIn = flagsOut;
+			flagsOut = swapFlags;
 			vertexCount = outputCount;
 			outputCount = 0;
 		}
@@ -6437,9 +6437,9 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			LegoU32* swapIndices = indicesIn;
 			indicesIn = indicesOut;
 			indicesOut = swapIndices;
-			LegoU32* swapFlags = flagsOut;
-			flagsOut = flagsIn;
-			flagsIn = swapFlags;
+			LegoU32* swapFlags = flagsIn;
+			flagsIn = flagsOut;
+			flagsOut = swapFlags;
 			vertexCount = outputCount;
 			outputCount = 0;
 		}
@@ -6493,9 +6493,9 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			LegoU32* swapIndices = indicesIn;
 			indicesIn = indicesOut;
 			indicesOut = swapIndices;
-			LegoU32* swapFlags = flagsOut;
-			flagsOut = flagsIn;
-			flagsIn = swapFlags;
+			LegoU32* swapFlags = flagsIn;
+			flagsIn = flagsOut;
+			flagsOut = swapFlags;
 			vertexCount = outputCount;
 			outputCount = 0;
 		}
@@ -6547,9 +6547,9 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			LegoU32* swapIndices = indicesIn;
 			indicesIn = indicesOut;
 			indicesOut = swapIndices;
-			LegoU32* swapFlags = flagsOut;
-			flagsOut = flagsIn;
-			flagsIn = swapFlags;
+			LegoU32* swapFlags = flagsIn;
+			flagsIn = flagsOut;
+			flagsOut = swapFlags;
 			vertexCount = outputCount;
 			outputCount = 0;
 		}
@@ -6603,9 +6603,9 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 			LegoU32* swapIndices = indicesIn;
 			indicesIn = indicesOut;
 			indicesOut = swapIndices;
-			LegoU32* swapFlags = flagsOut;
-			flagsOut = flagsIn;
-			flagsIn = swapFlags;
+			LegoU32* swapFlags = flagsIn;
+			flagsIn = flagsOut;
+			flagsOut = swapFlags;
 			vertexCount = outputCount;
 			outputCount = 0;
 		}
