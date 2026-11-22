@@ -1321,31 +1321,30 @@ void GolImgFile::ConvertImageHalfSize(
 	if (p_format.m_paletteMask != 0) {
 		for (; rows > 0; rows--) {
 			LegoU8* end = p_dst + (m_width >> 1);
-			if (p_dst < end) {
-				LegoU8* dst = p_dst;
-				LegoU8* bottom = source + m_rowByteStride - 1;
-				LegoU8* top = source - 1;
+			LegoU8* dst = p_dst;
+			LegoU8* bottom = source + m_rowByteStride;
+			LegoU8* top = source;
 
-				do {
-					top += 2;
-					LegoU32 topLeft = top[-1];
-					LegoU32 topRight = top[0];
-					bottom += 2;
+			while (dst < end) {
+				dst++;
+				top += 2;
+				LegoU32 topLeft = top[-2];
+				LegoU32 topRight = top[-1];
+				bottom += 2;
 
-					if (topRight == topLeft) {
-						*dst = static_cast<LegoU8>(topRight);
+				if (topRight == topLeft) {
+					dst[-1] = static_cast<LegoU8>(topRight);
+				}
+				else {
+					LegoU32 bottomLeft = bottom[-2];
+					if (bottomLeft != topLeft && bottomLeft != topRight) {
+						topRight = bottom[-1];
+						dst[-1] = static_cast<LegoU8>(topRight);
 					}
 					else {
-						LegoU32 bottomLeft = bottom[-1];
-						if (bottomLeft != topLeft && bottomLeft != topRight) {
-							topRight = bottom[0];
-							*dst = static_cast<LegoU8>(topRight);
-						}
-						else {
-							*dst = static_cast<LegoU8>(bottomLeft);
-						}
+						dst[-1] = static_cast<LegoU8>(bottomLeft);
 					}
-				} while (++dst < end);
+				}
 			}
 
 			source += srcPitch;
