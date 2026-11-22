@@ -424,7 +424,10 @@ void RaceTrailManager::Trail::RebuildGeometry()
 			if (vertexIndex < 0x6a) {
 				GolVec3 position = m_samples[frameIndex].m_points[pointIndex];
 				if (m_endScale != 1.0f && tailAmount != 0.0f) {
-					position += (m_samples[frameIndex].m_center - position) * tailAmount;
+					GolVec3 delta = m_samples[frameIndex].m_center - position;
+					GolVec3 scaled;
+					GolMath::ScaleVector3(&delta, tailAmount, &scaled);
+					position += scaled;
 				}
 
 				position -= center;
