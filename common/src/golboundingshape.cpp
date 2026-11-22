@@ -37,10 +37,23 @@ inline LegoFloat CornerDot(const GolBoundingShape::TreeNode* p_entry, const GolV
 	return result;
 }
 
+inline LegoFloat FirstCornerDot(const GolBoundingShape::TreeNode* p_entry, const GolVec3& p_point)
+{
+	LegoFloat result = p_entry->m_data.m_plane.m_normalZ;
+	result *= p_point.m_z;
+	LegoFloat y = p_entry->m_data.m_plane.m_normalY;
+	y *= p_point.m_y;
+	result += y;
+	LegoFloat x = p_point.m_x;
+	x *= p_entry->m_data.m_plane.m_normalX;
+	result += x;
+	return result;
+}
+
 static LegoBool32 HasPositiveCorner(const GolBoundingShape::TreeNode* p_entry, const GolViewFrustum* p_frustum)
 {
 	LegoFloat threshold = -p_entry->m_data.m_plane.m_distance;
-	return CornerDot(p_entry, p_frustum->m_corners[0]) >= threshold ||
+	return FirstCornerDot(p_entry, p_frustum->m_corners[0]) >= threshold ||
 		   CornerDot(p_entry, p_frustum->m_corners[3]) >= threshold ||
 		   CornerDot(p_entry, p_frustum->m_corners[1]) >= threshold ||
 		   CornerDot(p_entry, p_frustum->m_corners[2]) >= threshold;
@@ -49,7 +62,7 @@ static LegoBool32 HasPositiveCorner(const GolBoundingShape::TreeNode* p_entry, c
 static LegoBool32 HasNegativeCorner(const GolBoundingShape::TreeNode* p_entry, const GolViewFrustum* p_frustum)
 {
 	LegoFloat threshold = -p_entry->m_data.m_plane.m_distance;
-	return CornerDot(p_entry, p_frustum->m_corners[0]) <= threshold ||
+	return FirstCornerDot(p_entry, p_frustum->m_corners[0]) <= threshold ||
 		   CornerDot(p_entry, p_frustum->m_corners[3]) <= threshold ||
 		   CornerDot(p_entry, p_frustum->m_corners[1]) <= threshold ||
 		   CornerDot(p_entry, p_frustum->m_corners[2]) <= threshold;
