@@ -413,17 +413,22 @@ LegoS32 GolStream::BufferedRead(LegoU32 p_offset, void* p_buf, LegoU32 p_size, L
 				}
 			}
 		}
+
+		if (result == e_ioEndOfFile && *lenRead) {
+			return e_ioSuccess;
+		}
 	}
 	else {
 		result = Read(buf, p_size, (LegoS32*) &p_offset);
-		if (!result) {
+		if (result) {
+			if (result == e_ioEndOfFile && *lenRead) {
+				return e_ioSuccess;
+			}
+		}
+		else {
 			*lenRead += p_offset;
 			m_position += p_offset;
 		}
-	}
-
-	if (result == e_ioEndOfFile && *lenRead) {
-		return e_ioSuccess;
 	}
 
 	return result;
