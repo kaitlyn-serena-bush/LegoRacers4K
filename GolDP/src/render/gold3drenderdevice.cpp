@@ -2324,7 +2324,7 @@ void GolD3DRenderDevice::SetCurrentTexture(GolTexture* p_texture)
 }
 
 // FUNCTION: GOLDP 0x1000acf0
-void GolD3DRenderDevice::FUN_1000acf0(LegoU32 p_index)
+void GolD3DRenderDevice::SetCurrentMatrixIndex(LegoU32 p_index)
 {
 	GolMatrix4* matrix;
 	if (m_renderState != NULL) {

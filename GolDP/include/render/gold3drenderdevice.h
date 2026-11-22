@@ -212,7 +212,7 @@ private:
 	void ApplyMaterialHw(GolMaterial*);
 	void ApplyMaterialSw(GolMaterial*);
 	void SetCurrentTexture(GolTexture*);
-	void FUN_1000acf0(LegoU32 p_index);
+	void SetCurrentMatrixIndex(LegoU32 p_index);
 	void FUN_1000add0(GolWorldEntity* p_model, GolModel* p_modelData);
 	void SetLight(LegoU32 p_index, const Light* p_param);
 	void FUN_1000b4a0();
