@@ -6480,11 +6480,11 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newVertex.tv = (vertex.tv - previousVertex.tv) * t + previousVertex.tv;
 					newVertex.color = InterpolateClipColor(previousVertex.color, vertex.color, t);
 
-					newVertex.rhw = ((1.0f / farClip));
+					newVertex.rhw = (((((((((1.0f / farClip)))))))));
 					LegoU32 newFlags = BuildClipXYFlags(newCache.m_x, newCache.m_y, farClip);
-					newVertex.sx = ((newVertex.rhw * newCache.m_x) * m_viewportMetrics[0]) + m_viewportMetrics[2];
 					flagsOut[outputCount] = newFlags;
 					outputCount++;
+					newVertex.sx = (newVertex.rhw * newCache.m_x) * m_viewportMetrics[0] + m_viewportMetrics[2];
 					newVertex.sy = GOL_MUL(GOL_MUL(newCache.m_y, newVertex.rhw), m_viewportMetrics[1]) + m_viewportMetrics[3];
 					newVertex.sz = 1.0f;
 				}
