@@ -776,7 +776,8 @@ void GolBmpFile::LoadTiledTexture(GolTiledTexture* p_image, LegoU32 p_flags, Col
 		rowStep = -1;
 		tileRow = p_image->GetTileRowCount() - 1;
 		LegoS32 totalHeight = 0;
-		LegoS32 lastHeight = fileOffset;
+		// Not initialised in the original: with no tile rows the stale stack value is used.
+		LegoS32 lastHeight;
 		for (row = 0; row < p_image->GetTileRowCount(); row++) {
 			lastHeight = p_image->GetTileHeight(row);
 			totalHeight += lastHeight;

@@ -405,7 +405,8 @@ void GolTgaFile::LoadTiledTexture(GolTiledTexture* p_image, LegoU32 p_flags, Col
 		rowStep = -1;
 		tileRow = p_image->GetTileRowCount() - 1;
 		LegoS32 totalTileHeight = 0;
-		LegoS32 lastTileHeight = 0;
+		// Not initialised in the original: with no tile rows the stale stack value is used.
+		LegoS32 lastTileHeight;
 		for (row = 0; row < p_image->GetTileRowCount(); row++) {
 			lastTileHeight = p_image->GetTileHeight(row);
 			totalTileHeight += lastTileHeight;
