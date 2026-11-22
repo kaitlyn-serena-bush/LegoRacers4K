@@ -159,7 +159,9 @@ void GolCameraBase::ComputeFrustum(GolViewFrustum* p_view)
 	edge1.m_z = p_view->m_corners[6].m_z - p_view->m_corners[4].m_z;
 	GolMath::CrossVector3(&edge1, &edge0, &normal);
 	GolMath::NormalizeVector3(normal, &normal);
-	p_view->m_planes[0].SetNormal(normal);
+	p_view->m_planes[0].m_normal.m_x = normal.m_x;
+	p_view->m_planes[0].m_normal.m_y = normal.m_y;
+	p_view->m_planes[0].m_normal.m_z = normal.m_z;
 	p_view->m_planes[0].m_distance = -Dot(&p_view->m_planes[0].m_normal, &p_view->m_corners[4]);
 
 	edge0.m_x = p_view->m_corners[1].m_x - p_view->m_corners[5].m_x;
