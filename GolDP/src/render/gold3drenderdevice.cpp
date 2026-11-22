@@ -5616,9 +5616,9 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		}
 
 		vertexA[0] = &m_unk0x348[index0];
-		LegoU32 clipFlags = cacheA[0]->m_clipFlags | cacheA[1]->m_clipFlags | cacheA[2]->m_clipFlags;
 		vertexA[1] = &m_unk0x348[index1];
 		vertexA[2] = &m_unk0x348[index2];
+		LegoU32 clipFlags = cacheA[0]->m_clipFlags | cacheA[1]->m_clipFlags | cacheA[2]->m_clipFlags;
 
 		if (!clipFlags) {
 			if ((vertexA[2]->sy - vertexA[1]->sy) * (vertexA[0]->sx - vertexA[1]->sx) -
@@ -5636,8 +5636,8 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		VertexCacheEntry** cacheIn = cacheA;
 		D3DTLVERTEX** vertexOut = vertexB;
 		VertexCacheEntry** cacheOut = cacheB;
-		VertexCacheEntry* clipCache = &m_unk0xc38ec[c_firstClipVertex];
 		D3DTLVERTEX* clipVertex = &m_unk0x348[c_firstClipVertex];
+		VertexCacheEntry* clipCache = &m_unk0xc38ec[c_firstClipVertex];
 		LegoU32 vertexCount = 3;
 		LegoU32 outputCount = 0;
 
@@ -6180,36 +6180,6 @@ void GolD3DRenderDevice::FUN_10010500(LegoU32 p_firstTriangle, LegoU32 p_triangl
 	m_unk0xc86f4 += p_triangleCount;
 }
 
-inline static LegoU32 XYy(const LegoFloat& p_x, const LegoFloat& p_y, const LegoFloat& p_w)
-{
-	const LegoU32 x = *reinterpret_cast<const LegoU32*>(&p_x);
-	const LegoU32& y = *reinterpret_cast<const LegoU32*>(&p_y);
-	const LegoU32 w = *reinterpret_cast<const LegoU32*>(&p_w);
-
-	LegoU32 lowFlags = (x >> 31) | ((y & 0x80000000) >> 29);
-	LegoU32 highFlags = (((w - x) & 0x80000000) >> 30) | (((w - y) & 0x80000000) >> 28);
-	return lowFlags | (highFlags & ~(lowFlags << 1));
-}
-inline static LegoU32 XYxy(const LegoFloat& p_x, const LegoFloat& p_y, const LegoFloat& p_w)
-{
-	const LegoU32& x = *reinterpret_cast<const LegoU32*>(&p_x);
-	const LegoU32& y = *reinterpret_cast<const LegoU32*>(&p_y);
-	const LegoU32 w = *reinterpret_cast<const LegoU32*>(&p_w);
-
-	LegoU32 lowFlags = (x >> 31) | ((y & 0x80000000) >> 29);
-	LegoU32 highFlags = (((w - x) & 0x80000000) >> 30) | (((w - y) & 0x80000000) >> 28);
-	return lowFlags | (highFlags & ~(lowFlags << 1));
-}
-inline static LegoU32 XYx(const LegoFloat& p_x, const LegoFloat& p_y, const LegoFloat& p_w)
-{
-	const LegoU32& x = *reinterpret_cast<const LegoU32*>(&p_x);
-	const LegoU32 y = *reinterpret_cast<const LegoU32*>(&p_y);
-	const LegoU32 w = *reinterpret_cast<const LegoU32*>(&p_w);
-
-	LegoU32 lowFlags = (x >> 31) | ((y & 0x80000000) >> 29);
-	LegoU32 highFlags = (((w - x) & 0x80000000) >> 30) | (((w - y) & 0x80000000) >> 28);
-	return lowFlags | (highFlags & ~(lowFlags << 1));
-}
 // FUNCTION: GOLDP 0x100106d0
 void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangleCount, LegoU32)
 {
@@ -6450,7 +6420,7 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					flagsOut[outputCount] = BuildClipYFlags(newCache.m_y, newCache.m_w);
 					outputCount++;
 					newVertex.sx = m_viewportMetrics[2];
-					newVertex.sy = newVertex.rhw * newCache.m_y * m_viewportMetrics[1] + m_viewportMetrics[3];
+					newVertex.sy = GOL_MUL(newVertex.rhw, newCache.m_y) * m_viewportMetrics[1] + m_viewportMetrics[3];
 					newVertex.sz = newVertex.rhw * newCache.m_z;
 				}
 
@@ -6506,7 +6476,7 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newVertex.sx = m_viewportMetrics[0] + m_viewportMetrics[2];
 					flagsOut[outputCount] = BuildClipYFlags(newCache.m_y, newCache.m_w);
 					outputCount++;
-					newVertex.sy = newVertex.rhw * newCache.m_y * m_viewportMetrics[1] + m_viewportMetrics[3];
+					newVertex.sy = GOL_MUL(newVertex.rhw, newCache.m_y) * m_viewportMetrics[1] + m_viewportMetrics[3];
 					newVertex.sz = newVertex.rhw * newCache.m_z;
 				}
 
