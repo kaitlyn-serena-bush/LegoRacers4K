@@ -143,8 +143,8 @@ void TgbTargetPointList::Reset()
 LegoU32 TargetPointList::DisableTargetPoints(undefined4 p_index)
 {
 	for (LegoU32 i = 0; i < static_cast<LegoU32>(m_count); i++) {
-		if (m_entries[i].m_index == p_index) {
-			m_entries[i].m_flags &= ~Entry::c_flagEnabled;
+		if (m_entries[i].m_index == p_index && m_entries[i].IsEnabled()) {
+			m_entries[i].Disable();
 		}
 	}
 
