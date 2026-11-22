@@ -2008,7 +2008,7 @@ void GolD3DRenderDevice::ApplyMaterialHw(GolMaterial* p_material)
 				m_alpha = destBlend;
 				newFlags &= ~GolMaterial::c_flagDecal;
 				newFlags |= GolMaterial::c_flagModulate;
-				m_unk0xc83fc = (destBlend << 24) | (m_unk0xc83fc & 0x00ffffff);
+				m_unk0xc83fc = (m_alpha << 24) | (m_unk0xc83fc & 0x00ffffff);
 			}
 			else if (newFlags & GolMaterial::c_flagAlphaBlend) {
 				LegoU32 srcBlend = p_material->GetSrcBlend();
