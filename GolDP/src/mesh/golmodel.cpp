@@ -182,7 +182,7 @@ void GolModel::Draw(GolD3DRenderDevice* p_renderer, MaterialTable* p_materialTab
 	LegoU32* group = m_groups;
 	LegoU32* end = m_groups + m_groupCount;
 
-	for (; group < end; group++) {
+	while (group < end) {
 		LegoU32 groupData = *group;
 		LegoU32 groupType = groupData & c_groupTypeMask;
 		switch (groupType) {
@@ -197,6 +197,7 @@ void GolModel::Draw(GolD3DRenderDevice* p_renderer, MaterialTable* p_materialTab
 				firstVertex,
 				vertexCount
 			);
+			group++;
 			break;
 		}
 		case static_cast<LegoU32>(c_groupTypeTriangleBatch): {
@@ -206,6 +207,7 @@ void GolModel::Draw(GolD3DRenderDevice* p_renderer, MaterialTable* p_materialTab
 			triangleCount &= c_triangleCountMask;
 			(p_renderer->*p_renderer
 							  ->m_drawTriangleFn2)(groupData & c_materialMatrixIndexMask, triangleCount, lastVertex);
+			group++;
 			break;
 		}
 		case static_cast<LegoU32>(c_groupTypeMaterial): {
@@ -213,13 +215,18 @@ void GolModel::Draw(GolD3DRenderDevice* p_renderer, MaterialTable* p_materialTab
 				static_cast<GolMaterial*>(p_materialTable->GetEntry(groupData & c_materialMatrixIndexMask));
 			(p_renderer->*p_renderer->m_applyMaterialFn)(material);
 			p_renderer->SetCurrentTexture(material->GetTexture());
+			group++;
 			break;
 		}
 		case static_cast<LegoU32>(c_groupTypeMatrix):
 			p_renderer->FUN_1000acf0(groupData & c_materialMatrixIndexMask);
+			group++;
 			break;
 		case static_cast<LegoU32>(c_groupTypeEnd):
 			return;
+		default:
+			group++;
+			break;
 		}
 	}
 }
@@ -276,7 +283,7 @@ void GolModel::DrawNode(
 
 	LegoU32* group = m_groups + p_node->m_firstGroup;
 	LegoU32* end = m_groups + (p_node->m_firstGroup + p_node->m_groupCount);
-	for (; group < end; group++) {
+	while (group < end) {
 		LegoU32 groupData = *group;
 		LegoU32 groupType = groupData & c_groupTypeMask;
 
@@ -292,6 +299,7 @@ void GolModel::DrawNode(
 				firstVertex,
 				vertexCount
 			);
+			group++;
 			break;
 		}
 		case static_cast<LegoU32>(c_groupTypeTriangleBatch): {
@@ -301,6 +309,7 @@ void GolModel::DrawNode(
 			triangleCount &= c_triangleCountMask;
 			(p_renderer->*p_renderer
 							  ->m_drawTriangleFn2)(groupData & c_materialMatrixIndexMask, triangleCount, lastVertex);
+			group++;
 			break;
 		}
 		case static_cast<LegoU32>(c_groupTypeMaterial): {
@@ -308,10 +317,14 @@ void GolModel::DrawNode(
 				static_cast<GolMaterial*>(p_materialTable->GetEntry(groupData & c_materialMatrixIndexMask));
 			(p_renderer->*p_renderer->m_applyMaterialFn)(material);
 			p_renderer->SetCurrentTexture(material->GetTexture());
+			group++;
 			break;
 		}
 		case static_cast<LegoU32>(c_groupTypeEnd):
 			return;
+		default:
+			group++;
+			break;
 		}
 	}
 }
