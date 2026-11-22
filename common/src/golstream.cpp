@@ -12,29 +12,35 @@
 
 DECOMP_SIZE_ASSERT(GolStream, 0x30)
 
+#ifdef BUILDING_GOL
+// Unreferenced in GolDP.dll; sits directly in front of g_pathBuffer, which BuildPathname reads at index -1.
+// GLOBAL: GOLDP 0x10065b68
+undefined g_unk0x10065b68[0x200] = {0};
+#endif
+
 // GLOBAL: GOLDP 0x10065d68
 // GLOBAL: LEGORACERS 0x004c7284
-LegoChar g_pathBuffer[256];
+LegoChar g_pathBuffer[256] = {0};
 
 // GLOBAL: GOLDP 0x10065e68
 // GLOBAL: LEGORACERS 0x004c7384
-LegoChar* g_searchPaths[4];
+LegoChar* g_searchPaths[4] = {0};
 
 // GLOBAL: GOLDP 0x10065e78
 // GLOBAL: LEGORACERS 0x004c7394
-GolFileSource* g_fileSources;
+GolFileSource* g_fileSources = NULL;
 
 // GLOBAL: GOLDP 0x10065e7c
 // GLOBAL: LEGORACERS 0x004c7398
-LegoU32 g_fileSourceCount;
+LegoU32 g_fileSourceCount = 0;
 
 // GLOBAL: GOLDP 0x10065e80
 // GLOBAL: LEGORACERS 0x004c739c
-LegoU32 g_searchPathCount;
+LegoU32 g_searchPathCount = 0;
 
 // GLOBAL: GOLDP 0x10065e84
 // GLOBAL: LEGORACERS 0x004c73a0
-GolHashTable* g_hashTable;
+GolHashTable* g_hashTable = NULL;
 
 // GLOBAL: GOLDP 0x1005f04c
 // GLOBAL: LEGORACERS 0x004c1848
@@ -610,7 +616,7 @@ void GolStream::BuildPathname(const LegoChar* p_prefix, const LegoChar* p_path)
 	if (g_hashTable) {
 		GolHashTable::Entry* currentEntry = g_hashTable->GetCurrentEntry();
 		if (currentEntry) {
-			currentEntryPath = GolHashTable::GetEntryPath(currentEntry);
+			currentEntryPath = g_hashTable->GetEntryPath(currentEntry);
 		}
 	}
 
