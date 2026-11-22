@@ -15,7 +15,6 @@
 DECOMP_SIZE_ASSERT(OscillatorHazard, 0x20)
 
 extern LegoFloat g_cosineTable[1024];
-extern const LegoFloat g_negativeRadiansToTableIndex;
 
 // GLOBAL: LEGORACERS 0x004b41f4
 static const LegoFloat g_oscillatorInvCycleMs = 0.0001f;
@@ -86,7 +85,7 @@ void OscillatorHazard::Update(undefined4 p_elapsedMs)
 	LegoFloat scaledTime = m_phaseMs;
 	scaledTime *= g_oscillatorInvCycleMs;
 	scaledTime *= 6.2831855f;
-	scaledTime *= g_negativeRadiansToTableIndex;
+	scaledTime *= -162.97466f;
 
 	LegoS32 index = -256 - static_cast<LegoS32>(scaledTime);
 	index &= 0x3ff;

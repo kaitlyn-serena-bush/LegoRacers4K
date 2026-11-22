@@ -8,7 +8,6 @@
 DECOMP_SIZE_ASSERT(RaceDialog, 0x68)
 
 extern LegoFloat g_cosineTable[1024];
-extern const LegoFloat g_negativeRadiansToTableIndex;
 extern const LegoFloat g_unk0x004b02fc;
 extern const LegoFloat g_selectedPulseAmplitude;
 
@@ -150,7 +149,7 @@ void RaceDialog::Draw()
 	if (m_selecting) {
 		LegoFloat blinkPhase = static_cast<LegoFloat>(static_cast<LegoS32>(m_blinkMs)) * g_unk0x004b02fc;
 		blinkPhase *= 6.2831855f;
-		blinkPhase *= g_negativeRadiansToTableIndex;
+		blinkPhase *= -162.97466f;
 
 		LegoS32 index = 0xffffff00 - static_cast<LegoS32>(blinkPhase);
 		index &= c_cosineTableMask;

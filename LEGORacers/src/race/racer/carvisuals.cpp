@@ -26,7 +26,6 @@
 extern LegoFloat g_carBuildPreviewMouseScale;
 extern LegoFloat g_cosineTable[1024];
 extern const LegoFloat g_fadeAlphaScale;
-extern const LegoFloat g_negativeRadiansToTableIndex;
 extern const LegoFloat g_carShadowScale;
 extern LegoU16 g_randomTable[1024];
 extern LegoU32 g_randomTableIndex;
@@ -1218,7 +1217,7 @@ void CarVisuals::UpdateCurseEntity(LegoU32 p_elapsedMs)
 
 	LegoFloat phase = static_cast<LegoFloat>(m_cursePhaseMs) * g_cursePhaseScale;
 	LegoFloat indexPhase = phase;
-	indexPhase *= g_negativeRadiansToTableIndex;
+	indexPhase *= -162.97466f;
 	LegoS32 tableIndex = (0xffffff00 - static_cast<LegoS32>(indexPhase)) & c_randomTableMask;
 	LegoFloat offsetX = g_cosineTable[tableIndex];
 	tableIndex = static_cast<LegoS32>(phase * 162.974655f) & c_randomTableMask;

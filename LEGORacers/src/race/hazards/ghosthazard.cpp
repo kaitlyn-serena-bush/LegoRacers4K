@@ -25,7 +25,6 @@ DECOMP_SIZE_ASSERT(GhostHazard, 0x220)
 
 extern LegoFloat g_cosineTable[1024];
 extern const LegoFloat g_unk0x004b02fc;
-extern const LegoFloat g_negativeRadiansToTableIndex;
 extern LegoU16 g_randomTable[1024];
 extern LegoU32 g_randomTableIndex;
 extern LegoFloat g_carBuildPreviewMouseScale;
@@ -287,7 +286,7 @@ void GhostHazard::Update(undefined4 p_elapsedMs)
 			LegoFloat phase = static_cast<LegoFloat>(static_cast<LegoS32>(m_soundJitterMs));
 			phase *= g_unk0x004b02fc;
 			phase *= g_hazardPi;
-			phase *= g_negativeRadiansToTableIndex;
+			phase *= -162.97466f;
 			LegoS32 index = 0xffffff00 - static_cast<LegoS32>(phase);
 			index &= c_randomTableMask;
 			m_loopSound->SetFrequencyScale(1.0f - g_cosineTable[index] * m_frequencyJitter);

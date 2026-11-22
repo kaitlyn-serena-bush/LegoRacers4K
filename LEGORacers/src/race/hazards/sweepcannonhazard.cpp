@@ -15,7 +15,6 @@
 DECOMP_SIZE_ASSERT(SweepCannonHazard, 0x58)
 
 extern LegoFloat g_cosineTable[1024];
-extern const LegoFloat g_negativeRadiansToTableIndex;
 
 // GLOBAL: LEGORACERS 0x004b03f0
 extern const LegoFloat g_hazardPi = 3.1415927f;
@@ -150,7 +149,7 @@ void SweepCannonHazard::Update(undefined4 p_elapsedMs)
 		m_source.m_forward.m_x = forwardX;
 
 		LegoFloat yTableAngle = lateralAngle;
-		yTableAngle *= g_negativeRadiansToTableIndex;
+		yTableAngle *= -162.97466f;
 		LegoS32 yTableOffset = static_cast<LegoS32>(yTableAngle);
 		index = (0xffffff00 - yTableOffset) & 0x3ff;
 		m_source.m_forward.m_y = g_cosineTable[index];

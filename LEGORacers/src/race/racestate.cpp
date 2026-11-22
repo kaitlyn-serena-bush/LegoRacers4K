@@ -37,7 +37,6 @@ DECOMP_SIZE_ASSERT(RaceRoster, 0x194)
 
 extern const LegoFloat g_ghostAnimationRateScale;
 extern const LegoFloat g_ghostSampleFractionScale;
-extern const LegoFloat g_negativeRadiansToTableIndex;
 extern LegoU32 g_silhouetteClearFlag;
 extern LegoU32 g_silhouetteFlattenFlag;
 extern LegoFloat g_cosineTable[1024];

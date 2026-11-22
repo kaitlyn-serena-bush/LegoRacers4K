@@ -45,7 +45,6 @@ DECOMP_SIZE_ASSERT(RaceSetup, 0x1c)
 
 extern const LegoFloat g_ghostAnimationRateScale;
 extern const LegoFloat g_ghostSampleFractionScale;
-extern const LegoFloat g_negativeRadiansToTableIndex;
 extern LegoU32 g_silhouetteClearFlag;
 extern LegoU32 g_silhouetteFlattenFlag;
 extern LegoFloat g_cosineTable[1024];
@@ -1222,7 +1221,7 @@ void Racer::UpdateEngineSound(LegoU32 p_elapsedMs)
 		else {
 			LegoFloat volume = m_engineIdleVolume;
 			volume *= g_engineFadeVolumeScale;
-			volume *= g_negativeRadiansToTableIndex;
+			volume *= -162.97466f;
 			LegoS32 index = (c_volumeTableBase - static_cast<LegoS32>(volume)) & c_volumeTableMask;
 			volume = g_cosineTable[index];
 			volume *= targetVolume;
@@ -1238,7 +1237,7 @@ void Racer::UpdateEngineSound(LegoU32 p_elapsedMs)
 		else {
 			LegoFloat volume = m_engineDriveVolume;
 			volume *= g_engineFadeVolumeScale;
-			volume *= g_negativeRadiansToTableIndex;
+			volume *= -162.97466f;
 			LegoS32 index = (c_volumeTableBase - static_cast<LegoS32>(volume)) & c_volumeTableMask;
 			volume = g_cosineTable[index];
 			volume *= targetVolume;
@@ -1254,7 +1253,7 @@ void Racer::UpdateEngineSound(LegoU32 p_elapsedMs)
 		else {
 			LegoFloat volume = m_engineFastVolume;
 			volume *= g_engineFadeVolumeScale;
-			volume *= g_negativeRadiansToTableIndex;
+			volume *= -162.97466f;
 			LegoS32 index = (c_volumeTableBase - static_cast<LegoS32>(volume)) & c_volumeTableMask;
 			volume = g_cosineTable[index];
 			volume *= targetVolume;
