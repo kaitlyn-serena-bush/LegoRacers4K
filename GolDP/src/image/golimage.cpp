@@ -433,8 +433,8 @@ void GolImage::UploadTiles()
 	ColorRGBA* paletteEntries;
 	LegoU32 paletteSize;
 	if (textureFormat.m_paletteMask != 0) {
-		paletteEntries = m_surface.m_unk0x40.GetEntries();
-		paletteSize = m_surface.m_unk0x40.GetPaletteSize();
+		paletteEntries = m_surface.m_palette.GetEntries();
+		paletteSize = m_surface.m_palette.GetPaletteSize();
 	}
 	else {
 		paletteEntries = NULL;
