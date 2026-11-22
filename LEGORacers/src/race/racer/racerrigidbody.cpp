@@ -258,17 +258,14 @@ void RacerRigidBody::Update(LegoS32 p_elapsedMs)
 	LegoFloat elapsed = static_cast<LegoFloat>(p_elapsedMs);
 	{
 		GolVec3 linearDelta;
-		linearDelta.m_x = m_force.m_x;
-		linearDelta.m_x *= elapsed;
+		linearDelta.m_x = GOL_MUL(m_force.m_x, elapsed);
 		linearDelta.m_x *= m_inverseMass;
-		linearDelta.m_y = m_force.m_y;
-		linearDelta.m_y *= elapsed;
+		linearDelta.m_y = GOL_MUL(m_force.m_y, elapsed);
 		linearDelta.m_y *= m_inverseMass;
-		linearDelta.m_z = m_force.m_z;
-		linearDelta.m_z *= elapsed;
+		linearDelta.m_z = GOL_MUL(m_force.m_z, elapsed);
 		linearDelta.m_z *= m_inverseMass;
 
-		LegoFloat halfElapsed = elapsed * 0.5f;
+		LegoFloat halfElapsed = (((((elapsed * 0.5f)))));
 
 		GolVec3 position;
 		m_body->GetPosition(&position);
