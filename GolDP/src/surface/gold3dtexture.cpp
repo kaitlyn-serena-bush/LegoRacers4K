@@ -414,16 +414,13 @@ void GolD3DTexture::GenerateMipmaps()
 void GolD3DTexture::ReleaseDeviceObjects()
 {
 	LegoU32 i;
-	MipmapLevel* mipmaps = m_mipmaps;
-	GolPaletteBase* palette = m_palette;
 
-	if (mipmaps != NULL) {
-		if (palette != NULL) {
-			static_cast<GolD3DTexturePalette*>(palette)->Destroy();
+	if (m_mipmaps != NULL) {
+		if (m_palette != NULL) {
+			static_cast<GolD3DTexturePalette*>(m_palette)->Destroy();
 
-			palette = m_palette;
-			if (palette != NULL) {
-				delete static_cast<GolD3DTexturePalette*>(palette);
+			if (m_palette != NULL) {
+				delete static_cast<GolD3DTexturePalette*>(m_palette);
 			}
 
 			m_palette = NULL;
@@ -439,12 +436,11 @@ void GolD3DTexture::ReleaseDeviceObjects()
 		m_mipmaps = NULL;
 	}
 	else {
-		if (palette != NULL) {
-			static_cast<GolDirectDrawPalette*>(palette)->Release();
+		if (m_palette != NULL) {
+			static_cast<GolDirectDrawPalette*>(m_palette)->Release();
 
-			palette = m_palette;
-			if (palette != NULL) {
-				delete static_cast<GolDirectDrawPalette*>(palette);
+			if (m_palette != NULL) {
+				delete static_cast<GolDirectDrawPalette*>(m_palette);
 			}
 
 			m_palette = NULL;
