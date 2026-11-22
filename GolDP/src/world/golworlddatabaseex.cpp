@@ -186,10 +186,10 @@ void GolWorldDatabaseEx::AllocateResources()
 void GolWorldDatabaseEx::LoadResources()
 {
 	LegoU32 i;
+	LegoChar fileName[sizeof(GolName) + 5];
 
 	if (m_textureListCount) {
 		for (i = 0; i < m_textureListCount; i++) {
-			LegoChar fileName[sizeof(GolName) + 5];
 			BuildResourceFileName(fileName, m_textureListNames[i], ".tdf");
 			m_textureLists[i].Load(static_cast<GolD3DRenderDevice*>(m_renderer), fileName, m_binary);
 		}
@@ -197,7 +197,6 @@ void GolWorldDatabaseEx::LoadResources()
 
 	if (m_materialLibraryCount) {
 		for (i = 0; i < m_materialLibraryCount; i++) {
-			LegoChar fileName[sizeof(GolName) + 5];
 			BuildResourceFileName(fileName, m_materialLibraryNames[i], ".mdf");
 			m_materialLibraries[i].Load(m_renderer, fileName, m_binary);
 		}
@@ -205,7 +204,6 @@ void GolWorldDatabaseEx::LoadResources()
 
 	if (m_modelPartCount) {
 		for (i = 0; i < m_modelPartCount; i++) {
-			LegoChar fileName[sizeof(GolName) + 5];
 			BuildResourceFileName(fileName, m_modelPartNames[i], ".adf");
 			m_modelParts[i].Load(fileName, m_binary);
 		}
@@ -213,7 +211,6 @@ void GolWorldDatabaseEx::LoadResources()
 
 	if (m_modelCount) {
 		for (i = 0; i < m_modelCount; i++) {
-			LegoChar fileName[sizeof(GolName) + 5];
 			BuildResourceFileName(fileName, m_modelNames[i], ".gdf");
 			m_models[i].Load(m_renderer, fileName, m_binary);
 		}
@@ -221,7 +218,6 @@ void GolWorldDatabaseEx::LoadResources()
 
 	if (m_materialTableCount) {
 		for (i = 0; i < m_materialTableCount; i++) {
-			LegoChar fileName[sizeof(GolName) + 5];
 			BuildResourceFileName(fileName, m_materialTableNames[i], ".gdf");
 			m_materialTables[i].Load(m_renderer, fileName, m_binary);
 		}
@@ -229,7 +225,6 @@ void GolWorldDatabaseEx::LoadResources()
 
 	if (m_sceneNodeCount) {
 		for (i = 0; i < m_sceneNodeCount; i++) {
-			LegoChar fileName[sizeof(GolName) + 5];
 			BuildResourceFileName(fileName, m_sceneNodeNames[i], ".sdf");
 			m_sceneNodes[i].Load(fileName, m_binary);
 		}
@@ -237,7 +232,6 @@ void GolWorldDatabaseEx::LoadResources()
 
 	if (m_boundingShapeCount) {
 		for (i = 0; i < m_boundingShapeCount; i++) {
-			LegoChar fileName[sizeof(GolName) + 5];
 			BuildResourceFileName(fileName, m_boundingShapeNames[i], ".bdf");
 			m_boundingShapes[i].Deserialize(fileName, m_binary);
 		}
@@ -245,7 +239,6 @@ void GolWorldDatabaseEx::LoadResources()
 
 	if (m_materialAnimationCount) {
 		for (i = 0; i < m_materialAnimationCount; i++) {
-			LegoChar fileName[sizeof(GolName) + 5];
 			BuildResourceFileName(fileName, m_materialAnimationNames[i], ".maf");
 			m_materialAnimations[i].Load(m_renderer, fileName, m_binary);
 		}
