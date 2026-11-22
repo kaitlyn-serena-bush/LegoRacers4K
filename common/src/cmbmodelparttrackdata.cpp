@@ -109,47 +109,38 @@ LegoBool32 CmbModelPartTrackData::InterpolatePosition(
 		return TRUE;
 	}
 
-	LegoU32 keyIndex = 0;
-	const LegoU16* keys;
-	if (keyCount > 0) {
-		keys = &m_keys[p_track.m_positionKeyIndex];
-		const LegoU16* cursor = keys;
-		for (; keyIndex < keyCount; keyIndex++) {
-			if (*cursor > p_time) {
-				break;
-			}
-			cursor++;
+	LegoU32 i;
+	for (i = 0; i < keyCount; i++) {
+		if (m_keys[p_track.m_positionKeyIndex + i] > p_time) {
+			break;
 		}
 	}
 
 	const GolVec3* from;
 	const GolVec3* to;
 	LegoFloat elapsed;
-	if (keyIndex == 0) {
-		LegoU32 keyBase = p_track.m_positionKeyIndex;
-		LegoS32 firstKey = m_keys[keyBase];
-		LegoS32 lastKey = m_keys[keyBase + keyCount - 1];
-		from = &m_vertices[p_track.m_positionFrameIndex + keyCount - 1];
+	if (i == 0) {
+		LegoS32 firstKey = m_keys[p_track.m_positionKeyIndex];
+		LegoS32 lastKey = m_keys[p_track.m_positionKeyIndex + keyCount - 1];
 		p_frameCount = firstKey - lastKey + p_frameCount;
 		elapsed = static_cast<LegoFloat>(p_frameCount - firstKey) + p_time;
+		from = &m_vertices[p_track.m_positionFrameIndex + keyCount - 1];
 		to = &m_vertices[p_track.m_positionFrameIndex];
 	}
-	else if (keyIndex == keyCount) {
-		LegoU32 keyBase = p_track.m_positionKeyIndex;
-		LegoS32 firstKey = keys[0];
-		LegoS32 lastKey = m_keys[keyBase + keyCount - 1];
+	else if (i == keyCount) {
+		LegoS32 firstKey = m_keys[p_track.m_positionKeyIndex];
+		LegoS32 lastKey = m_keys[p_track.m_positionKeyIndex + keyCount - 1];
 		p_frameCount = firstKey - lastKey + p_frameCount;
 		elapsed = p_time - static_cast<LegoFloat>(lastKey);
 		from = &m_vertices[p_track.m_positionFrameIndex + keyCount - 1];
 		to = &m_vertices[p_track.m_positionFrameIndex];
 	}
 	else {
-		LegoU32 keyBase = p_track.m_positionKeyIndex + keyIndex;
-		LegoS32 previousKey = m_keys[keyBase - 1];
-		p_frameCount = m_keys[keyBase] - previousKey;
+		LegoS32 previousKey = m_keys[p_track.m_positionKeyIndex + i - 1];
+		p_frameCount = m_keys[p_track.m_positionKeyIndex + i] - previousKey;
 		elapsed = p_time - static_cast<LegoFloat>(previousKey);
-		from = &m_vertices[p_track.m_positionFrameIndex + keyIndex - 1];
-		to = &m_vertices[p_track.m_positionFrameIndex + keyIndex];
+		to = &m_vertices[p_track.m_positionFrameIndex + i];
+		from = to - 1;
 	}
 
 	LegoFloat amount;
