@@ -2005,15 +2005,15 @@ LegoU32 RacerCarBody::ResolveWallCollisions(LegoU32 p_elapsedMs, LegoBool32 p_qu
 // FUNCTION: LEGORACERS 0x00447cf0
 void RacerCarBody::ApplyWallResponse()
 {
-	GolVec3* velocity = &m_velocity;
 	GolVec3* direction = &m_wallNormal;
+	GolVec3* velocity = &m_velocity;
 
 	if (m_flags & c_flagSteering) {
 		StopSteering();
 	}
 
 	LegoFloat dot = velocity->m_z;
-	dot *= direction->m_z;
+	dot = GOL_MUL(dot, direction->m_z);
 	dot += velocity->m_y * direction->m_y;
 	LegoFloat contribution = velocity->m_x;
 	contribution *= direction->m_x;
