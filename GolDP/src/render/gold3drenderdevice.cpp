@@ -70,6 +70,18 @@ inline static LegoU32 BuildClipXYFlags(const LegoFloat& p_x, const LegoFloat& p_
 	return lowFlags | (highFlags & ~(lowFlags << 1));
 }
 
+// Same flags as BuildClipXYFlags; x is read in place (no local), which FUN_1000edf0 needs.
+inline static LegoU32 BuildClipXYFlagsInPlace(const LegoFloat& p_x, const LegoFloat& p_y, const LegoFloat& p_w)
+{
+	const LegoU32 y = *reinterpret_cast<const LegoU32*>(&p_y);
+	const LegoU32 w = *reinterpret_cast<const LegoU32*>(&p_w);
+
+	LegoU32 lowFlags = (*reinterpret_cast<const LegoU32*>(&p_x) >> 31) | ((y & 0x80000000) >> 29);
+	LegoU32 highFlags =
+		(((w - *reinterpret_cast<const LegoU32*>(&p_x)) & 0x80000000) >> 30) | (((w - y) & 0x80000000) >> 28);
+	return lowFlags | (highFlags & ~(lowFlags << 1));
+}
+
 inline static LegoU32 BuildClipYFlags(const LegoFloat& p_y, const LegoFloat& p_w)
 {
 	const LegoU32 y = *reinterpret_cast<const LegoU32*>(&p_y);
@@ -5670,7 +5682,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newVertex->color = InterpolateClipColor(previousVertex->color, vertex->color, t);
 					outputCount++;
 					newVertex->rhw = 1.0f / nearClip;
-					newCache->m_clipFlags = BuildClipXYFlags(newCache->m_x, newCache->m_y, nearClip);
+					newCache->m_clipFlags = BuildClipXYFlagsInPlace(newCache->m_x, newCache->m_y, nearClip);
 					clipFlags |= newCache->m_clipFlags;
 					newVertex->sz = 0.0f;
 					newVertex->sx =
@@ -5733,7 +5745,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newVertex->color = InterpolateClipColor(previousVertex->color, vertex->color, t);
 					outputCount++;
 					newVertex->rhw = 1.0f / farClip;
-					newCache->m_clipFlags = BuildClipXYFlags(newCache->m_x, newCache->m_y, farClip);
+					newCache->m_clipFlags = BuildClipXYFlagsInPlace(newCache->m_x, newCache->m_y, farClip);
 					newVertex->sz = 1.0f;
 					newVertex->sx =
 						GOL_MUL(GOL_MUL(newVertex->rhw, newCache->m_x), m_viewportMetrics[0]) + m_viewportMetrics[2];
@@ -5857,7 +5869,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newVertex->color = InterpolateClipColor(previousVertex->color, vertex->color, t);
 					newCache->m_x = newCache->m_w;
 					outputCount++;
-					newVertex->rhw = 1.0f / (newCache->m_w);
+					newVertex->rhw = ((((((((((1.0f / (newCache->m_w)))))))))));
 					newCache->m_clipFlags = BuildClipYFlags(newCache->m_y, newCache->m_w);
 					newVertex->sx = m_viewportMetrics[0] + m_viewportMetrics[2];
 					newVertex->sy =
@@ -5917,7 +5929,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newVertex->tu = (vertex->tu - previousVertex->tu) * t + previousVertex->tu;
 					newVertex->tv = (vertex->tv - previousVertex->tv) * t + previousVertex->tv;
 					newVertex->color = InterpolateClipColor(previousVertex->color, vertex->color, t);
-					newVertex->rhw = 1.0f / (newCache->m_w);
+					newVertex->rhw = ((((((((1.0f / (newCache->m_w)))))))));
 					outputCount++;
 					newCache->m_clipFlags = 0;
 					newVertex->sy = m_viewportMetrics[3];
@@ -5972,7 +5984,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					vertexOut[outputCount] = newVertex;
 					VertexCacheEntry* newCache = clipCache++;
 					cacheOut[outputCount] = newCache;
-					newCache->m_x = (cache->m_x - previousCache->m_x) * t + previousCache->m_x;
+					newCache->m_x = (((cache->m_x - previousCache->m_x) * t)) + previousCache->m_x;
 					newCache->m_z = ((cache->m_z - previousCache->m_z) * t) + previousCache->m_z;
 					newCache->m_w = ((cache->m_w - previousCache->m_w) * t) + previousCache->m_w;
 					newVertex->tu = ((vertex->tu - previousVertex->tu) * t) + previousVertex->tu;
