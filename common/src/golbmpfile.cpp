@@ -700,8 +700,9 @@ void GolBmpFile::ReadPixels(LegoU8* p_buffer)
 	}
 	else {
 		LegoU8* destination = p_buffer;
-		LegoU8* rowBuffer1 = new LegoU8[m_rowByteStride + 2];
-		if (rowBuffer1 == NULL) {
+		LegoU8* readBuffer = new LegoU8[m_rowByteStride + 2];
+		LegoU8* rowBuffer1 = readBuffer;
+		if (readBuffer == NULL) {
 			GOL_FATALERROR(c_golErrorOutOfMemory);
 		}
 
@@ -714,25 +715,27 @@ void GolBmpFile::ReadPixels(LegoU8* p_buffer)
 		}
 
 		else {
-			rowBuffer2 = rowBuffer1;
+			rowBuffer2 = readBuffer;
 		}
 
 		for (y = 0; y < m_height; y++) {
-			result = m_file.BufferedRead(fileOffset, rowBuffer1, m_rowByteStride, &amount);
+			result = m_file.BufferedRead(fileOffset, readBuffer, m_rowByteStride, &amount);
 			if (result != GolStream::e_ioSuccess) {
 				GOL_FATALERROR_MESSAGE(GolStream::ErrorCodeToString(result));
 			}
 
-			// The original copies from rowBuffer2; for reachable uncompressed BMPs it aliases rowBuffer1.
+			// The original copies from rowBuffer2; for reachable uncompressed BMPs it aliases the read buffer.
 			::memcpy(destination, rowBuffer2, m_rowByteStride);
 			fileOffset += amount;
+			// Redundant reset of the read pointer: the original reloads it here, after the copy.
+			readBuffer = rowBuffer1;
 			destination += m_rowByteStride;
 		}
 
 		if (m_compression) {
 			delete[] rowBuffer2;
 		}
-		delete[] rowBuffer1;
+		delete[] readBuffer;
 	}
 }
 
