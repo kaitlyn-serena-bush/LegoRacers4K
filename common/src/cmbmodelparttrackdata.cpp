@@ -119,29 +119,33 @@ LegoBool32 CmbModelPartTrackData::InterpolatePosition(
 	const GolVec3* from;
 	const GolVec3* to;
 	LegoFloat elapsed;
+	LegoS32 duration;
 	if (i == 0) {
 		LegoS32 firstKey = m_keys[p_track.m_positionKeyIndex];
 		LegoS32 lastKey = m_keys[p_track.m_positionKeyIndex + keyCount - 1];
-		p_frameCount = firstKey - lastKey + p_frameCount;
-		elapsed = static_cast<LegoFloat>(p_frameCount - firstKey) + p_time;
+		duration = firstKey - lastKey + p_frameCount;
+		elapsed = static_cast<LegoFloat>(duration - firstKey);
+		elapsed += p_time;
 		from = &m_vertices[p_track.m_positionFrameIndex + keyCount - 1];
 		to = &m_vertices[p_track.m_positionFrameIndex];
 	}
 	else if (i == keyCount) {
-		LegoS32 firstKey = m_keys[p_track.m_positionKeyIndex];
-		LegoS32 lastKey = m_keys[p_track.m_positionKeyIndex + keyCount - 1];
-		p_frameCount = firstKey - lastKey + p_frameCount;
-		elapsed = p_time - static_cast<LegoFloat>(lastKey);
+		LegoU32 lastIndex = p_track.m_positionKeyIndex + keyCount - 1;
+		duration = m_keys[p_track.m_positionKeyIndex] - m_keys[lastIndex] + p_frameCount;
+		elapsed = p_time - static_cast<LegoFloat>(m_keys[lastIndex]);
 		from = &m_vertices[p_track.m_positionFrameIndex + keyCount - 1];
 		to = &m_vertices[p_track.m_positionFrameIndex];
 	}
 	else {
-		LegoS32 previousKey = m_keys[p_track.m_positionKeyIndex + i - 1];
-		p_frameCount = m_keys[p_track.m_positionKeyIndex + i] - previousKey;
-		elapsed = p_time - static_cast<LegoFloat>(previousKey);
+		LegoU32 keyIndex = p_track.m_positionKeyIndex + i;
+		LegoS32 key = m_keys[keyIndex];
+		LegoS32 previousKey = m_keys[keyIndex - 1];
+		duration = key - previousKey;
+		elapsed = p_time - (static_cast<LegoFloat>(previousKey));
 		to = &m_vertices[p_track.m_positionFrameIndex + i];
 		from = to - 1;
 	}
+	p_frameCount = duration;
 
 	LegoFloat amount;
 	if (p_frameCount == 0) {
