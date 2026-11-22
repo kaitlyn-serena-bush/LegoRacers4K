@@ -124,7 +124,7 @@ MusicInstance* DirectMusicGroup::CreateMusicInstance(LegoU32 p_index)
 			else {
 				instance->SetMusicGroup(NULL);
 				delete instance;
-				instance = NULL;
+				return NULL;
 			}
 		}
 
