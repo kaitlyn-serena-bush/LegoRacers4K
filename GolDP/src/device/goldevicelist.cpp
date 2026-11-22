@@ -434,29 +434,33 @@ BOOL GolDeviceList::EnumerateDirectDrawDriversCallback(
 			driver->m_accelerated = FALSE;
 		}
 
-		if (ddraw->QueryInterface(IID_IDirect3D3, reinterpret_cast<LPVOID*>(&d3d)) == DD_OK) {
-			LegoU32 countDevices = 0;
-
-			if (d3d->EnumDevices(CountDirect3DDevicesCallback, &countDevices) == D3D_OK) {
-				driver->m_devices = new GolD3DDeviceInfo[countDevices];
-				if (driver->m_devices == NULL) {
-					d3d->Release();
-					ddraw->Release();
-					GOL_FATALERROR(c_golErrorOutOfMemory);
-				}
-				driver->m_countDevices = 0;
-				d3d->EnumDevices(EnumerateDirect3DDevicesCallback, driver);
-			}
-
-			d3d->Release();
+		if (ddraw->QueryInterface(IID_IDirect3D3, reinterpret_cast<LPVOID*>(&d3d)) != DD_OK) {
+			ddraw->Release();
+			return TRUE;
 		}
 
+		LegoU32 countDevices = 0;
+
+		if (d3d->EnumDevices(CountDirect3DDevicesCallback, &countDevices) != D3D_OK) {
+			d3d->Release();
+			ddraw->Release();
+			return TRUE;
+		}
+
+		driver->m_devices = new GolD3DDeviceInfo[countDevices];
+		if (driver->m_devices == NULL) {
+			d3d->Release();
+			ddraw->Release();
+			GOL_FATALERROR(c_golErrorOutOfMemory);
+		}
+		driver->m_countDevices = 0;
+		d3d->EnumDevices(EnumerateDirect3DDevicesCallback, driver);
+		d3d->Release();
 		ddraw->Release();
 	}
 
 	return TRUE;
 }
-
 // FUNCTION: GOLDP 0x10014370
 HRESULT GolDeviceList::CountDirect3DDevicesCallback(
 	GUID* p_guid,
