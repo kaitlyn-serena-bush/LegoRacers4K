@@ -214,12 +214,7 @@ void GrabberHazard::OnEvent(LegoEventQueue::CallbackData* p_data)
 			force.m_y = position.m_y - racerPosition.m_y;
 			force.m_z = 0.0f;
 			GolMath::NormalizeVector3(force, &force);
-			LegoFloat scale = m_pullStrength;
-			force.m_x = scale * force.m_x;
-			LegoFloat y = force.m_y;
-			force.m_y = y * scale;
-			LegoFloat z = force.m_z;
-			force.m_z = z * scale;
+			GolMath::ScaleVector3(&force, m_pullStrength, &force);
 			physics->StartExternalForce1(&force);
 		}
 
