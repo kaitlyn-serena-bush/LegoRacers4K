@@ -1408,10 +1408,12 @@ void GolWorldDatabase::InitializeEntities()
 				runtime->SetTextureScrollSpeedV(model->m_textureScrollSpeedV);
 			}
 			if (model->m_flags & WdbModel::e_flagBit1) {
-				runtime->m_flags |= GolModelEntity::c_flagBit1;
+				LegoU32& flags = runtime->m_flags;
+				flags |= GolModelEntity::c_flagBit1;
 			}
 			if (model->m_flags & WdbModel::e_flagBit2) {
-				runtime->m_flags |= GolModelEntity::c_flagBit2;
+				LegoU32& flags = runtime->m_flags;
+				flags |= GolModelEntity::c_flagBit2;
 			}
 
 			j = 0;
@@ -1576,7 +1578,7 @@ void GolWorldDatabase::InitializeEntities()
 
 	if (m_collidableEntityCount) {
 		GolCollidableEntity* runtime = m_collidableEntities;
-		model = m_collidableEntityRecords;
+		WdbModel* model = m_collidableEntityRecords;
 		for (i = 0; i < m_collidableEntityCount; i++) {
 			if (static_cast<LegoU32>(model->m_modelIndices[0]) >= m_modelCount) {
 				GOL_FATALERROR_MESSAGE("Illegal mesh reference");
