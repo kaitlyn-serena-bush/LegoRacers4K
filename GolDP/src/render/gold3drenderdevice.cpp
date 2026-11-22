@@ -1962,6 +1962,7 @@ LegoBool32 GolD3DRenderDevice::TextureSizesMustBePowersOfTwo() const
 // FUNCTION: GOLDP 0x1000a2c0
 void GolD3DRenderDevice::ApplyMaterialHw(GolMaterial* p_material)
 {
+	LegoU32 activeFlags = m_activeMaterialFlags;
 	LegoU32 newFlags = p_material->GetFlags();
 
 	m_drawCommand.m_material = p_material;
@@ -2027,11 +2028,12 @@ void GolD3DRenderDevice::ApplyMaterialHw(GolMaterial* p_material)
 		}
 	}
 
-	if (newFlags == m_activeMaterialFlags) {
+	activeFlags = m_activeMaterialFlags;
+	if (newFlags == activeFlags) {
 		return;
 	}
 
-	if ((newFlags ^ m_activeMaterialFlags) & (GolMaterial::c_flagLinearFilter | GolMaterial::c_flagPointFilter)) {
+	if ((newFlags ^ activeFlags) & (GolMaterial::c_flagLinearFilter | GolMaterial::c_flagPointFilter)) {
 		if (!(newFlags & GolMaterial::c_flagPointFilter) && m_drawState->IsHwAccelerated()) {
 			m_d3dDevice->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTSS_COLORARG1);
 			m_d3dDevice->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
@@ -2110,7 +2112,8 @@ void GolD3DRenderDevice::ApplyMaterialHw(GolMaterial* p_material)
 		}
 	}
 
-	if ((newFlags ^ m_activeMaterialFlags) & (GolMaterial::c_flagAlphaBlend | GolMaterial::c_flagNoAlphaBlend |
+	activeFlags = m_activeMaterialFlags;
+	if ((newFlags ^ activeFlags) & (GolMaterial::c_flagAlphaBlend | GolMaterial::c_flagNoAlphaBlend |
 											  GolMaterial::c_flagTransparent | GolMaterial::c_flagNoTransparency)) {
 		if (newFlags & (GolMaterial::c_flagAlphaBlend | GolMaterial::c_flagTransparent)) {
 			m_unk0xc83ec = 0;
@@ -2152,7 +2155,7 @@ void GolD3DRenderDevice::ApplyMaterialHw(GolMaterial* p_material)
 			FUN_10012f50();
 		}
 		else {
-			if (m_activeMaterialFlags & GolMaterial::c_flagTransparent) {
+			if (activeFlags & GolMaterial::c_flagTransparent) {
 				if (newFlags & GolMaterial::c_flagTextured) {
 					if (newFlags & GolMaterial::c_flagModulate) {
 						m_d3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
@@ -2179,7 +2182,7 @@ void GolD3DRenderDevice::ApplyMaterialHw(GolMaterial* p_material)
 		}
 	}
 	else {
-		if ((m_activeMaterialFlags ^ newFlags) & GolMaterial::c_flagRotateVertices) {
+		if ((newFlags ^ activeFlags) & GolMaterial::c_flagRotateVertices) {
 			m_activeMaterialFlags = newFlags;
 			FUN_10012f50();
 		}
