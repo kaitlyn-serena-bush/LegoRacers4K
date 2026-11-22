@@ -649,14 +649,16 @@ void GolRenderDevice::SelectTextureFormat(
 			}
 
 			for (i = 0; i < m_countTextureFormats; i++) {
-				if (m_textureFormats[i].m_bitsPerPixel > bpp &&
-					m_textureFormats[i].GetRedBitCount() >= bits.m_intensity &&
-					m_textureFormats[i].GetGreenBitCount() >= bits.m_intensity &&
-					m_textureFormats[i].GetBlueBitCount() >= bits.m_intensity &&
-					m_textureFormats[i].GetAlphaBitCount() >= bits.m_alpha) {
-					*p_actualTextureFormat = m_textureFormats[i];
-					m_textureFormatIndex = i;
-					return;
+				if (m_textureFormats[i].m_bitsPerPixel > bpp) {
+					LegoU32 intensity = bits.m_intensity;
+					if (m_textureFormats[i].GetRedBitCount() >= intensity &&
+						m_textureFormats[i].GetGreenBitCount() >= intensity &&
+						m_textureFormats[i].GetBlueBitCount() >= intensity &&
+						m_textureFormats[i].GetAlphaBitCount() >= bits.m_alpha) {
+						*p_actualTextureFormat = m_textureFormats[i];
+						m_textureFormatIndex = i;
+						return;
+					}
 				}
 			}
 		}
