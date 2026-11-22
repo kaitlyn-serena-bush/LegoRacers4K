@@ -57,7 +57,6 @@ extern const LegoFloat g_hudBaseScale = 0.0020833334f;
 // GLOBAL: LEGORACERS 0x004b02dc
 extern const LegoFloat g_unk0x004b02dc = 0.80000001f;
 
-extern const LegoFloat g_unk0x004b02e0;
 extern const LegoFloat g_unk0x004b02e4;
 extern const LegoFloat g_unk0x004b02e8;
 extern const LegoFloat g_unk0x004b02ec;
@@ -1786,7 +1785,7 @@ void RaceHud::Draw()
 	}
 
 	LegoFloat newSpeed = m_racer->m_physics.m_forwardSpeed;
-	newSpeed *= g_unk0x004b02e0;
+	newSpeed *= 0.2f;
 	LegoFloat retainedSpeed = m_speedValue;
 	retainedSpeed *= g_unk0x004b02dc;
 	m_speedValue = newSpeed + retainedSpeed;

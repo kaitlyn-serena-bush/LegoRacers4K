@@ -38,7 +38,6 @@ extern const LegoFloat g_curseHoverHeight;
 extern const LegoFloat g_unk0x004b0b18;
 extern const LegoFloat g_curseShrinkRate;
 extern const LegoFloat g_curseMinScale;
-extern const LegoFloat g_unk0x004b02e0;
 extern const LegoFloat g_unk0x004b0544;
 extern const LegoFloat g_hiddenModelDistance;
 extern const LegoFloat g_unk0x004b0af0;
@@ -1009,7 +1008,7 @@ void CarVisuals::UpdateDriver(LegoU32 p_elapsedMs)
 
 			LegoFloat forwardDot = row0.m_z * direction.m_z + row0.m_y * direction.m_y + row0.m_x * direction.m_x;
 			LegoU32 animationPart = 0;
-			if (forwardDot < g_unk0x004b02e0 && forwardDot > g_lookAtDotBeside) {
+			if (forwardDot < 0.2f && forwardDot > g_lookAtDotBeside) {
 				LegoFloat sideDot = row1.m_z * direction.m_z + row1.m_y * direction.m_y + row1.m_x * direction.m_x;
 				animationPart = sideDot < 0.0f ? c_animationPart7 : c_animationPart16;
 			}

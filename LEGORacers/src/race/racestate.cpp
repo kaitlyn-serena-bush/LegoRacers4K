@@ -44,7 +44,6 @@ extern LegoFloat g_cosineTable[1024];
 
 extern const LegoFloat g_pathMinSegmentLengthSquared;
 
-extern const LegoFloat g_unk0x004b02e0;
 extern const LegoFloat g_unk0x004b0a1c;
 extern const LegoChar* g_racerDatabaseNames[3];
 extern const LegoFloat g_proximityPitchFloor;
@@ -798,7 +797,7 @@ void RaceState::UpdateStandings()
 			}
 
 			if (nearestRacer->m_airborneMs > Racer::c_boostSoundElapsedThreshold) {
-				frequencyScale += g_unk0x004b02e0;
+				frequencyScale += 0.2f;
 			}
 
 			m_roster.m_proximitySound->SetFrequencyScale(frequencyScale);

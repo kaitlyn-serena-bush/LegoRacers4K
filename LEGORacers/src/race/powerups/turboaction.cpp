@@ -15,8 +15,6 @@
 #include <float.h>
 #include <math.h>
 
-extern const LegoFloat g_unk0x004b02e0;
-
 extern const LegoFloat g_fadeAlphaScale;
 
 // GLOBAL: LEGORACERS 0x004b19d4
@@ -388,7 +386,7 @@ void TurboAction::AdvanceState()
 			);
 		}
 		else {
-			LegoFloat volume = static_cast<LegoFloat>(state) * g_unk0x004b02e0 + g_turboEndVolumeBase;
+			LegoFloat volume = static_cast<LegoFloat>(state) * 0.2f + g_turboEndVolumeBase;
 			m_soundSource->PlaySpatialSoundById(
 				c_soundEnd,
 				&position,
