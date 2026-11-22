@@ -186,7 +186,7 @@ void CircuitStandings::Draw(LegoBool32 p_showCircuitPoints)
 		renderer->DrawString(
 			&string,
 			m_font,
-			(renderTargetInfo->GetWidth() >> 1) - (static_cast<LegoU32>(textWidth) >> 1),
+			(renderTargetInfo->GetWidthU32() >> 1) - (static_cast<LegoU32>(textWidth) >> 1),
 			c_titleY,
 			1.0f,
 			1.0f,
@@ -274,8 +274,8 @@ void CircuitStandings::Draw(LegoBool32 p_showCircuitPoints)
 				::sprintf(buffer, "%ld", m_roundPoints[selectedIndex]);
 				renderer->DrawCString(buffer, m_font, c_pointsX, y, 1.0f, 1.0f, NULL, 0);
 
-				Racer* selectedRacer = &m_raceState->GetRacers()[selectedIndex];
 				LegoU32 deltaIndex = 0;
+				Racer* selectedRacer = &m_raceState->GetRacers()[selectedIndex];
 				while (deltaEntries[deltaIndex].m_racer != selectedRacer && deltaIndex < c_racerCount) {
 					deltaIndex++;
 				}
@@ -284,11 +284,11 @@ void CircuitStandings::Draw(LegoBool32 p_showCircuitPoints)
 					if (deltaEntries[deltaIndex].m_racer->m_flags & Racer::c_flagFinished) {
 						LegoS32 delta = deltaEntries[deltaIndex].m_delta;
 						if (delta > 0) {
-											}
+							sign = 1;
+						}
 						else if (delta < 0) {
 							sign = -1;
-							delta = -delta;
-							deltaEntries[deltaIndex].m_delta = delta;
+							deltaEntries[deltaIndex].m_delta = -delta;
 						}
 
 						FormatTime(timeBuffer, deltaEntries[deltaIndex].m_delta);
