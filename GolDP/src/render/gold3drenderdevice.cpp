@@ -6393,8 +6393,9 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		LegoU32 nextClip = c_firstClipVertex;
 		LegoU32* indicesOut = indexB;
 		LegoU32* indicesIn = indexA;
-		LegoU32* flagsOut = flagsB;
+		LegoU32* flagsOut = NULL;
 		LegoU32* flagsIn = flagsA;
+		flagsOut = flagsB;
 		LegoS32 vertexCount = 3;
 		LegoS32 outputCount = 0;
 		LegoS32 previous;
