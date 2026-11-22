@@ -18,6 +18,7 @@ public:
 		LegoFloat p_sizeZ
 	);
 	void SetRacer(Racer* p_racer) { m_racer = p_racer; }
+	LegoFloat GetSpeedRampScale() const { return m_speedRampScale; }
 
 	LegoFloat m_sizeX;          // 0x0d0
 	LegoFloat m_sizeY;          // 0x0d4
