@@ -1223,10 +1223,11 @@ void GolImgFile::SetImageInfo(
 	}
 
 	m_format = p_format;
+	undefined4& rowByteStride = m_rowByteStride;
 	m_width = p_width;
 	m_height = p_height;
+	rowByteStride = p_rowByteStride;
 	m_keepNibbleOrder = 0;
-	m_rowByteStride = p_rowByteStride;
 	m_paletteSize = 1 << m_format.m_bitsPerPixel;
 	m_remapPureBlack = 0;
 
