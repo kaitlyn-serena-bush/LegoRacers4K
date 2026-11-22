@@ -5689,7 +5689,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					cacheOut[outputCount] = newCache;
 					newCache->m_z = 0.0f;
 					newCache->m_w = nearClip;
-					newCache->m_x = (((((cache->m_x - previousCache->m_x) * t)))) + previousCache->m_x;
+					newCache->m_x = ((((((cache->m_x - previousCache->m_x) * t))))) + previousCache->m_x;
 					newCache->m_y = ((((cache->m_y - previousCache->m_y) * t))) + previousCache->m_y;
 					newVertex->tu = ((((vertex->tu - previousVertex->tu) * t))) + previousVertex->tu;
 					newVertex->tv = ((((vertex->tv - previousVertex->tv) * t))) + previousVertex->tv;
@@ -6008,13 +6008,13 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 						fromBlue + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETBLUE(to)) - fromBlue) * t),
 						fromAlpha + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETALPHA(to)) - fromAlpha) * t)
 					);
-					newVertex->rhw = ((((((((1.0f / (newCache->m_w)))))))));
+					newVertex->rhw = ((((((1.0f / (newCache->m_w)))))));
 					outputCount++;
 					newCache->m_clipFlags = 0;
 					newVertex->sy = m_viewportMetrics[3];
 					newVertex->sx =
-						GOL_MUL(GOL_MUL(newVertex->rhw, newCache->m_x), m_viewportMetrics[0]) + m_viewportMetrics[2];
-					newVertex->sz = newCache->m_z * newVertex->rhw;
+						((((((GOL_MUL(GOL_MUL(newVertex->rhw, newCache->m_x), m_viewportMetrics[0]))))))) + m_viewportMetrics[2];
+					newVertex->sz = ((((((newCache->m_z * newVertex->rhw))))));
 				}
 
 				if (!outside) {
