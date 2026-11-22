@@ -217,8 +217,8 @@ void HomingMissileAction::LaunchProjectile()
 		projectile->LaunchAtRacer(&projectileParams, m_ownerRacer, m_targetRacer, FALSE, FALSE);
 	}
 
-	m_projectile.m_maxSpiralAmplitude = 4.0f;
-	m_projectile.m_spiralRate = 10.0f;
+	m_projectile.SetMaxSpiralAmplitude(4.0f);
+	m_projectile.SetSpiralRate(10.0f);
 	m_projectile.StartHoming();
 }
 
