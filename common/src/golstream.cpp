@@ -356,10 +356,10 @@ LegoS32 GolStream::BufferedRead(LegoU32 p_offset, void* p_buf, LegoU32 p_size, L
 			}
 
 			LegoU32 available = m_bufferEnd - offset;
-			offset += available;
 			memcpy(buf, src, available);
-			p_buf = (LegoU8*) p_buf + available;
 			*lenRead += available;
+			p_buf = (LegoU8*) p_buf + available;
+			offset += available;
 			p_size -= available;
 			buf = p_buf;
 		}
@@ -375,10 +375,8 @@ LegoS32 GolStream::BufferedRead(LegoU32 p_offset, void* p_buf, LegoU32 p_size, L
 	if (m_buffer) {
 		m_flags &= ~c_flagCached;
 		result = Read(m_buffer, m_bufferCapacity, (LegoS32*) &p_offset);
-		LegoS32 savedResult = result;
-
 		if (!result) {
-			while (TRUE) {
+			for (;; buf = p_buf) {
 				LegoU32 bytesRead = p_offset;
 				m_flags |= c_flagCached;
 				LegoS32 pos = m_position;
@@ -394,14 +392,13 @@ LegoS32 GolStream::BufferedRead(LegoU32 p_offset, void* p_buf, LegoU32 p_size, L
 				}
 				else {
 					LegoU32 available = bufEnd - offset;
-					offset += available;
 					memcpy(buf, src, available);
-					p_buf = (LegoU8*) p_buf + available;
 					*lenRead += available;
+					p_buf = (LegoU8*) p_buf + available;
+					offset += available;
 					p_size -= available;
 				}
 
-				result = savedResult;
 				m_position += p_offset;
 
 				if (p_size <= 0) {
@@ -410,13 +407,10 @@ LegoS32 GolStream::BufferedRead(LegoU32 p_offset, void* p_buf, LegoU32 p_size, L
 
 				m_flags &= ~c_flagCached;
 				result = Read(m_buffer, m_bufferCapacity, (LegoS32*) &p_offset);
-				savedResult = result;
 
 				if (result) {
 					break;
 				}
-
-				buf = p_buf;
 			}
 		}
 	}
