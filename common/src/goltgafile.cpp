@@ -104,7 +104,7 @@ void GolTgaFile::ReadHeader()
 		switch (m_colorMapEntrySize) {
 		case 0xf:
 			// xrgb1555
-			for (i = 0, bufPtr = buf; i < m_paletteSize; i++) {
+			for (bufPtr = buf, i = 0; i < m_paletteSize; i++) {
 				LegoU16 col16 = *bufPtr++;
 				col16 |= *bufPtr++ << 8;
 				m_palette[i].m_blu = static_cast<LegoU8>(col16 << 3);
@@ -115,7 +115,7 @@ void GolTgaFile::ReadHeader()
 			break;
 		case 0x10:
 			// argb1555
-			for (i = 0, bufPtr = buf; i < m_paletteSize; i++) {
+			for (bufPtr = buf, i = 0; i < m_paletteSize; i++) {
 				LegoU16 col16 = *bufPtr++;
 				col16 |= *bufPtr++ << 8;
 				m_palette[i].m_blu = static_cast<LegoU8>(col16 << 3);
@@ -126,7 +126,7 @@ void GolTgaFile::ReadHeader()
 			break;
 		case 0x18:
 			// bgr888
-			for (i = 0, bufPtr = buf; i < m_paletteSize; i++) {
+			for (bufPtr = buf, i = 0; i < m_paletteSize; i++) {
 				m_palette[i].m_blu = *bufPtr++;
 				m_palette[i].m_grn = *bufPtr++;
 				m_palette[i].m_red = *bufPtr++;
@@ -135,7 +135,7 @@ void GolTgaFile::ReadHeader()
 			break;
 		case 0x20:
 			// bgr888
-			for (i = 0, bufPtr = buf; i < m_paletteSize; i++) {
+			for (bufPtr = buf, i = 0; i < m_paletteSize; i++) {
 				m_palette[i].m_blu = *bufPtr++;
 				m_palette[i].m_grn = *bufPtr++;
 				m_palette[i].m_red = *bufPtr++;
