@@ -1546,7 +1546,7 @@ void RaceHud::Draw()
 
 		m_stringTable->CopyStringByIndex(&m_labelString, 0x27);
 		m_font->MeasureString(&m_labelString, &textWidth, &textHeight);
-		textWidth = static_cast<LegoS32>(static_cast<LegoFloat>(textWidth) * m_textScale);
+		textWidth = static_cast<LegoS32>(GOL_MUL(static_cast<LegoFloat>(textWidth), m_textScale));
 		paddingScale = m_textScale;
 		paddingScale *= g_unk0x004b02e8;
 		labelPadding = static_cast<LegoS32>(paddingScale);
@@ -1582,7 +1582,7 @@ void RaceHud::Draw()
 		if (m_isTimeRace) {
 			m_stringTable->CopyStringByIndex(&m_labelString, 0x26);
 			m_font->MeasureString(&m_labelString, &textWidth, &textHeight);
-			labelOffset = static_cast<LegoS32>(static_cast<double>(textWidth + 14) * m_textScaleX);
+			labelOffset = static_cast<LegoS32>(GOL_MUL((static_cast<double>(textWidth + 14)), m_textScaleX));
 			m_renderer->DrawString(
 				&m_labelString,
 				m_font,
@@ -1673,7 +1673,7 @@ void RaceHud::Draw()
 				m_renderer->DrawString(
 					&m_labelString,
 					m_font,
-					medalX - static_cast<LegoS32>(GOL_MUL(static_cast<double>(textWidth + 4), m_textScaleX)),
+					medalX - static_cast<LegoS32>(GOL_MUL((static_cast<double>(textWidth + 4)), m_textScaleX)),
 					m_timeBehindY,
 					m_textScaleX,
 					m_scaleY,
@@ -1737,7 +1737,7 @@ void RaceHud::Draw()
 		backgroundWidthPixels *= m_textScaleX;
 		LegoS32 width = static_cast<LegoS32>(backgroundWidthPixels);
 		double backgroundHeightPixels = static_cast<LegoS32>(background->GetHeight());
-		backgroundHeightPixels *= m_imageScale;
+		backgroundHeightPixels = GOL_MUL(backgroundHeightPixels, m_imageScale);
 		backgroundHeightPixels *= m_scaleY;
 		LegoS32 height = static_cast<LegoS32>(backgroundHeightPixels);
 		m_renderer->DrawImage(background, 0, m_powerupX, m_powerupY, width, height);
