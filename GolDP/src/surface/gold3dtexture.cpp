@@ -674,8 +674,9 @@ void GolD3DTexture::CreateMipmapBuffers(GolD3DRenderDevice& p_renderer)
 	minWidth = p_renderer.GetMinimumTextureWidth(m_deviceTextureFormat.m_bitsPerPixel);
 	minHeight = p_renderer.GetMinimumTextureHeight(m_deviceTextureFormat.m_bitsPerPixel);
 
-	m_mipmaps = new MipmapLevel[m_mipmapCount];
-	if (m_mipmaps == NULL) {
+	MipmapLevel*& mipmaps = m_mipmaps;
+	mipmaps = new MipmapLevel[m_mipmapCount];
+	if (mipmaps == NULL) {
 		GOL_FATALERROR(c_golErrorOutOfMemory);
 	}
 
