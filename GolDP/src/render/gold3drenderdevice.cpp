@@ -6603,13 +6603,18 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					fromAlpha = RGBA_GETALPHA(from);
 					to = vertex->color;
 					newVertex->color = RGBA_MAKE(
-						fromRed + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETRED(to)) - fromRed) * t),
-						fromGreen + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETGREEN(to)) - fromGreen) * t),
+						fromRed + static_cast<LegoS32>(
+									  ((static_cast<LegoFloat>(static_cast<LegoS32>(RGBA_GETRED(to)) - fromRed))) * t
+								  ),
+						fromGreen +
+							static_cast<LegoS32>(
+								((static_cast<LegoFloat>(static_cast<LegoS32>(RGBA_GETGREEN(to)) - fromGreen))) * t
+							),
 						fromBlue + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETBLUE(to)) - fromBlue) * t),
 						fromAlpha + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETALPHA(to)) - fromAlpha) * t)
 					);
 
-					newVertex->rhw = 1.0f / ((((((((((newCache->m_w))))))))));
+					newVertex->rhw = 1.0f / ((((((newCache->m_w))))));
 					y = *reinterpret_cast<const LegoU32*>(&newCache->m_y);
 					w = *reinterpret_cast<const LegoU32*>(&newCache->m_w);
 					flagsOut[outputCount] = ((y & 0x80000000) >> 29) | ((((w - y) & ~y) & 0x80000000) >> 28);
@@ -6671,14 +6676,19 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					fromAlpha = RGBA_GETALPHA(from);
 					to = vertex->color;
 					newVertex->color = RGBA_MAKE(
-						fromRed + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETRED(to)) - fromRed) * t),
-						fromGreen + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETGREEN(to)) - fromGreen) * t),
+						fromRed + static_cast<LegoS32>(
+									  ((static_cast<LegoFloat>(static_cast<LegoS32>(RGBA_GETRED(to)) - fromRed))) * t
+								  ),
+						fromGreen +
+							static_cast<LegoS32>(
+								((static_cast<LegoFloat>(static_cast<LegoS32>(RGBA_GETGREEN(to)) - fromGreen))) * t
+							),
 						fromBlue + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETBLUE(to)) - fromBlue) * t),
 						fromAlpha + static_cast<LegoS32>((static_cast<LegoS32>(RGBA_GETALPHA(to)) - fromAlpha) * t)
 					);
 
 					newCache->m_x = newCache->m_w;
-					newVertex->rhw = 1.0f / (((((((((newCache->m_w)))))))));
+					newVertex->rhw = 1.0f / (((((newCache->m_w)))));
 					y = *reinterpret_cast<const LegoU32*>(&newCache->m_y);
 					w = *reinterpret_cast<const LegoU32*>(&newCache->m_w);
 					flagsOut[outputCount] = ((y & 0x80000000) >> 29) | ((((w - y) & ~y) & 0x80000000) >> 28);
