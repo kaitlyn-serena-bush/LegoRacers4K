@@ -199,7 +199,6 @@ void RaceCameraController::UpdateFollow()
 
 extern LegoU16 g_randomTable[1024];
 extern LegoU32 g_randomTableIndex;
-extern const LegoFloat g_halfPi;
 extern const LegoFloat g_unk0x004afde0;
 
 // FUNCTION: LEGORACERS 0x00427e80
@@ -808,9 +807,9 @@ LegoFloat RaceCameraController::VectorToAngle(LegoFloat p_x, LegoFloat p_y)
 		if (p_x > 0.0f) {
 			LegoFloat angle = static_cast<LegoFloat>(acos(p_y));
 			angle = -angle;
-			return angle + g_halfPi;
+			return angle + 1.5707964f;
 		}
-		return static_cast<LegoFloat>(acos(p_y)) + g_halfPi;
+		return static_cast<LegoFloat>(acos(p_y)) + 1.5707964f;
 	}
 
 	if (p_y > 0.0f) {

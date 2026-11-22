@@ -54,9 +54,6 @@ LegoFloat g_viewAngleStep = g_twoPiPlacement * 0.125f;
 // GLOBAL: LEGORACERS 0x004b02f0
 extern const LegoFloat g_selectedPulseAmplitude = -64.0f;
 
-// GLOBAL: LEGORACERS 0x004b0428
-extern const LegoFloat g_halfPi = 1.5707964f;
-
 // GLOBAL: LEGORACERS 0x004bf7ec
 LegoFloat g_cosineTable[1024] = {
 	1.0f,           0.999981165f,   0.999924719f,   0.999830604f,   0.999698818f,   0.999529421f,
@@ -1212,18 +1209,18 @@ void CarModelScreenBase::CarPartPlacement::UpdateViewRotation(LegoU32 p_elapsed)
 	LegoFloat scaledTime = static_cast<LegoFloat>(m_viewAnimMs);
 	LegoFloat totalTime = static_cast<LegoFloat>(m_viewAnimRemainingMs);
 	scaledTime /= totalTime;
-	scaledTime *= g_halfPi;
+	scaledTime *= 1.5707964f;
 	scaledTime *= -162.97466f;
 	LegoS32 index = (0xffffff00 - static_cast<LegoS32>(scaledTime)) & 0x3ff;
 	LegoFloat interpolation = g_cosineTable[index];
 	LegoFloat targetAngle = m_viewAngles[m_viewSlot];
 
 	LegoFloat upperLimit = m_viewAngle;
-	upperLimit += g_halfPi;
+	upperLimit += 1.5707964f;
 	if (targetAngle > upperLimit) {
 		targetAngle -= 6.2831855f;
 	}
-	else if (targetAngle < m_viewAngle - g_halfPi) {
+	else if (targetAngle < m_viewAngle - 1.5707964f) {
 		targetAngle += 6.2831855f;
 	}
 
@@ -1247,7 +1244,7 @@ void CarModelScreenBase::CarPartPlacement::UpdateViewPitch(LegoU32 p_elapsed)
 
 	LegoFloat scaledTime = static_cast<LegoFloat>(m_viewResetDelayMs);
 	scaledTime *= 0.0033333334f;
-	scaledTime *= g_halfPi;
+	scaledTime *= 1.5707964f;
 	scaledTime *= -162.97466f;
 	LegoS32 index = (0xffffff00 - static_cast<LegoS32>(scaledTime)) & 0x3ff;
 	LegoFloat interpolation = g_cosineTable[index];
