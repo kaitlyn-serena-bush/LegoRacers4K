@@ -694,9 +694,8 @@ void GolD3DTexture::CreateMipmapBuffers(GolD3DRenderDevice& p_renderer)
 		mipmap->m_height = height;
 		mipmap->m_pitch = (m_deviceTextureFormat.m_bitsPerPixel * width + 7) >> 3;
 		mipmap->m_bitsPerPixel = static_cast<LegoU8>(m_deviceTextureFormat.m_bitsPerPixel);
-		LegoU8 bytesPerPixel = (static_cast<LegoU32>(m_deviceTextureFormat.m_bitsPerPixel) + 7) >> 3;
+		mipmap->m_bytesPerPixel = (static_cast<LegoU32>(m_deviceTextureFormat.m_bitsPerPixel) + 7) >> 3;
 		mipmap->m_unk0x11 = 0xff;
-		mipmap->m_bytesPerPixel = bytesPerPixel;
 		mipmap->m_sizeLog2 = 0xff;
 		mipmap->m_pixels = NULL;
 
