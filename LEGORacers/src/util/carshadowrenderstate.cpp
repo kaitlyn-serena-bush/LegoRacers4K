@@ -484,10 +484,10 @@ void CarShadowRenderState::DrawTriangles8Bpp(TransformedVertex** p_triangle)
 			advancedEdge = TRUE;
 		}
 
-		LegoS32 endX = (x1 + 0xffff) >> 16;
-		LegoS32 startX = (x0 + 0xffff) >> 16;
-		if (startX < endX) {
-			::memset(row + startX, color, endX - startX);
+		LegoU8* dst = row + ((x0 + 0xffff) >> 16);
+		LegoU8* end = row + ((x1 + 0xffff) >> 16);
+		while (dst < end) {
+			*dst++ = color;
 		}
 
 		y += 0x10000;
