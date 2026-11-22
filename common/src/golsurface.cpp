@@ -173,6 +173,12 @@ void GolSurface::Fill(LegoU32 p_color)
 	}
 }
 
+inline static void PutNibble(LegoU8* p_dest, LegoU32 p_mask, LegoU8 p_color)
+{
+	p_color |= p_mask & *p_dest;
+	*p_dest = p_color;
+}
+
 // FUNCTION: GOLDP 0x1001d240
 // FUNCTION: LEGORACERS 0x004087d0
 void GolSurface::Blit(LegoU32 p_x, LegoU32 p_y, GolSurface* p_source, Rect* p_sourceRect)
@@ -277,12 +283,13 @@ void GolSurface::Blit(LegoU32 p_x, LegoU32 p_y, GolSurface* p_source, Rect* p_so
 			LegoU32 rowSourceMask = sourceMask;
 			LegoU32 rowSourceShift = sourceShift;
 			for (LegoU32 x = 0; x < copyWidth; x++) {
-				LegoU8 color = (sourcePixels[(p_sourceRect->m_left + x) >> 1] & rowSourceMask) >> rowSourceShift;
-				LegoU32 shift = rowDestShift;
+				PutNibble(
+					&destPixels[(x + p_x) >> 1],
+					rowDestMask,
+					((sourcePixels[(p_sourceRect->m_left + x) >> 1] & rowSourceMask) >> rowSourceShift) << rowDestShift
+				);
 				rowDestShift ^= 4;
-				color <<= shift;
 				rowSourceMask = ~rowSourceMask;
-				destPixels[(x + p_x) >> 1] = (rowDestMask & destPixels[(x + p_x) >> 1]) | color;
 				rowDestMask = ~rowDestMask;
 				rowSourceShift ^= 4;
 			}
