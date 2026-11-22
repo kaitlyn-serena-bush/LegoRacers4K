@@ -433,8 +433,8 @@ void GolTgaFile::LoadTiledTexture(GolTiledTexture* p_image, LegoU32 p_flags, Col
 		tileHeight = 0;
 		LegoU32 sourceOffset = 0;
 		for (LegoU32 i = 0; i < p_image->GetTileColumnCount(); i++) {
-			tileHeight = p_image->GetTileHeight(tileRow);
 			LegoS32 tileWidth = p_image->GetTileWidth(i);
+			tileHeight = p_image->GetTileHeight(tileRow);
 			if (rowInTile == 0x7fffffff) {
 				rowInTile = tileHeight - 1;
 			}
