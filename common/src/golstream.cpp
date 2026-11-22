@@ -664,16 +664,16 @@ void GolStream::BuildPathname(const LegoChar* p_prefix, const LegoChar* p_path)
 			g_pathBuffer[directoryEnd] = '\\';
 		}
 
-		return;
 	}
+	else {
+		if (currentEntryPath && currentEntryPath[0]) {
+			strcat(g_pathBuffer, currentEntryPath);
+			strcat(g_pathBuffer, "\\");
+		}
 
-	if (currentEntryPath && currentEntryPath[0]) {
-		strcat(g_pathBuffer, currentEntryPath);
-		strcat(g_pathBuffer, "\\");
+		strcat(g_pathBuffer, p_path);
+		TransformToUpper(g_pathBuffer);
 	}
-
-	strcat(g_pathBuffer, p_path);
-	TransformToUpper(g_pathBuffer);
 }
 
 // FUNCTION: LEGORACERS 0x0044d4f0
