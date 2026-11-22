@@ -386,12 +386,12 @@ BOOL GolDeviceList::EnumerateDirectDrawDriversCallback(
 
 	if (p_guid == NULL) {
 		driver->m_unk0x00 = TRUE;
-		driver->m_unk0x08 = FALSE;
+		driver->m_hasGuid = FALSE;
 		::memset(&driver->m_guid, 0, sizeof(driver->m_guid));
 	}
 	else {
 		driver->m_unk0x00 = FALSE;
-		driver->m_unk0x08 = TRUE;
+		driver->m_hasGuid = TRUE;
 		::memcpy(&driver->m_guid, p_guid, sizeof(*p_guid));
 	}
 
