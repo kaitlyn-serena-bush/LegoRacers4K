@@ -1872,15 +1872,15 @@ PowerupAction* RacePowerupManager::ReclaimAction(
 // FUNCTION: LEGORACERS 0x0045b3a0
 PowerupExplosion* __stdcall RacePowerupManager::ReclaimExplosion(PowerupExplosion** p_head)
 {
+	PowerupExplosion* selectedPrevious = NULL;
 	PowerupExplosion* selected = NULL;
 	PowerupExplosion* current = *p_head;
 	LegoU32 selectedRemaining = 0xffffffff;
-	PowerupExplosion* selectedPrevious = NULL;
 	LegoS32 targetState = PowerupExplosion::c_stateScarFading;
-	LegoU32 pass;
+	LegoU32 pass = 0;
 	PowerupExplosion* head = current;
 
-	for (pass = 0; pass < 3; pass++) {
+	for (; pass < 3; pass++) {
 		PowerupExplosion* previous = NULL;
 		if (current != NULL) {
 			do {
