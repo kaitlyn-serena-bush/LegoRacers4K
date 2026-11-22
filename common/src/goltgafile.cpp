@@ -446,9 +446,10 @@ void GolTgaFile::LoadTiledTexture(GolTiledTexture* p_image, LegoU32 p_flags, Col
 				rowBytes = totalRowBytes - sourceOffset;
 			}
 
+			const LegoU32& tileRowCount = p_image->m_tileRowCount;
 			::memcpy(
-				tilePixels[tileRow + i * p_image->GetTileRowCount()] +
-					rowInTile * tilePitches[tileRow + i * p_image->GetTileRowCount()],
+				tilePixels[tileRow + i * tileRowCount] +
+					rowInTile * tilePitches[tileRow + i * tileRowCount],
 				convertedRow + sourceOffset,
 				rowBytes
 			);
