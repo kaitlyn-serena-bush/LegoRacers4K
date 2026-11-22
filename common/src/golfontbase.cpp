@@ -1039,6 +1039,7 @@ LegoS32 GolFontBase::DrawGlyphRun(
 		for (LegoU32 i = 0; i < p_count; i++) {
 			LegoU32 glyphIndex = g_glyphIndexBuffer[i];
 			Rect destRect;
+			Rect sourceRect;
 			destRect.m_left = result;
 
 			if (result >= clipRect.m_right) {
@@ -1059,11 +1060,10 @@ LegoS32 GolFontBase::DrawGlyphRun(
 				destRect.m_top = p_y;
 				destRect.m_bottom = bottom;
 
-				Rect sourceRect;
 				sourceRect.m_left = glyph->m_textureX;
 				sourceRect.m_top = glyph->m_textureY;
-				sourceRect.m_right = glyph->m_textureX + glyph->m_width;
-				sourceRect.m_bottom = glyph->m_textureY + font->m_fontHeight;
+				sourceRect.m_right = sourceRect.m_left + glyph->m_width;
+				sourceRect.m_bottom = sourceRect.m_top + font->m_fontHeight;
 
 				font->ClipRects(&clipRect, &sourceRect, &destRect, inverseScaleX, inverseScaleY);
 
