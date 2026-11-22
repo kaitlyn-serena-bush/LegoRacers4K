@@ -296,8 +296,7 @@ LegoS32 GolStream::Dispose()
 // FUNCTION: LEGORACERS 0x0044cd00
 LegoS32 GolStream::BufferedRead(LegoU32 p_offset, void* p_buf, LegoU32 p_size, LegoS32* p_lenRead)
 {
-	LegoS32* lenRead = p_lenRead;
-	*lenRead = 0;
+	*p_lenRead = 0;
 
 	if (!(m_flags & c_flagOpen)) {
 		return e_ioNotOpen;
@@ -307,72 +306,60 @@ LegoS32 GolStream::BufferedRead(LegoU32 p_offset, void* p_buf, LegoU32 p_size, L
 		return e_ioBadParameter;
 	}
 
-	LegoU32 offset = p_offset;
+	LegoS32 bytesRead;
 	LegoS32 chunkLen;
 	LegoS32 result;
-	void* buf;
 
-	if (p_size > c_maxReadChunkSize) {
-		do {
-			buf = p_buf;
-			result = BufferedRead(offset, buf, c_maxReadChunkSize, &chunkLen);
-			if (!result) {
-				*lenRead += chunkLen;
-				buf = (LegoU8*) buf + chunkLen;
-				p_buf = buf;
-				offset += chunkLen;
-				p_size -= chunkLen;
-			}
-			else {
-				return result;
-			}
-		} while (p_size > c_maxReadChunkSize);
-	}
-	else {
-		buf = p_buf;
+	while (p_size > c_maxReadChunkSize) {
+		result = BufferedRead(p_offset, p_buf, c_maxReadChunkSize, &chunkLen);
+		if (result) {
+			return result;
+		}
+
+		*p_lenRead += chunkLen;
+		p_buf = (LegoU8*) p_buf + chunkLen;
+		p_size -= chunkLen;
+		p_offset += chunkLen;
 	}
 
 	LegoS32 flags = m_flags;
 
 	if (flags & c_flagMapped) {
-		if (offset >= (LegoU32) m_size) {
+		if (p_offset >= (LegoU32) m_size) {
 			return e_ioEndOfFile;
 		}
 
-		if (offset + p_size > (LegoU32) m_size) {
-			p_size = m_size - offset;
+		if (p_offset + p_size > (LegoU32) m_size) {
+			p_size = m_size - p_offset;
 		}
 
-		chunkLen = *lenRead;
+		chunkLen = *p_lenRead;
 		GolFsLock();
-		result = g_fileSources[m_handle].ForwardRead(offset + m_position, buf, p_size, lenRead);
+		result = g_fileSources[m_handle].ForwardRead(p_offset + m_position, p_buf, p_size, p_lenRead);
 		GolFsUnlock();
-		*lenRead += chunkLen;
+		*p_lenRead += chunkLen;
 		return result;
 	}
 
-	if (flags & c_flagCached) {
-		if (offset >= m_bufferStart && offset < m_bufferEnd) {
-			LegoU8* src = m_buffer + offset - m_bufferStart;
+	if ((flags & c_flagCached) && p_offset >= m_bufferStart && p_offset < m_bufferEnd) {
+		LegoU8* src = m_buffer + p_offset - m_bufferStart;
 
-			if (offset + p_size <= m_bufferEnd) {
-				memcpy(buf, src, p_size);
-				*lenRead += p_size;
-				return e_ioSuccess;
-			}
-
-			LegoU32 available = m_bufferEnd - offset;
-			memcpy(buf, src, available);
-			*lenRead += available;
-			p_buf = (LegoU8*) p_buf + available;
-			offset += available;
-			p_size -= available;
-			buf = p_buf;
+		if (p_offset + p_size <= m_bufferEnd) {
+			memcpy(p_buf, src, p_size);
+			*p_lenRead += p_size;
+			return e_ioSuccess;
 		}
+
+		LegoU32 available = m_bufferEnd - p_offset;
+		memcpy(p_buf, src, available);
+		*p_lenRead += available;
+		p_buf = (LegoU8*) p_buf + available;
+		p_offset += available;
+		p_size -= available;
 	}
 
-	if ((LegoU32) m_position != offset) {
-		result = Seek(offset);
+	if ((LegoU32) m_position != p_offset) {
+		result = Seek(p_offset);
 		if (result) {
 			return result;
 		}
@@ -380,39 +367,38 @@ LegoS32 GolStream::BufferedRead(LegoU32 p_offset, void* p_buf, LegoU32 p_size, L
 
 	if (m_buffer) {
 		m_flags &= ~c_flagCached;
-		result = Read(m_buffer, m_bufferCapacity, (LegoS32*) &p_offset);
+		result = Read(m_buffer, m_bufferCapacity, &bytesRead);
 		if (!result) {
-			for (;; buf = p_buf) {
-				LegoU32 bytesRead = p_offset;
+			for (;;) {
 				m_flags |= c_flagCached;
 				LegoS32 pos = m_position;
 				m_bufferStart = pos;
 				LegoU32 bufEnd = pos + bytesRead;
-				LegoU8* src = m_buffer + (offset - pos);
+				LegoU8* src = m_buffer + (p_offset - pos);
 				m_bufferEnd = bufEnd;
 
-				if (offset + p_size <= bufEnd) {
-					memcpy(buf, src, p_size);
-					*lenRead += p_size;
+				if (p_offset + p_size <= bufEnd) {
+					memcpy(p_buf, src, p_size);
+					*p_lenRead += p_size;
 					p_size = 0;
 				}
 				else {
-					LegoU32 available = bufEnd - offset;
-					memcpy(buf, src, available);
-					*lenRead += available;
+					LegoU32 available = bufEnd - p_offset;
+					memcpy(p_buf, src, available);
+					*p_lenRead += available;
 					p_buf = (LegoU8*) p_buf + available;
-					offset += available;
+					p_offset += available;
 					p_size -= available;
 				}
 
-				m_position += p_offset;
+				m_position += bytesRead;
 
 				if (p_size <= 0) {
 					break;
 				}
 
 				m_flags &= ~c_flagCached;
-				result = Read(m_buffer, m_bufferCapacity, (LegoS32*) &p_offset);
+				result = Read(m_buffer, m_bufferCapacity, &bytesRead);
 
 				if (result) {
 					break;
@@ -420,20 +406,20 @@ LegoS32 GolStream::BufferedRead(LegoU32 p_offset, void* p_buf, LegoU32 p_size, L
 			}
 		}
 
-		if (result == e_ioEndOfFile && *lenRead) {
+		if (result == e_ioEndOfFile && *p_lenRead) {
 			return e_ioSuccess;
 		}
 	}
 	else {
-		result = Read(buf, p_size, (LegoS32*) &p_offset);
+		result = Read(p_buf, p_size, &bytesRead);
 		if (result) {
-			if (result == e_ioEndOfFile && *lenRead) {
+			if (result == e_ioEndOfFile && *p_lenRead) {
 				return e_ioSuccess;
 			}
 		}
 		else {
-			*lenRead += p_offset;
-			m_position += p_offset;
+			*p_lenRead += bytesRead;
+			m_position += bytesRead;
 		}
 	}
 
