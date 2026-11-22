@@ -391,13 +391,13 @@ void CarShadowRenderState::DrawTriangles8Bpp(TransformedVertex** p_triangle)
 		topIndex = 1;
 	}
 
-	TransformedVertex* base0 = vertices[topIndex];
-	TransformedVertex* base1 = base0;
+	TransformedVertex* base1 = vertices[topIndex];
+	TransformedVertex* base0 = base1;
 	LegoU32 edge0Index = g_previousVertexIndex[topIndex];
 	LegoU32 edge1Index = g_nextVertexIndex[topIndex];
 	TransformedVertex* edge0 = vertices[edge0Index];
-	LegoS32 x0 = static_cast<LegoS32>(65536.0f * base0->m_x);
 	TransformedVertex* edge1 = vertices[edge1Index];
+	LegoS32 x0 = static_cast<LegoS32>(65536.0f * base0->m_x);
 	LegoS32 x1 = x0;
 	LegoBool32 advancedEdge = FALSE;
 
@@ -490,10 +490,10 @@ void CarShadowRenderState::DrawTriangles8Bpp(TransformedVertex** p_triangle)
 			::memset(row + startX, color, endX - startX);
 		}
 
-		x1 += xStep1;
 		y += 0x10000;
 		row += m_pitch;
 		x0 += xStep0;
+		x1 += xStep1;
 	}
 }
 
