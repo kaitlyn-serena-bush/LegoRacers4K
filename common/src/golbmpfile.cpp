@@ -86,7 +86,12 @@ void GolBmpFile::ReadHeader()
 		GOL_FATALERROR_MESSAGE(GolStream::ErrorCodeToString(result));
 	}
 
-	if (static_cast<LegoU16>(BUF_U16LE(header, 0)) != TWOCC('B', 'M')) {
+	LegoU16 magic = BUF_U16LE(header, 0);
+	if (magic == 0) {
+		// Empty in the original: a second test of the magic that left no code (its condition is unknown).
+	}
+
+	if (magic != TWOCC('B', 'M')) {
 		bpp = header[0] & 0x3c;
 		if (bpp != 4 && bpp != 8 && bpp != 24 && bpp != 32) {
 			GOL_FATALERROR_MESSAGE("Invalid BMP file");
