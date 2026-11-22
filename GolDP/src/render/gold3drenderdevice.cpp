@@ -5652,7 +5652,7 @@ void GolD3DRenderDevice::FUN_1000edf0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 		D3DTLVERTEX* vertex;
 		LegoU32 outside;
 		LegoFloat t;
-		D3DTLVERTEX* newVertex;
+		D3DTLVERTEX* newVertex = NULL;
 		VertexCacheEntry* newCache;
 		D3DTLVERTEX** swapVertex;
 		VertexCacheEntry** swapCache;
