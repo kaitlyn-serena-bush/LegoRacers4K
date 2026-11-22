@@ -35,7 +35,6 @@ extern const LegoFloat g_curseHoverHeight;
 extern const LegoFloat g_unk0x004b0b18;
 extern const LegoFloat g_curseShrinkRate;
 extern const LegoFloat g_curseMinScale;
-extern const LegoFloat g_unk0x004b0544;
 extern const LegoFloat g_hiddenModelDistance;
 extern const LegoFloat g_unk0x004b0af0;
 extern const LegoFloat g_shadowProbeHeight;
@@ -921,7 +920,7 @@ void CarVisuals::UpdateDriver(LegoU32 p_elapsedMs)
 		return;
 	}
 
-	if (m_lastSpeed > g_unk0x004b0544 && speed < 0.01f && activePart != c_animationPart0) {
+	if (m_lastSpeed > 0.05f && speed < 0.01f && activePart != c_animationPart0) {
 		m_racer->PlayReaction(FALSE);
 		m_driverEntity->PlayPart(c_animationPart0);
 		m_driverEntity->QueuePartTransition(c_animationPart9);

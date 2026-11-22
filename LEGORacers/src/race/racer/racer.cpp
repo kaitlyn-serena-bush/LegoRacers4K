@@ -81,9 +81,6 @@ extern const LegoFloat g_unk0x004b02e8 = -6.0f;
 // GLOBAL: LEGORACERS 0x004b02ec
 extern const LegoFloat g_unk0x004b02ec = -14.0f;
 
-// GLOBAL: LEGORACERS 0x004b0544
-extern const LegoFloat g_unk0x004b0544 = 0.050000001f;
-
 // GLOBAL: LEGORACERS 0x004b094c
 extern const LegoFloat g_enginePitchFloor = 0.40000001f;
 
@@ -642,7 +639,7 @@ void Racer::InitializePhysics(RacerContext* p_context, SetupParams* p_params)
 		LegoFloat valueFloat = p_params->m_weight;
 		accelerationStat = p_params->m_accelerationStat;
 		memcpy(&vector, &p_params->m_anchorWheelPosition, sizeof(vector));
-		valueFloat *= g_unk0x004b0544;
+		valueFloat *= 0.05f;
 
 		LegoU32 value = static_cast<LegoU32>(valueFloat);
 		handlingStat = p_params->m_handlingStat + value;

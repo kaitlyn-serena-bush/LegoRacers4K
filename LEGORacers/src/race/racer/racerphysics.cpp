@@ -17,7 +17,6 @@
 extern const LegoFloat g_carBuildModelHeightScale;
 extern const LegoFloat g_surfaceSoundMaxDistance;
 extern const LegoFloat g_surfaceSoundMinDistance;
-extern const LegoFloat g_unk0x004b0544;
 
 // GLOBAL: LEGORACERS 0x004c4868
 RacerPhysics::RouteCursorInstance g_routeProbeCursor;
@@ -472,7 +471,7 @@ void RacerPhysics::ApplyDirectionalImpulse(GolVec3* p_direction, LegoFloat p_mag
 			value = m_routeCursor.m_playbackSpeed;
 			value += scaled;
 		}
-		value += (1.0f - dot) * g_unk0x004b0544;
+		value += (1.0f - dot) * 0.05f;
 
 		if (value > g_routeMaxPlaybackSpeed) {
 			value = g_routeMaxPlaybackSpeed;
