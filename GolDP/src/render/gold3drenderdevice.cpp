@@ -6316,7 +6316,7 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					m_unk0xc3848++;
 					newCache.m_z = 0.0f;
 					newCache.m_w = nearClip;
-					newCache.m_x = (cache.m_x - previousCache.m_x) * t + previousCache.m_x;
+					newCache.m_x = (((((((((((((((cache.m_x - previousCache.m_x) * t)))))))))))))) + previousCache.m_x;
 					newCache.m_y = (cache.m_y - previousCache.m_y) * t + previousCache.m_y;
 					newVertex.tu = (vertex.tu - previousVertex.tu) * t + previousVertex.tu;
 					newVertex.tv = (vertex.tv - previousVertex.tv) * t + previousVertex.tv;
@@ -6427,7 +6427,7 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					D3DTLVERTEX& newVertex = m_unk0x348[m_unk0xc3848];
 					m_unk0xc3848++;
 					newCache.m_x = 0.0f;
-					newCache.m_y = (cache.m_y - previousCache.m_y) * t + previousCache.m_y;
+					newCache.m_y = (((((((cache.m_y - previousCache.m_y) * t)))))) + previousCache.m_y;
 					newCache.m_z = (cache.m_z - previousCache.m_z) * t + previousCache.m_z;
 					newCache.m_w = (cache.m_w - previousCache.m_w) * t + previousCache.m_w;
 					newVertex.tu = (vertex.tu - previousVertex.tu) * t + previousVertex.tu;
@@ -6482,7 +6482,7 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					D3DTLVERTEX& newVertex = m_unk0x348[m_unk0xc3848];
 					m_unk0xc3848++;
 
-					newCache.m_y = (cache.m_y - previousCache.m_y) * t + previousCache.m_y;
+					newCache.m_y = (((((cache.m_y - previousCache.m_y) * t)))) + previousCache.m_y;
 					newCache.m_z = (cache.m_z - previousCache.m_z) * t + previousCache.m_z;
 					newCache.m_w = (cache.m_w - previousCache.m_w) * t + previousCache.m_w;
 					newVertex.tu = (vertex.tu - previousVertex.tu) * t + previousVertex.tu;
@@ -6537,7 +6537,7 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					D3DTLVERTEX& newVertex = m_unk0x348[m_unk0xc3848];
 					m_unk0xc3848++;
 					newCache.m_y = 0.0f;
-					newCache.m_x = (cache.m_x - previousCache.m_x) * t + previousCache.m_x;
+					newCache.m_x = (((((((cache.m_x - previousCache.m_x) * t)))))) + previousCache.m_x;
 					newCache.m_z = (cache.m_z - previousCache.m_z) * t + previousCache.m_z;
 					newCache.m_w = (cache.m_w - previousCache.m_w) * t + previousCache.m_w;
 					newVertex.tu = (vertex.tu - previousVertex.tu) * t + previousVertex.tu;
@@ -6592,7 +6592,7 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					D3DTLVERTEX& newVertex = m_unk0x348[m_unk0xc3848];
 					m_unk0xc3848++;
 
-					newCache.m_x = (cache.m_x - previousCache.m_x) * t + previousCache.m_x;
+					newCache.m_x = ((((((((((((cache.m_x - previousCache.m_x) * t))))))))))) + previousCache.m_x;
 					newCache.m_z = (cache.m_z - previousCache.m_z) * t + previousCache.m_z;
 					newCache.m_w = (cache.m_w - previousCache.m_w) * t + previousCache.m_w;
 					newVertex.tu = (vertex.tu - previousVertex.tu) * t + previousVertex.tu;
