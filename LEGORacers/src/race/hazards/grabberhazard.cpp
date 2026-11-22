@@ -171,6 +171,7 @@ void GrabberHazard::Update(undefined4 p_elapsedMs)
 // FUNCTION: LEGORACERS 0x0048e050
 void GrabberHazard::OnEvent(LegoEventQueue::CallbackData* p_data)
 {
+	GolVec3 force;
 	LegoFloat frame = m_entity->GetActiveValue();
 	if (m_grabState == c_stateTwo) {
 		return;
@@ -209,7 +210,7 @@ void GrabberHazard::OnEvent(LegoEventQueue::CallbackData* p_data)
 			GolVec3 racerPosition;
 			m_racer->m_visuals.GetPosition(&racerPosition);
 
-			GolVec3 force;
+			
 			force.m_x = position.m_x - racerPosition.m_x;
 			force.m_y = position.m_y - racerPosition.m_y;
 			force.m_z = 0.0f;
