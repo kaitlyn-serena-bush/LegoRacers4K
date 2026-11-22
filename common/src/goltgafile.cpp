@@ -65,20 +65,23 @@ void GolTgaFile::ReadHeader()
 		GOL_FATALERROR_MESSAGE(GolStream::ErrorCodeToString(result));
 	}
 
+	LegoU32 idSize = header[0];
+	LegoU32 colorMapType = header[1]; // 0: no color map, 1: color map present
 	m_imageType = header[0x2]; // 1: type1 color-mapped image, 2: unmapped rgb, 9: RLE color-mapped, 10: RLE rgb
-	m_colorMapFirstEntry = BUF_U16LE(header, 0x3);
-	LegoU32 colorMapLength = BUF_U16LE(header, 0x5);
-	m_colorMapLength = colorMapLength;
+	LegoU32 firstEntry = BUF_U16LE(header, 0x3);
+	if (firstEntry == 0) {
+	}
+	m_colorMapFirstEntry = firstEntry;
+	m_colorMapLength = BUF_U16LE(header, 0x5);
 	m_xOrigin = BUF_U16LE(header, 0x8);
 	m_yOrigin = BUF_U16LE(header, 0xa);
-	m_identificationFieldSize = header[0];
-	m_posImageData = m_identificationFieldSize + 0x12;
-	m_width = BUF_U16LE(header, 0xc);
-	LegoU32 height = BUF_U16LE(header, 0xe);
-
 	LegoU32 bpp = header[0x10];
+	LegoU32 height = BUF_U16LE(header, 0xe);
+	m_identificationFieldSize = idSize;
+	m_posImageData = idSize + 0x12;
+	m_width = BUF_U16LE(header, 0xc);
 	m_rowByteStride = ((m_width * bpp + 31) >> 3) & 0x1ffffffc;
-	m_colorMapType = header[1]; // 1: data type 1, 2: data type 2, 9: date type 9, 10: data type 10
+	m_colorMapType = colorMapType;
 	LegoS32 colorMapEntrySize = header[7];
 	m_colorMapEntrySize = colorMapEntrySize;
 	m_height = height;
@@ -86,8 +89,8 @@ void GolTgaFile::ReadHeader()
 	m_paletteSize = 0;
 	m_imageByteSize = m_rowByteStride * height;
 
-	if (m_colorMapType != 0 && bpp <= 8) {
-		LegoU32 rawPaletteByteSize = ((colorMapEntrySize + 7) >> 3) * colorMapLength;
+	if (colorMapType != 0 && bpp <= 8) {
+		LegoU32 rawPaletteByteSize = ((colorMapEntrySize + 7) >> 3) * m_colorMapLength;
 		LegoU8* buf = new LegoU8[rawPaletteByteSize];
 		if (buf == NULL) {
 			GOL_FATALERROR(c_golErrorOutOfMemory);
