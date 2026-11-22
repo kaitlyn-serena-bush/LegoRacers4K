@@ -872,8 +872,8 @@ void GolBmpFile::LoadTiledTexture(GolTiledTexture* p_image, LegoU32 p_flags, Col
 			tileHeight = 0;
 			LegoU32 sourceOffset = 0;
 			for (column = 0; column < p_image->GetTileColumnCount(); column++) {
-				tileHeight = p_image->GetTileHeight(tileRow);
 				LegoS32 tileWidth = p_image->GetTileWidth(column);
+				tileHeight = p_image->GetTileHeight(tileRow);
 				if (rowInTile == 0x7fffffff) {
 					rowInTile = tileHeight - 1;
 				}
@@ -930,8 +930,8 @@ void GolBmpFile::LoadTiledTexture(GolTiledTexture* p_image, LegoU32 p_flags, Col
 			tileHeight = 0;
 			LegoU32 sourceOffset = 0;
 			for (column = 0; column < p_image->GetTileColumnCount(); column++) {
-				tileHeight = p_image->GetTileHeight(tileRow);
 				LegoS32 tileWidth = p_image->GetTileWidth(column);
+				tileHeight = p_image->GetTileHeight(tileRow);
 				if (rowInTile == 0x7fffffff) {
 					rowInTile = tileHeight - 1;
 				}
