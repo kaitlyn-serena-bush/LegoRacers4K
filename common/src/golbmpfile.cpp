@@ -79,13 +79,14 @@ void GolBmpFile::ReadHeader()
 	LegoU32 bpp = 0;
 	LegoU32 imageOffset;
 	LegoU8* paletteBuffer;
+	LegoU32 planes;
 
 	LegoS32 result = m_file.BufferedRead(0, header, sizeof(header), &amountRead);
 	if (result != GolStream::e_ioSuccess) {
 		GOL_FATALERROR_MESSAGE(GolStream::ErrorCodeToString(result));
 	}
 
-	if (BUF_U16LE(header, 0) != TWOCC('B', 'M')) {
+	if (static_cast<LegoU16>(BUF_U16LE(header, 0)) != TWOCC('B', 'M')) {
 		bpp = header[0] & 0x3c;
 		if (bpp != 4 && bpp != 8 && bpp != 24 && bpp != 32) {
 			GOL_FATALERROR_MESSAGE("Invalid BMP file");
@@ -152,12 +153,17 @@ void GolBmpFile::ReadHeader()
 		if (result == 0xc) {
 			m_width = BUF_U16LE(header2, 0x4);  // bcWidth
 			m_height = BUF_U16LE(header2, 0x6); // bcHeight
+			planes = BUF_U16LE(header2, 0x8); // bcPlanes
 			bpp = BUF_U16LE(header2, 0xa);
+			if (planes != 1) {
+				// Empty in the original: the check left no code, but it keeps the full 16-bit read
+				// of planes in front of the palette test.
+			}
 			compression = 0;
 			m_paletteSize = 0;
 
 			if (bpp <= 8) {
-				m_paletteSize = 1 << (header2[0x8] * bpp); // bcPlanes
+				m_paletteSize = 1 << (planes * bpp);
 				if (m_paletteSize > 256) {
 					GOL_FATALERROR_MESSAGE("Palettes larger than 256 colors not supported");
 				}
@@ -198,14 +204,18 @@ void GolBmpFile::ReadHeader()
 		else if (result == 0x28) {
 			m_width = BUF_U32LE(header2, 0x4);          // biWidth
 			m_height = BUF_U32LE(header2, 0x8);         // biHeight
+			planes = BUF_U16LE(header2, 0xc);           // biPlanes
 			bpp = BUF_U16LE(header2, 0xe);              // biBitCount
+			if (planes != 1) {
+				// Empty in the original (see the bcPlanes check above).
+			}
 			compression = BUF_U32LE(header2, 0x10);     // biCompression
 			m_imageByteSize = BUF_U32LE(header2, 0x14); // biSizeImage
 			m_paletteSize = BUF_U32LE(header2, 0x20);   // biClrUsed
 
 			if (bpp <= 8) {
 				if (m_paletteSize == 0) {
-					m_paletteSize = 1 << (header2[0xc] * bpp); // biPlanes
+					m_paletteSize = 1 << (planes * bpp);
 				}
 				if (m_paletteSize * 4 > sizeof(m_paletteBuffer)) {
 					paletteBuffer = new LegoU8[m_paletteSize * 4];
@@ -244,14 +254,18 @@ void GolBmpFile::ReadHeader()
 		else if (result == 0x40) {
 			m_width = BUF_U32LE(header2, 0x4);
 			m_height = BUF_U32LE(header2, 0x8);
+			planes = BUF_U16LE(header2, 0xc);
 			bpp = BUF_U16LE(header2, 0xe);
+			if (planes != 1) {
+				// Empty in the original (see the bcPlanes check above).
+			}
 			compression = BUF_U32LE(header2, 0x10);
 			m_imageByteSize = BUF_U32LE(header2, 0x14);
 			m_paletteSize = BUF_U32LE(header2, 0x20);
 
 			if (bpp <= 8) {
 				if (m_paletteSize == 0) {
-					m_paletteSize = 1 << (header2[0xc] * bpp);
+					m_paletteSize = 1 << (planes * bpp);
 				}
 				if (3 * m_paletteSize > sizeof(m_paletteBuffer)) {
 					paletteBuffer = new LegoU8[3 * m_paletteSize];
