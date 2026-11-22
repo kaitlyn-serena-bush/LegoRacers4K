@@ -6462,8 +6462,8 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					);
 
 					newVertex->rhw = (((((((((1.0f / nearClip)))))))));
-					y = *reinterpret_cast<const LegoU32*>(&newCache->m_y);
 					x = *reinterpret_cast<const LegoU32*>(&newCache->m_x);
+					y = *reinterpret_cast<const LegoU32*>(&newCache->m_y);
 					w = *reinterpret_cast<const LegoU32*>(&nearClip);
 					lowFlags = (x >> 31) | ((y & 0x80000000) >> 29);
 					highFlags = (((w - x) & 0x80000000) >> 30) | (((w - y) & 0x80000000) >> 28);
@@ -6534,8 +6534,8 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					);
 
 					newVertex->rhw = (((((((((1.0f / farClip)))))))));
-					y = *reinterpret_cast<const LegoU32*>(&newCache->m_y);
 					x = *reinterpret_cast<const LegoU32*>(&newCache->m_x);
+					y = *reinterpret_cast<const LegoU32*>(&newCache->m_y);
 					w = *reinterpret_cast<const LegoU32*>(&farClip);
 					lowFlags = (x >> 31) | ((y & 0x80000000) >> 29);
 					highFlags = (((w - x) & 0x80000000) >> 30) | (((w - y) & 0x80000000) >> 28);
@@ -6655,7 +6655,7 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					newVertex = &m_unk0x348[m_unk0xc3848];
 					m_unk0xc3848++;
 
-					newCache->m_y = (((cache->m_y - previousCache->m_y) * t)) + previousCache->m_y;
+					newCache->m_y = (((((cache->m_y - previousCache->m_y) * t)))) + previousCache->m_y;
 					newCache->m_z = (cache->m_z - previousCache->m_z) * t + previousCache->m_z;
 					newCache->m_w = (cache->m_w - previousCache->m_w) * t + previousCache->m_w;
 					newVertex->tu = (vertex->tu - previousVertex->tu) * t + previousVertex->tu;
@@ -6674,7 +6674,7 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 					);
 
 					newCache->m_x = newCache->m_w;
-					newVertex->rhw = 1.0f / ((((((newCache->m_w))))));
+					newVertex->rhw = 1.0f / ((((newCache->m_w))));
 					newVertex->sx = m_viewportMetrics[0] + m_viewportMetrics[2];
 					y = *reinterpret_cast<const LegoU32*>(&newCache->m_y);
 					w = *reinterpret_cast<const LegoU32*>(&newCache->m_w);
