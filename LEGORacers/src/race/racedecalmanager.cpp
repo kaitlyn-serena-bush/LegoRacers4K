@@ -246,11 +246,11 @@ void RaceDecalManager::Trail::Update(LegoU32 p_elapsedMs)
 				m_flags |= c_slotsWrapped;
 			}
 
+			m_elapsedMs = 0;
+			m_anchor.m_x = m_lastX;
 			m_anchor.m_y = m_lastY;
 			m_anchor.m_z = m_lastZ;
-			m_elapsedMs = 0;
 			m_flags &= ~c_liveSegment;
-			m_anchor.m_x = m_lastX;
 		}
 	}
 
