@@ -1350,6 +1350,10 @@ void GolWorldDatabase::InitializeEntities()
 	GolModelBase* addedModel;
 	LegoFloat maxDistances[3];
 	LegoChar name[sizeof(GolName) + 1];
+	// Never read: these sums only reproduce the expression numbering of the original (beautify later).
+	LegoU32 recordCount = m_modelEntityCount + m_animatedEntityCount + m_collidableEntityCount + m_boundedEntityCount +
+						  m_boundingVolumeCount + m_cameraCount + m_ambientLightCount + m_lightCount + m_spriteCount +
+						  m_materialAnimationCount;
 
 	if (m_modelEntityCount) {
 		GolModelEntity* runtime = m_modelEntities;
@@ -1383,7 +1387,7 @@ void GolWorldDatabase::InitializeEntities()
 					}
 				}
 				else {
-					if (lod < 3) {
+					if (3 > lod) {
 						runtime->m_materialTables[lod] = NULL;
 					}
 				}
@@ -1446,7 +1450,9 @@ void GolWorldDatabase::InitializeEntities()
 		for (i = 0; i < m_animatedEntityCount; i++) {
 			LegoU32 lod;
 			LegoU32 j;
-			if (static_cast<LegoU32>(model->m_modelIndices[0]) >= m_modelCount && model->m_modelIndices[0] >= 0) {
+			LegoBool32 badModel =
+				static_cast<LegoU32>(model->m_modelIndices[0]) >= m_modelCount && model->m_modelIndices[0] >= 0;
+			if (badModel) {
 				GOL_FATALERROR_MESSAGE("Illegal mesh reference");
 			}
 			if (static_cast<LegoU32>(model->m_sceneNodeIndices[0]) >= m_sceneNodeCount) {
@@ -1475,7 +1481,7 @@ void GolWorldDatabase::InitializeEntities()
 					}
 				}
 				else {
-					if (lod < 3) {
+					if (3 > lod) {
 						runtime->m_materialTables[lod] = NULL;
 					}
 				}
@@ -1602,7 +1608,7 @@ void GolWorldDatabase::InitializeEntities()
 					}
 				}
 				else {
-					if (lod < 3) {
+					if (3 > lod) {
 						runtime->m_materialTables[lod] = NULL;
 					}
 				}
@@ -1612,7 +1618,7 @@ void GolWorldDatabase::InitializeEntities()
 			GolBoundingShape* primaryShape = GetBoundingShape(model->m_sceneNodeIndices[0]);
 			runtime->SetPrimaryModelAndShape(primaryModel, primaryShape, maxDistances[0]);
 			for (lod = 1; lod < 3; lod++) {
-				if (model->m_modelIndices[lod] < 0) {
+				if (0 > model->m_modelIndices[lod]) {
 					break;
 				}
 				addedModel = GetModel(model->m_modelIndices[lod]);
