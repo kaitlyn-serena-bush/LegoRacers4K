@@ -6305,12 +6305,12 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 				LegoU32 outside = flagsIn[i] & c_clipNear;
 
 				if (outside ^ previousOutside) {
-					indicesOut[outputCount] = nextClip;
 					VertexCacheEntry& previousCache = m_unk0xc38ec[indicesIn[previous]];
 					D3DTLVERTEX& previousVertex = m_unk0x348[previousCache.m_unk0x10];
 					VertexCacheEntry& cache = m_unk0xc38ec[indicesIn[i]];
 					LegoFloat t = (previousCache.m_z - 0.0f) / (previousCache.m_z - cache.m_z);
 					D3DTLVERTEX& vertex = m_unk0x348[cache.m_unk0x10];
+					indicesOut[outputCount] = nextClip;
 					VertexCacheEntry& newCache = m_unk0xc38ec[nextClip++];
 					newCache.m_unk0x10 = m_unk0xc3848;
 					D3DTLVERTEX& newVertex = m_unk0x348[m_unk0xc3848];
@@ -6363,10 +6363,10 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 				if (outside ^ previousOutside) {
 					VertexCacheEntry& previousCache = m_unk0xc38ec[indicesIn[previous]];
 					VertexCacheEntry& cache = m_unk0xc38ec[indicesIn[i]];
-					indicesOut[outputCount] = nextClip;
 					LegoFloat t = (previousCache.m_z - farClip) / (previousCache.m_z - cache.m_z);
 					D3DTLVERTEX& previousVertex = m_unk0x348[previousCache.m_unk0x10];
 					D3DTLVERTEX& vertex = m_unk0x348[cache.m_unk0x10];
+					indicesOut[outputCount] = nextClip;
 					VertexCacheEntry& newCache = m_unk0xc38ec[nextClip++];
 					newCache.m_unk0x10 = m_unk0xc3848;
 					D3DTLVERTEX& newVertex = m_unk0x348[m_unk0xc3848];
@@ -6416,13 +6416,13 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 				LegoU32 outside = flagsIn[i] & c_clipLeft;
 
 				if (outside ^ previousOutside) {
-					indicesOut[outputCount] = nextClip;
 					VertexCacheEntry& previousCache = m_unk0xc38ec[indicesIn[previous]];
 					VertexCacheEntry& cache = m_unk0xc38ec[indicesIn[i]];
 					LegoFloat distance = previousCache.m_x;
 					LegoFloat t = distance / (distance - cache.m_x);
 					D3DTLVERTEX& previousVertex = m_unk0x348[previousCache.m_unk0x10];
 					D3DTLVERTEX& vertex = m_unk0x348[cache.m_unk0x10];
+					indicesOut[outputCount] = nextClip;
 					VertexCacheEntry& newCache = m_unk0xc38ec[nextClip++];
 					newCache.m_unk0x10 = m_unk0xc3848;
 					D3DTLVERTEX& newVertex = m_unk0x348[m_unk0xc3848];
@@ -6473,11 +6473,11 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 				if (outside ^ previousOutside) {
 					VertexCacheEntry& previousCache = m_unk0xc38ec[indicesIn[previous]];
 					VertexCacheEntry& cache = m_unk0xc38ec[indicesIn[i]];
-					indicesOut[outputCount] = nextClip;
 					LegoFloat t = (previousCache.m_x - previousCache.m_w) /
 								  ((cache.m_w - previousCache.m_w) - (cache.m_x - previousCache.m_x));
 					D3DTLVERTEX& previousVertex = m_unk0x348[previousCache.m_unk0x10];
 					D3DTLVERTEX& vertex = m_unk0x348[cache.m_unk0x10];
+					indicesOut[outputCount] = nextClip;
 					VertexCacheEntry& newCache = m_unk0xc38ec[nextClip++];
 					newCache.m_unk0x10 = m_unk0xc3848;
 					D3DTLVERTEX& newVertex = m_unk0x348[m_unk0xc3848];
@@ -6529,10 +6529,10 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 				if (outside ^ previousOutside) {
 					VertexCacheEntry& previousCache = m_unk0xc38ec[indicesIn[previous]];
 					VertexCacheEntry& cache = m_unk0xc38ec[indicesIn[i]];
-					indicesOut[outputCount] = nextClip;
 					LegoFloat t = (previousCache.m_y - 0.0f) / (previousCache.m_y - cache.m_y);
 					D3DTLVERTEX& previousVertex = m_unk0x348[previousCache.m_unk0x10];
 					D3DTLVERTEX& vertex = m_unk0x348[cache.m_unk0x10];
+					indicesOut[outputCount] = nextClip;
 					VertexCacheEntry& newCache = m_unk0xc38ec[nextClip++];
 					newCache.m_unk0x10 = m_unk0xc3848;
 					D3DTLVERTEX& newVertex = m_unk0x348[m_unk0xc3848];
@@ -6583,11 +6583,11 @@ void GolD3DRenderDevice::FUN_100106d0(LegoU32 p_firstTriangle, LegoU32 p_triangl
 				if (outside ^ previousOutside) {
 					VertexCacheEntry& previousCache = m_unk0xc38ec[indicesIn[previous]];
 					VertexCacheEntry& cache = m_unk0xc38ec[indicesIn[i]];
-					indicesOut[outputCount] = nextClip;
 					LegoFloat t = (previousCache.m_y - previousCache.m_w) /
 								  ((cache.m_w - previousCache.m_w) - (cache.m_y - previousCache.m_y));
 					D3DTLVERTEX& previousVertex = m_unk0x348[previousCache.m_unk0x10];
 					D3DTLVERTEX& vertex = m_unk0x348[cache.m_unk0x10];
+					indicesOut[outputCount] = nextClip;
 					VertexCacheEntry& newCache = m_unk0xc38ec[nextClip++];
 					newCache.m_unk0x10 = m_unk0xc3848;
 					D3DTLVERTEX& newVertex = m_unk0x348[m_unk0xc3848];
