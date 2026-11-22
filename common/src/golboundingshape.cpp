@@ -24,22 +24,35 @@ inline LegoFloat VisiblePlaneDot(const GolBoundingShape::TreeNode* p_entry, cons
 	return result;
 }
 
+inline LegoFloat CornerDot(const GolBoundingShape::TreeNode* p_entry, const GolVec3& p_point)
+{
+	LegoFloat result = p_entry->m_data.m_plane.m_normalZ;
+	result *= p_point.m_z;
+	LegoFloat y = p_entry->m_data.m_plane.m_normalY;
+	y *= p_point.m_y;
+	result += y;
+	LegoFloat x = p_entry->m_data.m_plane.m_normalX;
+	x *= p_point.m_x;
+	result += x;
+	return result;
+}
+
 static LegoBool32 HasPositiveCorner(const GolBoundingShape::TreeNode* p_entry, const GolViewFrustum* p_frustum)
 {
 	LegoFloat threshold = -p_entry->m_data.m_plane.m_distance;
-	return VisiblePlaneDot(p_entry, p_frustum->m_corners[0]) >= threshold ||
-		   VisiblePlaneDot(p_entry, p_frustum->m_corners[3]) >= threshold ||
-		   VisiblePlaneDot(p_entry, p_frustum->m_corners[1]) >= threshold ||
-		   VisiblePlaneDot(p_entry, p_frustum->m_corners[2]) >= threshold;
+	return CornerDot(p_entry, p_frustum->m_corners[0]) >= threshold ||
+		   CornerDot(p_entry, p_frustum->m_corners[3]) >= threshold ||
+		   CornerDot(p_entry, p_frustum->m_corners[1]) >= threshold ||
+		   CornerDot(p_entry, p_frustum->m_corners[2]) >= threshold;
 }
 
 static LegoBool32 HasNegativeCorner(const GolBoundingShape::TreeNode* p_entry, const GolViewFrustum* p_frustum)
 {
 	LegoFloat threshold = -p_entry->m_data.m_plane.m_distance;
-	return VisiblePlaneDot(p_entry, p_frustum->m_corners[0]) <= threshold ||
-		   VisiblePlaneDot(p_entry, p_frustum->m_corners[3]) <= threshold ||
-		   VisiblePlaneDot(p_entry, p_frustum->m_corners[1]) <= threshold ||
-		   VisiblePlaneDot(p_entry, p_frustum->m_corners[2]) <= threshold;
+	return CornerDot(p_entry, p_frustum->m_corners[0]) <= threshold ||
+		   CornerDot(p_entry, p_frustum->m_corners[3]) <= threshold ||
+		   CornerDot(p_entry, p_frustum->m_corners[1]) <= threshold ||
+		   CornerDot(p_entry, p_frustum->m_corners[2]) <= threshold;
 }
 
 // FUNCTION: GOLDP 0x1001adc0
@@ -293,23 +306,21 @@ void GolBoundingShape::CollectVisibleLeaves(
 	entry = m_root;
 	while (entry->m_type == TreeNode::e_plane) {
 		LegoFloat distance = VisiblePlaneDot(entry, p_frustum->m_position) + entry->m_data.m_plane.m_distance;
-		LegoU32 childIndex;
 		if (distance < 0.0f && entry->m_data.m_plane.m_backChild != TreeNode::c_invalidIndex) {
 			entry->m_data.m_plane.m_backStamp = m_visitStamp;
-			childIndex = entry->m_data.m_plane.m_backChild;
+			entry = &m_nodes[entry->m_data.m_plane.m_backChild];
 		}
 		else if (entry->m_data.m_plane.m_frontChild == TreeNode::c_invalidIndex) {
 			entry->m_data.m_plane.m_backStamp = m_visitStamp;
-			childIndex = entry->m_data.m_plane.m_backChild;
+			entry = &m_nodes[entry->m_data.m_plane.m_backChild];
 		}
 		else {
 			entry->m_data.m_plane.m_frontStamp = m_visitStamp;
-			childIndex = entry->m_data.m_plane.m_frontChild;
+			entry = &m_nodes[entry->m_data.m_plane.m_frontChild];
 		}
-		entry = &m_nodes[childIndex];
 	}
-	entry->m_data.m_node.m_next = NULL;
 	entry->m_data.m_node.m_previous = NULL;
+	entry->m_data.m_node.m_next = NULL;
 	entry->m_data.m_node.m_linked = 1;
 	if (entry->m_nextLeafIndex == TreeNode::c_invalidIndex) {
 		m_lastVisibleLeaf = &entry->m_data.m_node;
@@ -328,81 +339,76 @@ void GolBoundingShape::CollectVisibleLeaves(
 	lastEntry = entry;
 	entry = &m_nodes[entry->m_nextLeafIndex];
 	for (;;) {
-		for (;;) {
-			LegoU32 childIndex;
-			if (entry->m_data.m_plane.m_frontStamp != m_visitStamp) {
-				if (entry->m_data.m_plane.m_backStamp != m_visitStamp) {
-					if (VisiblePlaneDot(entry, p_frustum->m_position) < -entry->m_data.m_plane.m_distance) {
-						entry->m_data.m_plane.m_backStamp = m_visitStamp;
-						if (entry->m_data.m_plane.m_backChild == TreeNode::c_invalidIndex) {
-							continue;
-						}
-						childIndex = entry->m_data.m_plane.m_backChild;
+		if (entry->m_data.m_plane.m_frontStamp != m_visitStamp) {
+			if (entry->m_data.m_plane.m_backStamp != m_visitStamp) {
+				if (VisiblePlaneDot(entry, p_frustum->m_position) < -entry->m_data.m_plane.m_distance) {
+					entry->m_data.m_plane.m_backStamp = m_visitStamp;
+					if (entry->m_data.m_plane.m_backChild == TreeNode::c_invalidIndex) {
+						continue;
 					}
-					else {
-						entry->m_data.m_plane.m_frontStamp = m_visitStamp;
-						if (entry->m_data.m_plane.m_frontChild == TreeNode::c_invalidIndex) {
-							continue;
-						}
-						childIndex = entry->m_data.m_plane.m_frontChild;
-					}
+					entry = &m_nodes[entry->m_data.m_plane.m_backChild];
 				}
 				else {
 					entry->m_data.m_plane.m_frontStamp = m_visitStamp;
-					if (entry->m_data.m_plane.m_frontChild == TreeNode::c_invalidIndex ||
-						!HasPositiveCorner(entry, p_frustum)) {
+					if (entry->m_data.m_plane.m_frontChild == TreeNode::c_invalidIndex) {
 						continue;
 					}
-					childIndex = entry->m_data.m_plane.m_frontChild;
+					entry = &m_nodes[entry->m_data.m_plane.m_frontChild];
 				}
-			}
-			else if (entry->m_data.m_plane.m_backStamp != m_visitStamp) {
-				entry->m_data.m_plane.m_backStamp = m_visitStamp;
-				if (entry->m_data.m_plane.m_backChild == TreeNode::c_invalidIndex ||
-					!HasNegativeCorner(entry, p_frustum)) {
-					continue;
-				}
-				childIndex = entry->m_data.m_plane.m_backChild;
 			}
 			else {
-				break;
-			}
-
-			entry = &m_nodes[childIndex];
-			if (entry->m_type == TreeNode::e_plane) {
-				continue;
-			}
-
-			TreeNode::Node* node = &entry->m_data.m_node;
-			node->m_linked = 1;
-			LegoS16 boundsIndex = static_cast<LegoS16>(node->m_boundsIndex);
-			if (boundsIndex >= 0) {
-				LegoS32 classification = p_frustum->ClassifyBox(&m_bounds[boundsIndex].m_minX);
-				if (classification == 0) {
-					entry = &m_nodes[entry->m_nextLeafIndex];
+				entry->m_data.m_plane.m_frontStamp = m_visitStamp;
+				if (entry->m_data.m_plane.m_frontChild == TreeNode::c_invalidIndex ||
+					!HasPositiveCorner(entry, p_frustum)) {
 					continue;
 				}
-				if (classification == 2) {
-					node->m_linked = 0;
-				}
+				entry = &m_nodes[entry->m_data.m_plane.m_frontChild];
 			}
-			lastEntry->m_data.m_node.m_next = node;
-			node->m_previous = &lastEntry->m_data.m_node;
-			node->m_next = NULL;
-			lastEntry = entry;
-			entry = &m_nodes[entry->m_nextLeafIndex];
+		}
+		else if (entry->m_data.m_plane.m_backStamp != m_visitStamp) {
+			entry->m_data.m_plane.m_backStamp = m_visitStamp;
+			if (entry->m_data.m_plane.m_backChild == TreeNode::c_invalidIndex || !HasNegativeCorner(entry, p_frustum)) {
+				continue;
+			}
+			entry = &m_nodes[entry->m_data.m_plane.m_backChild];
+		}
+		else {
+			LegoU16 nextIndex = entry->m_nextLeafIndex;
+			if (nextIndex == TreeNode::c_invalidIndex) {
+				break;
+			}
+			entry = &m_nodes[nextIndex];
+			continue;
 		}
 
-		LegoU16 nextIndex = entry->m_nextLeafIndex;
-		if (nextIndex == TreeNode::c_invalidIndex) {
-			m_firstVisibleLeaf = &firstEntry->m_data.m_node;
-			*p_first = &firstEntry->m_data.m_node;
-			m_lastVisibleLeaf = &lastEntry->m_data.m_node;
-			*p_last = &lastEntry->m_data.m_node;
-			return;
+		if (entry->m_type == TreeNode::e_plane) {
+			continue;
 		}
-		entry = &m_nodes[nextIndex];
+
+		TreeNode::Node* node = &entry->m_data.m_node;
+		node->m_linked = 1;
+		LegoS16 boundsIndex = static_cast<LegoS16>(node->m_boundsIndex);
+		if (boundsIndex >= 0) {
+			const Bounds* bounds = &m_bounds[boundsIndex];
+			LegoS32 classification = p_frustum->ClassifyBox(&bounds->m_minX);
+			if (classification == 0) {
+				entry = &m_nodes[entry->m_nextLeafIndex];
+				continue;
+			}
+			if (classification == 2) {
+				node->m_linked = 0;
+			}
+		}
+		lastEntry->m_data.m_node.m_next = node;
+		node->m_previous = &lastEntry->m_data.m_node;
+		node->m_next = NULL;
+		lastEntry = entry;
+		entry = &m_nodes[entry->m_nextLeafIndex];
 	}
+	m_firstVisibleLeaf = &firstEntry->m_data.m_node;
+	*p_first = &firstEntry->m_data.m_node;
+	m_lastVisibleLeaf = &lastEntry->m_data.m_node;
+	*p_last = &lastEntry->m_data.m_node;
 }
 
 // FUNCTION: GOLDP 0x1001b640
