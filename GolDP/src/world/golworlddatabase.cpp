@@ -1347,8 +1347,7 @@ void GolWorldDatabase::InitializeEntities()
 {
 	WdbModel* model;
 	LegoU32 i;
-	LegoU32 j;
-	LegoU32 lod;
+	GolModelBase* addedModel;
 	LegoFloat maxDistances[3];
 	LegoChar name[sizeof(GolName) + 1];
 
@@ -1356,6 +1355,8 @@ void GolWorldDatabase::InitializeEntities()
 		GolModelEntity* runtime = m_modelEntities;
 		model = m_modelEntityRecords;
 		for (i = 0; i < m_modelEntityCount; i++) {
+			LegoU32 lod;
+			LegoU32 j;
 			if (static_cast<LegoU32>(model->m_modelIndices[0]) >= m_modelCount) {
 				GOL_FATALERROR_MESSAGE("Illegal mesh reference");
 			}
@@ -1443,6 +1444,8 @@ void GolWorldDatabase::InitializeEntities()
 		model = m_animatedEntityRecords;
 		GolAnimatedEntity* runtime = m_animatedEntities;
 		for (i = 0; i < m_animatedEntityCount; i++) {
+			LegoU32 lod;
+			LegoU32 j;
 			if (static_cast<LegoU32>(model->m_modelIndices[0]) >= m_modelCount && model->m_modelIndices[0] >= 0) {
 				GOL_FATALERROR_MESSAGE("Illegal mesh reference");
 			}
@@ -1503,7 +1506,7 @@ void GolWorldDatabase::InitializeEntities()
 						break;
 					}
 
-					GolModelBase* addedModel = GetModel(model->m_modelIndices[lod]);
+					addedModel = GetModel(model->m_modelIndices[lod]);
 					node = GetSceneNode(model->m_sceneNodeIndices[lod]);
 					part = GetModelPart(model->m_modelPartIndices[lod]);
 					partForPartName = part;
@@ -1568,6 +1571,8 @@ void GolWorldDatabase::InitializeEntities()
 		GolCollidableEntity* runtime = m_collidableEntities;
 		WdbModel* model = m_collidableEntityRecords;
 		for (i = 0; i < m_collidableEntityCount; i++) {
+			LegoU32 lod;
+			LegoU32 j;
 			if (static_cast<LegoU32>(model->m_modelIndices[0]) >= m_modelCount) {
 				GOL_FATALERROR_MESSAGE("Illegal mesh reference");
 			}
@@ -1610,7 +1615,7 @@ void GolWorldDatabase::InitializeEntities()
 				if (model->m_modelIndices[lod] < 0) {
 					break;
 				}
-				GolModelBase* addedModel = GetModel(model->m_modelIndices[lod]);
+				addedModel = GetModel(model->m_modelIndices[lod]);
 				GolBoundingShape* addedShape = GetBoundingShape(model->m_sceneNodeIndices[lod]);
 				runtime->AddModel(addedModel, addedShape, maxDistances[lod]);
 			}
