@@ -673,7 +673,7 @@ void RaceHud::DrawRotatingMap()
 
 	LegoFloat directionScale =
 		directionLengthScale / static_cast<LegoFloat>(sqrt(
-								   cameraDirection.m_y * cameraDirection.m_y + cameraDirection.m_x * cameraDirection.m_x
+								   (GOL_MUL(cameraDirection.m_y, cameraDirection.m_y)) + (GOL_MUL(cameraDirection.m_x, cameraDirection.m_x))
 							   ));
 	cameraDirection.m_x *= directionScale;
 	cameraDirection.m_y *= directionScale;
@@ -715,8 +715,10 @@ void RaceHud::DrawRotatingMap()
 		vertices[3].m_y = baseY0 - offsetY1;
 
 		GolVec3 scaledDirection;
-		scaledDirection.m_x = m_aspectScale * cameraDirection.m_x;
-		scaledDirection.m_y = m_aspectScale * cameraDirection.m_y;
+		scaledDirection.m_x = m_aspectScale;
+		scaledDirection.m_x *= cameraDirection.m_x;
+		scaledDirection.m_y = m_aspectScale;
+		scaledDirection.m_y *= cameraDirection.m_y;
 		LegoFloat baseX0 = scaledDirection.m_y * deltaX0 + static_cast<LegoFloat>(mapCenterX);
 		LegoFloat offsetX0 = deltaY0 * scaledDirection.m_x;
 		vertices[0].m_x = baseX0 - offsetX0;
