@@ -457,9 +457,8 @@ void RaceTrailManager::Trail::RebuildGeometry()
 	m_model->GetIndexArrayInto(&indexArrayBase);
 
 	LegoU8 triangle[3];
-	LegoU32 rowIndex;
-	for (rowIndex = 0; rowIndex < rowsPerGroup - 1; rowIndex++) {
-		LegoU32 rowBase = m_pointCount * rowIndex;
+	for (frameOffset = 0; frameOffset < rowsPerGroup - 1; frameOffset++) {
+		LegoU32 rowBase = m_pointCount * frameOffset;
 		for (pointIndex = 0; pointIndex < m_pointCount; pointIndex++) {
 			triangle[0] = static_cast<LegoU8>(m_pointCount + rowBase + pointIndex);
 			triangle[1] = static_cast<LegoU8>(rowBase + pointIndex);
@@ -478,7 +477,7 @@ void RaceTrailManager::Trail::RebuildGeometry()
 
 	LegoU32 batchTriangleCount = triangleIndex;
 	if (m_pointCount > 2) {
-		LegoU32 lastRowBase = m_pointCount * rowIndex;
+		LegoU32 lastRowBase = m_pointCount * frameOffset;
 		for (pointIndex = 1; pointIndex < m_pointCount - 1; pointIndex++) {
 			triangle[0] = static_cast<LegoU8>(lastRowBase);
 			triangle[1] = static_cast<LegoU8>(lastRowBase + pointIndex);
@@ -494,7 +493,7 @@ void RaceTrailManager::Trail::RebuildGeometry()
 	LegoU32 groupWordIndex = 1;
 	m_model->GetMutableGroups()[0] = GolModel::c_groupTypeMaterial;
 	LegoU32 firstVertex = 0;
-	for (LegoU32 groupIndex = 0; groupIndex < groupCount; groupIndex++) {
+	for (frameOffset = 0; frameOffset < groupCount; frameOffset++) {
 		if (groupWordIndex < 4) {
 			m_model->SetGroup(
 				groupWordIndex++,
@@ -504,7 +503,7 @@ void RaceTrailManager::Trail::RebuildGeometry()
 			);
 		}
 
-		LegoU32 word = groupIndex < groupCount - 1 ? GolModel::c_groupTypeTriangleBatch | ((batchTriangleCount & GolModel::c_triangleCountMask) << GolModel::c_groupDataUpperWordShift) : GolModel::c_groupTypeTriangleBatch | ((triangleIndex & GolModel::c_triangleCountMask) << GolModel::c_groupDataUpperWordShift);
+		LegoU32 word = frameOffset < groupCount - 1 ? GolModel::c_groupTypeTriangleBatch | ((batchTriangleCount & GolModel::c_triangleCountMask) << GolModel::c_groupDataUpperWordShift) : GolModel::c_groupTypeTriangleBatch | ((triangleIndex & GolModel::c_triangleCountMask) << GolModel::c_groupDataUpperWordShift);
 
 		if (groupWordIndex < 4) {
 			m_model->SetGroup(groupWordIndex++, word);
