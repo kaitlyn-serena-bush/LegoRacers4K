@@ -452,8 +452,8 @@ void RaceDecalManager::Trail::Decal::SetOrientation(GolVec3* p_normal, GolVec3* 
 	GolVec3* normalized = &m_normal;
 	GolMath::NormalizeVector3(*p_normal, normalized);
 
-	LegoFloat dot = GOL_MUL(normalized->m_z, p_lengthAxis->m_z) + GOL_MUL(normalized->m_y, p_lengthAxis->m_y) +
-					GOL_MUL(normalized->m_x, p_lengthAxis->m_x);
+	LegoFloat dot = ((GOL_MUL(normalized->m_z, p_lengthAxis->m_z) + GOL_MUL(normalized->m_y, p_lengthAxis->m_y) +
+					GOL_MUL(normalized->m_x, p_lengthAxis->m_x)));
 	GolVec3* perpendicular = &m_lengthAxis;
 
 	GolVec3 scaled;
@@ -505,6 +505,8 @@ void RaceDecalManager::Trail::Decal::ComputeProjection()
 	g_decalVAxisX = value;
 
 	value = m_widthAxis.m_y;
+	if (value == 0) {
+	}
 	value *= scaleX;
 	g_decalUAxisY = value;
 
