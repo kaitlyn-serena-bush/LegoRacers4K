@@ -204,6 +204,8 @@ void GolWorldDatabase::Load(GolRenderDevice* p_arg1, const LegoChar* p_name, Leg
 // FUNCTION: GOLDP 0x1002c4d0
 void GolWorldDatabase::DestroyRecords()
 {
+	LegoU32 i;
+
 	if (m_lightRecords != NULL) {
 		delete[] m_lightRecords;
 		m_lightRecords = NULL;
@@ -230,7 +232,7 @@ void GolWorldDatabase::DestroyRecords()
 	}
 
 	if (m_collidableEntityRecords != NULL) {
-		for (LegoU32 i = 0; i < m_collidableEntityCount; i++) {
+		for (i = 0; i < m_collidableEntityCount; i++) {
 			if (m_collidableEntityRecords[i].m_animationBindings != NULL) {
 				delete[] m_collidableEntityRecords[i].m_animationBindings;
 			}
@@ -241,7 +243,7 @@ void GolWorldDatabase::DestroyRecords()
 	}
 
 	if (m_animatedEntityRecords != NULL) {
-		for (LegoU32 i = 0; i < m_animatedEntityCount; i++) {
+		for (i = 0; i < m_animatedEntityCount; i++) {
 			if (m_animatedEntityRecords[i].m_animationBindings != NULL) {
 				delete[] m_animatedEntityRecords[i].m_animationBindings;
 			}
@@ -252,7 +254,7 @@ void GolWorldDatabase::DestroyRecords()
 	}
 
 	if (m_modelEntityRecords != NULL) {
-		for (LegoU32 i = 0; i < m_modelEntityCount; i++) {
+		for (i = 0; i < m_modelEntityCount; i++) {
 			if (m_modelEntityRecords[i].m_animationBindings != NULL) {
 				delete[] m_modelEntityRecords[i].m_animationBindings;
 			}
