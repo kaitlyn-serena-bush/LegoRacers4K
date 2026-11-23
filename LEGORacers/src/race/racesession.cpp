@@ -1929,7 +1929,8 @@ void RaceSession::UpdateFinishedState()
 		m_elapsedMs = 0;
 		m_state = 5;
 
-		for (LegoU32 i = 0; i < m_context->m_racerCount; i++) {
+		LegoU32 i = 0;
+		while (i < m_context->m_racerCount) {
 			Racer* racer = m_raceState.GetRacer(i);
 			if (!(racer->m_flags & Racer::c_flagFinished)) {
 				if (m_standings) {
@@ -1942,6 +1943,7 @@ void RaceSession::UpdateFinishedState()
 
 			LegoU32 finishPosition = racer->m_standingsPosition;
 			m_context->m_playerSetupSlots[i].m_finishPosition = finishPosition;
+			i++;
 		}
 
 		UpdateResultsState();
@@ -1950,7 +1952,10 @@ void RaceSession::UpdateFinishedState()
 
 	for (LegoU32 racerIndex = 0; racerIndex < m_context->m_racerCount; racerIndex++) {
 		Racer* racer = m_raceState.GetRacer(racerIndex);
-		if (racer->m_lapsCompleted >= m_lapCount && !(racer->m_flags & Racer::c_flagFinished)) {
+		LegoU32 sweepOld0 = racer->m_lapsCompleted;
+		if (sweepOld0 == 0) {
+		}
+		if (sweepOld0 >= m_lapCount && !(racer->m_flags & Racer::c_flagFinished)) {
 			racer->m_flags |= Racer::c_flagFinished;
 
 			if (m_standings) {
