@@ -1434,9 +1434,9 @@ void CarBuildModel::ComputePieceBounds(LegoPieceLibrary::PieceRecord* p_pieceRec
 	LegoFloat minY;
 	LegoFloat minZ;
 	library->GetPosition(indexCursor[1], &minX, &minY, &minZ);
-	LegoFloat maxX = minX;
-	LegoFloat maxZ = minZ;
 	LegoFloat maxY = minY;
+	LegoFloat maxZ = minZ;
+	LegoFloat maxX = minX;
 
 	LegoBool32 hasExtraIndex = FALSE;
 	LegoBool32 hasTextureIndex = FALSE;
