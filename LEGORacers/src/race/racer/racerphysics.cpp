@@ -462,6 +462,7 @@ void RacerPhysics::ApplyDirectionalImpulse(GolVec3* p_direction, LegoFloat p_mag
 	LegoFloat scaled = p_magnitude / g_directionalImpulseMax;
 
 	if (dot >= 0.0f) {
+		LegoFloat amount = (1.0f - dot) * 0.05f;
 		LegoFloat value;
 		if (m_flags & c_flagSpinning) {
 			value = g_routeSpinSpeed;
@@ -471,12 +472,13 @@ void RacerPhysics::ApplyDirectionalImpulse(GolVec3* p_direction, LegoFloat p_mag
 			value = m_routeCursor.m_playbackSpeed;
 			value += scaled;
 		}
-		value += (1.0f - dot) * 0.05f;
+		LegoFloat total = amount;
+		total += value;
 
-		if (value > g_routeMaxPlaybackSpeed) {
-			value = g_routeMaxPlaybackSpeed;
+		if (total > g_routeMaxPlaybackSpeed) {
+			total = g_routeMaxPlaybackSpeed;
 		}
-		m_routeCursor.m_playbackSpeed = value;
+		m_routeCursor.m_playbackSpeed = total;
 	}
 	else {
 		LegoFloat amount = (dot + 1.0f) * 0.25f;
