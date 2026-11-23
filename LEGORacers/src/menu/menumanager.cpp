@@ -701,15 +701,15 @@ void MenuManager::PrepareRaceContext()
 		SaveRecordList::Record* record = m_gameContext.m_saveSystem.GetSessionSave().GetRecord(saveIndex);
 		::memcpy(context->m_saveRecords[saveIndex], record->m_data, sizeof(context->m_saveRecords[saveIndex]));
 	}
-	context->m_saveRecordCount = m_gameContext.m_saveSystem.GetSessionSave().GetRecordCount();
+	context->m_flags |= LegoRacers::Context::c_flagSaveStateValid;
 
 	m_gameContext.m_saveSystem.GetGameState().WriteToSaveGame(&m_gameContext.m_saveSystem.GetSessionSave());
+	context->m_saveRecordCount = m_gameContext.m_saveSystem.GetSessionSave().GetRecordCount();
 	::memcpy(
 		&context->m_saveState,
 		m_gameContext.m_saveSystem.GetSessionSave().GetFileImage(),
 		sizeof(context->m_saveState)
 	);
-	context->m_flags |= LegoRacers::Context::c_flagSaveStateValid;
 
 	if (!selectedRecords.GetSelectedRecordCount()) {
 		context->m_racerCount = 6;
@@ -841,10 +841,10 @@ void MenuManager::PrepareRaceContext()
 		string.CopyToString(slot->m_playerName);
 
 		BuildPlayerCarModel(record, slot, &rendererState);
-		BuildPlayerDriverModel(record, slot, &rendererState);
+		recordState->m_saveIndex = record->m_saveIndex;
 
 		recordState->m_recordSource = record->m_recordSource;
-		recordState->m_saveIndex = record->m_saveIndex;
+		BuildPlayerDriverModel(record, slot, &rendererState);
 		recordState->m_recordId = record->m_recordId;
 
 		record->GetCosmetics(&slot->m_cosmetics);

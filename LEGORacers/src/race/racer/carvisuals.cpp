@@ -561,12 +561,13 @@ void CarVisuals::Update(LegoU32 p_elapsedMs)
 
 		if (m_flags & c_flagAirborne) {
 			LegoU32 state = m_racer->m_physics.m_contactCount;
-			if (m_lastGroundedWheelCount < state) {
-				m_flags &= ~c_flagAirborne;
-
+			LegoU32 sweepTmp0 = m_lastGroundedWheelCount;
+			if (sweepTmp0 < state) {
 				m_carEntity->GetPosition(&position);
 
-				switch (state - m_lastGroundedWheelCount) {
+				m_flags &= ~c_flagAirborne;
+
+				switch (state - sweepTmp0) {
 				case 1:
 					m_racer->m_soundSource->PlaySpatialSoundById(
 						0x3f,
@@ -659,7 +660,7 @@ void CarVisuals::Update(LegoU32 p_elapsedMs)
 			position.Clear();
 
 			g_randomTableIndex = (g_randomTableIndex + 1) & c_randomTableMask;
-			LegoBool32 chooseSecond = (g_randomTable[g_randomTableIndex] >> 1) & 1;
+			LegoBool32 chooseSecond = (g_randomTable[0] >> 1) & 1;
 			LegoBool32 found = FALSE;
 
 			for (LegoS32 tireIndex = 0; tireIndex < 4; tireIndex++) {

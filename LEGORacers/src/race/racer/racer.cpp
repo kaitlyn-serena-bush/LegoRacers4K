@@ -1469,10 +1469,10 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 	firstAngularContribution.m_y = angular.m_z * firstContactOffset.m_x - angular.m_x * firstContactOffset.m_z;
 	firstAngularContribution.m_z = angular.m_x * firstContactOffset.m_y - angular.m_y * firstContactOffset.m_x;
 
-	GolMath::CrossVector3(&secondContactOffset, normal, &angularAxis);
-
 	const GolMatrix3& secondInertia = firstInertia;
+
 	angular.m_x = secondInertia.m_m[0][0] * angularAxis.m_x;
+	GolMath::CrossVector3(&secondContactOffset, normal, &angularAxis);
 	angular.m_y = secondInertia.m_m[0][1] * angularAxis.m_x;
 	angular.m_z = secondInertia.m_m[0][2] * angularAxis.m_x;
 	angular.m_x += secondInertia.m_m[1][0] * angularAxis.m_y;

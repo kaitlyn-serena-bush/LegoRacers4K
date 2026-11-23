@@ -175,9 +175,9 @@ void SaveLoadScreen::CreateWidgets()
 	case 0x18:
 		CreateTextLabel(&m_statusLine1, 0x142, 0x37, 0x89);
 		CreateTextLabel(&m_statusLine2, 0x143, 0x37, 0x87);
-		CreateTextLabel(&m_statusLine3, 0x144, 0x37, 0x37);
 		CreateTextButton(&m_okButton, 0x40, 0x46, 0x72);
 		m_okButton.Select(0);
+		CreateTextLabel(&m_statusLine3, 0x144, 0x37, 0x37);
 		return;
 	default:
 		if (m_requestMenuId != c_menuSaveAll && m_requestMenuId != c_menuSaveCard) {
