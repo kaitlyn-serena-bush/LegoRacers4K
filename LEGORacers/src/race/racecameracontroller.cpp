@@ -481,6 +481,7 @@ void RaceCameraController::Update(LegoFloat p_elapsedMs)
 {
 	GolVec3 desiredDirection;
 	GolVec3 targetPosition;
+	GolVec3 up;
 	if (m_racer == NULL) {
 		m_dirty = TRUE;
 		return;
@@ -689,7 +690,6 @@ void RaceCameraController::Update(LegoFloat p_elapsedMs)
 			m_viewDirection = desiredDirection;
 		}
 
-		GolVec3 up;
 		up.m_x = 0.0f;
 		up.m_y = 0.0f;
 		up.m_z = -1.0f;
@@ -777,7 +777,6 @@ void RaceCameraController::Update(LegoFloat p_elapsedMs)
 		right.m_x = entity->GetOrientation().m_rows[0].m_x;
 		right.m_y = entity->GetOrientation().m_rows[0].m_y;
 		right.m_z = entity->GetOrientation().m_rows[0].m_z;
-		GolVec3 up;
 		up.m_x = entity->GetOrientation().m_rows[2].m_x;
 		up.m_y = entity->GetOrientation().m_rows[2].m_y;
 		up.m_z = entity->GetOrientation().m_rows[2].m_z;
