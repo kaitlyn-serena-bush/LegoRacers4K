@@ -1223,6 +1223,8 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 	ComputeWheelPositions();
 
 	WheelProbe* sweepElem0 = &m_wheelProbes[0];
+	if (sweepElem0 == NULL) {
+	}
 	LegoFloat average = sweepElem0->m_wheelPosition.m_x;
 	average += m_wheelProbes[1].m_wheelPosition.m_x;
 	m_frontAxleMid.m_x = average * 0.5f;
@@ -1287,7 +1289,7 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 
 	LegoFloat bestDistance = -FLT_MAX;
 	WheelProbe* selectedEntry = NULL;
-	LegoU32 selectedIndex = 0;
+	LegoU32 selectedIndex;
 	GolBoundingVolume::HitTriangle* eventContext = &g_carBodyHitTriangle;
 	GolBoundingVolume::HitTriangle* collisionContext = eventContext;
 

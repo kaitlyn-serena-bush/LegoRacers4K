@@ -314,8 +314,8 @@ LegoBool32 CarBuildScreenBase::Draw(Rect* p_clipRect, Rect* p_sourceRect)
 			}
 
 			m_tooltipRect.m_left += m_tooltipX;
-			m_tooltipRect.m_right += m_tooltipX;
 			m_tooltipRect.m_top += m_tooltipY;
+			m_tooltipRect.m_right += m_tooltipX;
 			m_tooltipRect.m_bottom += m_tooltipY;
 		}
 		else {
