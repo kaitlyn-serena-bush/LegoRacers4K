@@ -800,8 +800,8 @@ void RaceHud::DrawRotatingMap()
 		else {
 			sourceRect.m_top = 0;
 		}
-		sourceRect.m_right = sourceRect.m_left + 0x10;
 		sourceRect.m_bottom = sourceRect.m_top + 0x10;
+		sourceRect.m_right = sourceRect.m_left + 0x10;
 
 		m_renderer->DrawImageClipped(markerResource, 0, &destRect, &sourceRect, &mapRect);
 	}
@@ -828,8 +828,8 @@ void RaceHud::DrawRotatingMap()
 		else {
 			sourceRect.m_top = 0;
 		}
-		sourceRect.m_right = sourceRect.m_left + 0x10;
 		sourceRect.m_bottom = sourceRect.m_top + 0x10;
+		sourceRect.m_right = sourceRect.m_left + 0x10;
 
 		m_renderer->DrawImageClipped(markerResource, 0, &destRect, &sourceRect, &mapRect);
 	}
