@@ -1193,12 +1193,13 @@ LegoS32 MenuManager::CommitBestTimes()
 	m_gameContext.m_context->m_flags = flags & ~LegoRacers::Context::c_flagBestTimesPending;
 	LegoRacers::Context* context = m_gameContext.m_context;
 
-	GolString string;
+	
 	LegoChar name[15];
 	undefined2 wideName[14];
 	LegoS32 result = FALSE;
 	LegoU32 raceIndex = 0;
 
+	GolString string;
 	for (LegoS32 i = 0; i < 4; i++) {
 		LegoBool32 hasRaceIndex = FALSE;
 
@@ -1206,11 +1207,11 @@ LegoS32 MenuManager::CommitBestTimes()
 			const LegoChar* sourceName = context->m_playerSetupSlots[context->m_bestLapHolders[i]].m_playerName;
 			hasRaceIndex = TRUE;
 
-			GolString::CopyStringToBuf16(sourceName, wideName);
 			::strncpy(name, sourceName, sizeof(name) - 1);
 			name[sizeof(name) - 1] = '\0';
-			raceIndex = m_gameContext.m_raceNames.GetEntryIndexByName(context->m_raceSlots[i].m_raceName);
+			GolString::CopyStringToBuf16(sourceName, wideName);
 			string.CopyFromBufSelection(wideName, sizeof(name) - 1);
+			raceIndex = m_gameContext.m_raceNames.GetEntryIndexByName(context->m_raceSlots[i].m_raceName);
 
 			if (m_gameContext.m_saveSystem.GetGameState()
 					.SetBestTime(raceIndex, 0, context->m_bestLapTimes[i], &string)) {
