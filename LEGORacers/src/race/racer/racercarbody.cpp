@@ -1417,7 +1417,10 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 		}
 	}
 
-	if (m_contactCount >= 2) {
+	if (m_contactCount < 2) {
+		GolMath::NormalizeVector3(m_supportNormal, &m_supportNormal);
+	}
+	else {
 		direction.m_x = m_wheelProbes[0].m_hitPoint.m_x - m_wheelProbes[1].m_hitPoint.m_x;
 		direction.m_y = m_wheelProbes[0].m_hitPoint.m_y - m_wheelProbes[1].m_hitPoint.m_y;
 		direction.m_z = m_wheelProbes[0].m_hitPoint.m_z - m_wheelProbes[1].m_hitPoint.m_z;
@@ -1432,9 +1435,6 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 		m_supportNormal.m_x = transform.m_m[2][0];
 		m_supportNormal.m_y = transform.m_m[2][1];
 		m_supportNormal.m_z = transform.m_m[2][2];
-	}
-	else {
-		GolMath::NormalizeVector3(m_supportNormal, &m_supportNormal);
 	}
 
 	GolVec3* selectedCenter = &m_axleMidpoints[selectedIndex];
