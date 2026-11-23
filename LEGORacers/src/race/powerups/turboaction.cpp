@@ -24,9 +24,6 @@ const LegoFloat g_turboSoundMaxDistance = 300.0f;
 // GLOBAL: LEGORACERS 0x004b19e4
 const LegoFloat g_turboSmokeVelocityScale = 0.7f;
 
-// GLOBAL: LEGORACERS 0x004b1a50
-const LegoFloat g_turboPackOffset = -2.0f;
-
 // GLOBAL: LEGORACERS 0x004b1a54
 const LegoFloat g_turboFadeAlphaScale = 0.0028571428f;
 
@@ -300,13 +297,11 @@ void TurboAction::AnchorToRacer()
 	up.m_x = racerEntity->GetOrientation().m_rows[2].m_x;
 	up.m_y = racerEntity->GetOrientation().m_rows[2].m_y;
 	up.m_z = racerEntity->GetOrientation().m_rows[2].m_z;
-	position.m_x = right.m_x * g_turboPackOffset + position.m_x;
-	LegoFloat rightY = right.m_y;
-	rightY *= g_turboPackOffset;
-	rightY += position.m_y;
-	position.m_y = rightY;
-	LegoFloat rightZ = right.m_z;
-	rightZ *= g_turboPackOffset;
+	LegoFloat rightX = right.m_x * -2.0f;
+	position.m_x += rightX;
+	LegoFloat rightY = right.m_y * -2.0f;
+	position.m_y += rightY;
+	LegoFloat rightZ = right.m_z * -2.0f;
 	rightZ += position.m_z;
 	position.m_z = rightZ;
 	position.m_x = up.m_x * 3.0f + position.m_x;
