@@ -703,15 +703,16 @@ void MenuManager::PrepareRaceContext()
 		SaveRecordList::Record* record = m_gameContext.m_saveSystem.GetSessionSave().GetRecord(saveIndex);
 		::memcpy(context->m_saveRecords[saveIndex], record->m_data, sizeof(context->m_saveRecords[saveIndex]));
 	}
-	context->m_flags |= LegoRacers::Context::c_flagSaveStateValid;
-
-	m_gameContext.m_saveSystem.GetGameState().WriteToSaveGame(&m_gameContext.m_saveSystem.GetSessionSave());
-	context->m_saveRecordCount = m_gameContext.m_saveSystem.GetSessionSave().GetRecordCount();
+	SaveGame* session = &m_gameContext.m_saveSystem.GetSessionSave();
+	context->m_saveRecordCount = session->GetRecordCount();
+	m_gameContext.m_saveSystem.GetGameState().WriteToSaveGame(session);
 	::memcpy(
 		&context->m_saveState,
-		m_gameContext.m_saveSystem.GetSessionSave().GetFileImage(),
+		session->GetFileImage(),
 		sizeof(context->m_saveState)
 	);
+	context->m_flags |= LegoRacers::Context::c_flagSaveStateValid;
+
 
 	if (!selectedRecords.GetSelectedRecordCount()) {
 		context->m_racerCount = 6;
@@ -868,9 +869,9 @@ void MenuManager::PrepareRaceContext()
 	}
 
 	for (saveIndex = 0; saveIndex < context->m_playerCount; saveIndex++) {
-		LegoU32 entryIndex = m_gameContext.m_saveSystem.GetGameState().GetSelectedInputBindingEntryIndex(saveIndex);
+		
 		m_gameContext.m_saveSystem.GetGameState()
-			.GetInputBindingEntry(saveIndex, entryIndex, &context->m_inputBindings[saveIndex]);
+			.GetInputBindingEntry(saveIndex, (m_gameContext.m_saveSystem.GetGameState().GetSelectedInputBindingEntryIndex(saveIndex)), &context->m_inputBindings[saveIndex]);
 	}
 
 	if (!selectedRecords.GetSelectedRecordCount()) {
