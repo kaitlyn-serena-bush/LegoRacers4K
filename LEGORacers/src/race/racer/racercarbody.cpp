@@ -1145,7 +1145,7 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 		}
 	}
 
-	LegoFloat sweepOld3 = m_gravityForce;
+	double sweepOld3 = m_gravityForce;
 	double responseScale = sweepOld3 * m_supportNormal.m_z;
 	m_supportForce.m_x = -(m_supportNormal.m_x * responseScale);
 	m_supportForce.m_y = -(m_supportNormal.m_y * responseScale);
