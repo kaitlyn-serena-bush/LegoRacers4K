@@ -1426,7 +1426,8 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 		relativeVelocity.m_z = firstVelocity.m_z;
 		relativeVelocity.m_z -= secondVelocity.m_z;
 
-		LegoFloat impulseNumerator = -DotVectors(relativeVelocity, collisionNormal) * (g_collisionRestitution + 1.0f);
+		LegoFloat impulseNumerator = -DotVectors(relativeVelocity, collisionNormal);
+		impulseNumerator *= (g_collisionRestitution + 1.0f);
 
 		LegoFloat collisionNormalLengthSquared = GOLVECTOR3_DOT(collisionNormal, collisionNormal);
 		LegoFloat inverseMassTerm =
@@ -1478,8 +1479,8 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 		angular.m_x += secondInertia.m_m[1][0] * angularAxis.m_y;
 		LegoFloat sweepOld1 = angularAxis.m_y;
 		angular.m_y += secondInertia.m_m[1][1] * sweepOld1;
-		LegoFloat sweepTmp0 = angularAxis.m_y;
-		angular.m_z += secondInertia.m_m[1][2] * sweepTmp0;
+		LegoFloat sweepOld2 = angularAxis.m_y;
+		angular.m_z += secondInertia.m_m[1][2] * sweepOld2;
 		angular.m_x += secondInertia.m_m[2][0] * angularAxis.m_z;
 		angular.m_y += secondInertia.m_m[2][1] * angularAxis.m_z;
 		angular.m_z += secondInertia.m_m[2][2] * angularAxis.m_z;

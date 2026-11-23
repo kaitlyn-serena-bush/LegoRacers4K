@@ -811,7 +811,8 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 			else if (p_params->m_vertexType == Params::c_vertexLit) {
 				vertices->SetNormal(vertexIndex, normal);
 			}
-			textureCoordinate.m_x = segmentAngle * g_raceSkyInverseTwoPi + textureHalfStep;
+			textureCoordinate.m_x = segmentAngle * g_raceSkyInverseTwoPi;
+			textureCoordinate.m_x += textureHalfStep;
 			textureCoordinate.m_y = 0.0f;
 			vertices->SetTextureCoordinate(vertexIndex, textureCoordinate);
 			segmentAngle += angleStep;
@@ -907,7 +908,7 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 	p_params->m_model->GetIndexArrayInto(&indexArrayBase);
 	GdbModelIndexArray* indices = static_cast<GdbModelIndexArray*>(indexArrayBase);
 	LegoU8 triangle[3];
-	LegoU32 scratchStart = 0;
+	LegoU32 scratchStart;
 	if (p_params->m_hasTopCap) {
 		scratchStart = p_params->m_segmentCount * 2 + 1;
 		p_params->m_model->GetMutableGroups()[groupIndex++] = ((p_params->m_segmentCount * 2) & 0x3f) << 16;
@@ -933,9 +934,9 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 		}
 		p_params->m_model->GetMutableGroups()[groupIndex++] =
 			((scratchStart & 0x3f) << 22) | (((p_params->m_segmentCount * 2) & 0x3f) << 16) | (first & 0xffff);
+		LegoU32 indexOffset = scratchStart - first;
 		p_params->m_model->GetMutableGroups()[groupIndex++] =
 			((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000 | (triangleIndex & 0xffff);
-		LegoU32 indexOffset = scratchStart - first;
 		for (segment = 1; segment <= p_params->m_segmentCount; segment++) {
 			triangle[0] = static_cast<LegoU8>(segment + first + p_params->m_segmentCount);
 			triangle[third] = static_cast<LegoU8>(segment + first - 1);
@@ -984,9 +985,9 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
 			}
 			triangle[0] += static_cast<LegoU8>(indexOffset);
-			triangle[second] += static_cast<LegoU8>(indexOffset);
 			triangle[third] += static_cast<LegoU8>(indexOffset);
 			indices->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
+			triangle[second] += static_cast<LegoU8>(indexOffset);
 		}
 	}
 	p_params->m_model->GetMutableGroups()[groupIndex] = 0xc0000000;
