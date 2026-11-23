@@ -334,18 +334,17 @@ MenuWidget* OptionsRow::OnCursorEvent(void* p_item, undefined4 p_x, undefined4 p
 		cursor->m_bounds = m_trackRect;
 
 		Rect rect = *m_thumb.GetRect();
-		LegoS32 width = rect.m_right;
-		rect.m_right += p_x;
-		width -= rect.m_left;
+		LegoS32 width = rect.m_right - rect.m_left;
 		rect.m_left += p_x;
+		rect.m_right += p_x;
 
 		if (rect.m_left < m_prevButton.GetRect()->m_right) {
 			rect.m_left = m_prevButton.GetRect()->m_right;
-			rect.m_right = rect.m_left + width;
+			rect.m_right = m_prevButton.GetRect()->m_right + width;
 		}
 		else if (rect.m_right > m_nextButton.GetRect()->m_left) {
 			rect.m_right = m_nextButton.GetRect()->m_left;
-			rect.m_left = rect.m_right - width;
+			rect.m_left = m_nextButton.GetRect()->m_left - width;
 		}
 
 		m_thumb.SetRect(&rect);
