@@ -609,8 +609,8 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 		ProjectedVertex* vertex0 = &g_decalProjectedVertices[index0];
 		ProjectedVertex* vertex1 = &g_decalProjectedVertices[index1];
 		ProjectedVertex* vertex2 = &g_decalProjectedVertices[index2];
-		LegoU32 flags0 = vertex0->m_clipFlags;
 		LegoU32 flags1 = vertex1->m_clipFlags;
+		LegoU32 flags0 = vertex0->m_clipFlags;
 		LegoU32 flags2 = vertex2->m_clipFlags;
 
 		if (flags0 & flags1 & flags2) {
@@ -661,9 +661,9 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 					LegoU32 currentOutside = inputFlags[i] & c_clipXMinFlag;
 
 					if (currentOutside ^ previousOutside) {
-						ProjectedVertex* clipped = &g_decalProjectedVertices[generatedIndex];
-						ProjectedVertex* previous = &g_decalProjectedVertices[inputIndices[previousIndex]];
 						ProjectedVertex* current = &g_decalProjectedVertices[inputIndices[i]];
+						ProjectedVertex* previous = &g_decalProjectedVertices[inputIndices[previousIndex]];
+						ProjectedVertex* clipped = &g_decalProjectedVertices[generatedIndex];
 						outputIndices[outputCount] = generatedIndex;
 						LegoFloat amount = (previous->m_projected.m_x.m_float - 0.0f) /
 										   (previous->m_projected.m_x.m_float - current->m_projected.m_x.m_float);
@@ -810,10 +810,10 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 					LegoU32 currentOutside = inputFlags[i] & c_clipYMaxFlag;
 
 					if (currentOutside ^ previousOutside) {
-						ProjectedVertex* clipped = &g_decalProjectedVertices[generatedIndex];
-						ProjectedVertex* previous = &g_decalProjectedVertices[inputIndices[previousIndex]];
-						ProjectedVertex* current = &g_decalProjectedVertices[inputIndices[i]];
 						outputIndices[outputCount] = generatedIndex;
+						ProjectedVertex* clipped = &g_decalProjectedVertices[generatedIndex];
+						ProjectedVertex* current = &g_decalProjectedVertices[inputIndices[i]];
+						ProjectedVertex* previous = &g_decalProjectedVertices[inputIndices[previousIndex]];
 						LegoFloat amount = (1.0f - previous->m_projected.m_y.m_float) /
 										   (current->m_projected.m_y.m_float - previous->m_projected.m_y.m_float);
 						generatedIndex++;
