@@ -181,8 +181,10 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::TestBoxOverlap(
 	p_other->m_body->CopyOrientation(&absOrientation);
 
 	delta.m_x = p_other->m_centerOfMassWorld.m_x - m_centerOfMassWorld.m_x;
-	delta.m_y = p_other->m_centerOfMassWorld.m_y - m_centerOfMassWorld.m_y;
-	delta.m_z = p_other->m_centerOfMassWorld.m_z - m_centerOfMassWorld.m_z;
+	LegoFloat& sweepRef0 = delta.m_y;
+	sweepRef0 = p_other->m_centerOfMassWorld.m_y - m_centerOfMassWorld.m_y;
+	LegoFloat& sweepRef1 = delta.m_z;
+	sweepRef1 = p_other->m_centerOfMassWorld.m_z - m_centerOfMassWorld.m_z;
 	GolMath::TransformVector(delta, &orientation0.m_m[0][0], &delta);
 
 	GolMath::MultiplyMatrixByTranspose(
@@ -362,8 +364,8 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::TestBoxOverlap(
 		return FALSE;
 	}
 
-	total = (absOrientation.m_m[2][0] * half1x + absOrientation.m_m[0][0] * half1z) +
-			(absOrientation.m_m[1][2] * half0y + absOrientation.m_m[1][1] * half0z);
+	total = (absOrientation.m_m[2][0] * half1x + absOrientation.m_m[0][0] * half1z);
+	total += (absOrientation.m_m[1][2] * half0y + absOrientation.m_m[1][1] * half0z);
 	if ((total >= 0.001f || total <= -0.001f) &&
 		static_cast<LegoFloat>(
 			fabs(delta.m_z * relativeOrientation.m_m[1][1] - delta.m_y * relativeOrientation.m_m[1][2])
