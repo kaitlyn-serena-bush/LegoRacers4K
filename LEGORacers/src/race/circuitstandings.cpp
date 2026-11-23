@@ -275,9 +275,7 @@ void CircuitStandings::Draw(LegoBool32 p_showCircuitPoints)
 				renderer->DrawCString(buffer, m_font, c_pointsX, y, 1.0f, 1.0f, NULL, 0);
 
 				LegoU32 deltaIndex = 0;
-				RaceState* raceState = m_raceState;
-				Racer* selectedRacer = &raceState->GetRacers()[selectedIndex];
-				while (deltaEntries[deltaIndex].m_racer != selectedRacer && deltaIndex < c_racerCount) {
+				while (deltaEntries[deltaIndex].m_racer != m_raceState->GetRacer(selectedIndex) && deltaIndex < c_racerCount) {
 					deltaIndex++;
 				}
 
