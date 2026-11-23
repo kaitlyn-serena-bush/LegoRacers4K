@@ -1144,15 +1144,16 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 		}
 	}
 
-	double responseScale = m_gravityForce * m_supportNormal.m_z;
+	LegoFloat sweepTmp0 = m_gravityForce;
+	double responseScale = sweepTmp0 * m_supportNormal.m_z;
 	m_supportForce.m_x = -(m_supportNormal.m_x * responseScale);
 	m_supportForce.m_y = -(m_supportNormal.m_y * responseScale);
-	m_supportForce.m_z = m_gravityForce - m_supportNormal.m_z * responseScale;
+	m_supportForce.m_z = sweepTmp0 - m_supportNormal.m_z * responseScale;
 
 	g_carBodyContactForce.m_x = 0.0f;
 	g_carBodyContactForce.m_y = 0.0f;
 	g_carBodyContactForce.m_z =
-		-(m_gravityForce * (1.0f / static_cast<LegoFloat>(static_cast<LegoS32>(m_contactCount + 8))));
+		-(sweepTmp0 * (1.0f / static_cast<LegoFloat>(static_cast<LegoS32>(m_contactCount + 8))));
 
 	for (entry = m_wheelProbes; entry < &m_wheelProbes[sizeOfArray(m_wheelProbes)]; entry++) {
 		if (entry->m_flags & WheelProbe::c_flagContact) {
