@@ -1001,11 +1001,11 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 
 	DrawLoadProgress(0.54f);
 
-	m_raceState.LoadStartPositions(m_startPositionsFileName, m_context->m_useBinaryFiles, p_mirror);
+	GolHashTable* hashTable = g_hashTable;
 
 	DrawLoadProgress(0.56f);
 
-	GolHashTable* hashTable = g_hashTable;
+	m_raceState.LoadStartPositions(m_startPositionsFileName, m_context->m_useBinaryFiles, p_mirror);
 	if (hashTable) {
 		hashTable->SetCurrentEntry(hashTable->AddString(m_context->m_commonDataDirectory));
 	}
