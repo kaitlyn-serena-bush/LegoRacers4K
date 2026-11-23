@@ -685,6 +685,7 @@ void MenuManager::Run()
 // FUNCTION: LEGORACERS 0x0042d730
 void MenuManager::PrepareRaceContext()
 {
+	LegoU32 saveIndex;
 	GolString string;
 	GolRenderDevice::MaterialColor materialColor;
 	GolRenderDevice::Light light;
@@ -697,7 +698,7 @@ void MenuManager::PrepareRaceContext()
 		context->m_cheatFlags = 0;
 	}
 
-	for (LegoU32 saveIndex = 0; saveIndex < m_gameContext.m_saveSystem.GetSessionSave().GetRecordCount(); saveIndex++) {
+	for (saveIndex = 0; saveIndex < m_gameContext.m_saveSystem.GetSessionSave().GetRecordCount(); saveIndex++) {
 		SaveRecordList::Record* record = m_gameContext.m_saveSystem.GetSessionSave().GetRecord(saveIndex);
 		::memcpy(context->m_saveRecords[saveIndex], record->m_data, sizeof(context->m_saveRecords[saveIndex]));
 	}
@@ -745,8 +746,8 @@ void MenuManager::PrepareRaceContext()
 	}
 
 	LegoRacers::Context::PlayerSetupSlot* slots = context->m_playerSetupSlots;
-	LegoU32 sweepTmp0 = context->m_racerCount;
-	if (sweepTmp0 > selectedRecords.GetSelectedRecordCount()) {
+	LegoU32 sweepOld0 = context->m_racerCount;
+	if (sweepOld0 > selectedRecords.GetSelectedRecordCount()) {
 		CircuitDefinitionList::CircuitDefinition* circuitDefinition =
 			static_cast<CircuitDefinitionList::CircuitDefinition*>(
 				m_gameContext.m_circuitList.GetName(context->m_circuitName)
@@ -756,10 +757,10 @@ void MenuManager::PrepareRaceContext()
 		}
 
 		LegoRacers::Context::PlayerSetupSlot* defaultSlot = slots;
-		for (LegoU32 slotIndex = 0; slotIndex < context->m_racerCount; slotIndex++) {
+		for (saveIndex = 0; saveIndex < context->m_racerCount; saveIndex++) {
 			::memcpy(
 				defaultSlot->m_driverName,
-				circuitDefinition->GetDriverName(slotIndex),
+				circuitDefinition->GetDriverName(saveIndex),
 				sizeof(defaultSlot->m_driverName)
 			);
 			defaultSlot->m_chassisName[0] = '\0';
@@ -812,8 +813,8 @@ void MenuManager::PrepareRaceContext()
 
 	LegoRacers::Context::PlayerSetupSlot* slot = slots;
 	LegoRacers::Context::PlayerRecordState* recordState = context->m_playerRecordStates;
-	for (LegoU32 selectedIndex = 0; selectedIndex < selectedRecords.GetSelectedRecordCount(); selectedIndex++) {
-		SaveRecordList::Record* record = selectedRecords.GetSelectedRecord(selectedIndex);
+	for (saveIndex = 0; saveIndex < selectedRecords.GetSelectedRecordCount(); saveIndex++) {
+		SaveRecordList::Record* record = selectedRecords.GetSelectedRecord(saveIndex);
 
 		rendererState.ResetLighting();
 
@@ -854,21 +855,21 @@ void MenuManager::PrepareRaceContext()
 		recordState++;
 	}
 
-	for (LegoU32 clearIndex = 0; clearIndex < 4; clearIndex++) {
-		context->m_bestLapTimes[clearIndex] = 0;
-		context->m_bestLapHolders[clearIndex] = 0;
-		context->m_bestRaceTimes[clearIndex] = 0;
-		context->m_bestRaceHolders[clearIndex] = 0;
+	for (saveIndex = 0; saveIndex < 4; saveIndex++) {
+		context->m_bestLapTimes[saveIndex] = 0;
+		context->m_bestLapHolders[saveIndex] = 0;
+		context->m_bestRaceTimes[saveIndex] = 0;
+		context->m_bestRaceHolders[saveIndex] = 0;
 	}
 
 	if (!selectedRecords.GetSelectedRecordCount()) {
 		context->m_playerCount = m_gameContext.m_inputBindings.GetInputManager()->GetJoystickCount();
 	}
 
-	for (LegoU32 playerIndex = 0; playerIndex < context->m_playerCount; playerIndex++) {
-		LegoU32 entryIndex = m_gameContext.m_saveSystem.GetGameState().GetSelectedInputBindingEntryIndex(playerIndex);
+	for (saveIndex = 0; saveIndex < context->m_playerCount; saveIndex++) {
+		LegoU32 entryIndex = m_gameContext.m_saveSystem.GetGameState().GetSelectedInputBindingEntryIndex(saveIndex);
 		m_gameContext.m_saveSystem.GetGameState()
-			.GetInputBindingEntry(playerIndex, entryIndex, &context->m_inputBindings[playerIndex]);
+			.GetInputBindingEntry(saveIndex, entryIndex, &context->m_inputBindings[saveIndex]);
 	}
 
 	if (!selectedRecords.GetSelectedRecordCount()) {
