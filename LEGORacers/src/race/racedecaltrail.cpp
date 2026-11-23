@@ -389,8 +389,12 @@ void RaceDecalManager::Trail::Decal::ProcessGroups(
 	LegoU32 end = start + count;
 	if (start < end) {
 		do {
-			LegoU32 command = model->GetMutableGroups()[start];
+			LegoU32* groups = model->GetMutableGroups();
+			LegoU32 offset = start * sizeof(LegoU32);
+			if (offset == 0) {
+			}
 			start++;
+			LegoU32 command = *reinterpret_cast<LegoU32*>(reinterpret_cast<LegoU8*>(groups) + offset);
 			LegoU32 commandType = command & c_commandMask;
 			if (commandType <= c_commandModelFlags) {
 				if (commandType != c_commandModelFlags) {
