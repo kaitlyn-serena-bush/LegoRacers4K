@@ -1041,7 +1041,8 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 		}
 
 		entry->m_rayStart.m_x = entry->m_wheelPosition.m_x;
-		entry->m_rayStart.m_y = entry->m_wheelPosition.m_y;
+		LegoFloat sweepOld2 = entry->m_wheelPosition.m_y;
+		entry->m_rayStart.m_y = sweepOld2;
 		entry->m_rayStart.m_z = sweepHeight + entry->m_wheelPosition.m_z;
 		entry->m_rayEnd.m_x = entry->m_wheelPosition.m_x;
 		entry->m_rayEnd.m_y = entry->m_wheelPosition.m_y;
@@ -1124,7 +1125,7 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 
 	if (resetFromAir) {
 		if (m_airborneMs > 400) {
-			LegoFloat dot = m_velocity.m_z * m_supportNormal.m_z + m_velocity.m_y * m_supportNormal.m_y +
+			LegoFloat dot = (m_velocity.m_z) * m_supportNormal.m_z + m_velocity.m_y * m_supportNormal.m_y +
 							m_velocity.m_x * m_supportNormal.m_x;
 			if (dot < 0.0f) {
 				if (dot < -g_landingBounceThreshold) {

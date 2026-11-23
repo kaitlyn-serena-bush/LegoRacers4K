@@ -710,11 +710,11 @@ void RaceHud::DrawRotatingMap()
 		vertices[3].m_y = baseY0 - offsetY1;
 
 		GolVec3 scaledDirection;
-		LegoFloat& sweepRef0 = scaledDirection.m_x;
-		sweepRef0 = m_aspectScale;
+		LegoFloat& sweepOld0 = scaledDirection.m_x;
+		sweepOld0 = m_aspectScale;
 		scaledDirection.m_x *= cameraDirection.m_x;
-		LegoFloat& sweepRef1 = scaledDirection.m_y;
-		sweepRef1 = m_aspectScale;
+		LegoFloat& sweepOld1 = scaledDirection.m_y;
+		sweepOld1 = m_aspectScale;
 		scaledDirection.m_y *= cameraDirection.m_y;
 		LegoFloat baseX0 = scaledDirection.m_y * deltaX0 + static_cast<LegoFloat>(mapCenterX);
 		LegoFloat offsetX0 = deltaY0 * scaledDirection.m_x;
@@ -754,7 +754,7 @@ void RaceHud::DrawRotatingMap()
 			destRect.m_left =
 				mapCenterX +
 				static_cast<LegoS32>(
-					(position.m_x * cameraDirection.m_y - position.m_y * cameraDirection.m_x) * m_aspectScale
+					(GOL_MUL(position.m_x, cameraDirection.m_y) - position.m_y * cameraDirection.m_x) * m_aspectScale
 				);
 			destRect.m_bottom = destRect.m_top + markerHeight;
 			destRect.m_right = destRect.m_left + markerWidth;
@@ -788,7 +788,7 @@ void RaceHud::DrawRotatingMap()
 			mapCenterY - static_cast<LegoS32>(position.m_y * cameraDirection.m_y + position.m_x * cameraDirection.m_x);
 		destRect.m_left =
 			mapCenterX + static_cast<LegoS32>(
-							 (position.m_x * cameraDirection.m_y - position.m_y * cameraDirection.m_x) * m_aspectScale
+							 (GOL_MUL(position.m_x, cameraDirection.m_y) - position.m_y * cameraDirection.m_x) * m_aspectScale
 						 );
 		destRect.m_bottom = destRect.m_top + markerHeight;
 		destRect.m_right = destRect.m_left + markerWidth;
@@ -841,8 +841,8 @@ void RaceHud::DrawRotatingMap()
 	}
 
 	vertices[0].m_x = static_cast<LegoFloat>(mapRect.m_left);
-	vertices[0].m_y = static_cast<LegoFloat>(mapRect.m_top);
 	double value = static_cast<LegoFloat>(mapRect.m_right);
+	vertices[0].m_y = static_cast<LegoFloat>(mapRect.m_top);
 	vertices[1].m_x = value;
 	vertices[1].m_y = static_cast<LegoFloat>(mapRect.m_top);
 	vertices[2].m_x = value;
