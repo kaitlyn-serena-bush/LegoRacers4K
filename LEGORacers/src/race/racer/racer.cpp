@@ -697,7 +697,7 @@ void Racer::InitializePhysics(RacerContext* p_context, SetupParams* p_params)
 	physics->SetAccelerationStat(accelerationStat);
 	physics->SetTopSpeedStat(topSpeedStat);
 
-	LegoFloat halfHeight = m_visuals.m_shadowWidth;
+	LegoFloat halfHeight = ((((m_visuals.m_shadowWidth))));
 	halfHeight *= 0.5f;
 	LegoFloat halfWidth = m_visuals.m_shadowLength;
 	halfWidth *= 0.5f;
