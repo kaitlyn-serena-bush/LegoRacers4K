@@ -465,6 +465,7 @@ void MenuManager::InitializeSaveSystem()
 {
 	const GUID* displayDriverGuid = m_gameContext.m_context->m_golApp->GetDrawState()->GetCurrentDriverGuid();
 	GUID currentDisplayDriverGuid;
+	LegoU32 i = 0;
 
 	if (!displayDriverGuid) {
 		::memset(&currentDisplayDriverGuid, 0, sizeof(currentDisplayDriverGuid));
@@ -490,10 +491,10 @@ void MenuManager::InitializeSaveSystem()
 		);
 	}
 
-	SaveRecordData* saveRecord = m_gameContext.m_context->m_saveRecords;
-	for (LegoU32 i = 0; i < m_gameContext.m_context->m_saveRecordCount; i++, saveRecord++) {
+	while (i < m_gameContext.m_context->m_saveRecordCount) {
 		SaveRecordList::Record* record = m_gameContext.m_saveSystem.GetSessionSave().AllocateRecord();
-		::memcpy(record->m_data, *saveRecord, sizeof(*saveRecord));
+		i++;
+		::memcpy(record->m_data, m_gameContext.m_context->m_saveRecords[i], sizeof(m_gameContext.m_context->m_saveRecords[i]));
 	}
 }
 
