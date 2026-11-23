@@ -1466,8 +1466,10 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 		GolVec3 firstAngularContribution;
 		double sweepOld0 = firstContactOffset.m_z;
 		sweepOld0 *= angular.m_y;
-		firstAngularContribution.m_x = sweepOld0 - angular.m_z * firstContactOffset.m_y;
-		firstAngularContribution.m_y = angular.m_z * firstContactOffset.m_x - angular.m_x * firstContactOffset.m_z;
+		LegoFloat& sweepRef0 = firstAngularContribution.m_x;
+		sweepRef0 = sweepOld0 - angular.m_z * firstContactOffset.m_y;
+		LegoFloat& sweepRef1 = firstAngularContribution.m_y;
+		sweepRef1 = angular.m_z * firstContactOffset.m_x - angular.m_x * firstContactOffset.m_z;
 		firstAngularContribution.m_z = angular.m_x * firstContactOffset.m_y - angular.m_y * firstContactOffset.m_x;
 
 		const GolMatrix3& secondInertia = firstInertia;
