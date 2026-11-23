@@ -853,8 +853,8 @@ void MenuManager::PrepareRaceContext()
 		record->GetCosmetics(&slot->m_cosmetics);
 		slot->m_slotState = 0;
 
-		slot++;
 		recordState++;
+		slot++;
 	}
 
 	for (saveIndex = 0; saveIndex < 4; saveIndex++) {
