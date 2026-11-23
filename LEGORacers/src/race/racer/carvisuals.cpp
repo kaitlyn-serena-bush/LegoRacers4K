@@ -533,7 +533,8 @@ void CarVisuals::Update(LegoU32 p_elapsedMs)
 
 		SoundVector position;
 		GolVec3 velocity = m_racerPhysics->m_velocity;
-		velocity.m_x *= 0.6f;
+		LegoFloat& sweepRef0 = velocity.m_x;
+		sweepRef0 *= 0.6f;
 		velocity.m_y *= 0.6f;
 		velocity.m_z *= 0.6f;
 
@@ -558,13 +559,13 @@ void CarVisuals::Update(LegoU32 p_elapsedMs)
 
 		if (m_flags & c_flagAirborne) {
 			LegoU32 state = m_racer->m_physics.m_contactCount;
-			LegoU32 sweepTmp0 = m_lastGroundedWheelCount;
-			if (sweepTmp0 < state) {
+			LegoU32 sweepOld0 = m_lastGroundedWheelCount;
+			if (sweepOld0 < state) {
 				m_carEntity->GetPosition(&position);
 
 				m_flags &= ~c_flagAirborne;
 
-				switch (state - sweepTmp0) {
+				switch (state - sweepOld0) {
 				case 1:
 					m_racer->m_soundSource->PlaySpatialSoundById(
 						0x3f,
