@@ -238,7 +238,8 @@ void RacerPhysics::RouteCursor::Advance(LegoFloat p_elapsedMs)
 
 		LegoFloat elapsed = static_cast<LegoFloat>(targetTime - m_segmentStartTime);
 		LegoFloat duration = static_cast<LegoFloat>(segmentEndTime - m_segmentStartTime);
-		LegoFloat amount = elapsed / duration;
+		LegoFloat amount = elapsed;
+		amount /= duration;
 		m_widthLeft = (endWidthLeft - startWidthLeft) * amount + startWidthLeft;
 		m_widthRight = (endWidthRight - startWidthRight) * amount + startWidthRight;
 
