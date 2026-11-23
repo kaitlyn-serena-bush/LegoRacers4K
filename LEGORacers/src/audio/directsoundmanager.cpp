@@ -575,7 +575,6 @@ LegoBool32 DirectSoundManager::QueueSound(SoundBuffer& p_sound)
 			InsertByPriorityBeforeEnd(m_queuedSounds, &p_sound.GetLink());
 		}
 
-		
 	}
 	else {
 		if (p_sound.m_playbackState == SoundBuffer::c_playbackStateIdle) {
