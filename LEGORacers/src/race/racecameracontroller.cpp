@@ -746,7 +746,11 @@ void RaceCameraController::Update(LegoFloat p_elapsedMs)
 			offset.m_x = desiredDirection.m_x;
 			offset.m_y = desiredDirection.m_y;
 			offset.m_z = desiredDirection.m_z - verticalOffset;
-			GolVec3 scaledOffset = offset * cameraDistance;
+			GolVec3 scaledOffset;
+			scaledOffset.m_x = offset.m_x * cameraDistance;
+			LegoFloat offsetY = offset.m_y;
+			scaledOffset.m_y = offsetY * cameraDistance;
+			scaledOffset.m_z = offset.m_z * cameraDistance;
 			
 			m_rawTransform.m_position.m_x = targetPosition.m_x - scaledOffset.m_x;
 			m_rawTransform.m_position.m_y = targetPosition.m_y - scaledOffset.m_y;
