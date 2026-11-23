@@ -99,7 +99,7 @@ LegoBool32 TriggerWorld::IntersectSegment(
 			LegoFloat y = center.m_y - p_start->m_y;
 			LegoFloat z = center.m_z - p_start->m_z;
 			LegoFloat dot = z * direction.m_z + y * direction.m_y + x * direction.m_x;
-			LegoFloat discriminant = radius * radius - (y * y + z * z + x * x - dot * dot);
+			LegoFloat discriminant = radius * radius - (y * y +GOL_MUL(z, z) +GOL_MUL(x, x) - dot * dot);
 			if (discriminant > 0.0f) {
 				LegoFloat distance = dot - static_cast<LegoFloat>(sqrt(discriminant));
 				if (distance * distance <= 0.0f) {
