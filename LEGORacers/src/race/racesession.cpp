@@ -1951,7 +1951,7 @@ void RaceSession::UpdateFinishedState()
 	}
 
 	for (LegoU32 racerIndex = 0; racerIndex < m_context->m_racerCount; racerIndex++) {
-		Racer* racer = m_raceState.GetRacer(racerIndex);
+		Racer* racer = &m_raceState.GetRacers()[racerIndex];
 		LegoU32 sweepOld0 = racer->m_lapsCompleted;
 		if (sweepOld0 == 0) {
 		}
