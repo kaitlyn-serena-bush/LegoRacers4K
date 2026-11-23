@@ -1196,45 +1196,43 @@ LegoS32 MenuManager::CommitBestTimes()
 	m_gameContext.m_context->m_flags = flags & ~LegoRacers::Context::c_flagBestTimesPending;
 	LegoRacers::Context* context = m_gameContext.m_context;
 
-	
 	LegoChar name[15];
 	undefined2 wideName[14];
-	LegoS32 result = FALSE;
-	LegoU32 raceIndex = 0;
-
 	GolString string;
+	GameState& gameState = m_gameContext.m_saveSystem.GetGameState();
+	LegoU32 raceIndex = 0;
+	LegoS32 result = FALSE;
 	for (LegoS32 i = 0; i < 4; i++) {
 		LegoBool32 hasRaceIndex = FALSE;
 
 		if (context->m_bestLapTimes[i]) {
-			const LegoChar* sourceName = context->m_playerSetupSlots[context->m_bestLapHolders[i]].m_playerName;
 			hasRaceIndex = TRUE;
-
+			raceIndex = m_gameContext.m_raceNames.GetEntryIndexByName(context->m_raceSlots[i].m_raceName);
+			LegoRacers::Context::PlayerSetupSlot* slot = &context->m_playerSetupSlots[context->m_bestLapHolders[i]];
+			const LegoChar* sourceName = slot->m_playerName;
 			::strncpy(name, sourceName, sizeof(name) - 1);
 			name[sizeof(name) - 1] = '\0';
 			GolString::CopyStringToBuf16(sourceName, wideName);
 			string.CopyFromBufSelection(wideName, sizeof(name) - 1);
-			raceIndex = m_gameContext.m_raceNames.GetEntryIndexByName(context->m_raceSlots[i].m_raceName);
 
-			if (m_gameContext.m_saveSystem.GetGameState()
-					.SetBestTime(raceIndex, 0, context->m_bestLapTimes[i], &string)) {
+			if (gameState.SetBestTime(raceIndex, 0, context->m_bestLapTimes[i], &string)) {
 				result = TRUE;
 			}
 		}
 
 		if (context->m_bestRaceTimes[i]) {
 			if (!hasRaceIndex) {
-				raceIndex = m_gameContext.m_raceNames.GetEntryIndexByName(context->m_raceSlots[i].m_raceName);
+					raceIndex = m_gameContext.m_raceNames.GetEntryIndexByName(context->m_raceSlots[i].m_raceName);
 			}
 
-			const LegoChar* sourceName = context->m_playerSetupSlots[context->m_bestRaceHolders[i]].m_playerName;
+			LegoRacers::Context::PlayerSetupSlot* slot = &context->m_playerSetupSlots[context->m_bestRaceHolders[i]];
+			const LegoChar* sourceName = slot->m_playerName;
 			::strncpy(name, sourceName, sizeof(name) - 1);
 			name[sizeof(name) - 1] = '\0';
 			GolString::CopyStringToBuf16(sourceName, wideName);
 			string.CopyFromBufSelection(wideName, sizeof(name) - 1);
 
-			if (m_gameContext.m_saveSystem.GetGameState()
-					.SetBestTime(raceIndex, 1, context->m_bestRaceTimes[i], &string)) {
+			if (gameState.SetBestTime(raceIndex, 1, context->m_bestRaceTimes[i], &string)) {
 				result = TRUE;
 			}
 		}
