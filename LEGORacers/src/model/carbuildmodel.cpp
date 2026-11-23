@@ -1002,8 +1002,8 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 				}
 
 				if (m_buildPrimitiveCount >= c_buildPrimitiveCapacity) {
-					m_buildStatus |= c_buildStatusOverflow;
-					return static_cast<LegoS16>(m_buildPrimitiveCount);
+					result = m_buildPrimitiveCount;
+					goto overflow;
 				}
 				primitive->m_vertexIndices[3] = AddBuildVertex(&vertex);
 
@@ -1151,6 +1151,7 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 		return static_cast<LegoS16>(remaining);
 	}
 
+overflow:
 	m_buildStatus |= c_buildStatusOverflow;
 	return static_cast<LegoS16>(result);
 }
