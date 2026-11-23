@@ -753,7 +753,7 @@ void MenuManager::PrepareRaceContext()
 			static_cast<CircuitDefinitionList::CircuitDefinition*>(
 				m_gameContext.m_circuitList.GetName(context->m_circuitName)
 			);
-		if (context->m_racerCount > circuitDefinition->GetDriverCount()) {
+		if (circuitDefinition->GetDriverCount() < context->m_racerCount) {
 			context->m_racerCount = circuitDefinition->GetDriverCount();
 		}
 
