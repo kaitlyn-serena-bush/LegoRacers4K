@@ -232,11 +232,11 @@ LegoBool32 CarBuildScreenBase::Draw(Rect* p_clipRect, Rect* p_sourceRect)
 		if (!m_tooltipWrapWidth) {
 			LegoS32 fontHeight = 0;
 			m_tooltipFont->MeasureString(m_tooltipString, &width, &fontHeight);
-			m_tooltipLineSpacing = 1;
+			LegoS32& sweepOld0 = m_tooltipWrapWidth;
 
 			LegoFloat measuredWidth = static_cast<LegoFloat>(width);
-			LegoS32& sweepRef0 = m_tooltipWrapWidth;
-			sweepRef0 = static_cast<LegoS32>(::sqrt((static_cast<LegoFloat>(fontHeight + 1) * 3.0f) * measuredWidth));
+			sweepOld0 = static_cast<LegoS32>(::sqrt((static_cast<LegoFloat>(fontHeight + 1) * 3.0f) * measuredWidth));
+			m_tooltipLineSpacing = 1;
 
 			LegoS32 maxWidth = p_clipRect->m_right - (fontHeight * 2) - p_clipRect->m_left;
 			if (m_tooltipWrapWidth > maxWidth) {

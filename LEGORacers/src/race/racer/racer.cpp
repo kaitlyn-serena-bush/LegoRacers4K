@@ -1426,7 +1426,8 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 	GolVec3 relativeVelocity;
 	relativeVelocity.m_x = firstVelocity.m_x - secondVelocity.m_x;
 	relativeVelocity.m_y = firstVelocity.m_y - secondVelocity.m_y;
-	relativeVelocity.m_z = firstVelocity.m_z - secondVelocity.m_z;
+	relativeVelocity.m_z = firstVelocity.m_z;
+	relativeVelocity.m_z -= secondVelocity.m_z;
 
 	LegoFloat impulseNumerator = -DotVectors(relativeVelocity, collisionNormal) * (g_collisionRestitution + 1.0f);
 
@@ -1465,9 +1466,9 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 	angular.m_z += firstInertia.m_m[2][2] * angularAxis.m_z;
 
 	GolVec3 firstAngularContribution;
-	double sweepC0 = firstContactOffset.m_z;
-	sweepC0 *= angular.m_y;
-	firstAngularContribution.m_x = sweepC0 - angular.m_z * firstContactOffset.m_y;
+	double sweepOld0 = firstContactOffset.m_z;
+	sweepOld0 *= angular.m_y;
+	firstAngularContribution.m_x = sweepOld0 - angular.m_z * firstContactOffset.m_y;
 	firstAngularContribution.m_y = angular.m_z * firstContactOffset.m_x - angular.m_x * firstContactOffset.m_z;
 	firstAngularContribution.m_z = angular.m_x * firstContactOffset.m_y - angular.m_y * firstContactOffset.m_x;
 
