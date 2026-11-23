@@ -212,9 +212,9 @@ void DirectSoundManager::Update(undefined4)
 					}
 					m_availableSoundCount--;
 					queuedSpatialSound.GetLink().Remove();
-					InsertByPriorityForUpdate(m_activeSpatialSounds, queuedSpatialSound, FALSE);
 					queuedSpatialSound.SetPlaybackState(SoundBuffer::c_playbackStateActive);
 					queuedSpatialSound.StartDirectSoundBuffer();
+					InsertByPriorityForUpdate(m_activeSpatialSounds, queuedSpatialSound, FALSE);
 					continue;
 				}
 			}
@@ -226,8 +226,8 @@ void DirectSoundManager::Update(undefined4)
 			}
 			m_availableSoundCount--;
 			queuedSound->GetLink().Remove();
-			InsertByPriorityForUpdate(m_activeSounds, *queuedSound, TRUE);
 			queuedSound->SetPlaybackState(SoundBuffer::c_playbackStateActive);
+			InsertByPriorityForUpdate(m_activeSounds, *queuedSound, TRUE);
 			queuedSound->StartDirectSoundBuffer();
 		}
 	}

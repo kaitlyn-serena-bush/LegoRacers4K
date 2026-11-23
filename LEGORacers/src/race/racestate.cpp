@@ -743,10 +743,10 @@ void RaceState::UpdateStandings()
 
 		LegoU32 nearestIndex;
 		for (nearestIndex = 0; nearestIndex < m_roster.m_racerCount; nearestIndex++) {
-			Racer* racer = &m_roster.m_racers[nearestIndex];
-			if (racer != m_roster.m_currentRacer) {
+			
+			if ((&m_roster.m_racers[nearestIndex]) != m_roster.m_currentRacer) {
 				GolVec3 racerPosition;
-				racer->m_visuals.m_carEntity->GetPosition(&racerPosition);
+				m_roster.m_racers[nearestIndex].m_visuals.m_carEntity->GetPosition(&racerPosition);
 
 				LegoFloat deltaX = position.m_x - racerPosition.m_x;
 				LegoFloat deltaY = position.m_y - racerPosition.m_y;

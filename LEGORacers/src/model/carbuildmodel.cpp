@@ -889,12 +889,12 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 		const LegoU16* cursor = library->GetIndexCursor(p_pieceRecord->m_indexOffset);
 
 		while (remaining != 0) {
-			LegoS32 primitiveCount = m_buildPrimitiveCount;
+			
 			LegoU32 command = *cursor++;
 			LegoS32 mode = command & c_indexCommandModeMask;
 
 			if (mode == c_indexCommandQuad) {
-				m_buildPrimitiveCount = primitiveCount - 1;
+				m_buildPrimitiveCount = m_buildPrimitiveCount - 1;
 				primitive->m_vertexCount = 4;
 
 				LegoS32 coordinateIndex = *cursor++;
@@ -1016,8 +1016,8 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 				}
 			}
 			else {
-				primitive = &m_buildPrimitives[primitiveCount];
-				m_buildPrimitiveOrder[primitiveCount] = primitive;
+				primitive = &m_buildPrimitives[m_buildPrimitiveCount];
+				m_buildPrimitiveOrder[m_buildPrimitiveCount] = primitive;
 
 				hasTextureIndex = mode == c_indexCommandTextured;
 				hasNormalIndex = (command >> 14) & 1;
@@ -1026,8 +1026,8 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 				LegoU16 materialIndex = command & 0x07ff;
 
 				primitive->m_vertexCount = 3;
-				LegoU8& sweepRef0 = primitive->m_flags;
-				sweepRef0 = c_buildPrimitiveInitialFlags;
+				LegoU8& sweepOld1 = primitive->m_flags;
+				sweepOld1 = c_buildPrimitiveInitialFlags;
 				primitive->m_commandFlags = commandFlags;
 				primitive->m_materialIndex = materialIndex;
 				primitive->m_partIndex = p_partIndex;
