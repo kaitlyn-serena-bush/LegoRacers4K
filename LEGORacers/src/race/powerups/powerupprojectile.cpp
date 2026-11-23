@@ -124,9 +124,9 @@ void PowerupProjectile::LaunchAtRacer(
 	delta.m_x *= inverseDistance;
 	racerDirection = p_racer->m_physics.m_velocityDirection;
 	delta.m_y *= inverseDistance;
-	double sweepC0 = racerDirection.m_y;
-	sweepC0 *= delta.m_y;
-	LegoFloat dot = racerDirection.m_z * 0.0f + sweepC0 + racerDirection.m_x * delta.m_x;
+	double sweepOld0 = racerDirection.m_y;
+	sweepOld0 *= delta.m_y;
+	LegoFloat dot = racerDirection.m_z * 0.0f + sweepOld0 + racerDirection.m_x * delta.m_x;
 	if (dot < 0.0f) {
 		dot = -dot;
 	}
@@ -154,7 +154,8 @@ void PowerupProjectile::LaunchAtRacer(
 		predictedDelta.m_z = delta.m_z - startPosition->m_z;
 		LegoFloat predictedDot = racerDirection.m_z * predictedDelta.m_z;
 		predictedDot += racerDirection.m_y * predictedDelta.m_y;
-		predictedDot += racerDirection.m_x * predictedDelta.m_x;
+		LegoFloat sweepTmp0 = racerDirection.m_x;
+		predictedDot += sweepTmp0 * predictedDelta.m_x;
 		if (predictedDot < 0.0f) {
 			*target = delta;
 		}
