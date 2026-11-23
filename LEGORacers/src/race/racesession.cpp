@@ -1497,10 +1497,11 @@ void RaceSession::InitializeInput()
 		playerCount = m_context->m_playerCount;
 	}
 
+	LegoU32 playerIndex = 0;
 	if (playerCount > 0) {
 		PlayerControls* controls = m_playerControls;
 		Racer** racer = m_raceState.m_playerRacers;
-		LegoU32 playerIndex = 0;
+		LegoU32 remaining = playerCount;
 
 		do {
 			LegoBool32 bindingAcquired = FALSE;
@@ -1515,7 +1516,7 @@ void RaceSession::InitializeInput()
 				JoystickDevice* joystick =
 					m_inputManager->FindJoystickByDeviceId(m_context->m_inputBindings[playerIndex].m_deviceId);
 				if (joystick &&
-					joystick->GetDeviceSubType() == m_context->m_inputBindings[playerIndex].m_deviceSubType) {
+					m_context->m_inputBindings[playerIndex].m_deviceSubType == joystick->GetDeviceSubType()) {
 					joystick->SetCallback(inputEvents);
 					bindingAcquired = TRUE;
 					joystick->Acquire();
@@ -1630,8 +1631,8 @@ void RaceSession::InitializeInput()
 			racer++;
 			playerIndex++;
 			controls++;
-			playerCount--;
-		} while (playerCount);
+			remaining--;
+		} while (remaining);
 	}
 
 	m_inputManager->PollDevices(0);
