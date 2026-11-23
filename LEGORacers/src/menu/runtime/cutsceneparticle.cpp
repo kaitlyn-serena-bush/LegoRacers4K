@@ -140,7 +140,7 @@ void CutsceneParticle::SetOrientation(GolVec3* p_param1, GolVec3* p_param2)
 
 	GolMath::NormalizeVector3(*p_param1, &v0);
 	GolMath::NormalizeVector3(*p_param1, &v1);
-	LegoFloat dot = p_param2->m_y;
+	LegoFloat dot = (((((((((((p_param2->m_y)))))))))));
 	dot *= v1.m_y;
 	dot += v1.m_z * p_param2->m_z;
 	dot += v1.m_x * p_param2->m_x;
