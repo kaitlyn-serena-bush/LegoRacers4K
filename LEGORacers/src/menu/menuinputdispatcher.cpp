@@ -241,6 +241,11 @@ LegoS32 MenuInputDispatcher::ProcessInputEvents(MenuIcon*)
 			break;
 		case c_joystickButton1:
 			break;
+		case c_mouseButton0:
+		case c_mouseButton1:
+		case c_mouseButton2:
+		case c_mouseButton3:
+			;
 		default:
 			if (item->m_isPressed) {
 				m_activeScreen->GetRootIcon()->DispatchKeyDown(item, x, y);
