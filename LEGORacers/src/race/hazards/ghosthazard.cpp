@@ -113,10 +113,9 @@ void GhostHazard::Load(HazardContext* p_context, GolFileParser*)
 
 	m_trigger.SetBoundsRadius(m_ghostEntity->GetModel(0)->GetRadius() + g_ghostTriggerRadiusPadding);
 
-	LegoU32 frameCount = 0;
-	CmbModelPartData* partData = m_ghostEntity->GetModelPart()->GetPartData();
-	LegoFloat inverseDuration = 1.0f / partData->GetMsPerFrame();
-	frameCount = partData->GetFrameCount();
+	CmbModelPart* part = m_ghostEntity->GetModelPart();
+	LegoFloat inverseDuration = (1.0f / part->GetPartData()->GetMsPerFrame());
+	LegoU32 frameCount = part->GetPartData()->GetFrameCount();
 	LegoFloat frameCountFloat = static_cast<LegoFloat>(frameCount);
 	m_animationFrameCount = static_cast<LegoS32>(inverseDuration * frameCountFloat);
 	m_racerSearchMs = 0;
