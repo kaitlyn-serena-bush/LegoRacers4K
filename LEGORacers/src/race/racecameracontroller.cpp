@@ -479,6 +479,8 @@ inline static void LerpVector3(const GolVec3& p_from, const GolVec3& p_to, LegoF
 // FUNCTION: LEGORACERS 0x00428540
 void RaceCameraController::Update(LegoFloat p_elapsedMs)
 {
+	GolVec3 desiredDirection;
+	GolVec3 targetPosition;
 	if (m_racer == NULL) {
 		m_dirty = TRUE;
 		return;
@@ -545,10 +547,10 @@ void RaceCameraController::Update(LegoFloat p_elapsedMs)
 		Racer* racer = m_racer;
 		LegoFloat first;
 		LegoFloat second;
-		GolVec3 targetPosition;
+		
 		racer->m_visuals.m_carEntity->GetPosition(&targetPosition);
 
-		GolVec3 desiredDirection;
+		
 		GolAnimatedEntity* entity = m_racer->m_visuals.m_carEntity;
 		desiredDirection.m_x = entity->GetOrientation().m_rows[0].m_x;
 		desiredDirection.m_y = entity->GetOrientation().m_rows[0].m_y;
@@ -744,8 +746,8 @@ void RaceCameraController::Update(LegoFloat p_elapsedMs)
 			offset.m_x = desiredDirection.m_x;
 			offset.m_y = desiredDirection.m_y;
 			offset.m_z = desiredDirection.m_z - verticalOffset;
-			GolVec3 scaledOffset = offset;
-			scaledOffset *= cameraDistance;
+			GolVec3 scaledOffset = offset * cameraDistance;
+			
 			m_rawTransform.m_position.m_x = targetPosition.m_x - scaledOffset.m_x;
 			m_rawTransform.m_position.m_y = targetPosition.m_y - scaledOffset.m_y;
 			m_rawTransform.m_position.m_z = targetPosition.m_z - scaledOffset.m_z;
