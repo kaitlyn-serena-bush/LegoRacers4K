@@ -1151,19 +1151,23 @@ void RaceState::ComputeStandingsDeltas(Racer* p_racer, Racer::StandingsDeltaEntr
 	}
 
 	for (LegoU32 racerIndex = 0; racerIndex < m_roster.m_racerCount; racerIndex++) {
+		Racer* racer = &m_roster.m_racers[racerIndex];
 		p_entries[racerIndex].m_racer = &m_roster.m_racers[racerIndex];
 		p_entries[racerIndex].m_isValid = TRUE;
 
-		if (&m_roster.m_racers[racerIndex] != p_racer) {
-			if (m_roster.m_racers[racerIndex].m_lapsCompleted < m_setup.m_lapCount) {
-			p_entries[racerIndex].m_delta = m_roster.m_racers[racerIndex].m_standingsPosition + 2147483641;
+		if (racer == p_racer) {
+			p_entries[racerIndex].m_delta = 0;
+		}
+		else {
+			if (racer->m_lapsCompleted < m_setup.m_lapCount) {
+			p_entries[racerIndex].m_delta = racer->m_standingsPosition + 2147483641;
 		}
 		else {
 			LegoS32 otherTime = 0;
 			LegoU32 remaining = m_setup.m_lapCount;
 
 			if (remaining > 0) {
-				LegoU32* lapTime = m_roster.m_racers[racerIndex].m_lapTimes;
+				LegoU32* lapTime = racer->m_lapTimes;
 
 				do {
 					otherTime += *lapTime++;
@@ -1172,10 +1176,7 @@ void RaceState::ComputeStandingsDeltas(Racer* p_racer, Racer::StandingsDeltaEntr
 
 			p_entries[racerIndex].m_delta = otherTime - racerTime;
 		}
-		}
-		else {
-			p_entries[racerIndex].m_delta = 0;
-		}
+				}
 	}
 
 	for (LegoU32 i = m_roster.m_racerCount; i < 6; i++) {
