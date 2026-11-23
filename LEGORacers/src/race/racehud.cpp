@@ -1164,7 +1164,7 @@ void RaceHud::SetLayout(LegoS32 p_mode)
 	FormatTime(m_lapTimeText.m_text, 0);
 	CopyToGolString(m_lapTimeText.m_text, m_scratchString);
 	m_font->MeasureString(m_scratchString, &p_mode, &textHeight);
-	p_mode = static_cast<LegoS32>(static_cast<LegoFloat>(p_mode) * m_textScale);
+	p_mode = static_cast<LegoS32>((static_cast<LegoFloat>(p_mode)) * m_textScale);
 	m_shortTimeWidth = static_cast<LegoS32>(static_cast<LegoFloat>(p_mode) * m_textScaleX);
 
 	FormatTime(m_lapTimeText.m_text, 0x36ee08);
@@ -1185,8 +1185,8 @@ void RaceHud::SetLayout(LegoS32 p_mode)
 	rowOffsetSteps = (static_cast<LegoU32>(7 * scaledTextHeight)) >> 3;
 	LegoFloat rowOffset = static_cast<LegoFloat>(rowOffsetSteps);
 	m_lapTimeY = topTextY;
-	m_positionY = topTextY;
 	m_positionX = positionX;
+	m_positionY = topTextY;
 	m_bestLapX = timeX;
 
 	rowOffset *= m_scaleY;
