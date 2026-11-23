@@ -668,7 +668,7 @@ void RaceHud::DrawRotatingMap()
 
 	LegoFloat directionScale =
 		directionLengthScale / static_cast<LegoFloat>(sqrt(
-								   (GOL_MUL(cameraDirection.m_y, cameraDirection.m_y)) + (GOL_MUL(cameraDirection.m_x, cameraDirection.m_x))
+								   ((((((GOL_MUL(cameraDirection.m_y, cameraDirection.m_y))))))) + (GOL_MUL(cameraDirection.m_x, cameraDirection.m_x))
 							   ));
 	cameraDirection.m_x *= directionScale;
 	cameraDirection.m_y *= directionScale;
@@ -681,8 +681,8 @@ void RaceHud::DrawRotatingMap()
 			deltaY1 = -m_mapMaxY - currentPosition.m_y;
 			vertices[0].m_v = 0.0f;
 			vertices[1].m_v = 0.0f;
-			vertices[2].m_v = maxTextureCoordinate;
 			vertices[3].m_v = maxTextureCoordinate;
+			vertices[2].m_v = maxTextureCoordinate;
 		}
 		else {
 			deltaY0 = m_mapMaxY - currentPosition.m_y;
@@ -816,7 +816,7 @@ void RaceHud::DrawRotatingMap()
 			mapCenterY - static_cast<LegoS32>(position.m_y * cameraDirection.m_y + position.m_x * cameraDirection.m_x);
 		destRect.m_left =
 			mapCenterX + static_cast<LegoS32>(
-							 (position.m_x * cameraDirection.m_y - position.m_y * cameraDirection.m_x) * m_aspectScale
+							 (GOL_MUL(position.m_x, cameraDirection.m_y) - position.m_y * cameraDirection.m_x) * m_aspectScale
 						 );
 		destRect.m_bottom = destRect.m_top + markerHeight;
 		destRect.m_right = destRect.m_left + markerWidth;
