@@ -1049,7 +1049,8 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	}
 
 	for (racerIndex = racerParams.m_racerCount; racerIndex < sizeOfArray(racerParams.m_slots); racerIndex++) {
-		racerParams.m_slots[racerIndex] = NULL;
+		LegoRacers::Context::PlayerSetupSlot** sweepElem0 = &racerParams.m_slots[racerIndex];
+		(*sweepElem0) = NULL;
 	}
 
 	m_raceState.CreateRacers(&racerParams, &racerContext, m_context->m_useBinaryFiles);

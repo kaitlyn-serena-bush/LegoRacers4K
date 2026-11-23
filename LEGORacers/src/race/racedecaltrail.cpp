@@ -599,8 +599,8 @@ LegoU32 RaceDecalManager::Trail::Decal::TransformVertices(
 // FUNCTION: LEGORACERS 0x00414f40
 void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32 p_polygonCount)
 {
-	LegoU8* indices = m_sourceIndexBytes + 4 * p_firstPolygon;
 	LegoU8* end = m_sourceIndexBytes + 4 * (p_firstPolygon + p_polygonCount);
+	LegoU8* indices = m_sourceIndexBytes + 4 * p_firstPolygon;
 
 	while (indices < end) {
 		LegoU32 index0 = indices[0];
@@ -792,9 +792,9 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 					previousOutside = currentOutside;
 				}
 
-				LegoU32* swapIndices = inputIndices;
+				
 				inputIndices = outputIndices;
-				outputIndices = swapIndices;
+				outputIndices = inputIndices;
 				LegoU32* swapFlags = inputFlags;
 				inputFlags = outputFlags;
 				outputFlags = swapFlags;

@@ -716,7 +716,7 @@ void MenuManager::PrepareRaceContext()
 		context->m_raceMode = LegoRacers::Context::c_raceModeSingle;
 
 		g_randomTableIndex = (g_randomTableIndex + 1) & 0x3ff;
-		LegoU16 random = g_randomTable[g_randomTableIndex];
+		LegoU16 random = g_randomTable[0];
 		LegoS32 raceIndex = static_cast<LegoS32>(random) % 4;
 		RaceNameEntry* raceName = m_gameContext.m_circuitList.GetEntries()[0].GetRaceNameEntry(raceIndex);
 
@@ -745,7 +745,8 @@ void MenuManager::PrepareRaceContext()
 	}
 
 	LegoRacers::Context::PlayerSetupSlot* slots = context->m_playerSetupSlots;
-	if (context->m_racerCount > selectedRecords.GetSelectedRecordCount()) {
+	LegoU32 sweepTmp0 = context->m_racerCount;
+	if (sweepTmp0 > selectedRecords.GetSelectedRecordCount()) {
 		CircuitDefinitionList::CircuitDefinition* circuitDefinition =
 			static_cast<CircuitDefinitionList::CircuitDefinition*>(
 				m_gameContext.m_circuitList.GetName(context->m_circuitName)

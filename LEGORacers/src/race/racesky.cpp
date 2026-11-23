@@ -649,7 +649,8 @@ void RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 		for (segment = 1; segment <= p_params->m_segmentCount; segment++) {
 			triangle[0] = 0;
 			triangle[second] = static_cast<LegoU8>(segment);
-			triangle[third] = static_cast<LegoU8>(segment == p_params->m_segmentCount ? 1 : segment + 1);
+			LegoU8* sweepElem0 = &triangle[third];
+			(*sweepElem0) = static_cast<LegoU8>(segment == p_params->m_segmentCount ? 1 : segment + 1);
 			if (p_params->m_absoluteIndexArray != NULL) {
 				p_params->m_absoluteIndexArray
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
@@ -675,7 +676,7 @@ void RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 		for (segment = 1; segment <= p_params->m_segmentCount; segment++) {
 			triangle[0] = static_cast<LegoU8>(vertexCount - 1);
 			triangle[third] = static_cast<LegoU8>(first + segment - 1);
-			triangle[second] = static_cast<LegoU8>(segment == p_params->m_segmentCount ? first : triangle[third] + 1);
+			triangle[second] = static_cast<LegoU8>(segment == p_params->m_segmentCount ? first : (static_cast<LegoU8>(first + segment - 1)) + 1);
 			if (p_params->m_absoluteIndexArray != NULL) {
 				p_params->m_absoluteIndexArray
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
@@ -704,9 +705,9 @@ void RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 		LegoU32 indexOffset = scratchStart - first;
 		for (segment = 0; segment < p_params->m_segmentCount; segment++) {
 			triangle[0] = static_cast<LegoU8>(first + segment);
-			triangle[second] = static_cast<LegoU8>(triangle[0] + p_params->m_segmentCount);
+			triangle[second] = static_cast<LegoU8>((static_cast<LegoU8>(first + segment)) + p_params->m_segmentCount);
 			triangle[third] = static_cast<LegoU8>(
-				segment == p_params->m_segmentCount - 1 ? first + p_params->m_segmentCount : triangle[second] + 1
+				segment == p_params->m_segmentCount - 1 ? first + p_params->m_segmentCount : (static_cast<LegoU8>(triangle[0] + p_params->m_segmentCount)) + 1
 			);
 			if (p_params->m_absoluteIndexArray != NULL) {
 				p_params->m_absoluteIndexArray
@@ -721,9 +722,9 @@ void RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 			triangle[0] = static_cast<LegoU8>(first + segment);
 			triangle[second] = static_cast<LegoU8>(
 				segment == p_params->m_segmentCount - 1 ? first + p_params->m_segmentCount
-														: triangle[0] + p_params->m_segmentCount + 1
+														: (static_cast<LegoU8>(first + segment)) + p_params->m_segmentCount + 1
 			);
-			triangle[third] = static_cast<LegoU8>(segment == p_params->m_segmentCount - 1 ? first : triangle[0] + 1);
+			triangle[third] = static_cast<LegoU8>(segment == p_params->m_segmentCount - 1 ? first : (static_cast<LegoU8>(first + segment)) + 1);
 			if (p_params->m_absoluteIndexArray != NULL) {
 				p_params->m_absoluteIndexArray
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
