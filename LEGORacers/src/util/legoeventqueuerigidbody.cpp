@@ -37,7 +37,7 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 	LegoU32 shapeIndex = 0;
 	p_contactPoint->m_x = 0.0f;
 	p_contactPoint->m_y = 0.0f;
-	p_contactPoint->m_z = 0.0f;
+	p_contactPoint->m_z = p_contactPoint->m_x;
 
 	for (; shapeIndex < 2; shapeIndex++) {
 		LegoU32 cornerIndex = 0;
