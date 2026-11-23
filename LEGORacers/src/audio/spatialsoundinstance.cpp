@@ -203,8 +203,8 @@ void SpatialSoundInstance::UpdateSpatialFromNode(SoundNode* p_node)
 				double velocity = relativeVelocity.m_z;
 				velocity *= direction.m_z;
 				double dotY = relativeVelocity.m_y;
-				LegoFloat rightY = direction.m_y;
-				dotY *= rightY;
+				
+				dotY *= direction.m_y;
 				velocity += dotY;
 				velocity += relativeVelocity.m_x * direction.m_x;
 
