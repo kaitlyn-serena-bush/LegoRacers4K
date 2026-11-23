@@ -1022,17 +1022,18 @@ void MenuManager::BuildPlayerDriverModel(
 		}
 	}
 
+	LegoU32 count = materialCount;
 	GolExport* golExport = m_gameContext.m_context->m_golApp->GetGolExport();
 	GolD3DRenderDevice* renderer = golExport->GetDrawState()->m_currentRenderer;
 
 	p_slot->m_altMaterials = golExport->CreateMaterialList();
-	p_slot->m_altMaterials->Initialize(renderer, materialCount);
+	p_slot->m_altMaterials->Initialize(renderer, count);
 	p_slot->m_altTextures = golExport->CreateTextureList();
 	p_slot->m_altTextures->Initialize(renderer, textureCount);
 
 	textureCount = 0;
-	for (LegoU32 materialIndex = 0; materialIndex < materialCount; materialIndex++) {
-		GolMaterial* sourceMaterial = materialTable->GetMaterial(materialIndex);
+	for (materialCount = 0; materialCount < count; materialCount++) {
+		GolMaterial* sourceMaterial = materialTable->GetMaterial(materialCount);
 		sourceMaterial->CopyParamsTo(&params);
 
 		if (sourceMaterial->GetFlags() & GolMaterial::c_flagTextured) {
@@ -1048,9 +1049,9 @@ void MenuManager::BuildPlayerDriverModel(
 		}
 
 		params.m_flags &= ~GolMaterial::c_flagCreated;
-		GolMaterial* material = p_slot->m_altMaterials->GetItem(materialIndex);
+		GolMaterial* material = p_slot->m_altMaterials->GetItem(materialCount);
 		material->SetParams(renderer, params);
-		materialTable->SetEntry(materialIndex, material);
+		materialTable->SetEntry(materialCount, material);
 	}
 
 	entity.SetModel(p_slot->m_altModel, modelBuilder->GetBodySceneNode(&cosmetics), &modelParts, g_menuManagerMaxFloat);
