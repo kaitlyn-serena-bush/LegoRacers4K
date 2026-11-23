@@ -321,132 +321,116 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 
 		if (projectedDelta < 0.0f) {
 			LegoFloat backwardDelta = -projectedDelta;
-			LegoFloat remainingDistance = static_cast<LegoFloat>(sqrt(startPosition.DistanceSquaredTo(m_position)));
+			segmentLength = static_cast<LegoFloat>(sqrt(startPosition.DistanceSquaredTo(m_position)));
 
-			if (backwardDelta <= remainingDistance) {
-				segmentAmount = remainingDistance - backwardDelta;
-				break;
-			}
+			while (backwardDelta > segmentLength) {
+				{
 
-			for (;;) {
+					LegoFloat negativeDistance = -segmentLength;
+					consumed.m_x = negativeDistance * segment.m_x;
+					consumed.m_y = segment.m_y * negativeDistance;
+					consumed.m_z = segment.m_z * negativeDistance;
+					GolCameraBase::Subtract(p_delta, &consumed, p_delta);
 
-				LegoFloat negativeDistance = -remainingDistance;
-				consumed.m_x = negativeDistance * segment.m_x;
-				consumed.m_y = segment.m_y * negativeDistance;
-				consumed.m_z = segment.m_z * negativeDistance;
-				GolCameraBase::Subtract(p_delta, &consumed, p_delta);
+					do {
+						endPosition = startPosition;
+						endIndex = startIndex;
+						endPoint = startPoint;
+						segmentEndTime = segmentStartTime;
+						startIndex--;
 
-				do {
-					endPosition = startPosition;
-					endIndex = startIndex;
-					endPoint = startPoint;
-					segmentEndTime = segmentStartTime;
-					startIndex--;
+						if (startIndex < 0) {
+							return;
+						}
 
-					if (startIndex < 0) {
-						return;
+						segmentStartTime -= endPoint->GetLength();
+
+						endPoint->GetPosition(&offset);
+						startPosition.m_x -= offset.m_x;
+						startPosition.m_y -= offset.m_y;
+						startPosition.m_z -= offset.m_z;
+						startPoint = &m_record->m_pathPoints[startIndex];
+					} while (endPosition.DistanceSquaredTo(startPosition) < g_pathMinSegmentLengthSquared);
+
+					segment.m_x = endPosition.m_x - startPosition.m_x;
+					segment.m_y = endPosition.m_y - startPosition.m_y;
+					segment.m_z = endPosition.m_z - startPosition.m_z;
+					segmentLength = static_cast<LegoFloat>(
+						sqrt(segment.m_z * segment.m_z + segment.m_y * segment.m_y + segment.m_x * segment.m_x)
+					);
+
+					inverseLength = 1.0f / segmentLength;
+					segment.m_x = segment.m_x * inverseLength;
+					segment.m_y = segment.m_y * inverseLength;
+					segment.m_z = segment.m_z * inverseLength;
+					projectedDelta = segment.m_y * p_delta->m_y + p_delta->m_z * segment.m_z + segment.m_x * p_delta->m_x;
+
+					if (projectedDelta > 0.0f) {
+						backwardDelta = 0.0f;
+						break;
 					}
 
-					segmentStartTime -= endPoint->GetLength();
-
-					endPoint->GetPosition(&offset);
-					startPosition.m_x -= offset.m_x;
-					startPosition.m_y -= offset.m_y;
-					startPosition.m_z -= offset.m_z;
-					startPoint = &m_record->m_pathPoints[startIndex];
-				} while (endPosition.DistanceSquaredTo(startPosition) < g_pathMinSegmentLengthSquared);
-
-				segment.m_x = endPosition.m_x - startPosition.m_x;
-				segment.m_y = endPosition.m_y - startPosition.m_y;
-				segment.m_z = endPosition.m_z - startPosition.m_z;
-				segmentLength = static_cast<LegoFloat>(
-					sqrt(segment.m_z * segment.m_z + segment.m_y * segment.m_y + segment.m_x * segment.m_x)
-				);
-
-				inverseLength = 1.0f / segmentLength;
-				segment.m_x = segment.m_x * inverseLength;
-				segment.m_y = segment.m_y * inverseLength;
-				segment.m_z = segment.m_z * inverseLength;
-				projectedDelta = segment.m_y * p_delta->m_y + p_delta->m_z * segment.m_z + segment.m_x * p_delta->m_x;
-
-				if (projectedDelta > 0.0f) {
-					backwardDelta = 0.0f;
-					segmentAmount = segmentLength;
-					break;
+					backwardDelta = -projectedDelta;
 				}
-
-				backwardDelta = -projectedDelta;
-				if (backwardDelta > segmentLength) {
-					remainingDistance = segmentLength;
-					continue;
-				}
-
-				segmentAmount = segmentLength - backwardDelta;
-				break;
 			}
+
+			segmentAmount = segmentLength - backwardDelta;
 			break;
 		}
 
 		{
 			LegoFloat remainingDistance = static_cast<LegoFloat>(sqrt(endPosition.DistanceSquaredTo(m_position)));
 
-			if (projectedDelta <= remainingDistance) {
-				segmentAmount = projectedDelta + segmentLength - remainingDistance;
-				break;
-			}
+			while (projectedDelta > remainingDistance) {
+				{
 
-			for (;;) {
+					consumed.m_x = segment.m_x * remainingDistance;
+					consumed.m_y = segment.m_y * remainingDistance;
+					consumed.m_z = segment.m_z * remainingDistance;
+					GolCameraBase::Subtract(p_delta, &consumed, p_delta);
 
-				consumed.m_x = segment.m_x * remainingDistance;
-				consumed.m_y = segment.m_y * remainingDistance;
-				consumed.m_z = segment.m_z * remainingDistance;
-				GolCameraBase::Subtract(p_delta, &consumed, p_delta);
+					do {
+						startPosition = endPosition;
+						segmentStartTime = segmentEndTime;
+						startIndex = endIndex;
+						startPoint = endPoint;
+						endIndex++;
 
-				do {
-					startPosition = endPosition;
-					segmentStartTime = segmentEndTime;
-					startIndex = endIndex;
-					startPoint = endPoint;
-					endIndex++;
+						if (endIndex >= m_record->m_pathPointCount) {
+							return;
+						}
 
-					if (endIndex >= m_record->m_pathPointCount) {
-						return;
-					}
+						endPoint = &m_record->m_pathPoints[endIndex];
+						segmentEndTime += endPoint->GetLength();
 
-					endPoint = &m_record->m_pathPoints[endIndex];
-					segmentEndTime += endPoint->GetLength();
+						endPoint->GetPosition(&offset);
+						endPosition.m_x += offset.m_x;
+						endPosition.m_y += offset.m_y;
+						endPosition.m_z += offset.m_z;
+					} while (endPosition.DistanceSquaredTo(startPosition) < g_pathMinSegmentLengthSquared);
 
-					endPoint->GetPosition(&offset);
-					endPosition.m_x += offset.m_x;
-					endPosition.m_y += offset.m_y;
-					endPosition.m_z += offset.m_z;
-				} while (endPosition.DistanceSquaredTo(startPosition) < g_pathMinSegmentLengthSquared);
+					segment.m_x = endPosition.m_x - startPosition.m_x;
+					segment.m_y = endPosition.m_y - startPosition.m_y;
+					segment.m_z = endPosition.m_z - startPosition.m_z;
+					segmentLength = static_cast<LegoFloat>(
+						sqrt(segment.m_z * segment.m_z + segment.m_y * segment.m_y + segment.m_x * segment.m_x)
+					);
 
-				segment.m_x = endPosition.m_x - startPosition.m_x;
-				segment.m_y = endPosition.m_y - startPosition.m_y;
-				segment.m_z = endPosition.m_z - startPosition.m_z;
-				segmentLength = static_cast<LegoFloat>(
-					sqrt(segment.m_z * segment.m_z + segment.m_y * segment.m_y + segment.m_x * segment.m_x)
-				);
+					inverseLength = 1.0f / segmentLength;
+					segment.m_x = segment.m_x * inverseLength;
+					segment.m_y = segment.m_y * inverseLength;
+					segment.m_z = segment.m_z * inverseLength;
+					projectedDelta = segment.m_y * p_delta->m_y + p_delta->m_z * segment.m_z + segment.m_x * p_delta->m_x;
 
-				inverseLength = 1.0f / segmentLength;
-				segment.m_x = segment.m_x * inverseLength;
-				segment.m_y = segment.m_y * inverseLength;
-				segment.m_z = segment.m_z * inverseLength;
-				projectedDelta = segment.m_y * p_delta->m_y + p_delta->m_z * segment.m_z + segment.m_x * p_delta->m_x;
-
-				if (projectedDelta < 0.0f) {
-					projectedDelta = 0.0f;
-				}
-				else if (projectedDelta > segmentLength) {
 					remainingDistance = segmentLength;
-					continue;
+					if (projectedDelta < 0.0f) {
+						projectedDelta = 0.0f;
+						break;
+					}
 				}
-
-				remainingDistance = segmentLength;
-				segmentAmount = projectedDelta + segmentLength - remainingDistance;
-				break;
 			}
+
+			segmentAmount = projectedDelta + segmentLength - remainingDistance;
 			break;
 		}
 	}
