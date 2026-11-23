@@ -691,11 +691,11 @@ void GolFontBase::DrawString(
 					}
 				}
 
-				lineBreak = FALSE;
+				LegoU32 lineWidth = 0;
 				LegoU32 lineStart = i;
 				LegoU32 breakIndex = i;
-				LegoU32 lineWidth = 0;
 				LegoU32 wordWidth = 0;
+				lineBreak = FALSE;
 				LegoU32 lastIndex = i - 1;
 
 				while (lineWidth <= static_cast<LegoU32>(p_wrapWidth)) {
