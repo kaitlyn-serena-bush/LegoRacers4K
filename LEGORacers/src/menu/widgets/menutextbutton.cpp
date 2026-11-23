@@ -38,14 +38,9 @@ LegoBool32 MenuTextButton::CreateImage(CreateParams* p_createParams)
 	::memset(&createParams, 0, sizeof(createParams));
 	::memcpy(&createParams, p_createParams, sizeof(MenuWidget::CreateParams));
 
-	LegoU8 flags = createParams.m_flags;
-	createParams.m_rect.m_left = 0;
-	flags |= 1;
-	createParams.m_rect.m_top = 0;
-	createParams.m_flags = flags;
-	createParams.m_rect.m_right = 0;
+	::memset(&createParams.m_rect, 0, sizeof(createParams.m_rect));
+	createParams.m_flags |= 1;
 	createParams.m_image = m_stateImages[0];
-	createParams.m_rect.m_bottom = 0;
 	createParams.m_parent = this;
 	createParams.m_color = m_stateImageColors[0];
 

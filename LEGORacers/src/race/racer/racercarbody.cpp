@@ -210,7 +210,6 @@ void RacerCarBody::Reset()
 	m_externalForce1.m_z = 0;
 	m_contactOffsetX = 0;
 	m_contactOffsetY = 0;
-	m_unk0x654 = -10.95f;
 	m_rideHeight = g_defaultRideHeight;
 	m_forwardVelocity.m_x = 0.0f;
 	m_forwardVelocity.m_y = 0.0f;
@@ -227,6 +226,7 @@ void RacerCarBody::Reset()
 	m_centripetalForce = 0;
 	m_turnRadius = 0;
 	m_yawRate = 0;
+	m_unk0x654 = -10.95f;
 	m_savedPosition.m_x = 0.0f;
 	m_savedPosition.m_y = 0.0f;
 	m_savedPosition.m_z = 0.0f;
