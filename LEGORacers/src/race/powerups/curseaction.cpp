@@ -327,16 +327,17 @@ void CurseAction::AdvanceState()
 		m_innerAuraEntity->SetPosition(position);
 
 		GolVec3 up = record.m_normal;
-		position.m_x += (((((((((((up.m_x * 13.0f)))))))))));
+		position.m_x += (((((((((up.m_x * 13.0f)))))))));
 		position.m_y += up.m_y * 13.0f;
 		position.m_z += up.m_z * 13.0f;
 		m_curseEntity->SetPosition(position);
 
 		GolVec3 side;
 		side.m_x = GOL_MUL(up.m_y, direction.m_z) - GOL_MUL(up.m_z, direction.m_y);
-		LegoFloat sweepTmp0 = direction.m_z;
-		side.m_y = GOL_MUL(up.m_z, direction.m_x) - GOL_MUL(sweepTmp0, up.m_x);
-		side.m_z = GOL_MUL(direction.m_y, up.m_x) - GOL_MUL(up.m_y, direction.m_x);
+		LegoFloat directionZ = direction.m_z;
+		side.m_y = GOL_MUL(up.m_z, direction.m_x) - GOL_MUL(directionZ, up.m_x);
+		LegoFloat directionY = direction.m_y;
+		side.m_z = GOL_MUL(directionY, up.m_x) - GOL_MUL(up.m_y, direction.m_x);
 		m_curseEntity->SetDirectionUp(side, up);
 
 		m_auraEntity->CopyOrientationFrom(*m_curseEntity);
