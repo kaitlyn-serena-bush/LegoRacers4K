@@ -806,13 +806,14 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 			}
 
 			if (combinedFlags & c_clipYMaxFlag) {
+				LegoU32 sweepTmp0;
 				previousIndex = inputCount - 1;
-				previousOutside = inputFlags[previousIndex] & c_clipYMaxFlag;
+				sweepTmp0 = inputFlags[previousIndex] & c_clipYMaxFlag;
 
 				for (LegoS32 i = 0; i < inputCount; i++) {
 					LegoU32 currentOutside = inputFlags[i] & c_clipYMaxFlag;
 
-					if (currentOutside ^ previousOutside) {
+					if (currentOutside ^ sweepTmp0) {
 						outputIndices[outputCount] = generatedIndex;
 						ProjectedVertex* clipped = &g_decalProjectedVertices[generatedIndex];
 						ProjectedVertex* current = &g_decalProjectedVertices[inputIndices[i]];
@@ -839,7 +840,7 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 					}
 
 					previousIndex = i;
-					previousOutside = currentOutside;
+					sweepTmp0 = currentOutside;
 				}
 
 				inputIndices = outputIndices;

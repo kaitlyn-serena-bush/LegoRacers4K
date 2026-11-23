@@ -207,7 +207,7 @@ LegoBool32 CarBuildScreenBase::Draw(Rect* p_clipRect, Rect* p_sourceRect)
 	LegoBool32 result = MenuScreen::Draw(p_clipRect, p_sourceRect);
 
 	if (m_tooltipMs <= 0) {
-		return result;
+		goto sweepDone;
 	}
 
 	if (m_layoutDirty) {
@@ -361,5 +361,6 @@ LegoBool32 CarBuildScreenBase::Draw(Rect* p_clipRect, Rect* p_sourceRect)
 		NULL,
 		0
 	);
+	sweepDone:
 	return result;
 }
