@@ -1005,9 +1005,9 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 					result = m_buildPrimitiveCount;
 					goto overflow;
 				}
-				primitive->m_vertexIndices[3] = AddBuildVertex(&vertex);
-
 				LegoS32 newPrimitiveCount = m_buildPrimitiveCount + 1;
+
+				primitive->m_vertexIndices[3] = AddBuildVertex(&vertex);
 				LegoS32& sweepOld0 = m_buildPrimitiveCount;
 				sweepOld0 = newPrimitiveCount;
 				if (m_buildPrimitiveCount >= c_buildPrimitiveCapacity) {

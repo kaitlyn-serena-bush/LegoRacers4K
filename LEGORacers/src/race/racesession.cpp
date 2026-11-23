@@ -1256,13 +1256,13 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	powerupParams.m_soundSource = &m_soundSource;
 	powerupParams.m_cutsceneAnimation = &m_particleAnimation;
 	powerupParams.m_trailManager = &m_trailManager;
+	powerupParams.m_trackDatabase = m_powerupTrackDatabase;
 	powerupParams.m_racerTriggers = &m_racerTriggers;
 	powerupParams.m_animationList = &m_animationList;
-	powerupParams.m_trackDatabase = m_powerupTrackDatabase;
 	powerupParams.m_targetPoints = &m_targetPoints;
-	LegoRacers::Context* sweepTmp0 = m_context;
-	powerupParams.m_cameraFov = m_splitScreen ? sweepTmp0->m_cameraFov - g_splitScreenFovDelta : sweepTmp0->m_cameraFov;
+	LegoRacers::Context* sweepOld1 = m_context;
 	powerupParams.m_cheatFlags = m_context->m_cheatFlags;
+	powerupParams.m_cameraFov = m_splitScreen ? sweepOld1->m_cameraFov - g_splitScreenFovDelta : sweepOld1->m_cameraFov;
 	m_powerupManager.Initialize(&powerupParams);
 
 	m_powerupManager.LoadDatabases(m_powerupDatabaseName, m_turboDatabaseName, m_context->m_useBinaryFiles);
