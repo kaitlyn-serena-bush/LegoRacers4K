@@ -719,7 +719,7 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 						ProjectedVertex* previous = &g_decalProjectedVertices[inputIndices[previousIndex]];
 						outputIndices[outputCount] = generatedIndex;
 						ProjectedVertex* current = &g_decalProjectedVertices[inputIndices[i]];
-						LegoFloat amount = (1.0f - previous->m_projected.m_x.m_float) /
+						LegoFloat amount = (1.0f - (previous->m_projected.m_x.m_float)) /
 										   (current->m_projected.m_x.m_float - previous->m_projected.m_x.m_float);
 						generatedIndex++;
 						clipped->m_projected.m_x.m_float = g_decalMaxTextureCoordinate;

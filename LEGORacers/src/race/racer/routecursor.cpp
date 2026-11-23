@@ -431,7 +431,7 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 	}
 
 	m_currentTime = static_cast<LegoFloat>(segmentEndTime - segmentStartTime) * (segmentAmount * inverseLength) +
-					static_cast<LegoFloat>(segmentStartTime);
+					(static_cast<LegoFloat>(segmentStartTime));
 	m_segmentStartTime = segmentStartTime;
 	m_startPosition = startPosition;
 	m_endPosition = endPosition;
