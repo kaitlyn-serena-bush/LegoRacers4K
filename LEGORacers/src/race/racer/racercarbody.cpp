@@ -998,7 +998,7 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 	}
 
 	double bestDistance = -FLT_MAX;
-	WheelProbe* selectedEntry = NULL;
+	WheelProbe *selectedEntry;
 	GolBoundingVolume::HitTriangle* eventContext = &g_carBodyHitTriangle;
 	GolBoundingVolume::HitTriangle* collisionContext = eventContext;
 
@@ -1045,7 +1045,8 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 		entry->m_rayStart.m_y = entry->m_wheelPosition.m_y;
 		entry->m_rayStart.m_z = sweepHeight + entry->m_wheelPosition.m_z;
 		entry->m_rayEnd.m_x = entry->m_wheelPosition.m_x;
-		entry->m_rayEnd.m_y = entry->m_wheelPosition.m_y;
+		LegoFloat& sweepOld4 = entry->m_rayEnd.m_y;
+		sweepOld4 = entry->m_wheelPosition.m_y;
 		entry->m_rayEnd.m_z = entry->m_wheelPosition.m_z - sweepDistance;
 
 		if (!TestCachedPlanes(entry)) {
@@ -1092,7 +1093,7 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 		contactLimit = 0.0f;
 	}
 
-	LegoFloat contactLimitSquared = contactLimit * contactLimit;
+	LegoFloat contactLimitSquared = ((((contactLimit * contactLimit))));
 	m_supportNormal.Clear();
 
 	for (entry = m_wheelProbes; entry < &m_wheelProbes[sizeOfArray(m_wheelProbes)]; entry++) {
