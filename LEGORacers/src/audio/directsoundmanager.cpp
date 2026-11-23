@@ -195,8 +195,8 @@ void DirectSoundManager::Update(undefined4)
 
 	if (!m_paused) {
 		while (TRUE) {
-			SoundBuffer* queuedSound;
-			LegoBool32 haveSound = FALSE;
+			SoundBuffer *queuedSound = NULL;
+			LegoBool32 haveSound;
 			link = m_queuedSounds.LastLink();
 			if (m_queuedSounds.IsValidLastLink(link)) {
 				queuedSound = &m_queuedSounds.GetItem(*link);
