@@ -255,7 +255,8 @@ LegoBool32 CarBuildScreenBase::Draw(Rect* p_clipRect, Rect* p_sourceRect)
 			LegoS32 negativeHalfFontHeight = -static_cast<LegoS32>(halfFontHeight);
 			m_tooltipRect.m_top = negativeHalfFontHeight;
 			m_tooltipRect.m_left = negativeHalfFontHeight;
-			m_tooltipRect.m_right = width + halfFontHeight;
+			m_tooltipRect.m_right = width;
+			m_tooltipRect.m_right += halfFontHeight;
 			m_tooltipRect.m_bottom = height + halfFontHeight;
 
 			if (width + fontHeight * 2 < p_clipRect->m_right - targetRight) {
