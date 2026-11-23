@@ -294,13 +294,13 @@ LegoBool32 CarBuildScreen::HandleBuildKey(MenuWidget*, InputEventQueue::Event* p
 {
 	LegoU32 sound = 0;
 	LegoU32 keyCode = p_event->m_keyCode;
-	LegoBool32 result = (keyCode & InputDevice::c_sourceMask) == InputDevice::c_sourceKeyboard;
-	if (!result) {
+	if ((keyCode & InputDevice::c_sourceMask) != InputDevice::c_sourceKeyboard) {
 		return FALSE;
 	}
 
 	LegoS32 categoryIndex = m_partPlacement.GetViewSlot();
-	undefined4 nextMode = result;
+	undefined4 nextMode = 1;
+	LegoBool32 result = nextMode;
 	LegoBool32 moved;
 	SoundVector position;
 
@@ -401,8 +401,7 @@ LegoBool32 CarBuildScreen::HandleBuildKey(MenuWidget*, InputEventQueue::Event* p
 		position.m_y = 0.0f;
 		position.m_z = 0.0f;
 		m_soundGroupBinding->PlaySpatialSound(spatialSound & 0xffff, &position, 100.0f, 200.0f, volume, 1.0f);
-		m_nextMode = nextMode;
-		return result;
+		goto done;
 	}
 	case c_carBuildKeyboardPlus:
 		if (m_partPlacement.CommitPiece()) {
@@ -446,6 +445,7 @@ LegoBool32 CarBuildScreen::HandleBuildKey(MenuWidget*, InputEventQueue::Event* p
 	}
 
 	m_soundGroupBinding->PlaySoundByIndex(sound & 0xffff);
+done:
 	m_nextMode = nextMode;
 	return result;
 }
