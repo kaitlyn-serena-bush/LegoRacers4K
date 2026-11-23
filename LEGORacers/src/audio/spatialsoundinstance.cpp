@@ -191,8 +191,8 @@ void SpatialSoundInstance::UpdateSpatialFromNode(SoundNode* p_node)
 				nodeVelocity.m_z = p_node->m_velocity.m_z;
 				GolVec3 relativeVelocity;
 				relativeVelocity.m_x = m_velocity.m_x - nodeVelocity.m_x;
-				relativeVelocity.m_y = m_velocity.m_y - nodeVelocity.m_y;
 				relativeVelocity.m_z = m_velocity.m_z - nodeVelocity.m_z;
+				relativeVelocity.m_y = m_velocity.m_y - nodeVelocity.m_y;
 				GolVec3 direction;
 				direction.m_x = relativePosition.m_x;
 				direction.m_x *= inverseDistance;

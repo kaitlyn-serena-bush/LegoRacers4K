@@ -664,7 +664,7 @@ LegoBool32 GolAnimatedEntity::SamplePartPosition(
 {
 	LegoFloat timeScale = m_msPerFrame;
 	LegoFloat frame = static_cast<LegoFloat>(p_frame);
-	LegoFloat time = timeScale * frame;
+	LegoFloat time =GOL_MUL(timeScale, frame);
 	CmbModelPart* modelPart = m_modelParts[p_modelIndex];
 	CmbModelPartTrackData& animationData = modelPart->GetAnimationData();
 	CmbModelPartData* partData = modelPart->GetPartData();
@@ -688,7 +688,7 @@ LegoBool32 GolAnimatedEntity::SamplePartRotation(
 {
 	LegoFloat timeScale = m_msPerFrame;
 	LegoFloat frame = static_cast<LegoFloat>(p_frame);
-	LegoFloat time = timeScale * frame;
+	LegoFloat time =GOL_MUL(timeScale, frame);
 	CmbModelPart* modelPart = m_modelParts[p_modelIndex];
 	CmbModelPartTrackData& animationData = modelPart->GetAnimationData();
 	CmbModelPartData* partData = modelPart->GetPartData();

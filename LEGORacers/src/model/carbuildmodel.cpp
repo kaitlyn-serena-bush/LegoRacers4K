@@ -1357,8 +1357,10 @@ LegoS32 CarBuildModel::BuildPieceModel(
 	GolModelBase* model = p_entity->GetModel(0);
 	LegoPieceLibrary::PieceRecord* pieceRecord = p_pieceRecord->GetVariant(1);
 	m_buildFlags = 0xef;
-	m_savedHasHighBasePiece = m_hasHighBasePiece;
-	m_applyBaseTexture = m_baseTextureEnabled;
+	LegoBool& sweepRef0 = m_savedHasHighBasePiece;
+	sweepRef0 = m_hasHighBasePiece;
+	LegoBool& sweepRef1 = m_applyBaseTexture;
+	sweepRef1 = m_baseTextureEnabled;
 	m_buildStatus = 0;
 
 	if (m_colorTable != NULL) {

@@ -377,7 +377,7 @@ void RaceTrailManager::Trail::RebuildGeometry()
 	color.m_blu = m_color.m_blu;
 	color.m_alp = m_color.m_alp;
 	LegoFloat alpha = static_cast<LegoFloat>(m_color.m_alp);
-	alpha *= 0.003921569f;
+	alpha = GOL_MUL(alpha, 0.003921569f);
 	alpha -= m_endAlpha;
 	LegoFloat alphaDivisor = static_cast<LegoFloat>(static_cast<LegoS32>(m_sampleCount + 1));
 	alpha /= alphaDivisor;

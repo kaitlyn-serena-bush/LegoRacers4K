@@ -1420,6 +1420,8 @@ void CarVisuals::DrawTransparent(GolD3DRenderDevice* p_renderer)
 		RaceDecalManager::Trail::Decal* field = &m_shadowDecal;
 		GolVec3 position;
 		LegoFloat deltaX = field->m_center.m_x;
+		if (deltaX == 0) {
+		}
 		deltaX = cameraPosition.m_x - deltaX;
 		position.m_y = field->m_center.m_y;
 		position.m_z = field->m_center.m_z;
