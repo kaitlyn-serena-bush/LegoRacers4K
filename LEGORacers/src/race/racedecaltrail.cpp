@@ -613,10 +613,10 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 		ProjectedVertex* vertex1 = &g_decalProjectedVertices[index1];
 		ProjectedVertex* vertex2 = &g_decalProjectedVertices[index2];
 		LegoU32 flags1 = vertex1->m_clipFlags;
-		LegoU32 flags0 = vertex0->m_clipFlags;
+		
 		LegoU32 flags2 = vertex2->m_clipFlags;
 
-		if (flags0 & flags1 & flags2) {
+		if (vertex0->m_clipFlags & flags1 & flags2) {
 			indices += 4;
 			continue;
 		}
@@ -630,7 +630,7 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 			continue;
 		}
 
-		LegoU32 combinedFlags = flags0 | flags1 | flags2;
+		LegoU32 combinedFlags = vertex0->m_clipFlags | flags1 | flags2;
 
 		if (!combinedFlags) {
 			EmitTriangle(vertex0, vertex1, vertex2);
@@ -643,7 +643,7 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 
 			indicesA[0] = index0;
 			indicesA[1] = index1;
-			flagsA[0] = flags0;
+			flagsA[0] = vertex0->m_clipFlags;
 			flagsA[1] = flags1;
 			flagsA[2] = flags2;
 			indicesA[2] = index2;
@@ -806,14 +806,14 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 			}
 
 			if (combinedFlags & c_clipYMaxFlag) {
-				LegoU32 sweepTmp0;
+				LegoU32 sweepOld0;
 				previousIndex = inputCount - 1;
-				sweepTmp0 = inputFlags[previousIndex] & c_clipYMaxFlag;
+				sweepOld0 = inputFlags[previousIndex] & c_clipYMaxFlag;
 
 				for (LegoS32 i = 0; i < inputCount; i++) {
 					LegoU32 currentOutside = inputFlags[i] & c_clipYMaxFlag;
 
-					if (currentOutside ^ sweepTmp0) {
+					if (currentOutside ^ sweepOld0) {
 						outputIndices[outputCount] = generatedIndex;
 						ProjectedVertex* clipped = &g_decalProjectedVertices[generatedIndex];
 						ProjectedVertex* current = &g_decalProjectedVertices[inputIndices[i]];
@@ -840,7 +840,7 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 					}
 
 					previousIndex = i;
-					sweepTmp0 = currentOutside;
+					sweepOld0 = currentOutside;
 				}
 
 				inputIndices = outputIndices;

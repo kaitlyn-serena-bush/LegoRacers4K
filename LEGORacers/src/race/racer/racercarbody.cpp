@@ -1034,22 +1034,22 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 		}
 	}
 
-	GolBoundedEntity* baseResource = m_collisionWorlds[0];
+	
 	for (entry = m_wheelProbes; entry < &m_wheelProbes[sizeOfArray(m_wheelProbes)]; entry++) {
 		if (entry->m_flags & WheelProbe::c_flagHit) {
 			continue;
 		}
 
 		entry->m_rayStart.m_x = entry->m_wheelPosition.m_x;
-		LegoFloat sweepOld2 = entry->m_wheelPosition.m_y;
-		entry->m_rayStart.m_y = sweepOld2;
+		
+		entry->m_rayStart.m_y = entry->m_wheelPosition.m_y;
 		entry->m_rayStart.m_z = sweepHeight + entry->m_wheelPosition.m_z;
 		entry->m_rayEnd.m_x = entry->m_wheelPosition.m_x;
 		entry->m_rayEnd.m_y = entry->m_wheelPosition.m_y;
 		entry->m_rayEnd.m_z = entry->m_wheelPosition.m_z - sweepDistance;
 
 		if (!TestCachedPlanes(entry)) {
-			if (baseResource->IntersectSegment(
+			if (m_collisionWorlds[0]->IntersectSegment(
 					&entry->m_rayStart,
 					&entry->m_rayEnd,
 					collisionContext,
@@ -1144,16 +1144,16 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 		}
 	}
 
-	LegoFloat sweepTmp0 = m_gravityForce;
-	double responseScale = sweepTmp0 * m_supportNormal.m_z;
+	LegoFloat sweepOld3 = m_gravityForce;
+	double responseScale = sweepOld3 * m_supportNormal.m_z;
 	m_supportForce.m_x = -(m_supportNormal.m_x * responseScale);
 	m_supportForce.m_y = -(m_supportNormal.m_y * responseScale);
-	m_supportForce.m_z = sweepTmp0 - m_supportNormal.m_z * responseScale;
+	m_supportForce.m_z = sweepOld3 - m_supportNormal.m_z * responseScale;
 
 	g_carBodyContactForce.m_x = 0.0f;
 	g_carBodyContactForce.m_y = 0.0f;
 	g_carBodyContactForce.m_z =
-		-(sweepTmp0 * (1.0f / static_cast<LegoFloat>(static_cast<LegoS32>(m_contactCount + 8))));
+		-(sweepOld3 * (1.0f / static_cast<LegoFloat>(static_cast<LegoS32>(m_contactCount + 8))));
 
 	for (entry = m_wheelProbes; entry < &m_wheelProbes[sizeOfArray(m_wheelProbes)]; entry++) {
 		if (entry->m_flags & WheelProbe::c_flagContact) {
@@ -1338,13 +1338,13 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 		}
 	}
 
-	GolBoundedEntity* baseResource = m_collisionWorlds[0];
+	
 	entryIndex = 0;
 	for (; entryIndex < sizeOfArray(m_axleMidpoints); entryIndex++) {
 		entry = &m_wheelProbes[entryIndex];
 		if (!(entry->m_flags & WheelProbe::c_flagHit)) {
 			if (!TestCachedPlanes(entry)) {
-				if (!baseResource->IntersectSegment(
+				if (!m_collisionWorlds[0]->IntersectSegment(
 						&entry->m_rayStart,
 						&entry->m_rayEnd,
 						collisionContext,
