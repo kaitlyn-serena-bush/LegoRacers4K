@@ -191,8 +191,8 @@ void SpatialSoundInstance::UpdateSpatialFromNode(SoundNode* p_node)
 				nodeVelocity.m_z = p_node->m_velocity.m_z;
 				GolVec3 relativeVelocity;
 				relativeVelocity.m_x = m_velocity.m_x - nodeVelocity.m_x;
-				relativeVelocity.m_z = m_velocity.m_z - nodeVelocity.m_z;
 				relativeVelocity.m_y = m_velocity.m_y - nodeVelocity.m_y;
+				relativeVelocity.m_z = m_velocity.m_z - nodeVelocity.m_z;
 				GolVec3 direction;
 				direction.m_x = relativePosition.m_x;
 				direction.m_x *= inverseDistance;
@@ -200,7 +200,13 @@ void SpatialSoundInstance::UpdateSpatialFromNode(SoundNode* p_node)
 				direction.m_y *= inverseDistance;
 				direction.m_z = relativePosition.m_z;
 				direction.m_z *= inverseDistance;
-				LegoFloat velocity = DotVectors(relativeVelocity, direction);
+				double velocity = relativeVelocity.m_z;
+				velocity *= direction.m_z;
+				double dotY = relativeVelocity.m_y;
+				LegoFloat rightY = direction.m_y;
+				dotY *= rightY;
+				velocity += dotY;
+				velocity += relativeVelocity.m_x * direction.m_x;
 
 				velocity = velocity > (p_node->m_maxVelocity) ? p_node->m_maxVelocity : velocity;
 
