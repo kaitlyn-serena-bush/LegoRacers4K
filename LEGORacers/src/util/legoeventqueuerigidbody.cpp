@@ -180,11 +180,12 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::TestBoxOverlap(
 	m_body->CopyOrientation(&orientation0);
 	p_other->m_body->CopyOrientation(&absOrientation);
 
-	delta.m_x = p_other->m_centerOfMassWorld.m_x - m_centerOfMassWorld.m_x;
-	LegoFloat& sweepRef0 = delta.m_y;
-	sweepRef0 = p_other->m_centerOfMassWorld.m_y - m_centerOfMassWorld.m_y;
-	LegoFloat& sweepRef1 = delta.m_z;
-	sweepRef1 = p_other->m_centerOfMassWorld.m_z - m_centerOfMassWorld.m_z;
+	LegoFloat& deltaX = delta.m_x;
+	deltaX = p_other->m_centerOfMassWorld.m_x - m_centerOfMassWorld.m_x;
+	LegoFloat& deltaY = delta.m_y;
+	deltaY = p_other->m_centerOfMassWorld.m_y - m_centerOfMassWorld.m_y;
+	LegoFloat& deltaZ = delta.m_z;
+	deltaZ = p_other->m_centerOfMassWorld.m_z - m_centerOfMassWorld.m_z;
 	GolMath::TransformVector(delta, &orientation0.m_m[0][0], &delta);
 
 	GolMath::MultiplyMatrixByTranspose(
@@ -516,7 +517,11 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::TestBoxOverlap(
 	}
 
 	GolVec3 direction = m_centerOfMassWorld - p_other->m_centerOfMassWorld;
-	LegoFloat dot = direction.m_y * p_normal->m_y + direction.m_z * p_normal->m_z + direction.m_x * p_normal->m_x;
+	double dotY = direction.m_y;
+	dotY *= p_normal->m_y;
+	double dotZ = p_normal->m_z;
+	dotZ *= direction.m_z;
+	LegoFloat dot = dotY + dotZ + direction.m_x * p_normal->m_x;
 	if (dot < 0.0f) {
 		p_normal->m_x = -p_normal->m_x;
 		p_normal->m_y = -p_normal->m_y;
