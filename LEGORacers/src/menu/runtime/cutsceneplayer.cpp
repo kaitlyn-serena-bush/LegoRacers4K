@@ -1643,8 +1643,8 @@ void CutscenePlayer::Draw(GolD3DRenderDevice* p_renderer)
 
 inline void CrossVectors(const GolVec3& p_left, const GolVec3& p_right, GolVec3* p_dest)
 {
-	LegoFloat x = p_left.m_y * p_right.m_z;
-	LegoFloat xSub = p_left.m_z * p_right.m_y;
+	LegoFloat x = GOL_MUL(p_left.m_y, p_right.m_z);
+	LegoFloat xSub = GOL_MUL(p_left.m_z, p_right.m_y);
 	x -= xSub;
 	p_dest->m_x = x;
 
