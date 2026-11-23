@@ -413,6 +413,8 @@ LegoBool32 GolBoundingVolume::IntersectSegment(
 			g_segmentDelta.m_z = m_segmentEnd.m_z - segmentStart->m_z;
 
 			LegoFloat amount = m_startDistance;
+			if (amount == 0) {
+			}
 			amount /= (m_startDistance) + m_endDistance;
 			GolCameraBase::Scale(&g_segmentDelta, amount, &scaledDelta);
 			GolCameraBase::Add(segmentStart, &scaledDelta, m_hitPoint);
