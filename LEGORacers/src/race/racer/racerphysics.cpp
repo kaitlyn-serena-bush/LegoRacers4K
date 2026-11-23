@@ -836,9 +836,7 @@ void RacerPhysics::UpdateRouteMotion(LegoU32 p_elapsedMs)
 
 			if (m_routeMotion.m_jumpVelocity != 0.0f || m_routeMotion.m_jumpHeight != 0.0f) {
 				LegoFloat time = elapsed * 0.001f;
-				LegoFloat& sweepRef0 = m_routeMotion.m_jumpVelocity;
-				sweepRef0 += g_routeJumpGravity * time;
-				m_routeMotion.m_jumpHeight += time * m_routeMotion.m_jumpVelocity;
+				m_routeMotion.m_jumpHeight += time * (m_routeMotion.m_jumpVelocity += g_routeJumpGravity * time);
 				if (m_routeMotion.m_jumpHeight <= 0.0f) {
 					m_routeMotion.m_jumpHeight = 0.0f;
 					m_routeMotion.m_jumpVelocity = 0.0f;
@@ -856,7 +854,7 @@ void RacerPhysics::UpdateRouteMotion(LegoU32 p_elapsedMs)
 			m_velocity.m_x = currentPosition.m_x - previousPosition.m_x;
 			m_velocity.m_y = currentPosition.m_y - previousPosition.m_y;
 			m_velocity.m_z = currentPosition.m_z - previousPosition.m_z;
-			m_velocity *= invElapsed;
+			GolMath::ScaleVector3(&m_velocity, invElapsed, &m_velocity);
 
 			UpdateVelocityStats();
 			m_physicsEntity.CopyTransformFrom(*m_carEntity);
