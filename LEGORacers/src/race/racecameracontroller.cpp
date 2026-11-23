@@ -773,17 +773,16 @@ void RaceCameraController::Update(LegoFloat p_elapsedMs)
 		racerVisuals->m_carEntity->GetPosition(&m_lastRacerPosition);
 		GolAnimatedEntity* entity = m_racer->m_visuals.m_carEntity;
 
-		GolVec3 right;
-		right.m_x = entity->GetOrientation().m_rows[0].m_x;
-		right.m_y = entity->GetOrientation().m_rows[0].m_y;
-		right.m_z = entity->GetOrientation().m_rows[0].m_z;
+		desiredDirection.m_x = entity->GetOrientation().m_rows[0].m_x;
+		desiredDirection.m_y = entity->GetOrientation().m_rows[0].m_y;
+		desiredDirection.m_z = entity->GetOrientation().m_rows[0].m_z;
 		up.m_x = entity->GetOrientation().m_rows[2].m_x;
 		up.m_y = entity->GetOrientation().m_rows[2].m_y;
 		up.m_z = entity->GetOrientation().m_rows[2].m_z;
 		up.m_x = -up.m_x;
 		up.m_y = -up.m_y;
 		up.m_z = -up.m_z;
-		BuildOrientation(&right, &up, &m_rawTransform.m_orientation);
+		BuildOrientation(&desiredDirection, &up, &m_rawTransform.m_orientation);
 
 		entity->GetPosition(&m_rawTransform.m_position);
 		if (m_alternate) {
