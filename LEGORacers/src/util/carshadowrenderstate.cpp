@@ -305,7 +305,7 @@ void CarShadowRenderState::DrawTriangles4Bpp(TransformedVertex** p_triangle)
 				return;
 			}
 
-			LegoFloat yEndValue;
+			
 			if (edge1EndsFirst) {
 				base1 = edge1;
 				edge1Index = g_nextVertexIndex[edge1Index];
@@ -316,7 +316,7 @@ void CarShadowRenderState::DrawTriangles4Bpp(TransformedVertex** p_triangle)
 				}
 				x1 = static_cast<LegoS32>(65536.0f * base1->m_x);
 				xStep1 = static_cast<LegoS32>(((edge1->m_x - base1->m_x) / deltaY1) * 65536.0f);
-				yEndValue = edge1->m_y;
+				yEnd = (0xffff - static_cast<LegoS32>(-65536.0f * edge1->m_y)) & 0xffff0000;
 			}
 			else {
 				base0 = edge0;
@@ -328,10 +328,10 @@ void CarShadowRenderState::DrawTriangles4Bpp(TransformedVertex** p_triangle)
 				}
 				x0 = static_cast<LegoS32>(65536.0f * base0->m_x);
 				xStep0 = static_cast<LegoS32>(((edge0->m_x - base0->m_x) / deltaY0) * 65536.0f);
-				yEndValue = edge0->m_y;
+				yEnd = (0xffff - static_cast<LegoS32>(-65536.0f * edge0->m_y)) & 0xffff0000;
 			}
 
-			yEnd = (0xffff - static_cast<LegoS32>(-65536.0f * yEndValue)) & 0xffff0000;
+			
 			if (y >= yEnd) {
 				return;
 			}
@@ -583,7 +583,7 @@ void CarShadowRenderState::DrawTriangles16Bpp(TransformedVertex** p_triangle)
 				return;
 			}
 
-			LegoFloat yEndValue;
+			
 			if (edge1EndsFirst) {
 				base1 = edge1;
 				edge1Index = g_nextVertexIndex[edge1Index];
@@ -594,7 +594,7 @@ void CarShadowRenderState::DrawTriangles16Bpp(TransformedVertex** p_triangle)
 				}
 				x1 = static_cast<LegoS32>(65536.0f * base1->m_x);
 				xStep1 = static_cast<LegoS32>(((edge1->m_x - base1->m_x) / deltaY1) * 65536.0f);
-				yEndValue = edge1->m_y;
+				yEnd = (0xffff - static_cast<LegoS32>(-65536.0f * edge1->m_y)) & 0xffff0000;
 			}
 			else {
 				base0 = edge0;
@@ -606,10 +606,10 @@ void CarShadowRenderState::DrawTriangles16Bpp(TransformedVertex** p_triangle)
 				}
 				x0 = static_cast<LegoS32>(65536.0f * sweepTmp0);
 				xStep0 = static_cast<LegoS32>(((edge0->m_x - sweepTmp0) / deltaY0) * 65536.0f);
-				yEndValue = edge0->m_y;
+				yEnd = (0xffff - static_cast<LegoS32>(-65536.0f * edge0->m_y)) & 0xffff0000;
 			}
 
-			yEnd = (0xffff - static_cast<LegoS32>(-65536.0f * yEndValue)) & 0xffff0000;
+			
 			if (y >= yEnd) {
 				return;
 			}
