@@ -1068,8 +1068,8 @@ void CarVisuals::UpdateSkidMarks(LegoU32 p_elapsedMs)
 					LegoU32 elapsed = m_wheelAirTimers[i] + p_elapsedMs;
 					m_wheelAirTimers[i] = elapsed;
 					if (elapsed > 150) {
-						m_wheelSkidFlags[i] &= ~c_wheelSkidGrounded;
 						m_wheelAirTimers[i] = 0;
+						m_wheelSkidFlags[i] &= ~c_wheelSkidGrounded;
 					}
 				}
 			}
