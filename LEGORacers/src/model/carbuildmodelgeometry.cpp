@@ -74,8 +74,8 @@ CarBuildModel::BuildVertex* CarBuildModel::InsertOrFindBuildVertex(BuildVertex**
 					if (node->m_right == NULL) {
 						p_vertex->m_parent = node;
 						node->m_right = p_vertex;
-						node = NULL;
-						break;
+						RebalanceBuildVertexInsert(p_root, p_vertex);
+						return NULL;
 					}
 
 					node = node->m_right;
@@ -84,21 +84,27 @@ CarBuildModel::BuildVertex* CarBuildModel::InsertOrFindBuildVertex(BuildVertex**
 					if (node->m_left == NULL) {
 						p_vertex->m_parent = node;
 						node->m_left = p_vertex;
-						node = NULL;
 						break;
 					}
 
 					node = node->m_left;
 				}
-			} while (node != NULL && (compare = CompareBuildVertex(p_vertex, node)) != 0);
+
+				if (node == NULL) {
+					break;
+				}
+
+				compare = CompareBuildVertex(p_vertex, node);
+				if (compare == 0) {
+					return node;
+				}
+			} while (TRUE);
+
+			RebalanceBuildVertexInsert(p_root, p_vertex);
+			return NULL;
 		}
 
-		if (node != NULL) {
-			return node;
-		}
-
-		RebalanceBuildVertexInsert(p_root, p_vertex);
-		return NULL;
+		return node;
 	}
 
 	p_vertex->m_parent = NULL;
