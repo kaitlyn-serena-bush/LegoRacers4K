@@ -320,13 +320,13 @@ void SaveGame::WritePersistentGameState(PersistentGameState* p_state)
 
 	dest = &m_fileImage[c_scoreRecordsOffset + c_scoreRecordCursorOffset];
 	for (i = 0; i < c_scoreRecordCount; i++, dest += c_scoreRecordSize) {
-		dest[c_scoreRecordLapTimeOffset - c_scoreRecordCursorOffset] = static_cast<LegoU8>(p_state->m_bestLapTimes[i]);
 		dest[c_scoreRecordLapTimeOffset + 1 - c_scoreRecordCursorOffset] =
 			static_cast<LegoU8>(p_state->m_bestLapTimes[i] >> 8);
-		dest[c_scoreRecordLapTimeOffset + 3 - c_scoreRecordCursorOffset] =
-			static_cast<LegoU8>(p_state->m_bestLapTimes[i] >> 24);
 		dest[c_scoreRecordLapTimeOffset + 2 - c_scoreRecordCursorOffset] =
 			static_cast<LegoU8>(p_state->m_bestLapTimes[i] >> 16);
+		dest[c_scoreRecordLapTimeOffset + 3 - c_scoreRecordCursorOffset] =
+			static_cast<LegoU8>(p_state->m_bestLapTimes[i] >> 24);
+		dest[c_scoreRecordLapTimeOffset - c_scoreRecordCursorOffset] = static_cast<LegoU8>(p_state->m_bestLapTimes[i]);
 
 		for (j = 0; j < c_scoreHolderNameSize; j++) {
 			dest[c_scoreRecordLapHolderNameOffset - c_scoreRecordCursorOffset + j] =
