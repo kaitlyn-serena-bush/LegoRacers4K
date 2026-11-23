@@ -35,8 +35,8 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 
 	LegoS32 contactCount = 0;
 	LegoU32 shapeIndex = 0;
-	LegoFloat& sweepRef0 = p_contactPoint->m_x;
-	sweepRef0 = 0.0f;
+	LegoFloat& sweepOld0 = p_contactPoint->m_x;
+	sweepOld0 = 0.0f;
 	p_contactPoint->m_y = 0.0f;
 	p_contactPoint->m_z = p_contactPoint->m_x;
 
@@ -48,7 +48,8 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 		GolVec3 axisY;
 		GolVec3 axisZ;
 		if (!shapeIndex) {
-			axisX.m_x = m_body->m_orientation.m_m[0][0];
+			GolOrientedEntity* sweepTmp0 = m_body;
+			axisX.m_x = sweepTmp0->m_orientation.m_m[0][0];
 			axisX.m_y = m_body->m_orientation.m_m[0][1];
 			axisX.m_z = m_body->m_orientation.m_m[0][2];
 			axisY.m_x = m_body->m_orientation.m_m[1][0];

@@ -429,7 +429,8 @@ void GrapplingHookAction::AdvanceState()
 
 	m_projectile.ResetRope();
 
-	m_smokeParticleRef = m_owner->m_cutsceneAnimation->SpawnParticle("cannsmk", NULL, NULL, NULL);
+	RacePowerupManager* sweepTmp0 = m_owner;
+	m_smokeParticleRef = sweepTmp0->m_cutsceneAnimation->SpawnParticle("cannsmk", NULL, NULL, NULL);
 	if (m_smokeParticleRef != NULL) {
 		m_ownerRacer->m_physics.m_carEntity->GetPosition(&position);
 		position.m_z += g_hookSmokeHeightOffset;

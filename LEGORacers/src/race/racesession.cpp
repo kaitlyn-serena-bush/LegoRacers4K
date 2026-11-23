@@ -1235,13 +1235,14 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	resetParams.m_eventTable = &m_eventTable;
 	m_raceReset.Initialize(&resetParams);
 
+	LegoRacers::Context* sweepOld0 = m_context;
 	m_particleAnimation.Load(
 		10,
 		m_golExport,
 		m_renderer,
 		m_effectsDatabase->GetMaterialAnimation(0),
 		m_particleAnimationName,
-		m_context->m_useBinaryFiles
+		sweepOld0->m_useBinaryFiles
 	);
 
 	DrawLoadProgress(0.93f);
@@ -1259,7 +1260,8 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	powerupParams.m_animationList = &m_animationList;
 	powerupParams.m_trackDatabase = m_powerupTrackDatabase;
 	powerupParams.m_targetPoints = &m_targetPoints;
-	powerupParams.m_cameraFov = m_splitScreen ? m_context->m_cameraFov - g_splitScreenFovDelta : m_context->m_cameraFov;
+	LegoRacers::Context* sweepTmp0 = m_context;
+	powerupParams.m_cameraFov = m_splitScreen ? sweepTmp0->m_cameraFov - g_splitScreenFovDelta : sweepTmp0->m_cameraFov;
 	powerupParams.m_cheatFlags = m_context->m_cheatFlags;
 	m_powerupManager.Initialize(&powerupParams);
 
