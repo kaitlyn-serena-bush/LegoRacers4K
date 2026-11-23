@@ -1391,8 +1391,8 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 
 	CollisionEventQueue::CollisionCallbackData* collision =
 		static_cast<CollisionEventQueue::CollisionCallbackData*>(p_data->m_data);
-	LegoEventQueue::Descriptor::RigidBody* firstTarget = p_data->m_target0;
 	LegoEventQueue::Descriptor::RigidBody* secondTarget = collision->m_secondTarget;
+	LegoEventQueue::Descriptor::RigidBody* firstTarget = p_data->m_target0;
 	Racer* firstRacer = static_cast<Racer*>(firstTarget->m_owner);
 	Racer* secondRacer = static_cast<Racer*>(secondTarget->m_owner);
 
@@ -1526,8 +1526,8 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 			secondVelocity.m_z = firstRacer->m_physics.m_velocity.m_z;
 			GolMath::NormalizeVector3(secondVelocity, &secondVelocity);
 
-			g_randomTableIndex = (g_randomTableIndex + 1) & c_randomTableMask;
-			LegoS32 randomValue = g_randomTable[g_randomTableIndex];
+			g_randomTableIndex = (0 + 1) & c_randomTableMask;
+			LegoS32 randomValue = g_randomTable[0];
 			LegoU32 soundId;
 			if (randomValue % 2) {
 				soundId = 0x37;

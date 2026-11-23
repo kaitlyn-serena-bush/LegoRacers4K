@@ -745,7 +745,8 @@ void RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 {
 	LegoU32 triangleIndex = 0;
-	LegoFloat angleStep = 6.2831855f / static_cast<LegoFloat>(static_cast<LegoS32>(p_params->m_segmentCount));
+	LegoU32 sweepTmp0 = p_params->m_segmentCount;
+	LegoFloat angleStep = 6.2831855f / static_cast<LegoFloat>(static_cast<LegoS32>(sweepTmp0));
 	LegoU32 ringCount;
 	if (p_params->m_hemisphere) {
 		ringCount = 1 - static_cast<LegoS32>(g_raceSkyNegativeHalfPi / angleStep);
@@ -818,8 +819,8 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 	}
 
 	LegoFloat ringAngle = angleStep;
-	LegoU32 ring;
-	for (ring = 0; ring < ringCount; ring++) {
+	
+	for (LegoU32 ring = 0; ring < ringCount; ring++) {
 		if (p_params->m_hemisphere && ring == ringCount - 1) {
 			ringAngle = 1.5707964f;
 		}
@@ -950,11 +951,11 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 		}
 		scratchStart += p_params->m_segmentCount * 2 + 1;
 	}
-	for (ring = 1; ring < ringCount; ring++) {
+	for (LegoU32 ring2 = 1; ring2 < ringCount; ring2++) {
 		if (scratchStart + (p_params->m_segmentCount + 1) * 2 > 64) {
 			scratchStart = 0;
 		}
-		LegoU32 first = (ring - 1) * (p_params->m_segmentCount + 1);
+		LegoU32 first = (ring2 - 1) * (p_params->m_segmentCount + 1);
 		if (p_params->m_hasTopCap) {
 			first += p_params->m_segmentCount;
 		}
