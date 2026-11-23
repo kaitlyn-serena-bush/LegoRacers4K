@@ -249,7 +249,7 @@ void MenuSceneView::UpdateFreeCamera(undefined4 p_elapsedMs)
 
 	if (turn != 0.0f) {
 		GolCamera* lens = m_camera;
-		LegoFloat value = lens->m_fov;
+		double value = lens->m_fov;
 		LegoU32 flags = lens->m_flags;
 		value += turn;
 		lens->m_flags = flags | GolCamera::c_flagProjectionDirty;

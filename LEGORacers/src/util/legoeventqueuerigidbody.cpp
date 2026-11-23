@@ -35,7 +35,8 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 
 	LegoS32 contactCount = 0;
 	LegoU32 shapeIndex = 0;
-	p_contactPoint->m_x = 0.0f;
+	LegoFloat& sweepRef0 = p_contactPoint->m_x;
+	sweepRef0 = 0.0f;
 	p_contactPoint->m_y = 0.0f;
 	p_contactPoint->m_z = p_contactPoint->m_x;
 

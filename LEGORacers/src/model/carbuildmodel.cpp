@@ -1008,8 +1008,8 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 				primitive->m_vertexIndices[3] = AddBuildVertex(&vertex);
 
 				LegoS32 newPrimitiveCount = m_buildPrimitiveCount + 1;
-				LegoS32& sweepRef0 = m_buildPrimitiveCount;
-				sweepRef0 = newPrimitiveCount;
+				LegoS32& sweepOld0 = m_buildPrimitiveCount;
+				sweepOld0 = newPrimitiveCount;
 				if (m_buildPrimitiveCount >= c_buildPrimitiveCapacity) {
 					m_buildStatus |= c_buildStatusOverflow;
 					return static_cast<LegoS16>(newPrimitiveCount);
@@ -1026,7 +1026,8 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 				LegoU16 materialIndex = command & 0x07ff;
 
 				primitive->m_vertexCount = 3;
-				primitive->m_flags = c_buildPrimitiveInitialFlags;
+				LegoU8& sweepRef0 = primitive->m_flags;
+				sweepRef0 = c_buildPrimitiveInitialFlags;
 				primitive->m_commandFlags = commandFlags;
 				primitive->m_materialIndex = materialIndex;
 				primitive->m_partIndex = p_partIndex;

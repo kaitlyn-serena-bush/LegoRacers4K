@@ -997,7 +997,7 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 		entry->m_hitDistanceSquared = -FLT_MAX;
 	}
 
-	LegoFloat bestDistance = -FLT_MAX;
+	double bestDistance = -FLT_MAX;
 	WheelProbe* selectedEntry = NULL;
 	GolBoundingVolume::HitTriangle* eventContext = &g_carBodyHitTriangle;
 	GolBoundingVolume::HitTriangle* collisionContext = eventContext;
@@ -1063,9 +1063,11 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 			}
 		}
 
-		entry->m_contactForce = entry->m_cachedPlane->m_plane.m_normal;
+		GolVec3& sweepOld0 = entry->m_contactForce;
+		sweepOld0 = entry->m_cachedPlane->m_plane.m_normal;
 
-		entry->m_hitDistanceSquared = entry->m_hitPoint.DistanceSquaredTo(entry->m_rayEnd);
+		LegoFloat& sweepOld1 = entry->m_hitDistanceSquared;
+		sweepOld1 = entry->m_hitPoint.DistanceSquaredTo(entry->m_rayEnd);
 
 		if (entry->m_hitDistanceSquared > bestDistance) {
 			selectedEntry = entry;
@@ -1141,7 +1143,7 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 		}
 	}
 
-	LegoFloat responseScale = m_gravityForce * m_supportNormal.m_z;
+	double responseScale = m_gravityForce * m_supportNormal.m_z;
 	m_supportForce.m_x = -(m_supportNormal.m_x * responseScale);
 	m_supportForce.m_y = -(m_supportNormal.m_y * responseScale);
 	m_supportForce.m_z = m_gravityForce - m_supportNormal.m_z * responseScale;
@@ -1215,7 +1217,7 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 
 	AgePlaneCache();
 
-	LegoFloat elapsedMs = static_cast<LegoFloat>(static_cast<LegoS32>(p_elapsedMs));
+	double elapsedMs = static_cast<LegoFloat>(static_cast<LegoS32>(p_elapsedMs));
 	ComputeWheelPositions();
 
 	WheelProbe* sweepElem0 = &m_wheelProbes[0];
@@ -1474,7 +1476,9 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 	LegoFloat responseScale = m_gravityForce * m_supportNormal.m_z;
 	m_supportForce.m_x = -(m_supportNormal.m_x * responseScale);
 	m_supportForce.m_y = -(m_supportNormal.m_y * responseScale);
-	m_supportForce.m_z = m_gravityForce - m_supportNormal.m_z * responseScale;
+	LegoFloat sweepOld0 = m_supportNormal.m_z;
+	sweepOld0 *= responseScale;
+	m_supportForce.m_z = m_gravityForce - sweepOld0;
 
 	g_carBodyContactForce.m_x = 0.0f;
 	g_carBodyContactForce.m_y = 0.0f;
