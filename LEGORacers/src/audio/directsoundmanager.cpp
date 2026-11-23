@@ -164,10 +164,12 @@ void DirectSoundManager::Update(undefined4)
 		InsertByPriorityForUpdate(m_activeSpatialSounds, sound, TRUE);
 	}
 	m_queuedSpatialSounds.Swap(spatialSounds);
-	while ((link = spatialSounds.PopLastLink()) != NULL) {
+	if ((link = spatialSounds.PopLastLink()) != NULL) {
+		do {
 		SoundBuffer& sound = spatialSounds.GetItem(*link);
 		sound.m_streamingSoundInstance->UpdateSpatial(m_activeSoundNodes);
 		InsertByPriorityForUpdate(m_queuedSpatialSounds, sound, TRUE);
+	} while ((link = spatialSounds.PopLastLink()) != NULL);
 	}
 
 	link = m_activeSpatialSounds.FirstLink();

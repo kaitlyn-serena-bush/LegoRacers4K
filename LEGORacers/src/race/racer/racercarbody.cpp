@@ -619,7 +619,7 @@ void RacerCarBody::AccumulateForces()
 		steeringAmount = right.m_x;
 		LegoFloat steeringY = right.m_y;
 		LegoFloat steeringZ = m_velocityDirection.m_z * m_physicsEntity.GetOrientation().m_rows[0].m_z;
-		steeringY *= m_velocityDirection.m_y;
+		steeringY = GOL_MUL(steeringY, m_velocityDirection.m_y);
 		steeringY += steeringZ;
 		steeringAmount *= m_velocityDirection.m_x;
 		steeringAmount += steeringY;
@@ -630,7 +630,7 @@ void RacerCarBody::AccumulateForces()
 
 	if (m_contactCount == 0) {
 		force.Clear();
-		force.m_z = m_gravityForce * 4.0f;
+		force.m_z =GOL_MUL(m_gravityForce, 4.0f);
 		AddForce(&force);
 
 		LegoFloat scale = m_thrust * m_massScale;
@@ -1218,7 +1218,8 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 	LegoFloat elapsedMs = static_cast<LegoFloat>(static_cast<LegoS32>(p_elapsedMs));
 	ComputeWheelPositions();
 
-	LegoFloat average = m_wheelProbes[0].m_wheelPosition.m_x;
+	WheelProbe* sweepElem0 = &m_wheelProbes[0];
+	LegoFloat average = sweepElem0->m_wheelPosition.m_x;
 	average += m_wheelProbes[1].m_wheelPosition.m_x;
 	m_frontAxleMid.m_x = average * 0.5f;
 	average = m_wheelProbes[0].m_wheelPosition.m_y;
@@ -1260,7 +1261,7 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 	}
 	sweepDistance += m_slideLift;
 
-	WheelProbe* entries = m_wheelProbes;
+	
 	WheelProbe* entry;
 	m_contactCount = 0;
 
@@ -1395,7 +1396,7 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 	m_supportNormal.m_y = 0.0f;
 	m_supportNormal.m_z = 0.0f;
 
-	for (entry = entries; entry < entriesEnd; entry++) {
+	for (entry = m_wheelProbes; entry < entriesEnd; entry++) {
 		if (entry->m_hitDistanceSquared >= contactLimitSquared) {
 			m_supportNormal.m_x += entry->m_contactForce.m_x;
 			m_supportNormal.m_y += entry->m_contactForce.m_y;
@@ -1460,7 +1461,7 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 				m_contactCount = 0;
 				m_velocity.m_z -= scaled;
 
-				for (entry = entries; entry < entriesEnd; entry++) {
+				for (entry = m_wheelProbes; entry < entriesEnd; entry++) {
 					entry->m_flags &= ~WheelProbe::c_flagContact;
 				}
 				return;
@@ -1479,7 +1480,7 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 	g_carBodyContactForce.m_y = 0.0f;
 	g_carBodyContactForce.m_z = -(m_gravityForce * 0.5f);
 
-	for (entry = entries; entry < entriesEnd; entry++) {
+	for (entry = m_wheelProbes; entry < entriesEnd; entry++) {
 		if (entry->m_flags & WheelProbe::c_flagContact) {
 			entry->m_contactForce = g_carBodyContactForce;
 		}

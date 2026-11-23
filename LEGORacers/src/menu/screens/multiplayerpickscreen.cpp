@@ -188,7 +188,8 @@ LegoBool32 MultiplayerPickScreen::HandleKeyDown(
 					RestoreSlotLighting(i);
 				}
 				else {
-					m_driverEntities[i].SetFlags(m_driverEntities[i].GetFlags() & ~0x10000);
+					GolAnimatedEntity* sweepElem0 = &m_driverEntities[i];
+					sweepElem0->SetFlags(sweepElem0->GetFlags() & ~0x10000);
 					m_nextMenuId = 0x3f;
 				}
 				break;

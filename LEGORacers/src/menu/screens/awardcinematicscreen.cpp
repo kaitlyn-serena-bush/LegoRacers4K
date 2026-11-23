@@ -236,9 +236,11 @@ void AwardCinematicScreen::CreateWidgets()
 		}
 
 		m_context->m_modelBuilder.SetExpressionMask(0xffff);
-		m_driverModel = m_context->m_modelBuilder.BuildDriverModel(&cosmetics, NULL, 0);
+		GolModelBase*& sweepRef0 = m_driverModel;
+		sweepRef0 = m_context->m_modelBuilder.BuildDriverModel(&cosmetics, NULL, 0);
+		GolModelBase* sweepTmp0 = m_driverModel;
 		m_driverEntity.SetModel(
-			m_driverModel,
+			sweepTmp0,
 			sourceDriverEntity->GetSceneNode(0),
 			sourceDriverEntity->GetModelPart(0),
 			sourceDriverEntity->GetModelDistance(0)

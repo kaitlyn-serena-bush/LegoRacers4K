@@ -200,8 +200,8 @@ void CutsceneVisual::ComputeLayout(GolD3DRenderDevice* p_renderer, LegoFloat p_w
 {
 	const Rect* viewport = &p_renderer->GetCurrentCamera()->m_viewport;
 	LegoS32 viewportX = viewport->m_left;
-	LegoS32 viewportY = viewport->m_top;
 	LegoS32 viewportWidth = viewport->m_right - viewportX;
+	LegoS32 viewportY = viewport->m_top;
 	LegoS32 viewportHeight = viewport->m_bottom - viewportY;
 
 	LegoS32 imageWidth;

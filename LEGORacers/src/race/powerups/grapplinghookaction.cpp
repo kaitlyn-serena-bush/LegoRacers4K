@@ -410,7 +410,7 @@ void GrapplingHookAction::AdvanceState()
 			targetPosition.m_z = m_targetPoint->m_position.m_z;
 		}
 		else {
-			scaledDirection.m_x = direction.m_x * 500.0f;
+			scaledDirection.m_x =GOL_MUL(direction.m_x, 500.0f);
 			scaledDirection.m_y = direction.m_y * 500.0f;
 			scaledDirection.m_z = direction.m_z * 500.0f;
 			GolCameraBase::Add(&position, &scaledDirection, &targetPosition);
@@ -444,7 +444,7 @@ void GrapplingHookAction::AdvanceState()
 
 	racerField->m_carEntity->GetPosition(&position);
 	m_soundSource
-		->PlaySpatialSoundById(c_soundFire, &position, g_hookSoundMinDistance, g_hookSoundMaxDistance, 1.0f, 1.0f);
+		->PlaySpatialSoundById(c_soundFire, &position, 30.0f, g_hookSoundMaxDistance, 1.0f, 1.0f);
 }
 
 // FUNCTION: LEGORACERS 0x004545d0

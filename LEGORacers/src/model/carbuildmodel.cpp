@@ -1433,8 +1433,8 @@ void CarBuildModel::ComputePieceBounds(LegoPieceLibrary::PieceRecord* p_pieceRec
 	LegoFloat minZ;
 	library->GetPosition(indexCursor[1], &minX, &minY, &minZ);
 	LegoFloat maxX = minX;
-	LegoFloat maxY = minY;
 	LegoFloat maxZ = minZ;
+	LegoFloat maxY = minY;
 
 	LegoBool32 hasExtraIndex = FALSE;
 	LegoBool32 hasTextureIndex = FALSE;
@@ -1918,6 +1918,8 @@ void CarBuildModel::RefreshOverlay(Placement* p_placement, GolModelEntity* p_ent
 	UpdateOffset(TRUE);
 
 	LegoS32 x;
+	if (x == 0) {
+	}
 	LegoS32 entryHeight;
 	LegoPieceLibrary::PieceRecord* pieceRecord = p_placement->GetPieceRecord();
 	LegoS32 rotation;

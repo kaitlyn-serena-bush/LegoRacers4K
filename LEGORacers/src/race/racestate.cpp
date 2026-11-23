@@ -673,15 +673,18 @@ void RaceState::UpdateStandings()
 	LegoU32 groupStart;
 	for (groupStart = 0; groupStart < m_roster.m_racerCount - 1;) {
 		LegoU32 groupEnd = groupStart + 1;
-		while (g_racerProgressEntries[groupStart].m_progress == g_racerProgressEntries[groupEnd].m_progress &&
+		if (g_racerProgressEntries[groupStart].m_progress == g_racerProgressEntries[groupEnd].m_progress &&
 			   groupEnd < m_roster.m_racerCount) {
+			do {
 			groupEnd++;
+		} while (g_racerProgressEntries[groupStart].m_progress == g_racerProgressEntries[groupEnd].m_progress &&
+			   groupEnd < m_roster.m_racerCount);
 		}
 
 		CheckpointGraph::Entry* pathField = g_racerProgressEntries[groupStart].m_racer->m_checkpoint;
 		if (groupEnd > groupStart + 1 && pathField) {
-			RacerProgressEntry* tiedEntry = &g_racerProgressEntries[groupStart];
 			LegoU32 tiedCount = groupEnd - groupStart;
+			RacerProgressEntry* tiedEntry = &g_racerProgressEntries[groupStart];
 			do {
 
 				tiedEntry->m_racer->m_visuals.m_carEntity->GetPosition(&position);
@@ -1164,10 +1167,8 @@ void RaceState::ComputeStandingsDeltas(Racer* p_racer, Racer::StandingsDeltaEntr
 		p_entries[racerIndex].m_racer = &m_roster.m_racers[racerIndex];
 		p_entries[racerIndex].m_isValid = TRUE;
 
-		if (&m_roster.m_racers[racerIndex] == p_racer) {
-			p_entries[racerIndex].m_delta = 0;
-		}
-		else if (m_roster.m_racers[racerIndex].m_lapsCompleted < m_setup.m_lapCount) {
+		if (&m_roster.m_racers[racerIndex] != p_racer) {
+			if (m_roster.m_racers[racerIndex].m_lapsCompleted < m_setup.m_lapCount) {
 			p_entries[racerIndex].m_delta = m_roster.m_racers[racerIndex].m_standingsPosition + 2147483641;
 		}
 		else {
@@ -1183,6 +1184,10 @@ void RaceState::ComputeStandingsDeltas(Racer* p_racer, Racer::StandingsDeltaEntr
 			}
 
 			p_entries[racerIndex].m_delta = otherTime - racerTime;
+		}
+		}
+		else {
+			p_entries[racerIndex].m_delta = 0;
 		}
 	}
 

@@ -1201,13 +1201,13 @@ LegoS32 MenuManager::CommitBestTimes()
 		LegoBool32 hasRaceIndex = FALSE;
 
 		if (context->m_bestLapTimes[i]) {
-			raceIndex = m_gameContext.m_raceNames.GetEntryIndexByName(context->m_raceSlots[i].m_raceName);
+			const LegoChar* sourceName = context->m_playerSetupSlots[context->m_bestLapHolders[i]].m_playerName;
 			hasRaceIndex = TRUE;
 
-			const LegoChar* sourceName = context->m_playerSetupSlots[context->m_bestLapHolders[i]].m_playerName;
+			GolString::CopyStringToBuf16(sourceName, wideName);
 			::strncpy(name, sourceName, sizeof(name) - 1);
 			name[sizeof(name) - 1] = '\0';
-			GolString::CopyStringToBuf16(sourceName, wideName);
+			raceIndex = m_gameContext.m_raceNames.GetEntryIndexByName(context->m_raceSlots[i].m_raceName);
 			string.CopyFromBufSelection(wideName, sizeof(name) - 1);
 
 			if (m_gameContext.m_saveSystem.GetGameState()

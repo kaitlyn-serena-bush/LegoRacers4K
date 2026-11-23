@@ -50,8 +50,8 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 			axisX.m_x = m_body->m_orientation.m_m[0][0];
 			axisX.m_y = m_body->m_orientation.m_m[0][1];
 			axisX.m_z = m_body->m_orientation.m_m[0][2];
-			GolMath::ScaleVector3(&axisX, m_boxSizeX * 0.5f, &axisX);
 			axisY.m_x = m_body->m_orientation.m_m[1][0];
+			GolMath::ScaleVector3(&axisX, m_boxSizeX * 0.5f, &axisX);
 			axisY.m_y = m_body->m_orientation.m_m[1][1];
 			axisY.m_z = m_body->m_orientation.m_m[1][2];
 			GolMath::ScaleVector3(&axisY, m_boxSizeY * 0.5f, &axisY);
@@ -111,7 +111,9 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 			}
 
 			if (cornerIndex >= 2 && (cornerIndex < 4 || cornerIndex >= 6)) {
-				corner -= axisY;
+				corner.m_z -= axisY.m_z;
+				corner.m_y -= axisY.m_y;
+				corner.m_x -= axisY.m_x;
 			}
 			else {
 				corner += axisY;

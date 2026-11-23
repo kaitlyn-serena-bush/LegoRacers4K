@@ -636,7 +636,7 @@ void Racer::InitializePhysics(RacerContext* p_context, SetupParams* p_params)
 		mass = p_params->m_mass;
 		memcpy(&position, &p_params->m_centerOfMass, sizeof(position));
 
-		deltaX = p_params->m_anchorWheelPosition.m_x - p_params->m_rearWheelX;
+		deltaX = (p_params->m_anchorWheelPosition.m_x) - p_params->m_rearWheelX;
 		topSpeedStat = p_params->m_topSpeedStat;
 		LegoFloat valueFloat = p_params->m_weight;
 		accelerationStat = p_params->m_accelerationStat;
