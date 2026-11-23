@@ -1972,13 +1972,14 @@ LegoU32 RacerCarBody::ResolveWallCollisions(LegoU32 p_elapsedMs, LegoBool32 p_qu
 					worldNormal = g_carBodyHitTriangle.m_normal;
 
 					if (DotVectors(hitPoint - m_bodyPointsWorld[pointIndex], g_carBodyHitTriangle.m_normal) >= 0.0f) {
-						if (hitRecord && !OnCollisionRecord(&hitPoint, hitRecord, resource, &g_carBodyHitTriangle)) {
+						GolVec3& point = m_bodyPointsWorld[pointIndex];
+					if (hitRecord && !OnCollisionRecord(&hitPoint, hitRecord, resource, &g_carBodyHitTriangle)) {
 							continue;
 						}
 
-						LegoFloat deltaX = m_bodyPointsWorld[pointIndex].m_x - hitPoint.m_x;
-						LegoFloat deltaY = m_bodyPointsWorld[pointIndex].m_y - hitPoint.m_y;
-						LegoFloat deltaZ = m_bodyPointsWorld[pointIndex].m_z - hitPoint.m_z;
+						LegoFloat deltaX = point.m_x - hitPoint.m_x;
+						LegoFloat deltaY = point.m_y - hitPoint.m_y;
+						LegoFloat deltaZ = point.m_z - hitPoint.m_z;
 						LegoFloat distance = deltaZ * deltaZ + (deltaX * deltaX + deltaY * deltaY);
 
 						if (distance > bestDistance) {
