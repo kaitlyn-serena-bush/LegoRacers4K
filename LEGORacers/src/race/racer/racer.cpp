@@ -2440,25 +2440,21 @@ void Racer::OnCheckpointCrossed(CheckpointGraph::Entry* p_entry, GolBoundingVolu
 		LegoS32 checkpointCount;
 
 		if (p_entry->m_lapFraction == 0.0f) {
-			if (isForward == TRUE) {
+			if (isForward) {
 				if (!(m_flags & c_flagCrossedBackward)) {
 					checkpointCount = m_checkpointCount;
 					checkpointCount++;
 					m_checkpointCount = checkpointCount;
 				}
+
+				m_flags &= ~c_flagCrossedBackward;
 			}
 			else {
 				m_flags |= c_flagCrossedBackward;
-				m_checkpointForward = isForward;
 				m_currentZone = 0;
 				m_previousZone = 2;
 				m_zoneBeforePrevious = 2;
-				m_checkpoint = p_entry;
-
-				return;
 			}
-
-			m_flags &= ~c_flagCrossedBackward;
 		}
 		else if (m_flags & c_flagCrossedBackward) {
 			checkpointCount = m_checkpointCount;
