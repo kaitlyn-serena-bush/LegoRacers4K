@@ -313,7 +313,11 @@ void GrapplingHookAction::Update(LegoU32 p_elapsedMs)
 
 	if (m_smokeParticleRef != NULL) {
 		CutsceneParticle* particle = m_smokeParticleRef->m_particle;
-		if (particle == NULL || particle->GetSpawnedCount() >= 3) {
+		if (particle == NULL) {
+			goto finish;
+		}
+		if (particle->GetSpawnedCount() >= 3) {
+		finish:
 			m_owner->m_cutsceneAnimation->FinishRef(m_smokeParticleRef);
 			m_smokeParticleRef = NULL;
 			return;
