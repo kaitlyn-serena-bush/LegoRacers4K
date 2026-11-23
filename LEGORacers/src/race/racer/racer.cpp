@@ -2336,9 +2336,13 @@ void Racer::UpdateFacing(LegoU32 p_elapsedMs)
 				GolVec2 normal;
 				normal.m_x = checkpoint->m_planeNormal.m_x;
 				normal.m_y = checkpoint->m_planeNormal.m_y;
-				LegoFloat dot = direction.m_x * normal.m_x + direction.m_y * normal.m_y +
-								direction.m_z * checkpoint->m_planeNormal.m_z;
-				if (0.2f >= dot) {
+				double dotY = direction.m_y;
+				dotY *= normal.m_y;
+				LegoFloat dotZ = direction.m_z;
+				dotZ *= checkpoint->m_planeNormal.m_z;
+				LegoFloat dot = dotZ + dotY;
+				dot += direction.m_x * normal.m_x;
+				if (dot <= 0.2f) {
 					isBlocked = TRUE;
 				}
 			}
