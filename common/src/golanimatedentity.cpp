@@ -664,7 +664,7 @@ LegoBool32 GolAnimatedEntity::SamplePartPosition(
 {
 	LegoFloat timeScale = m_msPerFrame;
 	LegoFloat frame = static_cast<LegoFloat>(p_frame);
-	LegoFloat time =GOL_MUL(timeScale, frame);
+	LegoFloat time = GOL_MUL(timeScale, frame);
 	CmbModelPart* modelPart = m_modelParts[p_modelIndex];
 	CmbModelPartTrackData& animationData = modelPart->GetAnimationData();
 	CmbModelPartData* partData = modelPart->GetPartData();
@@ -672,9 +672,8 @@ LegoBool32 GolAnimatedEntity::SamplePartPosition(
 	LegoU32 trackIndex = part.GetTrackIndex();
 	trackIndex += p_trackOffset;
 	const CmbModelPartTrack& track = modelPart->GetTrack(trackIndex);
-	LegoS32 frameCount = part.GetFrameCount();
 
-	return animationData.InterpolatePosition(p_dest, track, time, frameCount);
+	return animationData.InterpolatePosition(p_dest, track, time, part.GetFrameCountWide());
 }
 
 // FUNCTION: LEGORACERS 0x0040e420
@@ -688,7 +687,7 @@ LegoBool32 GolAnimatedEntity::SamplePartRotation(
 {
 	LegoFloat timeScale = m_msPerFrame;
 	LegoFloat frame = static_cast<LegoFloat>(p_frame);
-	LegoFloat time =GOL_MUL(timeScale, frame);
+	LegoFloat time = GOL_MUL(timeScale, frame);
 	CmbModelPart* modelPart = m_modelParts[p_modelIndex];
 	CmbModelPartTrackData& animationData = modelPart->GetAnimationData();
 	CmbModelPartData* partData = modelPart->GetPartData();
@@ -696,9 +695,8 @@ LegoBool32 GolAnimatedEntity::SamplePartRotation(
 	LegoU32 trackIndex = part.GetTrackIndex();
 	trackIndex += p_trackOffset;
 	const CmbModelPartTrack& track = modelPart->GetTrack(trackIndex);
-	LegoS32 frameCount = part.GetFrameCount();
 
-	return animationData.InterpolateRotation(p_dest, track, time, frameCount);
+	return animationData.InterpolateRotation(p_dest, track, time, part.GetFrameCountWide());
 }
 
 // FUNCTION: GOLDP 0x100241a0
