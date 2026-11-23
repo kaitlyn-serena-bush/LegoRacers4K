@@ -48,8 +48,8 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 		GolVec3 axisY;
 		GolVec3 axisZ;
 		if (!shapeIndex) {
-			GolOrientedEntity* sweepTmp0 = m_body;
-			axisX.m_x = sweepTmp0->m_orientation.m_m[0][0];
+			GolOrientedEntity* sweepOld1 = m_body;
+			axisX.m_x = sweepOld1->m_orientation.m_m[0][0];
 			axisX.m_y = m_body->m_orientation.m_m[0][1];
 			axisX.m_z = m_body->m_orientation.m_m[0][2];
 			axisY.m_x = m_body->m_orientation.m_m[1][0];
@@ -59,7 +59,7 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 			axisZ.m_y = m_body->m_orientation.m_m[2][1];
 			axisZ.m_z = m_body->m_orientation.m_m[2][2];
 			GolMath::ScaleVector3(&axisX, m_boxSizeX * 0.5f, &axisX);
-			GolMath::ScaleVector3(&axisY, m_boxSizeY * 0.5f, &axisY);
+			GolMath::ScaleVector3(&axisY, ((((m_boxSizeY * 0.5f)))), &axisY);
 			GolMath::ScaleVector3(&axisZ, m_boxSizeZ * 0.5f, &axisZ);
 
 			if (m_boxScale != 1.0f) {
@@ -86,7 +86,7 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 			axisZ.m_y = p_other->m_body->m_orientation.m_m[2][1];
 			axisZ.m_z = p_other->m_body->m_orientation.m_m[2][2];
 			GolMath::ScaleVector3(&axisX, p_other->m_boxSizeX * 0.5f, &axisX);
-			GolMath::ScaleVector3(&axisY, p_other->m_boxSizeY * 0.5f, &axisY);
+			GolMath::ScaleVector3(&axisY, ((((p_other->m_boxSizeY * 0.5f)))), &axisY);
 			GolMath::ScaleVector3(&axisZ, p_other->m_boxSizeZ * 0.5f, &axisZ);
 
 			if (p_other->m_boxScale != 1.0f) {
@@ -111,15 +111,15 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 				corner.m_z = axisX.m_z;
 			}
 			else {
-				corner.m_x = -axisX.m_x;
 				corner.m_y = -axisX.m_y;
+				corner.m_x = -axisX.m_x;
 				corner.m_z = -axisX.m_z;
 			}
 
 			if (cornerIndex >= 2 && (cornerIndex < 4 || cornerIndex >= 6)) {
-				corner.m_z -= axisY.m_z;
-				corner.m_y -= axisY.m_y;
 				corner.m_x -= axisY.m_x;
+				corner.m_y -= axisY.m_y;
+				corner.m_z -= axisY.m_z;
 			}
 			else {
 				corner += axisY;

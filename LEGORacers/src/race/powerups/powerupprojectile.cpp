@@ -126,7 +126,10 @@ void PowerupProjectile::LaunchAtRacer(
 	delta.m_y *= inverseDistance;
 	double sweepOld0 = racerDirection.m_y;
 	sweepOld0 *= delta.m_y;
-	LegoFloat dot = racerDirection.m_z * 0.0f + sweepOld0 + racerDirection.m_x * delta.m_x;
+	double sweepOld2 = delta.m_x;
+	sweepOld2 *= racerDirection.m_x;
+	LegoFloat dot = racerDirection.m_z * 0.0f + sweepOld2;
+	dot += sweepOld0;
 	if (dot < 0.0f) {
 		dot = -dot;
 	}
@@ -142,23 +145,24 @@ void PowerupProjectile::LaunchAtRacer(
 	durationMs *= 1000.0f;
 	m_flightTimeMs = static_cast<LegoS32>(durationMs);
 	if (p_predictiveLead) {
-		GolVec3 sweepTmp0;
-		sweepTmp0 = *target;
+		GolVec3 sweepOld3;
+		sweepOld3 = *target;
 		scaledVelocity.m_x = targetVelocity.m_x * durationMs;
 		scaledVelocity.m_y = targetVelocity.m_y * durationMs;
-		scaledVelocity.m_z = targetVelocity.m_z * durationMs;
-		sweepTmp0 += scaledVelocity;
+		LegoFloat sweepOld4 = targetVelocity.m_z * durationMs;
+		scaledVelocity.m_z = sweepOld4;
+		sweepOld3 += scaledVelocity;
 		racerDirection = p_racer->m_physics.m_facingDirection;
 		GolVec3 predictedDelta;
-		predictedDelta.m_x = sweepTmp0.m_x - startPosition->m_x;
-		predictedDelta.m_y = sweepTmp0.m_y - startPosition->m_y;
-		predictedDelta.m_z = sweepTmp0.m_z - startPosition->m_z;
+		predictedDelta.m_x = sweepOld3.m_x - startPosition->m_x;
+		predictedDelta.m_y = sweepOld3.m_y - startPosition->m_y;
+		predictedDelta.m_z = sweepOld3.m_z - startPosition->m_z;
 		LegoFloat predictedDot = racerDirection.m_z * predictedDelta.m_z;
 		predictedDot += racerDirection.m_y * predictedDelta.m_y;
 		LegoFloat sweepOld1 = racerDirection.m_x;
 		predictedDot += sweepOld1 * predictedDelta.m_x;
 		if (predictedDot < 0.0f) {
-			*target = sweepTmp0;
+			*target = sweepOld3;
 		}
 	}
 	else {
