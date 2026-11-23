@@ -1705,7 +1705,8 @@ void RacerCarBody::UpdateVelocityStats()
 {
 	GolVec3* velocity = &m_velocity;
 
-	if (m_velocity.m_x == 0.0f && m_velocity.m_y == 0.0f && m_velocity.m_z == 0.0f) {
+	LegoFloat sweepTmp0 = m_velocity.m_x;
+	if (sweepTmp0 == 0.0f && m_velocity.m_y == 0.0f && m_velocity.m_z == 0.0f) {
 		m_speed = 0.0f;
 		m_velocityDirection.m_x = m_physicsEntity.GetOrientation().m_rows[0].m_x;
 		m_velocityDirection.m_y = m_physicsEntity.GetOrientation().m_rows[0].m_y;
@@ -1730,7 +1731,7 @@ void RacerCarBody::UpdateVelocityStats()
 		m_flags &= ~c_flagAtRest;
 	}
 
-	LegoFloat forwardSpeed = velocity->m_z;
+	LegoFloat forwardSpeed = (velocity->m_z);
 	forwardSpeed *= m_facingDirection.m_z;
 	LegoFloat contribution = velocity->m_y;
 	contribution *= m_facingDirection.m_y;
