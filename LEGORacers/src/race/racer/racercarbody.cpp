@@ -1202,6 +1202,7 @@ void RacerCarBody::UpdateSlideBank(LegoS32 p_elapsedMs)
 // FUNCTION: LEGORACERS 0x004465c0
 void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 {
+	RaceEventRecord* hitRecord;
 	GolVec3 direction;
 	GolVec3 up;
 	LegoU32 entryIndex;
@@ -1305,7 +1306,6 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 			resource->WorldToLocal(entry->m_rayEnd, &position);
 
 			GolVec3 hitPoint;
-			RaceEventRecord* hitRecord;
 			if (!resource->IntersectSegment(&start, &position, collisionContext, &hitPoint, &hitRecord, NULL)) {
 				continue;
 			}
@@ -1341,7 +1341,6 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 		entry = &m_wheelProbes[entryIndex];
 		if (!(entry->m_flags & WheelProbe::c_flagHit)) {
 			if (!TestCachedPlanes(entry)) {
-				RaceEventRecord* hitRecord;
 				if (!baseResource->IntersectSegment(
 						&entry->m_rayStart,
 						&entry->m_rayEnd,

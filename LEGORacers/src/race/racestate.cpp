@@ -711,29 +711,28 @@ void RaceState::UpdateStandings()
 				tiedEntry++;
 			} while (--tiedCount);
 
-			LegoU32 tiedSortIndex;
-			for (tiedSortIndex = groupStart; tiedSortIndex < groupEnd; tiedSortIndex++) {
-				LegoU32 maxIndex = tiedSortIndex;
-				LegoFloat maxDistance = g_racerProgressEntries[tiedSortIndex].m_tieBreakDistance;
+			for (sortIndex = groupStart; sortIndex < groupEnd; sortIndex++) {
+				LegoU32 maxIndex = sortIndex;
+				LegoFloat maxDistance = g_racerProgressEntries[sortIndex].m_tieBreakDistance;
 
 				LegoU32 tiedScanIndex;
-				for (tiedScanIndex = tiedSortIndex + 1; tiedScanIndex < groupEnd; tiedScanIndex++) {
+				for (tiedScanIndex = sortIndex + 1; tiedScanIndex < groupEnd; tiedScanIndex++) {
 					if (maxDistance < g_racerProgressEntries[tiedScanIndex].m_tieBreakDistance) {
 						maxDistance = g_racerProgressEntries[tiedScanIndex].m_tieBreakDistance;
 						maxIndex = tiedScanIndex;
 					}
 				}
 
-				if (maxIndex > tiedSortIndex) {
-					LegoFloat progress = g_racerProgressEntries[tiedSortIndex].m_progress;
-					g_racerProgressEntries[tiedSortIndex].m_progress = g_racerProgressEntries[maxIndex].m_progress;
+				if (maxIndex > sortIndex) {
+					LegoFloat progress = g_racerProgressEntries[sortIndex].m_progress;
+					g_racerProgressEntries[sortIndex].m_progress = g_racerProgressEntries[maxIndex].m_progress;
 					g_racerProgressEntries[maxIndex].m_progress = progress;
-					LegoFloat distance = g_racerProgressEntries[tiedSortIndex].m_tieBreakDistance;
-					g_racerProgressEntries[tiedSortIndex].m_tieBreakDistance =
+					LegoFloat distance = g_racerProgressEntries[sortIndex].m_tieBreakDistance;
+					g_racerProgressEntries[sortIndex].m_tieBreakDistance =
 						g_racerProgressEntries[maxIndex].m_tieBreakDistance;
 					g_racerProgressEntries[maxIndex].m_tieBreakDistance = distance;
-					Racer* racer = g_racerProgressEntries[tiedSortIndex].m_racer;
-					g_racerProgressEntries[tiedSortIndex].m_racer = g_racerProgressEntries[maxIndex].m_racer;
+					Racer* racer = g_racerProgressEntries[sortIndex].m_racer;
+					g_racerProgressEntries[sortIndex].m_racer = g_racerProgressEntries[maxIndex].m_racer;
 					g_racerProgressEntries[maxIndex].m_racer = racer;
 				}
 			}

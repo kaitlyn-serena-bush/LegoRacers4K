@@ -596,6 +596,8 @@ LegoU32 RaceDecalManager::Trail::Decal::TransformVertices(
 // FUNCTION: LEGORACERS 0x00414f40
 void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32 p_polygonCount)
 {
+	LegoU32 previousOutside;
+	LegoS32 previousIndex;
 	LegoU8* end = m_sourceIndexBytes + 4 * (p_firstPolygon + p_polygonCount);
 	LegoU8* indices = m_sourceIndexBytes + 4 * p_firstPolygon;
 
@@ -651,8 +653,8 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 			LegoS32 outputCount = 0;
 
 			if (combinedFlags & c_clipXMinFlag) {
-				LegoS32 previousIndex = inputCount - 1;
-				LegoU32 previousOutside = inputFlags[previousIndex] & c_clipXMinFlag;
+				previousIndex = inputCount - 1;
+				previousOutside = inputFlags[previousIndex] & c_clipXMinFlag;
 
 				for (LegoS32 i = 0; i < inputCount; i++) {
 					LegoU32 currentOutside = inputFlags[i] & c_clipXMinFlag;
@@ -702,8 +704,8 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 			}
 
 			if (combinedFlags & c_clipXMaxFlag) {
-				LegoS32 previousIndex = inputCount - 1;
-				LegoU32 previousOutside = inputFlags[previousIndex] & c_clipXMaxFlag;
+				previousIndex = inputCount - 1;
+				previousOutside = inputFlags[previousIndex] & c_clipXMaxFlag;
 
 				for (LegoS32 i = 0; i < inputCount; i++) {
 					LegoU32 currentOutside = inputFlags[i] & c_clipXMaxFlag;
@@ -753,8 +755,8 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 			}
 
 			if (combinedFlags & c_clipYMinFlag) {
-				LegoS32 previousIndex = inputCount - 1;
-				LegoU32 previousOutside = inputFlags[previousIndex] & c_clipYMinFlag;
+				previousIndex = inputCount - 1;
+				previousOutside = inputFlags[previousIndex] & c_clipYMinFlag;
 
 				for (LegoS32 i = 0; i < inputCount; i++) {
 					LegoU32 currentOutside = inputFlags[i] & c_clipYMinFlag;
@@ -800,8 +802,8 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 			}
 
 			if (combinedFlags & c_clipYMaxFlag) {
-				LegoS32 previousIndex = inputCount - 1;
-				LegoU32 previousOutside = inputFlags[previousIndex] & c_clipYMaxFlag;
+				previousIndex = inputCount - 1;
+				previousOutside = inputFlags[previousIndex] & c_clipYMaxFlag;
 
 				for (LegoS32 i = 0; i < inputCount; i++) {
 					LegoU32 currentOutside = inputFlags[i] & c_clipYMaxFlag;
