@@ -352,6 +352,7 @@ void RaceState::CreateRacer(
 	}
 
 	initParams.m_driverMountOffset = chassisItem->m_driverMountOffset;
+	LegoU32 racerOff = p_racerIndex * sizeof(Racer);
 	initParams.m_racer = &m_roster.m_racers[p_racerIndex];
 	initParams.m_shadowWidth = chassisItem->m_shadowSize.m_x;
 	initParams.m_shadowLength = chassisItem->m_shadowSize.m_y;
@@ -410,8 +411,7 @@ void RaceState::CreateRacer(
 	);
 
 	racerParams.m_lapCount = m_setup.m_lapCount;
-	Racer* racerA = &m_roster.m_racers[p_racerIndex];
-	racerA->Initialize(p_context, &initParams, &racerParams, this, p_racerIndex);
+	m_roster.m_racers[p_racerIndex].Initialize(p_context, &initParams, &racerParams, this, p_racerIndex);
 	m_roster.m_racers[p_racerIndex].m_driveController.m_previewCursor = &m_sharedRouteCursor;
 
 	GolD3DTexture* shadowTexture = m_setup.m_textureList->GetItem(p_racerIndex);
@@ -430,7 +430,7 @@ void RaceState::CreateRacer(
 	shadowMaterialParams.m_texture = shadowTexture;
 	shadowMaterial->SetParams(p_context->m_renderer, shadowMaterialParams);
 
-	Racer* racer = racerA;
+	Racer* racer = ((Racer*)((char*)m_roster.m_racers + racerOff));
 
 	LegoEventQueue::Descriptor descriptor;
 	descriptor.m_type = LegoEventQueue::Descriptor::c_typeCollision;
