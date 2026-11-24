@@ -1014,7 +1014,7 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 				hasNormalIndex = (command >> 14) & 1;
 				LegoBool32 hasSharedNormalIndex = (command >> 15) & 1;
 				LegoU16 commandFlags = command & c_buildPrimitiveCommandMask;
-				LegoU16 materialIndex = command & 0x07ff;
+				LegoU16 materialIndex = commandFlags & 0x07ff;
 
 				primitive->m_vertexCount = 3;
 				LegoU8& sweepOld1 = primitive->m_flags;
@@ -1025,7 +1025,7 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 
 				if (materialIndex >= 3) {
 					if (!m_savedHasHighBasePiece && m_applyBaseTexture &&
-						(command & c_buildPrimitiveCommandTextureBit)) {
+						(commandFlags & c_buildPrimitiveCommandTextureBit)) {
 						primitive->m_materialIndex = materialIndex + 1;
 					}
 				}
