@@ -1416,6 +1416,10 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 		RacerPhysics* firstPhysics = &firstRacer->m_physics;
 		firstRacer->m_physics.MoveBy(&impulse);
 
+		GolVec3 firstAxis;
+		firstAxis.m_x = 0.0f;
+		GolVec3 angular;
+		angular.m_x = 0.0f;
 		GolVec3 firstVelocity;
 		firstVelocity.m_x = firstTarget->m_velocity.m_x;
 		firstVelocity.m_y = firstTarget->m_velocity.m_y;
@@ -1464,10 +1468,8 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 		firstInertia.m_m[2][1] = firstTarget->m_worldInverseInertia.m_m[2][1];
 		firstInertia.m_m[2][2] = firstTarget->m_worldInverseInertia.m_m[2][2];
 
-		GolVec3 firstAxis;
 		GolMath::CrossVector3(&firstContactOffset, normal, &firstAxis);
 
-		GolVec3 angular;
 		angular.m_x = firstInertia.m_m[0][0] * firstAxis.m_x;
 		angular.m_y = firstInertia.m_m[0][1] * firstAxis.m_x;
 		angular.m_z = firstInertia.m_m[0][2] * firstAxis.m_x;
