@@ -328,8 +328,8 @@ void AwardCinematicScreen::CreateWidgets()
 							expressionIndex = ::strncmp(expressionName, "suprz", sizeof(GolName)) == 0 ? 5 : 0;
 						}
 
-						m_context->m_partCatalog
-							.BuildFaceExpressionName(cosmetics.m_faceIndex, expressionIndex, expressionName);
+						m_context->m_modelBuilder.GetPartResources()->GetPartCatalog()
+							->BuildFaceExpressionName(cosmetics.m_faceIndex, expressionIndex, expressionName);
 						animationItems[frameIndex].SetMaterial(m_renderer->FindMaterialByName(expressionName));
 					}
 				}

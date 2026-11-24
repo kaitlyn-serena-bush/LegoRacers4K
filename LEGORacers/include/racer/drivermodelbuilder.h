@@ -71,6 +71,7 @@ public:
 	MusicInstance* GetMusicInstance() { return m_musicInstance; }
 	void SetMusicInstance(MusicInstance* p_musicInstance) { m_musicInstance = p_musicInstance; }
 	LegoBool32 HasMenuResources() const { return m_menuId != 0; }
+	DriverPartResources* GetPartResources() const { return m_partResources; }
 	void SetExpressionMask(undefined4 p_expressionMask) { m_expressionMask = p_expressionMask; }
 	undefined4 GetMenuFlowFlags() const { return m_menuFlowFlags; }
 	void SetMenuFlowFlags(undefined4 p_menuFlowFlags) { m_menuFlowFlags = p_menuFlowFlags; }
