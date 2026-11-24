@@ -1418,6 +1418,8 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 
 		GolVec3 firstAxis;
 		firstAxis.m_x = 0.0f;
+		firstAxis.m_y = 0.0f;
+		firstAxis.m_z = 0.0f;
 		GolVec3 angular;
 		angular.m_x = 0.0f;
 		GolVec3 firstVelocity;
