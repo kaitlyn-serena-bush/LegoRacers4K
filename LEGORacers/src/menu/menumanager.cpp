@@ -811,10 +811,10 @@ void MenuManager::PrepareRaceContext()
 	}
 
 	ReleasePartResources();
-	LoadPartResources(TRUE);
+	LegoRacers::Context::PlayerRecordState* recordState = context->m_playerRecordStates;
 
 	LegoRacers::Context::PlayerSetupSlot* slot = slots;
-	LegoRacers::Context::PlayerRecordState* recordState = context->m_playerRecordStates;
+	LoadPartResources(TRUE);
 	for (saveIndex = 0; saveIndex < selectedRecords.GetSelectedRecordCount(); saveIndex++) {
 		SaveRecordList::Record* record = selectedRecords.GetSelectedRecord(saveIndex);
 

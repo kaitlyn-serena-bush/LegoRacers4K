@@ -951,6 +951,7 @@ void RacerCarBody::LimitUprightTilt()
 void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 {
 
+	GolVec3 collisionNormal;
 	LegoU32 flags = m_flags;
 	if (flags & c_flagAtRest) {
 		if (m_velocity.m_x == 0.0f && m_velocity.m_y == 0.0f && m_velocity.m_z == 0.0f &&
@@ -1035,7 +1036,7 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 						probe->m_flags |= WheelProbe::c_flagHit;
 						resource->LocalToWorld(hitPoint, hitPoint2);
 
-						GolVec3 collisionNormal = eventContext->m_normal;
+						collisionNormal = eventContext->m_normal;
 						resource->RotateToWorld(collisionNormal, &probe->m_contactForce);
 
 						probe->m_hitDistanceSquared = hitPoint.DistanceSquaredTo(*rayEnd);
