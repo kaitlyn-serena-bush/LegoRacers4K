@@ -140,10 +140,10 @@ void AwardCinematicScreen::CreateWidgets()
 	GolString string;
 	LegoChar path[20];
 
-	GolAnimatedEntity* sourceDriverEntity = NULL;
 	GolAnimatedEntity* swapEntity = NULL;
-	GolModelEntity* carBodyEntity = NULL;
 	GolAnimatedEntity* pLegEntity = NULL;
+	GolAnimatedEntity* sourceDriverEntity = NULL;
+	GolModelEntity* carBodyEntity = NULL;
 	LegoBool32 carCreated = FALSE;
 	DriverCosmetics cosmetics;
 	LegoU32 i;
