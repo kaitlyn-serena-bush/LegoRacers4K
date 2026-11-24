@@ -1132,7 +1132,11 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 
 	for (entry = m_wheelProbes; entry < probesEnd; entry++) {
 		if (entry->m_hitDistanceSquared >= contactLimitSquared) {
-			m_supportNormal += entry->m_contactForce;
+			LegoFloat ny = sn.m_y;
+			LegoFloat nz = sn.m_z;
+			sn.m_x += entry->m_contactForce.m_x;
+			sn.m_y = ny + entry->m_contactForce.m_y;
+			sn.m_z = nz + entry->m_contactForce.m_z;
 			entry->m_flags |= WheelProbe::c_flagContact;
 			m_contactCount++;
 		}
@@ -1164,11 +1168,14 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 
 	if (resetFromAir) {
 		if (m_airborneMs > 400) {
-			LegoFloat dot = (m_velocity.m_z) * sn.m_z + m_velocity.m_y * sn.m_y + m_velocity.m_x * sn.m_x;
+			LegoFloat vz = m_velocity.m_z;
+			LegoFloat vy = m_velocity.m_y;
+			LegoFloat dot = vz * sn.m_z + vy * sn.m_y + m_velocity.m_x * sn.m_x;
 			if (dot < 0.0f) {
 				if (dot < -g_landingBounceThreshold) {
 					m_contactCount = 0;
-					LegoFloat scaled = dot * g_landingBounceScaleFourWheel;
+					LegoFloat bounceScale = g_landingBounceScaleFourWheel;
+					LegoFloat scaled = dot * bounceScale;
 					m_velocity.m_z -= scaled;
 
 					for (entry = m_wheelProbes; entry < probesEnd; entry++) {
