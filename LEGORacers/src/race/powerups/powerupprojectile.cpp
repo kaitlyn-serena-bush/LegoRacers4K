@@ -101,8 +101,8 @@ void PowerupProjectile::LaunchAtRacer(
 	}
 
 	GolVec3* startPosition = &m_startPosition;
+	targetRacer->m_visuals.m_carEntity->GetPosition(&m_targetPosition);
 	GolVec3* target = &m_targetPosition;
-	targetRacer->m_visuals.m_carEntity->GetPosition(target);
 	m_targetPosition.m_z += g_projectileTargetHeightOffset;
 
 	GolVec3 scaledVelocity;
