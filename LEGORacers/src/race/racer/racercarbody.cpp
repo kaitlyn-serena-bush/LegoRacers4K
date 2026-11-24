@@ -1008,75 +1008,96 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 		ComputeWheelRaysLocal(resource, sweepHeight, sweepDistance);
 
 		WheelProbe* probe = m_wheelProbes;
-		GolVec3* rayStart = &probe->m_rayStart;
-		GolVec3* rayEnd = &probe->m_rayEnd;
-		GolVec3* hitPoint2 = &probe->m_hitPoint;
-		RaceEventRecord** hitRecord = &probe->m_hitRecord;
-		for (; probe < probesEnd; probe++, rayStart = (GolVec3*)((char*)rayStart + sizeof(WheelProbe)), rayEnd = (GolVec3*)((char*)rayEnd + sizeof(WheelProbe)), hitPoint2 = (GolVec3*)((char*)hitPoint2 + sizeof(WheelProbe)), hitRecord = (RaceEventRecord**)((char*)hitRecord + sizeof(WheelProbe))) {
-			if (!(probe->m_flags & WheelProbe::c_flagHit)) {
-				GolVec3 hitPoint;
-				if (resource->IntersectSegment(
-						rayStart,
-						rayEnd,
-						collisionContext,
-						&hitPoint,
-						hitRecord,
-						NULL
-					)) {
-					probe->m_flags |= WheelProbe::c_flagHit;
-					resource->LocalToWorld(hitPoint, hitPoint2);
+		if (probe < probesEnd) {
+			GolVec3* rayStart = &probe->m_rayStart;
+			GolVec3* rayEnd = &probe->m_rayEnd;
+			GolVec3* hitPoint2 = &probe->m_hitPoint;
+			RaceEventRecord** hitRecord = &probe->m_hitRecord;
+			do {
+				if (!(probe->m_flags & WheelProbe::c_flagHit)) {
+					GolVec3 hitPoint;
+					if (resource->IntersectSegment(
+							rayStart,
+							rayEnd,
+							collisionContext,
+							&hitPoint,
+							hitRecord,
+							NULL
+						)) {
+						probe->m_flags |= WheelProbe::c_flagHit;
+						resource->LocalToWorld(hitPoint, hitPoint2);
 
-					GolVec3 collisionNormal = eventContext->m_normal;
-					resource->RotateToWorld(collisionNormal, &probe->m_contactForce);
+						GolVec3 collisionNormal = eventContext->m_normal;
+						resource->RotateToWorld(collisionNormal, &probe->m_contactForce);
 
-					probe->m_hitDistanceSquared = hitPoint.DistanceSquaredTo(*rayEnd);
+						probe->m_hitDistanceSquared = hitPoint.DistanceSquaredTo(*rayEnd);
 
-					if (probe->m_hitDistanceSquared > bestDistance) {
-						selectedEntry = probe;
-						bestDistance = probe->m_hitDistanceSquared;
+						if (probe->m_hitDistanceSquared > bestDistance) {
+							selectedEntry = probe;
+							bestDistance = probe->m_hitDistanceSquared;
+						}
 					}
 				}
-			}
+				probe++;
+				rayStart = (GolVec3*)((char*)rayStart + sizeof(WheelProbe));
+				rayEnd = (GolVec3*)((char*)rayEnd + sizeof(WheelProbe));
+				hitPoint2 = (GolVec3*)((char*)hitPoint2 + sizeof(WheelProbe));
+				hitRecord = (RaceEventRecord**)((char*)hitRecord + sizeof(WheelProbe));
+			} while (probe < probesEnd);
 		}
 	}
 
 	
 	entry = m_wheelProbes;
-	GolVec3* rayStart2 = &entry->m_rayStart;
-	GolVec3* rayEnd2 = &entry->m_rayEnd;
-	GolVec3* hitPoint3 = &entry->m_hitPoint;
-	RaceEventRecord** hitRecord2 = &entry->m_hitRecord;
 	GolBoundedEntity* trackWorld = m_collisionWorlds[0];
-	for (; entry < probesEnd; entry++, rayStart2 = (GolVec3*)((char*)rayStart2 + sizeof(WheelProbe)), rayEnd2 = (GolVec3*)((char*)rayEnd2 + sizeof(WheelProbe)), hitPoint3 = (GolVec3*)((char*)hitPoint3 + sizeof(WheelProbe)), hitRecord2 = (RaceEventRecord**)((char*)hitRecord2 + sizeof(WheelProbe))) {
-		if (entry->m_flags & WheelProbe::c_flagHit) {
-			continue;
-		}
+	if (entry < probesEnd) {
+		GolVec3* rayStart2 = &entry->m_rayStart;
+		GolVec3* rayEnd2 = &entry->m_rayEnd;
+		GolVec3* hitPoint3 = &entry->m_hitPoint;
+		RaceEventRecord** hitRecord2 = &entry->m_hitRecord;
+		do {
+			if (entry->m_flags & WheelProbe::c_flagHit) {
+				entry++;
+				rayStart2 = (GolVec3*)((char*)rayStart2 + sizeof(WheelProbe));
+				rayEnd2 = (GolVec3*)((char*)rayEnd2 + sizeof(WheelProbe));
+				hitPoint3 = (GolVec3*)((char*)hitPoint3 + sizeof(WheelProbe));
+				hitRecord2 = (RaceEventRecord**)((char*)hitRecord2 + sizeof(WheelProbe));
 
-		rayStart2->m_x = entry->m_wheelPosition.m_x;
-		rayStart2->m_y = entry->m_wheelPosition.m_y;
-		rayStart2->m_z = sweepHeight + entry->m_wheelPosition.m_z;
-		rayEnd2->m_x = entry->m_wheelPosition.m_x;
-		rayEnd2->m_y = entry->m_wheelPosition.m_y;
-		rayEnd2->m_z = entry->m_wheelPosition.m_z - sweepDistance;
-
-		if (!TestCachedPlanes(entry)) {
-			if (trackWorld->IntersectSegment(rayStart2, rayEnd2, collisionContext, hitPoint3, hitRecord2, NULL)) {
-				entry->m_cachedPlane = CachePlane(eventContext, *hitRecord2);
-			}
-			else {
 				continue;
 			}
-		}
 
-		entry->m_contactForce = entry->m_cachedPlane->m_plane.m_normal;
-		entry->m_hitDistanceSquared = hitPoint3->DistanceSquaredTo(*rayEnd2);
+			rayStart2->m_x = entry->m_wheelPosition.m_x;
+			rayStart2->m_y = entry->m_wheelPosition.m_y;
+			rayStart2->m_z = sweepHeight + entry->m_wheelPosition.m_z;
+			rayEnd2->m_x = entry->m_wheelPosition.m_x;
+			rayEnd2->m_y = entry->m_wheelPosition.m_y;
+			rayEnd2->m_z = entry->m_wheelPosition.m_z - sweepDistance;
 
-		if (entry->m_hitDistanceSquared > bestDistance) {
-			selectedEntry = entry;
-			bestDistance = entry->m_hitDistanceSquared;
-		}
+			if (!TestCachedPlanes(entry)) {
+				if (trackWorld->IntersectSegment(rayStart2, rayEnd2, collisionContext, hitPoint3, hitRecord2, NULL)) {
+					entry->m_cachedPlane = CachePlane(eventContext, *hitRecord2);
+				}
+				else {
+					goto next2;
+				}
+			}
 
-		entry->m_flags |= WheelProbe::c_flagHit;
+			entry->m_contactForce = entry->m_cachedPlane->m_plane.m_normal;
+			entry->m_hitDistanceSquared = hitPoint3->DistanceSquaredTo(*rayEnd2);
+
+			if (entry->m_hitDistanceSquared > bestDistance) {
+				selectedEntry = entry;
+				bestDistance = entry->m_hitDistanceSquared;
+			}
+
+			entry->m_flags |= WheelProbe::c_flagHit;
+		next2:
+			entry++;
+			rayStart2 = (GolVec3*)((char*)rayStart2 + sizeof(WheelProbe));
+			rayEnd2 = (GolVec3*)((char*)rayEnd2 + sizeof(WheelProbe));
+			hitPoint3 = (GolVec3*)((char*)hitPoint3 + sizeof(WheelProbe));
+			hitRecord2 = (RaceEventRecord**)((char*)hitRecord2 + sizeof(WheelProbe));
+		} while (entry < probesEnd);
 	}
 
 	if (selectedEntry == NULL) {
