@@ -1530,7 +1530,7 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 				secondRacer->m_speedRampTimerMs = 750;
 			}
 		}
-		else if (firstRacer->m_physics.GetSpeed() > secondRacer->m_physics.GetSpeed()) {
+		else if (firstPhysics->GetSpeed() > secondRacer->m_physics.GetSpeed()) {
 			if (!firstRacer->m_scrapeSoundCooldownMs && !secondRacer->m_scrapeSoundCooldownMs) {
 				secondVelocity = firstPhysics->m_velocity;
 				GolMath::NormalizeVector3(secondVelocity, &secondVelocity);
