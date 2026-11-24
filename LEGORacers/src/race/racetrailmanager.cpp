@@ -459,7 +459,7 @@ void RaceTrailManager::Trail::RebuildGeometry()
 	GdbModelIndexArrayBase* indexArrayBase;
 	m_model->GetIndexArrayInto(&indexArrayBase);
 
-	LegoU8 triangle[3];
+	LegoU8 triangle[4];
 	for (frameOffset = 0; frameOffset < rowsPerGroup - 1; frameOffset++) {
 		LegoU32 rowBase = m_pointCount * frameOffset;
 		for (pointIndex = 0; pointIndex < m_pointCount; pointIndex++) {
