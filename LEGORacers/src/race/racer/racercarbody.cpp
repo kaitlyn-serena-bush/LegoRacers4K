@@ -1125,6 +1125,7 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 	}
 
 	LegoFloat contactLimitSquared = ((((contactLimit * contactLimit))));
+	GolVec3& sn = m_supportNormal;
 	m_supportNormal.m_z = 0.0f;
 	m_supportNormal.m_y = 0.0f;
 	m_supportNormal.m_x = 0.0f;
@@ -1147,7 +1148,9 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 
 	if (m_contactCount >= 3) {
 		const GolMatrix34& transform = m_physicsEntity.GetTransform();
-		m_supportNormal = transform.m_orientation.m_rows[2];
+		sn.m_x = transform.m_orientation.m_rows[2].m_x;
+		sn.m_y = transform.m_orientation.m_rows[2].m_y;
+		sn.m_z = transform.m_orientation.m_rows[2].m_z;
 
 		for (entry = m_wheelProbes; entry < probesEnd; entry++) {
 			entry->m_flags |= WheelProbe::c_flagContact;
@@ -1156,13 +1159,12 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 		m_contactCount = 4;
 	}
 	else {
-		GolMath::NormalizeVector3(m_supportNormal, &m_supportNormal);
+		GolMath::NormalizeVector3(sn, &sn);
 	}
 
 	if (resetFromAir) {
 		if (m_airborneMs > 400) {
-			LegoFloat dot = (m_velocity.m_z) * m_supportNormal.m_z + m_velocity.m_y * m_supportNormal.m_y +
-							m_velocity.m_x * m_supportNormal.m_x;
+			LegoFloat dot = (m_velocity.m_z) * sn.m_z + m_velocity.m_y * sn.m_y + m_velocity.m_x * sn.m_x;
 			if (dot < 0.0f) {
 				if (dot < -g_landingBounceThreshold) {
 					m_contactCount = 0;
