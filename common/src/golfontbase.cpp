@@ -611,17 +611,14 @@ void GolFontBase::MeasureString(
 				while (lineWidth > static_cast<LegoU32>(p_wrapWidth) && i > breakIndex) {
 					i--;
 					LegoU16 textChar = *p_string->FromCursor(i);
-					LegoU32 charWidth;
 
 					if (textChar == ' ') {
-						charWidth = m_charSpacing + m_spaceWidth;
+						lineWidth -= m_charSpacing + m_spaceWidth;
 					}
 					else {
 						LegoU32 glyphIndex = FindGlyphIndex(textChar);
-						charWidth = m_glyphs[glyphIndex].m_width + m_charSpacing;
+						lineWidth -= m_glyphs[glyphIndex].m_width + m_charSpacing;
 					}
-
-					lineWidth -= charWidth;
 				}
 			}
 			else {
