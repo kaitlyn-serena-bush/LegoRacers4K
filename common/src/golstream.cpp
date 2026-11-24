@@ -608,7 +608,11 @@ void GolStream::BuildPathname(const LegoChar* p_prefix, const LegoChar* p_path)
 
 	if (slash) {
 		LegoU32 directoryEnd;
+#ifdef BUILDING_GOL
 		if (p_path[0] != '\\' && currentEntryPath) {
+#else
+		if (p_path[0] != '\\' && currentEntryPath != p_path) {
+#endif
 			LegoU32 currentEntryLength = strlen(currentEntryPath);
 			if (pathLength + currentEntryLength + prefixLength + 1 >= sizeOfArray(g_pathBuffer)) {
 				GOL_FATALERROR_MESSAGE("Unable to build pathname, too many chars");
@@ -637,7 +641,9 @@ void GolStream::BuildPathname(const LegoChar* p_prefix, const LegoChar* p_path)
 #else
 		{
 			directoryEnd = prefixLength;
-			p_path += (p_path[0] == '\\');
+			if (p_path[0] == '\\') {
+				p_path++;
+			}
 		}
 #endif
 
