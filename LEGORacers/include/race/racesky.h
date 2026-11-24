@@ -89,7 +89,7 @@ public:
 		};
 
 		void Build(Params* p_params);
-		void BuildSphere(Params* p_params);
+		LegoU32 BuildSphere(Params* p_params);
 		LegoU32 BuildSeamedSphere(Params* p_params);
 	};
 
