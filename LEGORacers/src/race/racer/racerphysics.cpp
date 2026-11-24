@@ -776,16 +776,14 @@ void RacerPhysics::UpdateRouteMotion(LegoU32 p_elapsedMs)
 			m_carEntity->GetPosition(&previousPosition);
 
 			LegoFloat elapsed = static_cast<LegoFloat>(static_cast<LegoS32>(p_elapsedMs));
-			LegoU32 flags = m_flags;
-			LegoU32 suspendedMask = flags & c_flagRoutePushed;
-			if (suspendedMask || !(flags & (c_flagSpinning | c_flagBoost | c_flagCurseSlow)) || m_contactCount == 0) {
+			if ((m_flags & c_flagRoutePushed) || !(m_flags & (c_flagSpinning | c_flagBoost | c_flagCurseSlow)) || m_contactCount == 0) {
 				LegoFloat currentSpeed = m_routeCursor.m_playbackSpeed;
 				if (currentSpeed < m_routeTargetSpeed) {
 					LegoFloat rate;
-					if (suspendedMask) {
+					if (m_flags & c_flagRoutePushed) {
 						rate = g_routePlaybackAccelPushed;
 					}
-					else if (flags & c_flagBoost) {
+					else if (m_flags & c_flagBoost) {
 						rate = g_routePlaybackAccelBoost;
 					}
 					else {
@@ -800,7 +798,7 @@ void RacerPhysics::UpdateRouteMotion(LegoU32 p_elapsedMs)
 				}
 				else if (currentSpeed > m_routeTargetSpeed) {
 					LegoFloat rate;
-					if (suspendedMask) {
+					if (m_flags & c_flagRoutePushed) {
 						rate = g_routePlaybackDecelPushed;
 					}
 					else {
