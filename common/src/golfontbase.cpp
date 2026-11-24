@@ -685,19 +685,18 @@ void GolFontBase::DrawString(
 		if (length) {
 			LegoU32 i = 0;
 			while (i < length) {
+				LegoU32 lineWidth = 0;
 				if (!lineBreak) {
 					while (*p_string->FromCursor(i) == ' ') {
 						i++;
 					}
 				}
 
-				LegoU32 lineWidth = 0;
+				lineBreak = FALSE;
 				LegoU32 lineStart = i;
 				LegoU32 breakIndex = i;
 				LegoU32 wordWidth = 0;
-				lineBreak = FALSE;
 				LegoU32 lastIndex = i - 1;
-
 				while (lineWidth <= static_cast<LegoU32>(p_wrapWidth)) {
 					if (i >= length) {
 						break;
