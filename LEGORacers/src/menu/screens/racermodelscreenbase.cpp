@@ -108,8 +108,9 @@ void RacerModelScreenBase::OpenRecordCursors(MenuGameContext* p_context, LegoU32
 		if (*count) {
 			SaveRecordList::Record* firstRecord = m_recordCursors[i].GetSelectedRecord();
 			LegoU32 selectedRecordId = player->m_selectedRecordId;
-			LegoU32 selectedRecordSource = player->m_selectedRecordSource;
 			LegoU32 selectedSaveIndex = player->m_selectedSaveIndex;
+			LegoU32 selectedRecordSource = player->m_selectedRecordSource;
+			player->m_selectedSaveIndex |= 0;
 
 			while (TRUE) {
 				SaveRecordList::Record* record = m_recordCursors[i].SelectNext();
