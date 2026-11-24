@@ -291,6 +291,9 @@ void LegoPieceLibrary::GetTextureCoordinate(LegoS32 p_index, LegoFloat* p_u, Leg
 LegoS32 LegoPieceLibrary::Load(const LegoChar* p_filename, undefined4 p_binary)
 {
 	GolFileParser* parser;
+	LegoS32 x;
+	LegoS32 y;
+	LegoS32 z;
 	if (p_binary) {
 		parser = new GolBinParser;
 		if (parser == NULL) {
@@ -350,9 +353,9 @@ LegoS32 LegoPieceLibrary::Load(const LegoChar* p_filename, undefined4 p_binary)
 			}
 			LegoS32 i;
 			for (i = 0; i < m_positionCount; i++) {
-				LegoS32 x = parser->ReadInteger();
-				LegoS32 y = parser->ReadInteger();
-				LegoS32 z = parser->ReadInteger();
+				x = parser->ReadInteger();
+				y = parser->ReadInteger();
+				z = parser->ReadInteger();
 				Position* position = &m_positions[i];
 				position->m_x = static_cast<LegoS16>(x);
 				position->m_y = static_cast<LegoS16>(y);
@@ -369,9 +372,9 @@ LegoS32 LegoPieceLibrary::Load(const LegoChar* p_filename, undefined4 p_binary)
 			}
 			LegoS32 i;
 			for (i = 0; i < m_normalCount; i++) {
-				LegoS32 x = parser->ReadInteger();
-				LegoS32 y = parser->ReadInteger();
-				LegoS32 z = parser->ReadInteger();
+				x = parser->ReadInteger();
+				y = parser->ReadInteger();
+				z = parser->ReadInteger();
 				LegoU8* normal = &m_normals[i * 3];
 				normal[0] = static_cast<LegoU8>(x);
 				normal[1] = static_cast<LegoU8>(y);
@@ -387,11 +390,11 @@ LegoS32 LegoPieceLibrary::Load(const LegoChar* p_filename, undefined4 p_binary)
 				GOL_FATALERROR(c_golErrorOutOfMemory);
 			}
 			for (LegoS32 i = 0; i < m_textureCoordinateCount; i++) {
-				LegoS32 u = parser->ReadInteger();
-				LegoS32 v = parser->ReadInteger();
+				x = parser->ReadInteger();
+				y = parser->ReadInteger();
 				TextureCoordinate* textureCoordinate = &m_textureCoordinates[i];
-				textureCoordinate->m_u = static_cast<LegoS16>(u);
-				textureCoordinate->m_v = static_cast<LegoS16>(v);
+				textureCoordinate->m_u = static_cast<LegoS16>(x);
+				textureCoordinate->m_v = static_cast<LegoS16>(y);
 			}
 			SkipCurrentBlock(*parser);
 			break;
@@ -404,11 +407,11 @@ LegoS32 LegoPieceLibrary::Load(const LegoChar* p_filename, undefined4 p_binary)
 			}
 			LegoS32 i;
 			for (i = 0; i < m_shapeDataPairCount; i++) {
-				LegoS32 first = parser->ReadInteger();
-				LegoS32 second = parser->ReadInteger();
+				x = parser->ReadInteger();
+				y = parser->ReadInteger();
 				ShapeCell* shapeData = &m_shapeData[i];
-				shapeData->m_first = static_cast<LegoU8>(first);
-				shapeData->m_second = static_cast<LegoU8>(second);
+				shapeData->m_first = static_cast<LegoU8>(x);
+				shapeData->m_second = static_cast<LegoU8>(y);
 			}
 			SkipCurrentBlock(*parser);
 			break;
@@ -435,7 +438,7 @@ LegoS32 LegoPieceLibrary::Load(const LegoChar* p_filename, undefined4 p_binary)
 				variantCount++;
 			}
 			else {
-				piece->m_variantIndex = 0;
+				m_pieces[i].m_variantIndex = 0;
 				previousPieceType = pieceType;
 
 				if (variantCount > 0) {
@@ -464,8 +467,6 @@ LegoS32 LegoPieceLibrary::Load(const LegoChar* p_filename, undefined4 p_binary)
 		highPieceBaseOffset = highBasePiece->m_indexCommandCount;
 	}
 
-	LegoS32 x;
-	LegoS32 y;
 	for (i = 0; i < m_pieceCount; i++) {
 		PieceRecord& piece = m_pieces[i];
 		LegoS32 offset = piece.m_indexCommandCount;
