@@ -1173,10 +1173,10 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 			LegoFloat dot = vz * sn.m_z + vy * sn.m_y + m_velocity.m_x * sn.m_x;
 			if (dot < 0.0f) {
 				if (dot < -g_landingBounceThreshold) {
-					m_contactCount = 0;
 					LegoFloat bounceScale = g_landingBounceScaleFourWheel;
 					LegoFloat scaled = dot * bounceScale;
 					m_velocity.m_z -= scaled;
+					m_contactCount = 0;
 
 					for (entry = m_wheelProbes; entry < probesEnd; entry++) {
 						entry->m_flags &= ~WheelProbe::c_flagContact;
