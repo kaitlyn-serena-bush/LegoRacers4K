@@ -437,11 +437,13 @@ void GrapplingHookAction::AdvanceState()
 		position.m_z += g_hookSmokeHeightOffset;
 
 		GolOrientedEntity* carEntity = m_ownerRacer->m_physics.m_carEntity;
-		if (m_smokeParticleRef->m_particle != NULL) {
-			carEntity->CopyOrientation(m_smokeParticleRef->m_particle->GetBasis());
+		CutsceneParticleRef* ref1 = m_smokeParticleRef;
+		if (ref1->m_particle != NULL) {
+			carEntity->CopyOrientation(ref1->m_particle->GetBasis());
 		}
-		if (m_smokeParticleRef->m_particle != NULL) {
-			m_smokeParticleRef->m_particle->SetPosition(&position);
+		CutsceneParticleRef* ref2 = m_smokeParticleRef;
+		if (ref2->m_particle != NULL) {
+			ref2->m_particle->SetPosition(&position);
 		}
 	}
 
