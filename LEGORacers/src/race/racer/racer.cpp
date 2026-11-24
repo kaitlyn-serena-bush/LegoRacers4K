@@ -1391,8 +1391,8 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 
 	CollisionEventQueue::CollisionCallbackData* collision =
 		static_cast<CollisionEventQueue::CollisionCallbackData*>(p_data->m_data);
-	LegoEventQueue::Descriptor::RigidBody* secondTarget = collision->m_secondTarget;
 	LegoEventQueue::Descriptor::RigidBody* firstTarget = p_data->m_target0;
+	LegoEventQueue::Descriptor::RigidBody* secondTarget = collision->m_secondTarget;
 	Racer* firstRacer = static_cast<Racer*>(firstTarget->m_owner);
 	Racer* secondRacer = static_cast<Racer*>(secondTarget->m_owner);
 
@@ -1413,18 +1413,24 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 		GolVec3 impulse;
 		GolMath::ScaleVector3(normal, collision->m_penetrationDepth, &impulse);
 
+		RacerPhysics* firstPhysics = &firstRacer->m_physics;
 		firstRacer->m_physics.MoveBy(&impulse);
 
-		GolVec3 firstVelocity = firstTarget->m_velocity;
-		GolVec3 secondVelocity = secondTarget->m_velocity;
+		GolVec3 firstVelocity;
+		firstVelocity.m_x = firstTarget->m_velocity.m_x;
+		firstVelocity.m_y = firstTarget->m_velocity.m_y;
+		firstVelocity.m_z = firstTarget->m_velocity.m_z;
+		GolVec3 secondVelocity;
+		secondVelocity.m_x = secondTarget->m_velocity.m_x;
+		secondVelocity.m_y = secondTarget->m_velocity.m_y;
+		secondVelocity.m_z = secondTarget->m_velocity.m_z;
 		GolVec3 collisionNormal = *normal;
 		GolVec3 firstCenter = firstTarget->m_centerOfMassWorld;
 		GolVec3 secondCenter = secondTarget->m_centerOfMassWorld;
 		GolVec3 relativeVelocity;
 		relativeVelocity.m_x = firstVelocity.m_x - secondVelocity.m_x;
 		relativeVelocity.m_y = firstVelocity.m_y - secondVelocity.m_y;
-		relativeVelocity.m_z = firstVelocity.m_z;
-		relativeVelocity.m_z -= secondVelocity.m_z;
+		relativeVelocity.m_z = firstVelocity.m_z - secondVelocity.m_z;
 
 		LegoFloat impulseNumerator = -DotVectors(relativeVelocity, collisionNormal);
 		impulseNumerator *= (g_collisionRestitution + 1.0f);
@@ -1432,6 +1438,8 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 		LegoFloat collisionNormalLengthSquared = GOLVECTOR3_DOT(collisionNormal, collisionNormal);
 		LegoFloat inverseMassTerm =
 			(secondTarget->m_inverseMass + firstTarget->m_inverseMass) * collisionNormalLengthSquared;
+
+		SoundVector* contactPosition = reinterpret_cast<SoundVector*>(&collision->m_contactPoint);
 
 		GolVec3 firstContactOffset;
 		firstContactOffset.m_x = firstCenter.m_x - collision->m_contactPoint.m_x;
@@ -1445,52 +1453,52 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 		secondContactOffset.m_z = secondCenter.m_z - collision->m_contactPoint.m_z;
 		GolMath::NormalizeVector3(secondContactOffset, &secondContactOffset);
 
-		GolVec3 angularAxis;
-		GolMath::CrossVector3(&firstContactOffset, normal, &angularAxis);
-
 		GolMatrix3 firstInertia;
-		firstInertia.m_rows[0] = firstTarget->m_worldInverseInertia.m_rows[0];
-		firstInertia.m_rows[1] = firstTarget->m_worldInverseInertia.m_rows[1];
-		firstInertia.m_rows[2] = firstTarget->m_worldInverseInertia.m_rows[2];
+		firstInertia.m_m[0][0] = firstTarget->m_worldInverseInertia.m_m[0][0];
+		firstInertia.m_m[0][1] = firstTarget->m_worldInverseInertia.m_m[0][1];
+		firstInertia.m_m[0][2] = firstTarget->m_worldInverseInertia.m_m[0][2];
+		firstInertia.m_m[1][0] = firstTarget->m_worldInverseInertia.m_m[1][0];
+		firstInertia.m_m[1][1] = firstTarget->m_worldInverseInertia.m_m[1][1];
+		firstInertia.m_m[1][2] = firstTarget->m_worldInverseInertia.m_m[1][2];
+		firstInertia.m_m[2][0] = firstTarget->m_worldInverseInertia.m_m[2][0];
+		firstInertia.m_m[2][1] = firstTarget->m_worldInverseInertia.m_m[2][1];
+		firstInertia.m_m[2][2] = firstTarget->m_worldInverseInertia.m_m[2][2];
+
+		GolVec3 firstAxis;
+		GolMath::CrossVector3(&firstContactOffset, normal, &firstAxis);
+
 		GolVec3 angular;
-		angular.m_x = firstInertia.m_m[0][0] * angularAxis.m_x;
-		angular.m_y = firstInertia.m_m[0][1] * angularAxis.m_x;
-		angular.m_z = firstInertia.m_m[0][2] * angularAxis.m_x;
-		angular.m_x += firstInertia.m_m[1][0] * angularAxis.m_y;
-		angular.m_y += firstInertia.m_m[1][1] * angularAxis.m_y;
-		angular.m_z += firstInertia.m_m[1][2] * angularAxis.m_y;
-		angular.m_x += firstInertia.m_m[2][0] * angularAxis.m_z;
-		angular.m_y += firstInertia.m_m[2][1] * angularAxis.m_z;
-		angular.m_z += firstInertia.m_m[2][2] * angularAxis.m_z;
+		angular.m_x = firstInertia.m_m[0][0] * firstAxis.m_x;
+		angular.m_y = firstInertia.m_m[0][1] * firstAxis.m_x;
+		angular.m_z = firstInertia.m_m[0][2] * firstAxis.m_x;
+		angular.m_x += firstInertia.m_m[1][0] * firstAxis.m_y;
+		angular.m_y += firstInertia.m_m[1][1] * firstAxis.m_y;
+		angular.m_z += firstInertia.m_m[1][2] * firstAxis.m_y;
+		angular.m_x += firstInertia.m_m[2][0] * firstAxis.m_z;
+		angular.m_y += firstInertia.m_m[2][1] * firstAxis.m_z;
+		angular.m_z += firstInertia.m_m[2][2] * firstAxis.m_z;
 
 		GolVec3 firstAngularContribution;
-		double sweepOld0 = firstContactOffset.m_z;
-		sweepOld0 *= angular.m_y;
-		LegoFloat& sweepRef0 = firstAngularContribution.m_x;
-		sweepRef0 = sweepOld0 - angular.m_z * firstContactOffset.m_y;
-		LegoFloat& sweepRef1 = firstAngularContribution.m_y;
-		sweepRef1 = angular.m_z * firstContactOffset.m_x - angular.m_x * firstContactOffset.m_z;
-		firstAngularContribution.m_z = angular.m_x * firstContactOffset.m_y - angular.m_y * firstContactOffset.m_x;
+		firstAngularContribution.m_x = angular.m_y * firstContactOffset.m_z - angular.m_z * firstContactOffset.m_y;
+		firstAngularContribution.m_y = angular.m_z * firstContactOffset.m_x - firstContactOffset.m_z * angular.m_x;
+		firstAngularContribution.m_z = firstContactOffset.m_y * angular.m_x - angular.m_y * firstContactOffset.m_x;
 
-		const GolMatrix3& secondInertia = firstInertia;
-
-		angular.m_x = secondInertia.m_m[0][0] * angularAxis.m_x;
-		GolMath::CrossVector3(&secondContactOffset, normal, &angularAxis);
-		angular.m_y = secondInertia.m_m[0][1] * angularAxis.m_x;
-		angular.m_z = secondInertia.m_m[0][2] * angularAxis.m_x;
-		angular.m_x += secondInertia.m_m[1][0] * angularAxis.m_y;
-		LegoFloat sweepOld1 = angularAxis.m_y;
-		angular.m_y += secondInertia.m_m[1][1] * sweepOld1;
-		LegoFloat sweepOld2 = angularAxis.m_y;
-		angular.m_z += secondInertia.m_m[1][2] * sweepOld2;
-		angular.m_x += secondInertia.m_m[2][0] * angularAxis.m_z;
-		angular.m_y += secondInertia.m_m[2][1] * angularAxis.m_z;
-		angular.m_z += secondInertia.m_m[2][2] * angularAxis.m_z;
+		GolVec3 secondAxis;
+		GolMath::CrossVector3(&secondContactOffset, normal, &secondAxis);
+		angular.m_x = firstInertia.m_m[0][0] * secondAxis.m_x;
+		angular.m_y = firstInertia.m_m[0][1] * secondAxis.m_x;
+		angular.m_z = firstInertia.m_m[0][2] * secondAxis.m_x;
+		angular.m_x += firstInertia.m_m[1][0] * secondAxis.m_y;
+		angular.m_y += firstInertia.m_m[1][1] * secondAxis.m_y;
+		angular.m_z += firstInertia.m_m[1][2] * secondAxis.m_y;
+		angular.m_x += firstInertia.m_m[2][0] * secondAxis.m_z;
+		angular.m_y += firstInertia.m_m[2][1] * secondAxis.m_z;
+		angular.m_z += firstInertia.m_m[2][2] * secondAxis.m_z;
 
 		GolVec3 secondAngularContribution;
 		secondAngularContribution.m_x = angular.m_y * secondContactOffset.m_z - angular.m_z * secondContactOffset.m_y;
-		secondAngularContribution.m_y = angular.m_z * secondContactOffset.m_x - angular.m_x * secondContactOffset.m_z;
-		secondAngularContribution.m_z = angular.m_x * secondContactOffset.m_y - angular.m_y * secondContactOffset.m_x;
+		secondAngularContribution.m_y = angular.m_z * secondContactOffset.m_x - secondContactOffset.m_z * angular.m_x;
+		secondAngularContribution.m_z = secondContactOffset.m_y * angular.m_x - angular.m_y * secondContactOffset.m_x;
 
 		firstAngularContribution.m_x += secondAngularContribution.m_x;
 		firstAngularContribution.m_y += secondAngularContribution.m_y;
@@ -1523,22 +1531,15 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 			}
 		}
 		else if (firstRacer->m_physics.GetSpeed() > secondRacer->m_physics.GetSpeed()) {
-			SoundVector* contactPosition = reinterpret_cast<SoundVector*>(&collision->m_contactPoint);
-
 			if (!firstRacer->m_scrapeSoundCooldownMs && !secondRacer->m_scrapeSoundCooldownMs) {
-				secondVelocity.m_x = firstRacer->m_physics.m_velocity.m_x;
-				secondVelocity.m_y = firstRacer->m_physics.m_velocity.m_y;
-				secondVelocity.m_z = firstRacer->m_physics.m_velocity.m_z;
+				secondVelocity = firstPhysics->m_velocity;
 				GolMath::NormalizeVector3(secondVelocity, &secondVelocity);
 
-				g_randomTableIndex = (0 + 1) & c_randomTableMask;
-				LegoS32 randomValue = g_randomTable[0];
-				LegoU32 soundId;
+				g_randomTableIndex = (g_randomTableIndex + 1) & c_randomTableMask;
+				LegoS32 randomValue = g_randomTable[g_randomTableIndex];
+				LegoU32 soundId = 0x18;
 				if (randomValue % 2) {
 					soundId = 0x37;
-				}
-				else {
-					soundId = 0x18;
 				}
 				m_soundSource->PlaySpatialSoundById(
 					soundId,
