@@ -1060,22 +1060,28 @@ void CarVisuals::UpdateSkidMarks(LegoU32 p_elapsedMs)
 					(m_racerPhysics->m_wheelProbes[i].m_flags & RacerPhysics::WheelProbe::c_flagContact)) {
 					flags |= c_wheelSkidGrounded;
 					m_wheelSkidFlags[i] = flags;
+					m_wheelAirTimers[i] = 0;
+					m_wheelAirTimers[i] = 0;
 				}
 				else if (m_racerPhysics->m_wheelProbes[i].m_flags & RacerPhysics::WheelProbe::c_flagContact) {
 					flags &= ~c_wheelSkidGrounded;
 					m_wheelSkidFlags[i] = flags;
+					m_wheelAirTimers[i] = 0;
+					m_wheelAirTimers[i] = 0;
 				}
 				else {
 					LegoU32 elapsed = m_wheelAirTimers[i] + p_elapsedMs;
 					m_wheelAirTimers[i] = elapsed;
 					if (elapsed > 150) {
-						m_wheelAirTimers[i] = 0;
 						m_wheelSkidFlags[i] &= ~c_wheelSkidGrounded;
+						m_wheelAirTimers[i] = 0;
 					}
 				}
 			}
 			else {
 				m_wheelSkidFlags[i] = flags & ~c_wheelSkidGrounded;
+				m_wheelAirTimers[i] = 0;
+				m_wheelAirTimers[i] = 0;
 			}
 
 			if (m_skidMarks[i]) {
