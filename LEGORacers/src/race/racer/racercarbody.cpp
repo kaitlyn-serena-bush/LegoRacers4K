@@ -1009,9 +1009,9 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 
 		WheelProbe* probe = m_wheelProbes;
 		if (probe < probesEnd) {
-			GolVec3* rayStart = &probe->m_rayStart;
 			GolVec3* rayEnd = &probe->m_rayEnd;
 			GolVec3* hitPoint2 = &probe->m_hitPoint;
+			GolVec3* rayStart = &probe->m_rayStart;
 			RaceEventRecord** hitRecord = &probe->m_hitRecord;
 			do {
 				if (!(probe->m_flags & WheelProbe::c_flagHit)) {
@@ -1039,9 +1039,9 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 					}
 				}
 				probe++;
-				rayStart = (GolVec3*)((char*)rayStart + sizeof(WheelProbe));
 				rayEnd = (GolVec3*)((char*)rayEnd + sizeof(WheelProbe));
 				hitPoint2 = (GolVec3*)((char*)hitPoint2 + sizeof(WheelProbe));
+				rayStart = (GolVec3*)((char*)rayStart + sizeof(WheelProbe));
 				hitRecord = (RaceEventRecord**)((char*)hitRecord + sizeof(WheelProbe));
 			} while (probe < probesEnd);
 		}
@@ -1052,16 +1052,16 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 	GolBoundedEntity* trackWorld = m_collisionWorlds[0];
 	if (entry < probesEnd) {
 		GolVec3* rayStart2 = &entry->m_rayStart;
-		GolVec3* rayEnd2 = &entry->m_rayEnd;
 		GolVec3* hitPoint3 = &entry->m_hitPoint;
 		RaceEventRecord** hitRecord2 = &entry->m_hitRecord;
+		GolVec3* rayEnd2 = &entry->m_rayEnd;
 		do {
 			if (entry->m_flags & WheelProbe::c_flagHit) {
 				entry++;
 				rayStart2 = (GolVec3*)((char*)rayStart2 + sizeof(WheelProbe));
-				rayEnd2 = (GolVec3*)((char*)rayEnd2 + sizeof(WheelProbe));
 				hitPoint3 = (GolVec3*)((char*)hitPoint3 + sizeof(WheelProbe));
 				hitRecord2 = (RaceEventRecord**)((char*)hitRecord2 + sizeof(WheelProbe));
+				rayEnd2 = (GolVec3*)((char*)rayEnd2 + sizeof(WheelProbe));
 
 				continue;
 			}
@@ -1096,9 +1096,9 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 		next2:
 			entry++;
 			rayStart2 = (GolVec3*)((char*)rayStart2 + sizeof(WheelProbe));
-			rayEnd2 = (GolVec3*)((char*)rayEnd2 + sizeof(WheelProbe));
 			hitPoint3 = (GolVec3*)((char*)hitPoint3 + sizeof(WheelProbe));
 			hitRecord2 = (RaceEventRecord**)((char*)hitRecord2 + sizeof(WheelProbe));
+			rayEnd2 = (GolVec3*)((char*)rayEnd2 + sizeof(WheelProbe));
 		} while (entry < probesEnd);
 	}
 
