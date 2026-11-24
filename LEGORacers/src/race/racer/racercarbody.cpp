@@ -1181,6 +1181,7 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 	}
 
 	LegoS32 contactSlots = m_contactCount + 8;
+	LegoFloat gravityNow = m_gravityForce;
 	LegoFloat responseScale = m_gravityForce * m_supportNormal.m_z;
 	LegoFloat normalX = m_supportNormal.m_x;
 	LegoFloat normalY = m_supportNormal.m_y;
@@ -1192,7 +1193,7 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 	g_carBodyContactForce.m_x = 0.0f;
 	g_carBodyContactForce.m_y = 0.0f;
 	g_carBodyContactForce.m_z =
-		-(1.0f / static_cast<LegoFloat>(contactSlots)) * m_gravityForce;
+		-(1.0f / static_cast<LegoFloat>(contactSlots)) * gravityNow;
 
 	for (entry = m_wheelProbes; entry < probesEnd; entry++) {
 		if (entry->m_flags & WheelProbe::c_flagContact) {
