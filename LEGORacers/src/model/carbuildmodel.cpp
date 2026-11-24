@@ -1037,7 +1037,7 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 				}
 
 				LegoU16* vertexIndex = primitive->m_vertexIndices;
-				for (i = 0; i < 3; i++) {
+				for (i = 0; i < 3; i++, vertexIndex++) {
 					LegoS32 coordinateIndex = *cursor++;
 					if (!library->IsOriginPosition(coordinateIndex)) {
 						primitive->m_flags &= ~c_buildPrimitiveFlagAllOrigin;
@@ -1125,7 +1125,6 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 					}
 
 					*vertexIndex = AddBuildVertex(&vertex);
-					vertexIndex++;
 				}
 
 				if (++m_buildPrimitiveCount >= c_buildPrimitiveCapacity) {
