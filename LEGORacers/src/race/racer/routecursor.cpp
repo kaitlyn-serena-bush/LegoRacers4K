@@ -296,7 +296,9 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 
 		endPoint->GetPosition(&offset);
 		segmentEndTime += endPoint->GetLength();
-		endPosition = offset + endPosition;
+		endPosition.m_x = endPosition.m_x + offset.m_x;
+		endPosition.m_y = endPosition.m_y + offset.m_y;
+		endPosition.m_z = endPosition.m_z + offset.m_z;
 	}
 
 	RaceRouteRecord::PathPoint* startPoint = &m_record->m_pathPoints[startIndex];
