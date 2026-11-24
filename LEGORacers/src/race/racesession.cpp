@@ -1019,12 +1019,12 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	racerContext.m_powerupManager = &m_powerupManager;
 	racerContext.m_particleAnimation = &m_particleAnimation;
 	racerContext.m_sharedParticleAnimation = &m_sharedParticleAnimation;
-	racerContext.m_decalManager = &m_decalManager;
+	racerContext.m_cheatFlags = m_context->m_cheatFlags;
 	racerContext.m_eventTable = &m_eventTable;
-	racerContext.m_surfaceTable = &m_surfaceTable;
+	racerContext.m_decalManager = &m_decalManager;
 	racerContext.m_shadowsEnabled = TRUE;
 	racerContext.m_checkpointGraph = &m_checkpointGraph;
-	racerContext.m_cheatFlags = m_context->m_cheatFlags;
+	racerContext.m_surfaceTable = &m_surfaceTable;
 
 	racerParams.m_racerCount = m_context->m_racerCount;
 	racerParams.m_routeRecords = m_routeRecords;

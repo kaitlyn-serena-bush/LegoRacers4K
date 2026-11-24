@@ -792,7 +792,7 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 	GolVec2 textureCoordinate;
 	GolVec3 position;
 	GolVec3 normal;
-	GdbVertexArray* vertices;
+	GdbVertexArray *vertices = NULL;
 	p_params->m_model->GetVertexArray(&vertices);
 	LegoU32 vertexIndex = 0;
 	LegoU32 segment;
