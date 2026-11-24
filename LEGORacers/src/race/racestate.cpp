@@ -314,7 +314,7 @@ void RaceState::CreateRacer(
 		initParams.m_bodyModel = m_roster.m_customCarModels[m_roster.m_customCarCount];
 
 		if (p_slot->m_altModel == NULL) {
-			LegoChar fallbackName[3];
+			LegoChar fallbackName[5];
 			fallbackName[0] = 'b';
 			fallbackName[1] = 'b';
 			fallbackName[2] = '\0';
@@ -410,7 +410,8 @@ void RaceState::CreateRacer(
 	);
 
 	racerParams.m_lapCount = m_setup.m_lapCount;
-	m_roster.m_racers[p_racerIndex].Initialize(p_context, &initParams, &racerParams, this, p_racerIndex);
+	Racer* racerA = &m_roster.m_racers[p_racerIndex];
+	racerA->Initialize(p_context, &initParams, &racerParams, this, p_racerIndex);
 	m_roster.m_racers[p_racerIndex].m_driveController.m_previewCursor = &m_sharedRouteCursor;
 
 	GolD3DTexture* shadowTexture = m_setup.m_textureList->GetItem(p_racerIndex);
@@ -429,7 +430,7 @@ void RaceState::CreateRacer(
 	shadowMaterialParams.m_texture = shadowTexture;
 	shadowMaterial->SetParams(p_context->m_renderer, shadowMaterialParams);
 
-	Racer* racer = &m_roster.m_racers[p_racerIndex];
+	Racer* racer = racerA;
 
 	LegoEventQueue::Descriptor descriptor;
 	descriptor.m_type = LegoEventQueue::Descriptor::c_typeCollision;
