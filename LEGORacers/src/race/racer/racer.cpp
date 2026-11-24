@@ -1536,13 +1536,9 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 				GolMath::NormalizeVector3(secondVelocity, &secondVelocity);
 
 				g_randomTableIndex = (g_randomTableIndex + 1) & c_randomTableMask;
-				LegoS32 randomValue = g_randomTable[g_randomTableIndex];
-				LegoU32 soundId = 0x18;
-				if (randomValue % 2) {
-					soundId = 0x37;
-				}
+				if (g_randomTable[g_randomTableIndex] % 2) {
 				m_soundSource->PlaySpatialSoundById(
-					soundId,
+					0x37,
 					contactPosition,
 					g_shieldSoundMinDistance,
 					g_shieldSoundMaxDistance,
@@ -1550,6 +1546,17 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 					1.0f
 				);
 
+				} else {
+				m_soundSource->PlaySpatialSoundById(
+					0x18,
+					contactPosition,
+					g_shieldSoundMinDistance,
+					g_shieldSoundMaxDistance,
+					1.0f,
+					1.0f
+				);
+
+				}
 				firstRacer->m_scrapeSoundCooldownMs = 250;
 				secondRacer->m_scrapeSoundCooldownMs = 250;
 			}
