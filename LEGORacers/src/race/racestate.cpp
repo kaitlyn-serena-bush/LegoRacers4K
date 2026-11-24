@@ -425,14 +425,13 @@ void RaceState::CreateRacer(
 	shadowMaterialParams.m_texture = shadowTexture;
 	shadowMaterial->SetParams(p_context->m_renderer, shadowMaterialParams);
 
-	Racer* racer = ((Racer*)((char*)m_roster.m_racers + racerOff));
 
 	LegoEventQueue::Descriptor descriptor;
 	descriptor.m_type = LegoEventQueue::Descriptor::c_typeCollision;
 	descriptor.m_flags = 5;
 	descriptor.m_hitThreshold = 0;
-	descriptor.m_data = &racer->m_physics;
-	m_roster.m_racerEvents[p_racerIndex] = m_roster.AllocateEvent(racer, &descriptor);
+	descriptor.m_data = &((Racer*)((char*)m_roster.m_racers + racerOff))->m_physics;
+	m_roster.m_racerEvents[p_racerIndex] = m_roster.AllocateEvent((Racer*)((char*)m_roster.m_racers + racerOff), &descriptor);
 }
 
 // FUNCTION: LEGORACERS 0x0043bc10
