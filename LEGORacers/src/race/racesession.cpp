@@ -927,7 +927,12 @@ void RaceSession::LoadRouteRecords(LegoBool32 p_mirror)
 
 	if (!loaded) {
 		::strcpy(fileName, "r1_f_0");
-		::strcat(fileName, m_context->m_useBinaryFiles ? ".rrb" : ".rrf");
+		if (m_context->m_useBinaryFiles) {
+			::strcat(fileName, ".rrb");
+		}
+		else {
+			::strcat(fileName, ".rrf");
+		}
 
 		if (GolStream::FindFile(fileName) == GolStream::e_ioSuccess) {
 			m_routeRecords[0].Load(fileName, m_context->m_useBinaryFiles, p_mirror);
