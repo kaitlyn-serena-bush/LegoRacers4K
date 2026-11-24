@@ -607,11 +607,7 @@ void GolStream::BuildPathname(const LegoChar* p_prefix, const LegoChar* p_path)
 	}
 
 	if (slash) {
-#ifdef BUILDING_GOL
 		LegoU32 directoryEnd;
-#else
-		LegoU32 directoryEnd = prefixLength;
-#endif
 		if (p_path[0] != '\\' && currentEntryPath) {
 			LegoU32 currentEntryLength = strlen(currentEntryPath);
 			if (pathLength + currentEntryLength + prefixLength + 1 >= sizeOfArray(g_pathBuffer)) {
@@ -639,8 +635,9 @@ void GolStream::BuildPathname(const LegoChar* p_prefix, const LegoChar* p_path)
 			}
 		}
 #else
-			if (p_path[0] == '\\') {
-			p_path++;
+		{
+			directoryEnd = prefixLength;
+			p_path += (p_path[0] == '\\');
 		}
 #endif
 
