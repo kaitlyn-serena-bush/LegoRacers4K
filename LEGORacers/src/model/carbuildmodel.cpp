@@ -1017,8 +1017,7 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 				LegoU16 materialIndex = commandFlags & 0x07ff;
 
 				primitive->m_vertexCount = 3;
-				LegoU8& sweepOld1 = primitive->m_flags;
-				sweepOld1 = c_buildPrimitiveInitialFlags;
+				primitive->m_flags = c_buildPrimitiveInitialFlags;
 				primitive->m_commandFlags = commandFlags;
 				primitive->m_materialIndex = materialIndex;
 				primitive->m_partIndex = p_partIndex;
