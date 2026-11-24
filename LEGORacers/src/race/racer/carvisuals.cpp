@@ -1423,10 +1423,13 @@ void CarVisuals::DrawTransparent(GolD3DRenderDevice* p_renderer)
 		LegoFloat deltaX = field->m_center.m_x;
 		if (deltaX == 0) {
 		}
-		deltaX = cameraPosition.m_x - deltaX;
-		position.m_y = field->m_center.m_y;
 		position.m_z = field->m_center.m_z;
-		LegoFloat deltaY = cameraPosition.m_y - position.m_y;
+		double sweepOld0 = field->m_center.m_y;
+		position.m_y = sweepOld0;
+		LegoFloat sweepTmp0 = cameraPosition.m_x;
+		deltaX = sweepTmp0 - deltaX;
+		LegoFloat deltaY = cameraPosition.m_y;
+		deltaY -= position.m_y;
 		LegoFloat deltaZ = cameraPosition.m_z - position.m_z;
 		LegoFloat distanceSquared = deltaZ * deltaZ + deltaY * deltaY + deltaX * deltaX;
 
