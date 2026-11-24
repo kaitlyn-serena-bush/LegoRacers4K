@@ -116,13 +116,21 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 				corner.m_z = -axisX.m_z;
 			}
 
-			if (cornerIndex >= 2 && (cornerIndex < 4 || cornerIndex >= 6)) {
+			if (cornerIndex < 2) {
+				corner += axisY;
+			}
+			else if (cornerIndex < 4) {
 				corner.m_x -= axisY.m_x;
 				corner.m_y -= axisY.m_y;
 				corner.m_z -= axisY.m_z;
 			}
-			else {
+			else if (cornerIndex < 6) {
 				corner += axisY;
+			}
+			else {
+				corner.m_x -= axisY.m_x;
+				corner.m_y -= axisY.m_y;
+				corner.m_z -= axisY.m_z;
 			}
 
 			if (!cornerIndex || cornerIndex == 2 || cornerIndex == 4 || cornerIndex == 6) {
