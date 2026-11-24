@@ -258,7 +258,9 @@ void MenuSceneView::UpdateFreeCamera(undefined4 p_elapsedMs)
 
 	GolVec3* forward = &m_forward;
 	GolVec3* right = &m_right;
-	m_camera->GetTransform()->GetDirectionUp(right, forward);
+	GolCamera* camera = m_camera;
+	camera->m_flags |= 0;
+	camera->GetTransform()->GetDirectionUp(right, forward);
 
 	GolVec3* axis = &m_up;
 	axis->m_x = GOL_MUL(right->m_y, forward->m_z) - GOL_MUL(forward->m_y, right->m_z);
@@ -278,7 +280,9 @@ void MenuSceneView::UpdateFreeCamera(undefined4 p_elapsedMs)
 	GolMath::RotateAboutAxis(&rotatedRight, right, forward, angle);
 
 	GolVec3 position;
-	m_camera->GetTransform()->GetPosition(&position);
+	GolCamera* camera3 = m_camera;
+	camera3->m_flags |= 0;
+	camera3->GetTransform()->GetPosition(&position);
 	LegoFloat forwardDelta = -forward->m_x;
 	forwardDelta *= m_forwardSpeed;
 	LegoFloat rightDelta = -right->m_x;
