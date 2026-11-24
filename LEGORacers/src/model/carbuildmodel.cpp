@@ -869,9 +869,6 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 		LegoFloat xOrigin = static_cast<LegoFloat>(p_x);
 		LegoFloat yOrigin = static_cast<LegoFloat>(p_y);
 		LegoFloat zOrigin = static_cast<LegoFloat>(p_height);
-		LegoS32 rotation = p_rotation & 3;
-		LegoPieceLibrary* library = p_pieceRecord->m_library;
-
 		BuildVertex vertex;
 		vertex.m_position.m_x = 0.0f;
 		vertex.m_position.m_y = 0.0f;
@@ -881,6 +878,9 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 		vertex.m_normalX = 127;
 		vertex.m_normalY = 0;
 		vertex.m_normalZ = 0;
+
+		LegoS32 rotation = p_rotation & 3;
+		LegoPieceLibrary* library = p_pieceRecord->m_library;
 
 		LegoFloat width = static_cast<LegoFloat>(p_pieceRecord->GetWidth());
 		LegoFloat pieceHeight = static_cast<LegoFloat>(p_pieceRecord->GetHeight());
