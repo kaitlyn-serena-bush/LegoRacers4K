@@ -605,7 +605,8 @@ void CarVisuals::Update(LegoU32 p_elapsedMs)
 		m_lastGroundedWheelCount = m_racer->m_physics.m_contactCount;
 
 		if (m_dustParticle) {
-			if (!m_dustParticle->m_particle || m_dustParticle->m_particle->GetSpawnedCount() >= 10) {
+			LegoBool32 finished = !m_dustParticle->m_particle || m_dustParticle->m_particle->GetSpawnedCount() >= 10;
+			if (finished) {
 				m_particleAnimation->FinishRef(m_dustParticle);
 				m_dustParticle = NULL;
 			}
@@ -631,7 +632,8 @@ void CarVisuals::Update(LegoU32 p_elapsedMs)
 		}
 
 		if (m_carSmokeParticle) {
-			if (!m_carSmokeParticle->m_particle || m_carSmokeParticle->m_particle->GetSpawnedCount() >= 4) {
+			LegoBool32 finished = !m_carSmokeParticle->m_particle || m_carSmokeParticle->m_particle->GetSpawnedCount() >= 4;
+			if (finished) {
 				m_particleAnimation->FinishRef(m_carSmokeParticle);
 				m_carSmokeParticle = NULL;
 			}
