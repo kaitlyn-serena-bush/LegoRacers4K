@@ -999,7 +999,8 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 		entry->m_contactForce.m_x = 0.0f;
 	}
 
-	LegoFloat bestDistance = -FLT_MAX;
+	LegoFloat& bestDistance = *(LegoFloat*)&p_elapsedMs;
+	bestDistance = -FLT_MAX;
 	WheelProbe* selectedEntry = NULL;
 	GolBoundingVolume::HitTriangle* eventContext = &g_carBodyHitTriangle;
 	GolBoundingVolume::HitTriangle* collisionContext = eventContext;
@@ -1026,15 +1027,15 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 				{
 					GolVec3 hitPoint;
 					if (resource->IntersectSegment(
-							rayStart,
+							&probe->m_rayStart,
 							rayEnd,
 							collisionContext,
 							&hitPoint,
-							hitRecord,
+							&probe->m_hitRecord,
 							NULL
 						)) {
 						probe->m_flags |= WheelProbe::c_flagHit;
-						resource->LocalToWorld(hitPoint, hitPoint2);
+						resource->LocalToWorld(hitPoint, &probe->m_hitPoint);
 
 						collisionNormal = eventContext->m_normal;
 						resource->RotateToWorld(collisionNormal, &probe->m_contactForce);
@@ -1083,8 +1084,8 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 			rayEnd2->m_z = entry->m_wheelPosition.m_z - sweepDistance;
 
 			if (!TestCachedPlanes(entry)) {
-				if (trackWorld->IntersectSegment(rayStart2, rayEnd2, collisionContext, hitPoint3, hitRecord2, NULL)) {
-					entry->m_cachedPlane = CachePlane(eventContext, *hitRecord2);
+				if (trackWorld->IntersectSegment(rayStart2, rayEnd2, collisionContext, hitPoint3, &entry->m_hitRecord, NULL)) {
+					entry->m_cachedPlane = CachePlane(eventContext, entry->m_hitRecord);
 				}
 				else {
 					goto next2;
