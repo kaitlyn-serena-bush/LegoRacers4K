@@ -739,18 +739,15 @@ void GolFontBase::DrawString(
 						while (lineWidth > static_cast<LegoU32>(p_wrapWidth) && i > breakIndex) {
 							i--;
 							LegoU16 textChar = *p_string->FromCursor(i);
-							LegoU32 charWidth;
 
 							if (textChar == ' ') {
-								charWidth = font->m_spaceWidth;
+								lineWidth -= font->m_charSpacing + font->m_spaceWidth;
 							}
 							else {
 								LegoU32 glyphIndex = font->FindGlyphIndex(textChar);
-								charWidth = font->m_glyphs[glyphIndex].m_width;
+								lineWidth -= font->m_glyphs[glyphIndex].m_width + font->m_charSpacing;
 							}
 
-							charWidth += font->m_charSpacing;
-							lineWidth -= charWidth;
 						}
 					}
 					else {
