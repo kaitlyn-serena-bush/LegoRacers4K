@@ -467,10 +467,21 @@ void RaceCameraController::GetViewDirection(GolVec3* p_dest)
 	}
 }
 
-inline static void LerpVector3(const GolVec3& p_from, const GolVec3& p_to, LegoFloat p_amount, GolVec3* p_dest)
+inline static void LerpVector3(
+	const GolVec3& p_from,
+	const GolVec3& p_to,
+	LegoFloat p_amount,
+	GolVec3* p_dest,
+	GolVec3& p_delta
+)
 {
-	GolVec3 delta = p_to - p_from;
-	GolVec3 scaled = delta * p_amount;
+	p_delta.m_x = p_to.m_x - p_from.m_x;
+	p_delta.m_y = p_to.m_y - p_from.m_y;
+	p_delta.m_z = p_to.m_z - p_from.m_z;
+	GolVec3 scaled;
+	scaled.m_x = p_delta.m_x * p_amount;
+	scaled.m_y = p_delta.m_y * p_amount;
+	scaled.m_z = p_delta.m_z * p_amount;
 	p_dest->m_x = scaled.m_x + p_from.m_x;
 	p_dest->m_y = scaled.m_y + p_from.m_y;
 	p_dest->m_z = scaled.m_z + p_from.m_z;
@@ -479,6 +490,7 @@ inline static void LerpVector3(const GolVec3& p_from, const GolVec3& p_to, LegoF
 // FUNCTION: LEGORACERS 0x00428540
 void RaceCameraController::Update(LegoFloat p_elapsedMs)
 {
+	GolVec3 positionDelta;
 	GolVec3 desiredDirection;
 	GolVec3 targetPosition;
 	GolVec3 up;
@@ -536,7 +548,7 @@ void RaceCameraController::Update(LegoFloat p_elapsedMs)
 			amount = m_transitionMs * g_transitionProgressScale;
 		}
 
-		LerpVector3(m_previousTransform.m_position, m_rawTransform.m_position, amount, &m_smoothedTransform.m_position);
+		LerpVector3(m_previousTransform.m_position, m_rawTransform.m_position, amount, &m_smoothedTransform.m_position, positionDelta);
 		GolMath::LerpQuat(m_previousRotation, m_rawRotation, amount, &m_smoothedRotation);
 		GolMath::QuatToMatrix3(&m_smoothedRotation, &m_smoothedTransform.m_m[0][0]);
 		UpdateFollow();
@@ -626,7 +638,7 @@ void RaceCameraController::Update(LegoFloat p_elapsedMs)
 			}
 
 			LegoFloat positionAmount = 1.0f / (m_targetPositionRate * m_elapsed + 1.0f);
-			LerpVector3(targetPosition, m_lastRacerPosition, positionAmount, &targetPosition);
+			LerpVector3(targetPosition, m_lastRacerPosition, positionAmount, &targetPosition, positionDelta);
 		}
 		m_lastRacerPosition = targetPosition;
 
