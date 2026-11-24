@@ -1424,20 +1424,20 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 	firstAxis.m_z = 0.0f;
 	GolVec3 angular;
 	angular.m_x = 0.0f;
-	GolVec3 firstVelocity;
-	firstVelocity.m_x = firstTarget->m_velocity.m_x;
-	firstVelocity.m_y = firstTarget->m_velocity.m_y;
-	firstVelocity.m_z = firstTarget->m_velocity.m_z;
+	GolVec3 firstVector;
+	firstVector.m_x = firstTarget->m_velocity.m_x;
+	firstVector.m_y = firstTarget->m_velocity.m_y;
+	firstVector.m_z = firstTarget->m_velocity.m_z;
 	GolVec3 secondVelocity;
 	secondVelocity.m_x = secondTarget->m_velocity.m_x;
 	secondVelocity.m_y = secondTarget->m_velocity.m_y;
 	secondVelocity.m_z = secondTarget->m_velocity.m_z;
 	GolVec3 collisionNormal = *normal;
-	GolVec3 firstCenter = firstTarget->m_centerOfMassWorld;
 	GolVec3 relativeVelocity;
-	relativeVelocity.m_x = firstVelocity.m_x - secondVelocity.m_x;
-	relativeVelocity.m_y = firstVelocity.m_y - secondVelocity.m_y;
-	relativeVelocity.m_z = firstVelocity.m_z - secondVelocity.m_z;
+	relativeVelocity.m_x = firstVector.m_x - secondVelocity.m_x;
+	relativeVelocity.m_y = firstVector.m_y - secondVelocity.m_y;
+	relativeVelocity.m_z = firstVector.m_z - secondVelocity.m_z;
+	firstVector = firstTarget->m_centerOfMassWorld;
 	GolVec3 secondCenter = secondTarget->m_centerOfMassWorld;
 	LegoFloat impulseNumerator = -DotVectors(relativeVelocity, collisionNormal);
 	impulseNumerator *= (g_collisionRestitution + 1.0f);
@@ -1449,9 +1449,9 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 	SoundVector* contactPosition = reinterpret_cast<SoundVector*>(&collision->m_contactPoint);
 
 	GolVec3 firstContactOffset;
-	firstContactOffset.m_x = firstCenter.m_x - collision->m_contactPoint.m_x;
-	firstContactOffset.m_y = firstCenter.m_y - collision->m_contactPoint.m_y;
-	firstContactOffset.m_z = firstCenter.m_z - collision->m_contactPoint.m_z;
+	firstContactOffset.m_x = firstVector.m_x - collision->m_contactPoint.m_x;
+	firstContactOffset.m_y = firstVector.m_y - collision->m_contactPoint.m_y;
+	firstContactOffset.m_z = firstVector.m_z - collision->m_contactPoint.m_z;
 	GolMath::NormalizeVector3(firstContactOffset, &firstContactOffset);
 
 	GolVec3 secondContactOffset;
