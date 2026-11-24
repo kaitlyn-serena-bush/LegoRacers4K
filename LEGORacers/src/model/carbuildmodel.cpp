@@ -1985,9 +1985,9 @@ void CarBuildModel::RefreshOverlay(Placement* p_placement, GolModelEntity* p_ent
 						m_overlayCells[x + i + 1][y + j].m_flags |= c_overlayCellNeighborNegY;
 						m_overlayCells[x + i][y + j + 1].m_flags |= c_overlayCellNeighborNegX;
 
-						LegoS32 gridHeight = m_pieceGrid.m_entries[y + j + ((x + i) * m_pieceGrid.m_height)].m_height;
-						if (m_overlayHeight < gridHeight) {
-							m_overlayHeight = gridHeight;
+						entryHeight = m_pieceGrid.m_entries[y + j + ((x + i) * m_pieceGrid.m_height)].m_height;
+						if (m_overlayHeight < entryHeight) {
+							m_overlayHeight = entryHeight;
 						}
 					}
 				}
