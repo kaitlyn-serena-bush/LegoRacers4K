@@ -537,7 +537,12 @@ void GolAnimatedEntity::Update(LegoS32 p_elapsed)
 #endif
 					}
 					else {
+#ifdef BUILDING_GOL
 						m_partTimeMs = endFrame;
+#else
+						LegoFloat finalFrame = endFrame;
+						m_partTimeMs = finalFrame;
+#endif
 					}
 					m_flags |= c_flagPartAnimationDone;
 				}
