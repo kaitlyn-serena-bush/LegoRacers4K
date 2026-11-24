@@ -266,7 +266,7 @@ void RacerPhysics::RouteCursor::Advance(LegoFloat p_elapsedMs)
 // FUNCTION: LEGORACERS 0x004a5750
 void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 {
-	LegoFloat inverseLength;
+	LegoFloat inverseLength = 0.0f;
 	LegoFloat segmentLength;
 	GolVec3 segment;
 	GolVec3 endPosition;

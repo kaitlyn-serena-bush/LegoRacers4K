@@ -821,9 +821,9 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 						LegoFloat amount = (1.0f - previous->m_projected.m_y.m_float) /
 										   (current->m_projected.m_y.m_float - previous->m_projected.m_y.m_float);
 						generatedIndex++;
-						clipped->m_projected.m_y.m_float = g_decalMaxTextureCoordinate;
 						outputFlags[outputCount] = 0;
 						outputCount++;
+						clipped->m_projected.m_y.m_float = g_decalMaxTextureCoordinate;
 						GolVec3 delta = (current->m_position - previous->m_position) * amount;
 						clipped->m_position.m_x = delta.m_x + previous->m_position.m_x;
 						clipped->m_position.m_y = delta.m_y + previous->m_position.m_y;

@@ -1013,8 +1013,8 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	racerContext.m_trackCollidable = m_trackCollidable;
 	racerContext.m_golExport = m_golExport;
 	racerContext.m_renderer = m_renderer;
-	racerContext.m_trackWorld = m_collisionWorld;
 	racerContext.m_triggerWorld = m_extraTriggerWorldEntity;
+	racerContext.m_trackWorld = m_collisionWorld;
 	racerContext.m_soundSource = &m_soundSource;
 	racerContext.m_powerupManager = &m_powerupManager;
 	racerContext.m_particleAnimation = &m_particleAnimation;
