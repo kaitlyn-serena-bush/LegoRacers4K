@@ -863,9 +863,8 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 	LegoS32 normalIndex = -1;
 	LegoBool32 hasTextureIndex = FALSE;
 	LegoBool32 hasNormalIndex = FALSE;
-	LegoS32 result = m_buildPrimitiveCount;
 
-	if (result < c_buildPrimitiveCapacity) {
+	if (m_buildPrimitiveCount < c_buildPrimitiveCapacity) {
 		LegoS32 colorMaterialIndex = m_colorTable->GetMaterialIndexForColorRecord(p_colorRecordIndex);
 		LegoFloat xOrigin = static_cast<LegoFloat>(p_x);
 		LegoFloat yOrigin = static_cast<LegoFloat>(p_y);
@@ -1001,18 +1000,10 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 					vertex.m_textureCoordinate.m_y = 0.0f;
 				}
 
-				if (m_buildPrimitiveCount >= c_buildPrimitiveCapacity) {
-					result = m_buildPrimitiveCount;
-					goto overflow;
-				}
-				LegoS32 newPrimitiveCount = m_buildPrimitiveCount + 1;
-
-				primitive->m_vertexIndices[3] = AddBuildVertex(&vertex);
-				LegoS32& sweepOld0 = m_buildPrimitiveCount;
-				sweepOld0 = newPrimitiveCount;
-				if (m_buildPrimitiveCount >= c_buildPrimitiveCapacity) {
+				if (m_buildPrimitiveCount >= c_buildPrimitiveCapacity ||
+					(primitive->m_vertexIndices[3] = AddBuildVertex(&vertex), ++m_buildPrimitiveCount >= c_buildPrimitiveCapacity)) {
 					m_buildStatus |= c_buildStatusOverflow;
-					return static_cast<LegoS16>(newPrimitiveCount);
+					return static_cast<LegoS16>(m_buildPrimitiveCount);
 				}
 			}
 			else {
@@ -1137,11 +1128,9 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 					vertexIndex++;
 				}
 
-				LegoS32 newPrimitiveCount = m_buildPrimitiveCount + 1;
-				m_buildPrimitiveCount = newPrimitiveCount;
-				if (m_buildPrimitiveCount >= c_buildPrimitiveCapacity) {
+				if (++m_buildPrimitiveCount >= c_buildPrimitiveCapacity) {
 					m_buildStatus |= c_buildStatusOverflow;
-					return static_cast<LegoS16>(newPrimitiveCount);
+					return static_cast<LegoS16>(m_buildPrimitiveCount);
 				}
 			}
 
@@ -1153,7 +1142,7 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 
 overflow:
 	m_buildStatus |= c_buildStatusOverflow;
-	return static_cast<LegoS16>(result);
+	return static_cast<LegoS16>(m_buildPrimitiveCount);
 }
 
 // FUNCTION: LEGORACERS 0x0049ad00
