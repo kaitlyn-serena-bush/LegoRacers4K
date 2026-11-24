@@ -423,13 +423,13 @@ void GrapplingHookAction::AdvanceState()
 		targetVelocity.m_z = 0.0f;
 		m_projectile
 			.PowerupProjectile::LaunchAtPoint(&projectileParams, m_ownerRacer, &targetPosition, &targetVelocity, TRUE);
+		m_projectile.ResetRope();
 	}
 	else {
 		m_projectile.PowerupProjectile::LaunchAtRacer(&projectileParams, m_ownerRacer, m_targetRacer, TRUE, FALSE);
+		m_projectile.ResetRope();
 	}
 
-	m_projectile.ResetRope();
-	m_projectile.ResetRope();
 
 	m_smokeParticleRef = m_owner->m_cutsceneAnimation->SpawnParticle("cannsmk", NULL, NULL, NULL);
 	if (m_smokeParticleRef != NULL) {
