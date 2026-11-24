@@ -989,8 +989,8 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 			}
 			triangle[0] += static_cast<LegoU8>(indexOffset);
 			triangle[third] += static_cast<LegoU8>(indexOffset);
-			indices->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
 			triangle[second] += static_cast<LegoU8>(indexOffset);
+			indices->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
 		}
 	}
 	p_params->m_model->GetMutableGroups()[groupIndex] = 0xc0000000;
