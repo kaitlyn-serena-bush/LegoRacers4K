@@ -846,9 +846,9 @@ void MenuManager::PrepareRaceContext()
 		BuildPlayerCarModel(record, slot, &rendererState);
 		recordState->m_saveIndex = record->m_saveIndex;
 
-		recordState->m_recordSource = record->m_recordSource;
-		BuildPlayerDriverModel(record, slot, &rendererState);
 		recordState->m_recordId = record->m_recordId;
+		BuildPlayerDriverModel(record, slot, &rendererState);
+		recordState->m_recordSource = record->m_recordSource;
 
 		record->GetCosmetics(&slot->m_cosmetics);
 		slot->m_slotState = 0;
