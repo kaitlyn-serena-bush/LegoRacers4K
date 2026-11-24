@@ -620,8 +620,6 @@ void RaceState::UpdateRacers(LegoU32 p_elapsedMs)
 // FUNCTION: LEGORACERS 0x0043c1b0
 void RaceState::UpdateStandings()
 {
-	GolVec3 position;
-
 	Racer* racer = m_roster.m_racers;
 	LegoU32 racerIndex;
 	for (racerIndex = 0; racerIndex < m_roster.m_racerCount; racerIndex++, racer++) {
@@ -666,6 +664,7 @@ void RaceState::UpdateStandings()
 
 		CheckpointGraph::Entry* pathField = g_racerProgressEntries[groupStart].m_racer->m_checkpoint;
 		if (groupEnd > groupStart + 1 && pathField) {
+			GolVec3 position;
 			if (groupStart < groupEnd) {
 				LegoU32 tiedCount = groupEnd - groupStart;
 				RacerProgressEntry* tiedEntry = &g_racerProgressEntries[groupStart];
@@ -732,6 +731,7 @@ void RaceState::UpdateStandings()
 	}
 
 	if (m_roster.m_proximitySound && m_roster.m_currentRacer) {
+		GolVec3 position;
 
 		Racer* nearestRacer = NULL;
 		LegoFloat nearestDistanceSquared = FLT_MAX;
