@@ -1014,7 +1014,15 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 			GolVec3* rayStart = &probe->m_rayStart;
 			RaceEventRecord** hitRecord = &probe->m_hitRecord;
 			do {
-				if (!(probe->m_flags & WheelProbe::c_flagHit)) {
+				if (probe->m_flags & WheelProbe::c_flagHit) {
+				probe++;
+				rayEnd = (GolVec3*)((char*)rayEnd + sizeof(WheelProbe));
+				hitPoint2 = (GolVec3*)((char*)hitPoint2 + sizeof(WheelProbe));
+				rayStart = (GolVec3*)((char*)rayStart + sizeof(WheelProbe));
+				hitRecord = (RaceEventRecord**)((char*)hitRecord + sizeof(WheelProbe));
+					continue;
+				}
+				{
 					GolVec3 hitPoint;
 					if (resource->IntersectSegment(
 							rayStart,
@@ -1117,7 +1125,9 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 	}
 
 	LegoFloat contactLimitSquared = ((((contactLimit * contactLimit))));
-	m_supportNormal.Clear();
+	m_supportNormal.m_z = 0.0f;
+	m_supportNormal.m_y = 0.0f;
+	m_supportNormal.m_x = 0.0f;
 
 	for (entry = m_wheelProbes; entry < probesEnd; entry++) {
 		if (entry->m_hitDistanceSquared >= contactLimitSquared) {
