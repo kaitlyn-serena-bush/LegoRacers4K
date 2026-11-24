@@ -856,6 +856,10 @@ void RaceSession::LoadRouteRecords(LegoBool32 p_mirror)
 
 	for (i = 0; i < static_cast<LegoU32>(m_context->m_racerCount); i++) {
 		if (m_context->m_playerSetupSlots[i].m_slotState == 2 || m_demoMode) {
+			LegoU32 frontCount = 0;
+			LegoU32 middleCount = 0;
+			LegoU32 sideCount = 0;
+			LegoU32* count = NULL;
 			fileName[0] = 'r';
 			fileName[1] = static_cast<LegoChar>(i + '0');
 			fileName[2] = '_';
@@ -866,10 +870,6 @@ void RaceSession::LoadRouteRecords(LegoBool32 p_mirror)
 			fileName[9] = m_context->m_useBinaryFiles ? 'b' : 'f';
 			fileName[10] = '\0';
 
-			LegoU32 frontCount = 0;
-			LegoU32 middleCount = 0;
-			LegoU32 sideCount = 0;
-			LegoU32* count;
 
 			for (type = 0; type < 3; type++) {
 				switch (type) {
@@ -884,9 +884,6 @@ void RaceSession::LoadRouteRecords(LegoBool32 p_mirror)
 				case 2:
 					fileName[3] = 's';
 					count = &sideCount;
-					break;
-				default:
-					count = NULL;
 					break;
 				}
 
