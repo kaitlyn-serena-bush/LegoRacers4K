@@ -533,15 +533,12 @@ void GolFontBase::MeasureString(
 	LegoS32* p_height
 )
 {
-	*p_height = 0;
 	*p_width = 0;
-
 	LegoU8 lineBreak = TRUE;
-
 	if (p_string == NULL) {
 		return;
 	}
-
+	*p_height = 0;
 	LegoU32 length = p_string->SelectionLength();
 	if (length == 0) {
 		return;
