@@ -1435,7 +1435,7 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 		LegoFloat impulseNumerator = -DotVectors(relativeVelocity, collisionNormal);
 		impulseNumerator *= (g_collisionRestitution + 1.0f);
 
-		LegoFloat collisionNormalLengthSquared = GOLVECTOR3_DOT(collisionNormal, collisionNormal);
+		LegoFloat collisionNormalLengthSquared = DotVectors(collisionNormal, collisionNormal);
 		LegoFloat inverseMassTerm =
 			(secondTarget->m_inverseMass + firstTarget->m_inverseMass) * collisionNormalLengthSquared;
 
