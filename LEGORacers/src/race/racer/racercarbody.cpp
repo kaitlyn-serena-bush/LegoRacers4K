@@ -991,11 +991,11 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 
 	WheelProbe* entry;
 	for (entry = m_wheelProbes; entry < probesEnd; entry++) {
+		entry->m_hitDistanceSquared = -FLT_MAX;
 		entry->m_flags &= ~(WheelProbe::c_flagContact | WheelProbe::c_flagHit);
 		entry->m_contactForce.m_z = 0.0f;
 		entry->m_contactForce.m_y = 0.0f;
 		entry->m_contactForce.m_x = 0.0f;
-		entry->m_hitDistanceSquared = -FLT_MAX;
 	}
 
 	LegoFloat bestDistance = -FLT_MAX;
