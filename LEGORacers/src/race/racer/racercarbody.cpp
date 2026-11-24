@@ -1136,8 +1136,10 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 			m_contactCount++;
 		}
 		else {
+			entry->m_contactForce.m_z = 0.0f;
+			entry->m_contactForce.m_y = 0.0f;
+			entry->m_contactForce.m_x = 0.0f;
 			entry->m_flags &= ~WheelProbe::c_flagContact;
-			entry->m_contactForce.Clear();
 		}
 	}
 
