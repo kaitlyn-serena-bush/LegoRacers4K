@@ -636,8 +636,8 @@ void Racer::InitializePhysics(RacerContext* p_context, SetupParams* p_params)
 		mass = p_params->m_mass;
 		memcpy(&position, &p_params->m_centerOfMass, sizeof(position));
 
-		deltaX = ((p_params->m_anchorWheelPosition.m_x)) - p_params->m_rearWheelX;
 		memcpy(&vector, &p_params->m_anchorWheelPosition, sizeof(vector));
+		deltaX = ((p_params->m_anchorWheelPosition.m_x)) - p_params->m_rearWheelX;
 		LegoFloat valueFloat = p_params->m_weight;
 		accelerationStat = p_params->m_accelerationStat;
 		topSpeedStat = p_params->m_topSpeedStat;
@@ -654,11 +654,11 @@ void Racer::InitializePhysics(RacerContext* p_context, SetupParams* p_params)
 			topSpeedStat = 100;
 		}
 
-		if (value > p_params->m_accelerationStat) {
+		if (value > accelerationStat) {
 			accelerationStat = 0;
 		}
 		else {
-			accelerationStat = p_params->m_accelerationStat - value;
+			accelerationStat -= value;
 		}
 	}
 	else {
