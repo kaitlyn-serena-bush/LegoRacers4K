@@ -236,11 +236,9 @@ void AwardCinematicScreen::CreateWidgets()
 		}
 
 		m_context->m_modelBuilder.SetExpressionMask(0xffff);
-		GolModelBase*& sweepRef0 = m_driverModel;
-		sweepRef0 = m_context->m_modelBuilder.BuildDriverModel(&cosmetics, NULL, 0);
-		GolModelBase* sweepTmp0 = m_driverModel;
+		m_driverModel = m_context->m_modelBuilder.BuildDriverModel(&cosmetics, NULL, 0);
 		m_driverEntity.SetModel(
-			sweepTmp0,
+			m_driverModel,
 			sourceDriverEntity->GetSceneNode(0),
 			sourceDriverEntity->GetModelPart(0),
 			sourceDriverEntity->GetModelDistance(0)
@@ -301,33 +299,33 @@ void AwardCinematicScreen::CreateWidgets()
 
 				for (LegoU32 j = 0; j < model->GetAnimationCount(); j++) {
 					CutsceneDefinition::Frame::ModelEvent::Animation* animation = model->GetAnimation(j);
-					MabMaterialTrack* animationItem = animation->m_item;
 					MabMaterialFrame* animationItems = animation->m_materialAnimation->GetFrames();
-					LegoS32 firstFrame = animationItem->GetFirstFrame();
-					LegoS32 endFrame = firstFrame + animationItem->GetFrameCount();
 
-					for (LegoS32 frameIndex = firstFrame; frameIndex < endFrame; frameIndex++) {
+					for (LegoU16 frameIndex = animation->m_item->GetFirstFrame();
+						 frameIndex < animation->m_item->GetFirstFrame() + animation->m_item->GetFrameCount();
+						 frameIndex++) {
 						GolMaterial* material = animationItems[frameIndex].GetMaterial();
 						GolName expressionName;
 						::memcpy(expressionName, material->GetName(), sizeof(GolName));
-						LegoS32 expressionIndex = 0;
+						LegoS32 expressionIndex;
 
-						if (::strncmp(expressionName, "dflt", sizeof(GolName)) != 0) {
-							if (::strncmp(expressionName, "angry", sizeof(GolName)) == 0) {
-								expressionIndex = 1;
-							}
-							else if (::strncmp(expressionName, "blink", sizeof(GolName)) == 0) {
-								expressionIndex = 2;
-							}
-							else if (::strncmp(expressionName, "happy", sizeof(GolName)) == 0) {
-								expressionIndex = 3;
-							}
-							else if (::strncmp(expressionName, "sad", sizeof(GolName)) == 0) {
-								expressionIndex = 4;
-							}
-							else if (::strncmp(expressionName, "suprz", sizeof(GolName)) == 0) {
-								expressionIndex = 5;
-							}
+						if (::strncmp(expressionName, "dflt", sizeof(GolName)) == 0) {
+							expressionIndex = 0;
+						}
+						else if (::strncmp(expressionName, "angry", sizeof(GolName)) == 0) {
+							expressionIndex = 1;
+						}
+						else if (::strncmp(expressionName, "blink", sizeof(GolName)) == 0) {
+							expressionIndex = 2;
+						}
+						else if (::strncmp(expressionName, "happy", sizeof(GolName)) == 0) {
+							expressionIndex = 3;
+						}
+						else if (::strncmp(expressionName, "sad", sizeof(GolName)) == 0) {
+							expressionIndex = 4;
+						}
+						else {
+							expressionIndex = ::strncmp(expressionName, "suprz", sizeof(GolName)) == 0 ? 5 : 0;
 						}
 
 						m_context->m_partCatalog
