@@ -715,10 +715,10 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 					LegoU32 currentOutside = inputFlags[i] & c_clipXMaxFlag;
 
 					if (currentOutside ^ previousOutside) {
-						ProjectedVertex* clipped = &g_decalProjectedVertices[generatedIndex];
 						ProjectedVertex* previous = &g_decalProjectedVertices[inputIndices[previousIndex]];
-						outputIndices[outputCount] = generatedIndex;
+						ProjectedVertex* clipped = &g_decalProjectedVertices[generatedIndex];
 						ProjectedVertex* current = &g_decalProjectedVertices[inputIndices[i]];
+						outputIndices[outputCount] = generatedIndex;
 						LegoFloat amount = (1.0f - (previous->m_projected.m_x.m_float)) /
 										   (current->m_projected.m_x.m_float - previous->m_projected.m_x.m_float);
 						generatedIndex++;
