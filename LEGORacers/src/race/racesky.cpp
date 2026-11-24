@@ -684,9 +684,9 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 			triangle[0] += static_cast<LegoU8>(scratchStart - first);
 			LegoU8* sweepElem0 = &triangle[second];
 			(*sweepElem0) += static_cast<LegoU8>(scratchStart - first);
-			triangle[third] += static_cast<LegoU8>(scratchStart - first);
 			static_cast<GdbModelIndexArray*>(indexArrayBase)
 				->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
+			triangle[third] += static_cast<LegoU8>(scratchStart - first);
 		}
 		scratchStart += p_params->m_segmentCount + 1;
 	}
@@ -705,7 +705,8 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 			(((p_params->m_segmentCount * 2) & 0x7f) << 16) | 0x20000000 | (triangleIndex & 0xffff);
 		for (segment = 0; segment < p_params->m_segmentCount; segment++) {
 			triangle[0] = static_cast<LegoU8>(first + segment);
-			triangle[second] = static_cast<LegoU8>(triangle[0] + p_params->m_segmentCount);
+			LegoU8* sweepElem0 = &triangle[second];
+			(*sweepElem0) = static_cast<LegoU8>(triangle[0] + p_params->m_segmentCount);
 			triangle[third] = static_cast<LegoU8>(
 				segment == p_params->m_segmentCount - 1 ? first + p_params->m_segmentCount : triangle[second] + 1
 			);
@@ -714,17 +715,17 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
 			}
 			triangle[0] += static_cast<LegoU8>(scratchStart - first);
+			triangle[second] += static_cast<LegoU8>(scratchStart - first);
 			static_cast<GdbModelIndexArray*>(indexArrayBase)
 				->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
 			triangle[0] = static_cast<LegoU8>(first + segment);
-			triangle[second] += static_cast<LegoU8>(scratchStart - first);
 
+			triangle[third] += static_cast<LegoU8>(scratchStart - first);
+			triangle[third] = static_cast<LegoU8>(segment == p_params->m_segmentCount - 1 ? first : triangle[0] + 1);
 			LegoU32 sweepOld0 = p_params->m_segmentCount;
 			triangle[second] = static_cast<LegoU8>(
 				segment == sweepOld0 - 1 ? first + sweepOld0 : triangle[0] + sweepOld0 + 1
 			);
-			triangle[third] += static_cast<LegoU8>(scratchStart - first);
-			triangle[third] = static_cast<LegoU8>(segment == p_params->m_segmentCount - 1 ? first : triangle[0] + 1);
 			if (p_params->m_absoluteIndexArray != NULL) {
 				p_params->m_absoluteIndexArray
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
