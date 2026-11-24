@@ -1082,7 +1082,9 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 				}
 			}
 
-			entry->m_contactForce = entry->m_cachedPlane->m_plane.m_normal;
+			entry->m_contactForce.m_x = entry->m_cachedPlane->m_plane.m_normal.m_x;
+		entry->m_contactForce.m_y = entry->m_cachedPlane->m_plane.m_normal.m_y;
+		entry->m_contactForce.m_z = entry->m_cachedPlane->m_plane.m_normal.m_z;
 			entry->m_hitDistanceSquared = hitPoint3->DistanceSquaredTo(*rayEnd2);
 
 			if (entry->m_hitDistanceSquared > bestDistance) {
@@ -1166,16 +1168,15 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 		}
 	}
 
-	LegoFloat gravity = m_gravityForce;
-	LegoFloat responseScale = gravity * m_supportNormal.m_z;
+	LegoFloat responseScale = m_gravityForce * m_supportNormal.m_z;
 	m_supportForce.m_x = -(m_supportNormal.m_x * responseScale);
 	m_supportForce.m_y = -(m_supportNormal.m_y * responseScale);
-	m_supportForce.m_z = gravity - m_supportNormal.m_z * responseScale;
+	m_supportForce.m_z = m_gravityForce - m_supportNormal.m_z * responseScale;
 
 	g_carBodyContactForce.m_x = 0.0f;
 	g_carBodyContactForce.m_y = 0.0f;
 	g_carBodyContactForce.m_z =
-		-(gravity * (1.0f / static_cast<LegoFloat>(static_cast<LegoS32>(m_contactCount + 8))));
+		-(1.0f / static_cast<LegoFloat>(static_cast<LegoS32>(m_contactCount + 8))) * m_gravityForce;
 
 	for (entry = m_wheelProbes; entry < probesEnd; entry++) {
 		if (entry->m_flags & WheelProbe::c_flagContact) {
