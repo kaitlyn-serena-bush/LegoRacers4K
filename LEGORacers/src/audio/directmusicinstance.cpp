@@ -506,8 +506,9 @@ LegoBool32 DirectMusicInstance::SetPath(const LegoChar* p_path)
 	m_path[c_pathLength - 1] = '\0';
 	DWORD attributes = GetFileAttributes(m_path);
 	ReleaseMutex(m_mutex);
-	attributes = ~attributes;
-	return ((attributes & 0xff) >> 4) & 1;
+
+	BYTE temp = attributes & 0xff;
+	return (!(temp & 0x80)) ? 0 : 1;
 }
 
 // FUNCTION: LEGORACERS 0x004513d0 FOLDED
