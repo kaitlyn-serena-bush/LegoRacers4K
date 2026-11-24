@@ -1329,12 +1329,12 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 		entry->m_rayStart.m_x = sweepCenter->m_x;
 		entry->m_rayStart.m_y = sweepCenter->m_y;
 		entry->m_rayStart.m_z = sweepCenter->m_z + sweepHeight;
-		entry->m_rayEnd.m_x = sweepCenter->m_x;
+		entry->m_flags &= ~(WheelProbe::c_flagContact | WheelProbe::c_flagHit);
 		entry->m_rayEnd.m_y = sweepCenter->m_y;
 		entry->m_rayEnd.m_z = sweepCenter->m_z - sweepDistance;
-		entry->m_flags &= ~(WheelProbe::c_flagContact | WheelProbe::c_flagHit);
-		entry->m_contactForce.m_x = 0.0f;
 		entry->m_contactForce.m_y = 0.0f;
+		entry->m_contactForce.m_x = 0.0f;
+		entry->m_rayEnd.m_x = sweepCenter->m_x;
 		entry->m_contactForce.m_z = 0.0f;
 		entry->m_hitDistanceSquared = -FLT_MAX;
 	}
@@ -1468,17 +1468,14 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 		}
 	}
 
-	if (m_contactCount < 2) {
-		GolMath::NormalizeVector3(m_supportNormal, &m_supportNormal);
-	}
-	else {
+	if (m_contactCount >= 2) {
 		direction.m_x = m_wheelProbes[0].m_hitPoint.m_x - m_wheelProbes[1].m_hitPoint.m_x;
 		direction.m_y = m_wheelProbes[0].m_hitPoint.m_y - m_wheelProbes[1].m_hitPoint.m_y;
 		direction.m_z = m_wheelProbes[0].m_hitPoint.m_z - m_wheelProbes[1].m_hitPoint.m_z;
 
 		GolOrientedEntity* orientationEntity = &m_physicsEntity;
 		const GolMatrix34& transform = orientationEntity->GetTransform();
-		up.m_x = transform.m_m[2][0];
+		up.m_x = (transform.m_m[2][0]);
 		up.m_y = transform.m_m[2][1];
 		up.m_z = transform.m_m[2][2];
 		orientationEntity->SetDirectionUp(direction, up);
@@ -1486,6 +1483,9 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 		m_supportNormal.m_x = transform.m_m[2][0];
 		m_supportNormal.m_y = transform.m_m[2][1];
 		m_supportNormal.m_z = transform.m_m[2][2];
+	}
+	else {
+		GolMath::NormalizeVector3(m_supportNormal, &m_supportNormal);
 	}
 
 	GolVec3* selectedCenter = &m_axleMidpoints[selectedIndex];
