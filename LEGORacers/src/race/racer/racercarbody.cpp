@@ -1201,8 +1201,9 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 
 	g_carBodyContactForce.m_x = 0.0f;
 	g_carBodyContactForce.m_y = 0.0f;
+	LegoFloat negInv = -(1.0f / static_cast<LegoFloat>(contactSlots));
 	g_carBodyContactForce.m_z =
-		-(1.0f / static_cast<LegoFloat>(contactSlots)) * gravityNow;
+gravityNow * negInv;
 
 	for (entry = m_wheelProbes; entry < probesEnd; entry++) {
 		if (entry->m_flags & WheelProbe::c_flagContact) {
