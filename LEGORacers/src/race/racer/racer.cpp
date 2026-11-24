@@ -1396,240 +1396,241 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 	Racer* firstRacer = static_cast<Racer*>(firstTarget->m_owner);
 	Racer* secondRacer = static_cast<Racer*>(secondTarget->m_owner);
 
-	if (!(firstRacer->m_flags & c_flagGhost)) {
-		if (secondRacer && (secondRacer->m_flags & c_flagGhost)) {
-			return;
-		}
-
-		if (firstRacer->m_physics.m_flags & RacerPhysics::c_flagSpinOut) {
-			return;
-		}
-
-		if (secondRacer && (secondRacer->m_physics.m_flags & RacerPhysics::c_flagSpinOut)) {
-			return;
-		}
-
-		GolVec3* normal = &collision->m_normal;
-		GolVec3 impulse;
-		GolMath::ScaleVector3(normal, collision->m_penetrationDepth, &impulse);
-
-		RacerPhysics* firstPhysics = &firstRacer->m_physics;
-		firstRacer->m_physics.MoveBy(&impulse);
-
-		GolVec3 firstAxis;
-		firstAxis.m_x = 0.0f;
-		firstAxis.m_y = 0.0f;
-		firstAxis.m_z = 0.0f;
-		GolVec3 angular;
-		angular.m_x = 0.0f;
-		GolVec3 firstVelocity;
-		firstVelocity.m_x = firstTarget->m_velocity.m_x;
-		firstVelocity.m_y = firstTarget->m_velocity.m_y;
-		firstVelocity.m_z = firstTarget->m_velocity.m_z;
-		GolVec3 secondVelocity;
-		secondVelocity.m_x = secondTarget->m_velocity.m_x;
-		secondVelocity.m_y = secondTarget->m_velocity.m_y;
-		secondVelocity.m_z = secondTarget->m_velocity.m_z;
-		GolVec3 collisionNormal = *normal;
-		GolVec3 firstCenter = firstTarget->m_centerOfMassWorld;
-		GolVec3 relativeVelocity;
-		relativeVelocity.m_x = firstVelocity.m_x - secondVelocity.m_x;
-		relativeVelocity.m_y = firstVelocity.m_y - secondVelocity.m_y;
-		relativeVelocity.m_z = firstVelocity.m_z - secondVelocity.m_z;
-		GolVec3 secondCenter = secondTarget->m_centerOfMassWorld;
-		LegoFloat impulseNumerator = -DotVectors(relativeVelocity, collisionNormal);
-		impulseNumerator *= (g_collisionRestitution + 1.0f);
-
-		LegoFloat collisionNormalLengthSquared = DotVectors(collisionNormal, collisionNormal);
-		LegoFloat inverseMassTerm =
-			(secondTarget->m_inverseMass + firstTarget->m_inverseMass) * collisionNormalLengthSquared;
-
-		SoundVector* contactPosition = reinterpret_cast<SoundVector*>(&collision->m_contactPoint);
-
-		GolVec3 firstContactOffset;
-		firstContactOffset.m_x = firstCenter.m_x - collision->m_contactPoint.m_x;
-		firstContactOffset.m_y = firstCenter.m_y - collision->m_contactPoint.m_y;
-		firstContactOffset.m_z = firstCenter.m_z - collision->m_contactPoint.m_z;
-		GolMath::NormalizeVector3(firstContactOffset, &firstContactOffset);
-
-		GolVec3 secondContactOffset;
-		secondContactOffset.m_x = secondCenter.m_x - collision->m_contactPoint.m_x;
-		secondContactOffset.m_y = secondCenter.m_y - collision->m_contactPoint.m_y;
-		secondContactOffset.m_z = secondCenter.m_z - collision->m_contactPoint.m_z;
-		GolMath::NormalizeVector3(secondContactOffset, &secondContactOffset);
-
-		GolMatrix3 firstInertia;
-		firstInertia.m_m[0][0] = firstTarget->m_worldInverseInertia.m_m[0][0];
-		firstInertia.m_m[0][1] = firstTarget->m_worldInverseInertia.m_m[0][1];
-		firstInertia.m_m[0][2] = firstTarget->m_worldInverseInertia.m_m[0][2];
-		firstInertia.m_m[1][0] = firstTarget->m_worldInverseInertia.m_m[1][0];
-		firstInertia.m_m[1][1] = firstTarget->m_worldInverseInertia.m_m[1][1];
-		firstInertia.m_m[1][2] = firstTarget->m_worldInverseInertia.m_m[1][2];
-		firstInertia.m_m[2][0] = firstTarget->m_worldInverseInertia.m_m[2][0];
-		firstInertia.m_m[2][1] = firstTarget->m_worldInverseInertia.m_m[2][1];
-		firstInertia.m_m[2][2] = firstTarget->m_worldInverseInertia.m_m[2][2];
-
-		GolMath::CrossVector3(&firstContactOffset, normal, &firstAxis);
-
-		angular.m_x = firstInertia.m_m[0][0] * firstAxis.m_x;
-		angular.m_y = firstInertia.m_m[0][1] * firstAxis.m_x;
-		angular.m_z = firstInertia.m_m[0][2] * firstAxis.m_x;
-		angular.m_x += firstInertia.m_m[1][0] * firstAxis.m_y;
-		angular.m_y += firstInertia.m_m[1][1] * firstAxis.m_y;
-		angular.m_z += firstInertia.m_m[1][2] * firstAxis.m_y;
-		angular.m_x += firstInertia.m_m[2][0] * firstAxis.m_z;
-		angular.m_y += firstInertia.m_m[2][1] * firstAxis.m_z;
-		angular.m_z += firstInertia.m_m[2][2] * firstAxis.m_z;
-
-		GolVec3 firstAngularContribution;
-		firstAngularContribution.m_x = angular.m_y * firstContactOffset.m_z - angular.m_z * firstContactOffset.m_y;
-		firstAngularContribution.m_y = angular.m_z * firstContactOffset.m_x - firstContactOffset.m_z * angular.m_x;
-		firstAngularContribution.m_z = firstContactOffset.m_y * angular.m_x - angular.m_y * firstContactOffset.m_x;
-
-		GolVec3 secondAxis;
-		GolMath::CrossVector3(&secondContactOffset, normal, &secondAxis);
-		angular.m_x = firstInertia.m_m[0][0] * secondAxis.m_x;
-		angular.m_y = firstInertia.m_m[0][1] * secondAxis.m_x;
-		angular.m_z = firstInertia.m_m[0][2] * secondAxis.m_x;
-		angular.m_x += firstInertia.m_m[1][0] * secondAxis.m_y;
-		angular.m_y += firstInertia.m_m[1][1] * secondAxis.m_y;
-		angular.m_z += firstInertia.m_m[1][2] * secondAxis.m_y;
-		angular.m_x += firstInertia.m_m[2][0] * secondAxis.m_z;
-		angular.m_y += firstInertia.m_m[2][1] * secondAxis.m_z;
-		angular.m_z += firstInertia.m_m[2][2] * secondAxis.m_z;
-
-		GolVec3 secondAngularContribution;
-		secondAngularContribution.m_x = angular.m_y * secondContactOffset.m_z - angular.m_z * secondContactOffset.m_y;
-		secondAngularContribution.m_y = angular.m_z * secondContactOffset.m_x - secondContactOffset.m_z * angular.m_x;
-		secondAngularContribution.m_z = secondContactOffset.m_y * angular.m_x - angular.m_y * secondContactOffset.m_x;
-
-		firstAngularContribution.m_x += secondAngularContribution.m_x;
-		firstAngularContribution.m_y += secondAngularContribution.m_y;
-		firstAngularContribution.m_z += secondAngularContribution.m_z;
-
-		LegoFloat impulseDenominator = DotVectors(*normal, firstAngularContribution) + inverseMassTerm;
-		impulseNumerator /= impulseDenominator;
-
-		firstRacer->m_physics.ApplyDirectionalImpulse(&collisionNormal, impulseNumerator);
-		if (firstRacer->m_forceFeedback) {
-			firstRacer->m_forceFeedback->PlayLightRumble();
-		}
-
-		if (!secondRacer) {
-			return;
-		}
-
-		secondRacer->m_physics.ApplyDirectionalImpulse(&collisionNormal, -impulseNumerator);
-		if (secondRacer->m_forceFeedback) {
-			secondRacer->m_forceFeedback->PlayLightRumble();
-		}
-
-		if (firstRacer->m_controlMode == Racer::c_controlAi && secondRacer->m_controlMode == Racer::c_controlAi) {
-			if (firstRacer->m_physics.GetSpeedRampScale() == 1.0f) {
-				firstRacer->m_speedRampTimerMs = 750;
-			}
-
-			if (secondRacer->m_physics.GetSpeedRampScale() == 1.0f) {
-				secondRacer->m_speedRampTimerMs = 750;
-			}
-		}
-		else if (firstPhysics->GetSpeed() > secondRacer->m_physics.GetSpeed()) {
-			if (!firstRacer->m_scrapeSoundCooldownMs && !secondRacer->m_scrapeSoundCooldownMs) {
-				secondVelocity = firstPhysics->m_velocity;
-				GolMath::NormalizeVector3(secondVelocity, &secondVelocity);
-
-				g_randomTableIndex = (g_randomTableIndex + 1) & c_randomTableMask;
-				if (g_randomTable[g_randomTableIndex] % 2) {
-				m_soundSource->PlaySpatialSoundById(
-					0x37,
-					contactPosition,
-					g_shieldSoundMinDistance,
-					g_shieldSoundMaxDistance,
-					1.0f,
-					1.0f
-				);
-
-				} else {
-				m_soundSource->PlaySpatialSoundById(
-					0x18,
-					contactPosition,
-					g_shieldSoundMinDistance,
-					g_shieldSoundMaxDistance,
-					1.0f,
-					1.0f
-				);
-
-				}
-				firstRacer->m_scrapeSoundCooldownMs = 250;
-				secondRacer->m_scrapeSoundCooldownMs = 250;
-			}
-
-			m_visuals.m_particleAnimation->SpawnParticle("carsprk", &collision->m_contactPoint, NULL, NULL);
-
-			secondRacer->PlayReaction(FALSE);
-		}
-		else {
-			firstRacer->PlayReaction(FALSE);
-		}
-
-		if ((firstRacer->m_flags & c_flagShielded) && !(secondRacer->m_flags & c_flagShielded)) {
-			if (firstRacer->m_shieldLevel == 1) {
-				GolVec3 secondForward;
-				secondRacer->m_visuals.m_carEntity->GetOrientationRow0(&secondForward);
-				LegoFloat dot = DotVectors(secondForward, secondContactOffset);
-
-				if (dot < g_shieldShoveConeCosine && dot > -g_shieldShoveConeCosine) {
-					secondContactOffset.m_x *= g_shieldShoveStrength;
-					secondContactOffset.m_y *= g_shieldShoveStrength;
-					secondContactOffset.m_z *= g_shieldShoveStrength;
-					secondRacer->ApplyShove(&secondContactOffset);
-				}
-			}
-			else if (firstRacer->m_shieldLevel == 2) {
-				secondRacer->m_physics.StartSpin(1.0f, 0.0089999996f, 0);
-			}
-			else if (firstRacer->m_shieldLevel == 3) {
-				secondRacer->m_physics.StartSpin(2.0f, 0.0089999996f, 0);
-			}
-		}
-
-		if ((secondRacer->m_flags & c_flagShielded) && !(firstRacer->m_flags & c_flagShielded)) {
-			if (secondRacer->m_shieldLevel == 1) {
-				GolVec3 firstForward;
-				firstRacer->m_visuals.m_carEntity->GetOrientationRow0(&firstForward);
-				LegoFloat dot = DotVectors(firstForward, firstContactOffset);
-
-				if (dot < g_shieldShoveConeCosine && dot > -g_shieldShoveConeCosine) {
-					firstContactOffset.m_x *= g_shieldShoveStrength;
-					firstContactOffset.m_y *= g_shieldShoveStrength;
-					firstContactOffset.m_z *= g_shieldShoveStrength;
-					firstRacer->ApplyShove(&firstContactOffset);
-				}
-			}
-			else if (secondRacer->m_shieldLevel == 2) {
-				firstRacer->m_physics.StartSpin(1.0f, 0.0089999996f, 0);
-			}
-			else if (secondRacer->m_shieldLevel == 3) {
-				firstRacer->m_physics.StartSpin(2.0f, 0.0089999996f, 0);
-			}
-		}
-
-		if ((firstRacer->m_flags & c_flagCursed) && !(secondRacer->m_flags & c_flagCursed) && firstRacer->m_curseTickMs &&
-			!(secondRacer->m_flags & c_flagShielded)) {
-			secondRacer->AttachCurse(&firstRacer->m_visuals.m_curseEntity, firstRacer->m_curseTimerMs);
-			firstRacer->RemoveCurse();
-		}
-		else if (
-			(secondRacer->m_flags & c_flagCursed) && !(firstRacer->m_flags & c_flagCursed) && secondRacer->m_curseTickMs &&
-			!(firstRacer->m_flags & c_flagShielded)
-		) {
-			firstRacer->AttachCurse(&secondRacer->m_visuals.m_curseEntity, secondRacer->m_curseTimerMs);
-			secondRacer->RemoveCurse();
-		}
-
-		firstRacer->m_flags |= c_flagSpeedRamping;
-		secondRacer->m_flags |= c_flagSpeedRamping;
+	if (firstRacer->m_flags & c_flagGhost) {
+		return;
 	}
+	if (secondRacer && (secondRacer->m_flags & c_flagGhost)) {
+		return;
+	}
+
+	if (firstRacer->m_physics.m_flags & RacerPhysics::c_flagSpinOut) {
+		return;
+	}
+
+	if (secondRacer && (secondRacer->m_physics.m_flags & RacerPhysics::c_flagSpinOut)) {
+		return;
+	}
+
+	GolVec3* normal = &collision->m_normal;
+	GolVec3 impulse;
+	GolMath::ScaleVector3(normal, collision->m_penetrationDepth, &impulse);
+
+	RacerPhysics* firstPhysics = &firstRacer->m_physics;
+	firstRacer->m_physics.MoveBy(&impulse);
+
+	GolVec3 firstAxis;
+	firstAxis.m_x = 0.0f;
+	firstAxis.m_y = 0.0f;
+	firstAxis.m_z = 0.0f;
+	GolVec3 angular;
+	angular.m_x = 0.0f;
+	GolVec3 firstVelocity;
+	firstVelocity.m_x = firstTarget->m_velocity.m_x;
+	firstVelocity.m_y = firstTarget->m_velocity.m_y;
+	firstVelocity.m_z = firstTarget->m_velocity.m_z;
+	GolVec3 secondVelocity;
+	secondVelocity.m_x = secondTarget->m_velocity.m_x;
+	secondVelocity.m_y = secondTarget->m_velocity.m_y;
+	secondVelocity.m_z = secondTarget->m_velocity.m_z;
+	GolVec3 collisionNormal = *normal;
+	GolVec3 firstCenter = firstTarget->m_centerOfMassWorld;
+	GolVec3 relativeVelocity;
+	relativeVelocity.m_x = firstVelocity.m_x - secondVelocity.m_x;
+	relativeVelocity.m_y = firstVelocity.m_y - secondVelocity.m_y;
+	relativeVelocity.m_z = firstVelocity.m_z - secondVelocity.m_z;
+	GolVec3 secondCenter = secondTarget->m_centerOfMassWorld;
+	LegoFloat impulseNumerator = -DotVectors(relativeVelocity, collisionNormal);
+	impulseNumerator *= (g_collisionRestitution + 1.0f);
+
+	LegoFloat collisionNormalLengthSquared = DotVectors(collisionNormal, collisionNormal);
+	LegoFloat inverseMassTerm =
+		((((secondTarget->m_inverseMass + firstTarget->m_inverseMass)))) * collisionNormalLengthSquared;
+
+	SoundVector* contactPosition = reinterpret_cast<SoundVector*>(&collision->m_contactPoint);
+
+	GolVec3 firstContactOffset;
+	firstContactOffset.m_x = firstCenter.m_x - collision->m_contactPoint.m_x;
+	firstContactOffset.m_y = firstCenter.m_y - collision->m_contactPoint.m_y;
+	firstContactOffset.m_z = firstCenter.m_z - collision->m_contactPoint.m_z;
+	GolMath::NormalizeVector3(firstContactOffset, &firstContactOffset);
+
+	GolVec3 secondContactOffset;
+	secondContactOffset.m_x = secondCenter.m_x - collision->m_contactPoint.m_x;
+	secondContactOffset.m_y = secondCenter.m_y - collision->m_contactPoint.m_y;
+	secondContactOffset.m_z = secondCenter.m_z - collision->m_contactPoint.m_z;
+	GolMath::NormalizeVector3(secondContactOffset, &secondContactOffset);
+
+	GolMatrix3 firstInertia;
+	firstInertia.m_m[0][0] = firstTarget->m_worldInverseInertia.m_m[0][0];
+	firstInertia.m_m[0][1] = firstTarget->m_worldInverseInertia.m_m[0][1];
+	firstInertia.m_m[0][2] = firstTarget->m_worldInverseInertia.m_m[0][2];
+	firstInertia.m_m[1][0] = firstTarget->m_worldInverseInertia.m_m[1][0];
+	firstInertia.m_m[1][1] = firstTarget->m_worldInverseInertia.m_m[1][1];
+	firstInertia.m_m[1][2] = firstTarget->m_worldInverseInertia.m_m[1][2];
+	firstInertia.m_m[2][0] = firstTarget->m_worldInverseInertia.m_m[2][0];
+	firstInertia.m_m[2][1] = firstTarget->m_worldInverseInertia.m_m[2][1];
+	firstInertia.m_m[2][2] = firstTarget->m_worldInverseInertia.m_m[2][2];
+
+	GolMath::CrossVector3(&firstContactOffset, normal, &firstAxis);
+
+	angular.m_x = firstInertia.m_m[0][0] * firstAxis.m_x;
+	angular.m_y = firstInertia.m_m[0][1] * firstAxis.m_x;
+	angular.m_z = firstInertia.m_m[0][2] * firstAxis.m_x;
+	angular.m_x += firstInertia.m_m[1][0] * firstAxis.m_y;
+	angular.m_y += firstInertia.m_m[1][1] * firstAxis.m_y;
+	angular.m_z += firstInertia.m_m[1][2] * firstAxis.m_y;
+	angular.m_x += firstInertia.m_m[2][0] * firstAxis.m_z;
+	angular.m_y += firstInertia.m_m[2][1] * firstAxis.m_z;
+	angular.m_z += firstInertia.m_m[2][2] * firstAxis.m_z;
+
+	GolVec3 firstAngularContribution;
+	firstAngularContribution.m_x = angular.m_y * firstContactOffset.m_z - angular.m_z * firstContactOffset.m_y;
+	firstAngularContribution.m_y = angular.m_z * firstContactOffset.m_x - firstContactOffset.m_z * angular.m_x;
+	firstAngularContribution.m_z = firstContactOffset.m_y * angular.m_x - angular.m_y * firstContactOffset.m_x;
+
+	GolVec3 secondAxis;
+	GolMath::CrossVector3(&secondContactOffset, normal, &secondAxis);
+	angular.m_x = firstInertia.m_m[0][0] * secondAxis.m_x;
+	angular.m_y = firstInertia.m_m[0][1] * secondAxis.m_x;
+	angular.m_z = firstInertia.m_m[0][2] * secondAxis.m_x;
+	angular.m_x += firstInertia.m_m[1][0] * secondAxis.m_y;
+	angular.m_y += firstInertia.m_m[1][1] * secondAxis.m_y;
+	angular.m_z += firstInertia.m_m[1][2] * secondAxis.m_y;
+	angular.m_x += firstInertia.m_m[2][0] * secondAxis.m_z;
+	angular.m_y += firstInertia.m_m[2][1] * secondAxis.m_z;
+	angular.m_z += firstInertia.m_m[2][2] * secondAxis.m_z;
+
+	GolVec3 secondAngularContribution;
+	secondAngularContribution.m_x = angular.m_y * secondContactOffset.m_z - angular.m_z * secondContactOffset.m_y;
+	secondAngularContribution.m_y = angular.m_z * secondContactOffset.m_x - secondContactOffset.m_z * angular.m_x;
+	secondAngularContribution.m_z = secondContactOffset.m_y * angular.m_x - angular.m_y * secondContactOffset.m_x;
+
+	firstAngularContribution.m_x += secondAngularContribution.m_x;
+	firstAngularContribution.m_y += secondAngularContribution.m_y;
+	firstAngularContribution.m_z += secondAngularContribution.m_z;
+
+	LegoFloat impulseDenominator = DotVectors(*normal, firstAngularContribution) + inverseMassTerm;
+	impulseNumerator /= impulseDenominator;
+
+	firstRacer->m_physics.ApplyDirectionalImpulse(&collisionNormal, impulseNumerator);
+	if (firstRacer->m_forceFeedback) {
+		firstRacer->m_forceFeedback->PlayLightRumble();
+	}
+
+	if (!secondRacer) {
+		return;
+	}
+
+	secondRacer->m_physics.ApplyDirectionalImpulse(&collisionNormal, -impulseNumerator);
+	if (secondRacer->m_forceFeedback) {
+		secondRacer->m_forceFeedback->PlayLightRumble();
+	}
+
+	if (firstRacer->m_controlMode == Racer::c_controlAi && secondRacer->m_controlMode == Racer::c_controlAi) {
+		if (firstRacer->m_physics.GetSpeedRampScale() == 1.0f) {
+			firstRacer->m_speedRampTimerMs = 750;
+		}
+
+		if (secondRacer->m_physics.GetSpeedRampScale() == 1.0f) {
+			secondRacer->m_speedRampTimerMs = 750;
+		}
+	}
+	else if (firstPhysics->GetSpeed() > secondRacer->m_physics.GetSpeed()) {
+		if (!firstRacer->m_scrapeSoundCooldownMs && !secondRacer->m_scrapeSoundCooldownMs) {
+			secondVelocity = firstPhysics->m_velocity;
+			GolMath::NormalizeVector3(secondVelocity, &secondVelocity);
+
+			g_randomTableIndex = (g_randomTableIndex + 1) & c_randomTableMask;
+			if (g_randomTable[g_randomTableIndex] % 2) {
+			m_soundSource->PlaySpatialSoundById(
+				0x37,
+				contactPosition,
+				g_shieldSoundMinDistance,
+				g_shieldSoundMaxDistance,
+				1.0f,
+				1.0f
+			);
+
+			} else {
+			m_soundSource->PlaySpatialSoundById(
+				0x18,
+				contactPosition,
+				g_shieldSoundMinDistance,
+				g_shieldSoundMaxDistance,
+				1.0f,
+				1.0f
+			);
+
+			}
+			firstRacer->m_scrapeSoundCooldownMs = 250;
+			secondRacer->m_scrapeSoundCooldownMs = 250;
+		}
+
+		m_visuals.m_particleAnimation->SpawnParticle("carsprk", &collision->m_contactPoint, NULL, NULL);
+
+		secondRacer->PlayReaction(FALSE);
+	}
+	else {
+		firstRacer->PlayReaction(FALSE);
+	}
+
+	if ((firstRacer->m_flags & c_flagShielded) && !(secondRacer->m_flags & c_flagShielded)) {
+		if (firstRacer->m_shieldLevel == 1) {
+			GolVec3 secondForward;
+			secondRacer->m_visuals.m_carEntity->GetOrientationRow0(&secondForward);
+			LegoFloat dot = DotVectors(secondForward, secondContactOffset);
+
+			if (dot < g_shieldShoveConeCosine && dot > -g_shieldShoveConeCosine) {
+				secondContactOffset.m_x *= g_shieldShoveStrength;
+				secondContactOffset.m_y *= g_shieldShoveStrength;
+				secondContactOffset.m_z *= g_shieldShoveStrength;
+				secondRacer->ApplyShove(&secondContactOffset);
+			}
+		}
+		else if (firstRacer->m_shieldLevel == 2) {
+			secondRacer->m_physics.StartSpin(1.0f, 0.0089999996f, 0);
+		}
+		else if (firstRacer->m_shieldLevel == 3) {
+			secondRacer->m_physics.StartSpin(2.0f, 0.0089999996f, 0);
+		}
+	}
+
+	if ((secondRacer->m_flags & c_flagShielded) && !(firstRacer->m_flags & c_flagShielded)) {
+		if (secondRacer->m_shieldLevel == 1) {
+			GolVec3 firstForward;
+			firstRacer->m_visuals.m_carEntity->GetOrientationRow0(&firstForward);
+			LegoFloat dot = DotVectors(firstForward, firstContactOffset);
+
+			if (dot < g_shieldShoveConeCosine && dot > -g_shieldShoveConeCosine) {
+				firstContactOffset.m_x *= g_shieldShoveStrength;
+				firstContactOffset.m_y *= g_shieldShoveStrength;
+				firstContactOffset.m_z *= g_shieldShoveStrength;
+				firstRacer->ApplyShove(&firstContactOffset);
+			}
+		}
+		else if (secondRacer->m_shieldLevel == 2) {
+			firstRacer->m_physics.StartSpin(1.0f, 0.0089999996f, 0);
+		}
+		else if (secondRacer->m_shieldLevel == 3) {
+			firstRacer->m_physics.StartSpin(2.0f, 0.0089999996f, 0);
+		}
+	}
+
+	if ((firstRacer->m_flags & c_flagCursed) && !(secondRacer->m_flags & c_flagCursed) && firstRacer->m_curseTickMs &&
+		!(secondRacer->m_flags & c_flagShielded)) {
+		secondRacer->AttachCurse(&firstRacer->m_visuals.m_curseEntity, firstRacer->m_curseTimerMs);
+		firstRacer->RemoveCurse();
+	}
+	else if (
+		(secondRacer->m_flags & c_flagCursed) && !(firstRacer->m_flags & c_flagCursed) && secondRacer->m_curseTickMs &&
+		!(firstRacer->m_flags & c_flagShielded)
+	) {
+		firstRacer->AttachCurse(&secondRacer->m_visuals.m_curseEntity, secondRacer->m_curseTimerMs);
+		secondRacer->RemoveCurse();
+	}
+
+	firstRacer->m_flags |= c_flagSpeedRamping;
+	secondRacer->m_flags |= c_flagSpeedRamping;
 }
 
 // FUNCTION: LEGORACERS 0x00438e60
