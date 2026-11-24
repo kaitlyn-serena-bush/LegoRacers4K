@@ -1170,9 +1170,7 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 
 	if (resetFromAir) {
 		if (m_airborneMs > 400) {
-			LegoFloat vz = m_velocity.m_z;
-			LegoFloat vy = m_velocity.m_y;
-			LegoFloat dot = vz * sn.m_z + vy * sn.m_y + m_velocity.m_x * sn.m_x;
+							LegoFloat dot = DotVectors(m_velocity, sn);
 			if (dot < 0.0f) {
 				if (dot < -g_landingBounceThreshold) {
 					LegoFloat bounceScale = g_landingBounceScaleFourWheel;
