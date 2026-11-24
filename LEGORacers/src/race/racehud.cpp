@@ -841,15 +841,15 @@ void RaceHud::DrawRotatingMap()
 	}
 
 	vertices[0].m_x = static_cast<LegoFloat>(mapRect.m_left);
-	double value = static_cast<LegoFloat>(mapRect.m_right);
 	vertices[0].m_y = static_cast<LegoFloat>(mapRect.m_top);
+	double value = static_cast<LegoFloat>(mapRect.m_right);
 	vertices[1].m_x = value;
 	vertices[1].m_y = static_cast<LegoFloat>(mapRect.m_top);
 	vertices[2].m_x = value;
-	value = static_cast<LegoFloat>(mapRect.m_bottom);
-	vertices[2].m_y = value;
+	double value2 = static_cast<LegoFloat>(mapRect.m_bottom);
+	vertices[2].m_y = value2;
 	vertices[3].m_x = static_cast<LegoFloat>(mapRect.m_left);
-	vertices[3].m_y = value;
+	vertices[3].m_y = value2;
 	vertices[4].m_x = vertices[0].m_x + 1.0f;
 	vertices[4].m_y = vertices[0].m_y + 1.0f;
 	vertices[5].m_x = vertices[1].m_x - 1.0f;
