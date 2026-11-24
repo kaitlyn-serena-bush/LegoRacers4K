@@ -1200,9 +1200,8 @@ void RaceHud::SetLayout(LegoS32 p_mode)
 	m_timeBehindX = timeX;
 
 	rowOffsetSteps = (static_cast<LegoU32>(21 * scaledTextHeight)) >> 3;
-	LegoS32 bottomTextY = topTextY + static_cast<LegoS32>(static_cast<double>(rowOffsetSteps) * m_scaleY);
-	m_timeBehindY = bottomTextY;
-	m_bannerY = bottomTextY;
+	m_timeBehindY = topTextY + static_cast<LegoS32>(static_cast<double>(rowOffsetSteps) * m_scaleY);
+	m_bannerY = m_timeBehindY;
 	m_centerX = (m_viewport.m_right + m_viewport.m_left) >> 1;
 
 	m_stringTable->CopyStringByIndex(&m_labelString, 0x24);
