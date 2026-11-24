@@ -666,11 +666,9 @@ void RaceState::UpdateStandings()
 
 		CheckpointGraph::Entry* pathField = g_racerProgressEntries[groupStart].m_racer->m_checkpoint;
 		if (groupEnd > groupStart + 1 && pathField) {
-			LegoU32 tiedCount = groupEnd - groupStart;
-			RacerProgressEntry* tiedEntry = &g_racerProgressEntries[groupStart];
-			do {
-
-				tiedEntry->m_racer->m_visuals.m_carEntity->GetPosition(&position);
+			LegoU32 tiedIndex;
+			for (tiedIndex = groupStart; tiedIndex < groupEnd; tiedIndex++) {
+				g_racerProgressEntries[tiedIndex].m_racer->m_visuals.m_carEntity->GetPosition(&position);
 
 				LegoFloat nearestPlaneDistance = FLT_MAX;
 				LegoU32 planeIndex;
@@ -689,9 +687,8 @@ void RaceState::UpdateStandings()
 					}
 				}
 
-				tiedEntry->m_tieBreakDistance = nearestPlaneDistance;
-				tiedEntry++;
-			} while (--tiedCount);
+				g_racerProgressEntries[tiedIndex].m_tieBreakDistance = nearestPlaneDistance;
+			}
 
 			for (sortIndex = groupStart; sortIndex < groupEnd; sortIndex++) {
 				LegoU32 maxIndex = sortIndex;
