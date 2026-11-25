@@ -747,6 +747,7 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 {
 	LegoU32 triangleIndex = 0;
+	LegoU32 vertexIndex = 0;
 	LegoU32 sweepOld0 = p_params->m_segmentCount;
 	LegoFloat angleStep = 6.2831855f / static_cast<LegoFloat>(static_cast<LegoS32>(sweepOld0));
 	LegoU32 ringCount;
@@ -794,7 +795,6 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 	GolVec3 normal;
 	GdbVertexArray *vertices = NULL;
 	p_params->m_model->GetVertexArray(&vertices);
-	LegoU32 vertexIndex = 0;
 	LegoU32 segment;
 	LegoFloat segmentAngle;
 	if (p_params->m_hasTopCap) {
