@@ -561,11 +561,13 @@ void CarVisuals::Update(LegoU32 p_elapsedMs)
 			LegoU32 state = m_racer->m_physics.m_contactCount;
 			LegoU32 sweepOld0 = m_lastGroundedWheelCount;
 			if (sweepOld0 < state) {
+				LegoU32 diff = state - sweepOld0;
+				if (diff == 0) {
+				}
+				m_flags &= ~c_flagAirborne;
 				m_carEntity->GetPosition(&position);
 
-				m_flags &= ~c_flagAirborne;
-
-				switch (state - sweepOld0) {
+				switch (diff) {
 				case 1:
 					m_racer->m_soundSource->PlaySpatialSoundById(
 						0x3f,
