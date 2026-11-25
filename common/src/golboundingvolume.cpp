@@ -406,9 +406,10 @@ LegoBool32 GolBoundingVolume::IntersectSegment(
 
 			m_hitNode = node;
 			GolVec3* segmentStart = &m_segmentStart;
-			g_segmentDelta.m_x = m_segmentEnd.m_x - segmentStart->m_x;
-			g_segmentDelta.m_y = m_segmentEnd.m_y - segmentStart->m_y;
-			g_segmentDelta.m_z = m_segmentEnd.m_z - segmentStart->m_z;
+			GolVec3* segmentEnd = &m_segmentEnd;
+			g_segmentDelta.m_x = segmentEnd->m_x - segmentStart->m_x;
+			g_segmentDelta.m_y = segmentEnd->m_y - segmentStart->m_y;
+			g_segmentDelta.m_z = segmentEnd->m_z - segmentStart->m_z;
 
 			GolVec3* hitPoint = m_hitPoint;
 			LegoFloat amount = m_startDistance;
