@@ -1487,7 +1487,7 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 		up.m_z = transform.m_m[2][2];
 		orientationEntity->SetDirectionUp(direction, up);
 
-		sn.m_x = transform.m_m[2][0];
+		sn.m_x = (transform.m_m[2][0]);
 		sn.m_y = transform.m_m[2][1];
 		sn.m_z = (transform.m_m[2][2]);
 	}
