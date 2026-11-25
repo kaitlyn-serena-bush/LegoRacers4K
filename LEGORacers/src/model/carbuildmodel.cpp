@@ -1906,10 +1906,13 @@ void CarBuildModel::BuildOverlay(LegoBool32 p_visible, LegoS32 p_height)
 void CarBuildModel::RefreshOverlay(Placement* p_placement, GolModelEntity* p_entity)
 {
 	LegoS32 i;
-	LegoS32 j;
 	if (i == 0) {
 	}
+	LegoS32 j;
 	if (j == 0) {
+	}
+	LegoS32 y;
+	if (y == 0) {
 	}
 	GolModelBase* model = p_entity->GetModel(0);
 	LegoU32* cells = (LegoU32*)m_overlayCells;
@@ -1925,7 +1928,6 @@ void CarBuildModel::RefreshOverlay(Placement* p_placement, GolModelEntity* p_ent
 	LegoPieceLibrary::PieceRecord* pieceRecord = p_placement->GetPieceRecord();
 	LegoS32 rotation;
 	if (pieceRecord != NULL) {
-		LegoS32 y;
 		p_placement->GetPlacement(&x, &y, &rotation);
 		LegoS32 partType = p_placement->GetPartType();
 		LegoS32 colorRecordIndex = p_placement->GetColorRecordIndex();
