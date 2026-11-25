@@ -339,10 +339,8 @@ void AwardCinematicScreen::CreateWidgets()
 					model->SetEntity(&m_carGroup);
 				}
 			}
-			else if (entity == swapEntity || entity == pLegEntity) {
-				if (cosmetics.m_legIndex != 10) {
-					model->SetEntity(NULL);
-				}
+			else if ((entity == swapEntity && cosmetics.m_legIndex == 10) || (entity == pLegEntity && cosmetics.m_legIndex != 10)) {
+				model->SetEntity(NULL);
 			}
 		}
 	}
