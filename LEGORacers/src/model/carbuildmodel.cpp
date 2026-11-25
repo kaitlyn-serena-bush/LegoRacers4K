@@ -1530,8 +1530,10 @@ void CarBuildModel::ComputePieceBounds(LegoPieceLibrary::PieceRecord* p_pieceRec
 		m_pieceMaxY = maxY;
 	}
 
-	m_pieceMinZ = minZ * 0.4f;
-	m_pieceMaxZ = maxZ * 0.4f;
+	LegoFloat zMin = minZ;
+	LegoFloat zMax = maxZ;
+	m_pieceMinZ = zMin * g_carBuildModelHeightScale;
+	m_pieceMaxZ = zMax * g_carBuildModelHeightScale;
 }
 
 // FUNCTION: LEGORACERS 0x0049b6f0
