@@ -429,7 +429,7 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 						sqrt(segment.m_z * segment.m_z + segment.m_y * segment.m_y + segment.m_x * segment.m_x)
 					);
 
-					inverseLength = 1.0f / segmentLength;
+					inverseLength = static_cast<LegoFloat>(1.0 / segmentLength);
 					segment.m_x = segment.m_x * inverseLength;
 					segment.m_y = segment.m_y * inverseLength;
 					segment.m_z = segment.m_z * inverseLength;
