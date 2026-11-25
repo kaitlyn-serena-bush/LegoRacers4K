@@ -648,7 +648,12 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 		for (segment = 1; segment <= p_params->m_segmentCount; segment++) {
 			triangle[0] = 0;
 			triangle[second] = static_cast<LegoU8>(segment);
-			triangle[third] = static_cast<LegoU8>(segment == p_params->m_segmentCount ? 1 : segment + 1);
+			if (segment == p_params->m_segmentCount) {
+				triangle[third] = 1;
+			}
+			else {
+				triangle[third] = static_cast<LegoU8>(segment + 1);
+			}
 			if (p_params->m_absoluteIndexArray != NULL) {
 				p_params->m_absoluteIndexArray
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
