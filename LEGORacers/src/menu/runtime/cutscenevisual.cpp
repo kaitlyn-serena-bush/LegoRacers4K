@@ -219,14 +219,14 @@ void CutsceneVisual::ComputeLayout(GolD3DRenderDevice* p_renderer, LegoFloat p_w
 		imageHeight = static_cast<LegoS32>(height * p_height);
 	}
 
-	viewportHeight = viewportY + (viewportHeight - imageHeight) / 2;
+	LegoS32 centeredY = viewportY + (viewportHeight - imageHeight) / 2;
 	if (!(flags & c_flagPositionX)) {
 		viewportWidth = viewportX + (viewportWidth - imageWidth) / 2;
 		m_x = static_cast<LegoFloat>(viewportWidth) / p_width;
 	}
 
 	if (!(flags & c_flagPositionY)) {
-		m_y = static_cast<LegoFloat>(viewportHeight) / p_height;
+		m_y = static_cast<LegoFloat>(centeredY) / p_height;
 	}
 
 	if (!(flags & c_flagWidth)) {
