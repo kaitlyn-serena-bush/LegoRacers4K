@@ -719,7 +719,7 @@ void MenuManager::PrepareRaceContext()
 		context->m_raceMode = LegoRacers::Context::c_raceModeSingle;
 
 		g_randomTableIndex = (g_randomTableIndex + 1) & 0x3ff;
-		LegoU16 random = g_randomTable[0];
+		LegoU16 random = g_randomTable[g_randomTableIndex];
 		LegoS32 raceIndex = static_cast<LegoS32>(random) % 4;
 		RaceNameEntry* raceName = m_gameContext.m_circuitList.GetEntries()[0].GetRaceNameEntry(raceIndex);
 
