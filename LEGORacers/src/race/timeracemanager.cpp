@@ -276,11 +276,11 @@ void TimeRaceManager::Draw(GolD3DRenderDevice* p_renderer)
 				continue;
 			}
 
-			animatedEntity = &m_bestGhostMarker;
-			attachedEntity = &m_bestGhostDriver;
 			if (m_bestGhostSecondary.HasModel()) {
 				optionalEntity = &m_bestGhostSecondary;
 			}
+			animatedEntity = &m_bestGhostMarker;
+			attachedEntity = &m_bestGhostDriver;
 			modelEntity = &m_bestGhostCarModel;
 			attachedOffset = &m_bestDriverMountOffset;
 		}
