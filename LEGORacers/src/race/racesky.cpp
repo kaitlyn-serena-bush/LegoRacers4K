@@ -645,14 +645,14 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 		vertexIndex = p_params->m_segmentCount + 1;
 		p_params->m_model->GetMutableGroups()[groupIndex++] = (p_params->m_segmentCount & 0x3f) << 16;
 		p_params->m_model->GetMutableGroups()[groupIndex++] = ((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000;
-		for (segment = 1; segment <= p_params->m_segmentCount; segment++) {
-			triangle[second] = static_cast<LegoU8>(segment);
+		for (LegoU32 s1 = 1; s1 <= p_params->m_segmentCount; s1++) {
+			triangle[second] = static_cast<LegoU8>(s1);
 			triangle[0] = 0;
-			if (segment == p_params->m_segmentCount) {
+			if (s1 == p_params->m_segmentCount) {
 				triangle[third] = 1;
 			}
 			else {
-				triangle[third] = static_cast<LegoU8>(segment + 1);
+				triangle[third] = static_cast<LegoU8>(s1 + 1);
 			}
 			if (p_params->m_absoluteIndexArray != NULL) {
 				p_params->m_absoluteIndexArray
@@ -675,10 +675,10 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 			((vertexIndex & 0x3f) << 22) | ((p_params->m_segmentCount & 0x3f) << 16) | (first & 0xffff);
 		p_params->m_model->GetMutableGroups()[groupIndex++] =
 			((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000 | (triangleIndex & 0xffff);
-		for (segment = 1; segment <= p_params->m_segmentCount; segment++) {
+		for (LegoU32 s2 = 1; s2 <= p_params->m_segmentCount; s2++) {
 			triangle[0] = static_cast<LegoU8>(vertexCount - 1);
-			triangle[third] = static_cast<LegoU8>(first + segment - 1);
-			triangle[second] = static_cast<LegoU8>(segment == p_params->m_segmentCount ? first : triangle[third] + 1);
+			triangle[third] = static_cast<LegoU8>(first + s2 - 1);
+			triangle[second] = static_cast<LegoU8>(s2 == p_params->m_segmentCount ? first : triangle[third] + 1);
 			if (p_params->m_absoluteIndexArray != NULL) {
 				p_params->m_absoluteIndexArray
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
@@ -692,11 +692,11 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 		vertexIndex += p_params->m_segmentCount + 1;
 	}
 
-	for (ring = 1; ring < ringCount; ring++) {
+	for (LegoU32 r2 = 1; r2 < ringCount; r2++) {
 		if (vertexIndex + p_params->m_segmentCount * 2 > 64) {
 			vertexIndex = 0;
 		}
-		LegoU32 first = (ring - 1) * p_params->m_segmentCount;
+		LegoU32 first = (r2 - 1) * p_params->m_segmentCount;
 		if (p_params->m_hasTopCap) {
 			first++;
 		}
