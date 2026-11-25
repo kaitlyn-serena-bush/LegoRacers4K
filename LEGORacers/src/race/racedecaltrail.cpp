@@ -744,8 +744,8 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 						outputCount++;
 					}
 
-					previousIndex = i;
 					previousOutside = currentOutside;
+					previousIndex = i;
 				}
 
 				LegoU32* swapIndices = inputIndices;
@@ -800,8 +800,8 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 				outputIndices = inputIndices;
 				LegoU32* swapFlags = inputFlags;
 				inputFlags = outputFlags;
-				outputFlags = swapFlags;
 				inputCount = outputCount;
+				outputFlags = swapFlags;
 				outputCount = 0;
 			}
 
