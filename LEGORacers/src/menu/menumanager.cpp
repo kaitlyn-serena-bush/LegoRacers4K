@@ -811,7 +811,6 @@ void MenuManager::PrepareRaceContext()
 	}
 
 	ReleasePartResources();
-	LegoRacers::Context::PlayerRecordState* recordState = context->m_playerRecordStates;
 
 	LegoRacers::Context::PlayerSetupSlot* slot = slots;
 	LoadPartResources(TRUE);
@@ -844,16 +843,15 @@ void MenuManager::PrepareRaceContext()
 		string.CopyToString(slot->m_playerName);
 
 		BuildPlayerCarModel(record, slot, &rendererState);
-		recordState->m_saveIndex = record->m_saveIndex;
+		context->m_playerRecordStates[saveIndex].m_saveIndex = record->m_saveIndex;
 
-		recordState->m_recordId = record->m_recordId;
+		context->m_playerRecordStates[saveIndex].m_recordId = record->m_recordId;
 		BuildPlayerDriverModel(record, slot, &rendererState);
-		recordState->m_recordSource = record->m_recordSource;
+		context->m_playerRecordStates[saveIndex].m_recordSource = record->m_recordSource;
 
 		record->GetCosmetics(&slot->m_cosmetics);
 		slot->m_slotState = 0;
 
-		recordState++;
 		slot++;
 	}
 
@@ -869,9 +867,8 @@ void MenuManager::PrepareRaceContext()
 	}
 
 	for (saveIndex = 0; saveIndex < context->m_playerCount; saveIndex++) {
-		
-		m_gameContext.m_saveSystem.GetGameState()
-			.GetInputBindingEntry(saveIndex, (m_gameContext.m_saveSystem.GetGameState().GetSelectedInputBindingEntryIndex(saveIndex)), &context->m_inputBindings[saveIndex]);
+		LegoU32 entryIndex = m_gameContext.m_saveSystem.GetGameState().GetSelectedInputBindingEntryIndex(saveIndex);
+		m_gameContext.m_saveSystem.GetGameState().GetInputBindingEntry(saveIndex, entryIndex, &context->m_inputBindings[saveIndex]);
 	}
 
 	if (!selectedRecords.GetSelectedRecordCount()) {
