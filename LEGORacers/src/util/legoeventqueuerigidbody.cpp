@@ -134,7 +134,12 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 			}
 
 			if (!cornerIndex || cornerIndex == 2 || cornerIndex == 4 || cornerIndex == 6) {
-				corner += axisZ;
+				LegoFloat azx = axisZ.m_x;
+				LegoFloat azy = axisZ.m_y;
+				LegoFloat azz = axisZ.m_z;
+				corner.m_x = azx + corner.m_x;
+				corner.m_y = azy + corner.m_y;
+				corner.m_z = azz + corner.m_z;
 			}
 			else {
 				corner -= axisZ;
