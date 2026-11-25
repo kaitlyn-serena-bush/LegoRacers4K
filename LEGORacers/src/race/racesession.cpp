@@ -860,6 +860,8 @@ void RaceSession::LoadRouteRecords(LegoBool32 p_mirror)
 			LegoU32 middleCount = 0;
 			LegoU32 sideCount = 0;
 			LegoU32* count = NULL;
+			middleCount = 0;
+			frontCount = 0;
 			fileName[0] = 'r';
 			fileName[1] = static_cast<LegoChar>(i + '0');
 			fileName[2] = '_';
