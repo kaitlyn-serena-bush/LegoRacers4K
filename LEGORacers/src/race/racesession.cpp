@@ -1036,8 +1036,9 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 
 	LegoU32 racerIndex;
 	RaceRouteRecord* routeRecord = m_routeRecords;
+	undefined4* slotState = &m_context->m_playerSetupSlots[0].m_slotState;
 	for (racerIndex = 0; racerIndex < racerParams.m_racerCount; racerIndex++) {
-		LegoRacers::Context::PlayerSetupSlot* slot = &m_context->m_playerSetupSlots[racerIndex];
+		LegoRacers::Context::PlayerSetupSlot* slot = (LegoRacers::Context::PlayerSetupSlot*)((char*)slotState - 0x10);
 		racerParams.m_slots[racerIndex] = slot;
 
 		if ((slot->m_slotState == 2 || m_demoMode) && routeRecord->m_pathPoints) {
@@ -1048,6 +1049,7 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 		}
 
 		routeRecord++;
+		slotState = (undefined4*)((char*)slotState + sizeof(LegoRacers::Context::PlayerSetupSlot));
 	}
 
 	for (racerIndex = racerParams.m_racerCount; racerIndex < sizeOfArray(racerParams.m_slots); racerIndex++) {
