@@ -1401,6 +1401,8 @@ LegoS32 CarBuildModel::BuildPieceModel(
 // FUNCTION: LEGORACERS 0x0049b340
 void CarBuildModel::ComputePieceBounds(LegoPieceLibrary::PieceRecord* p_pieceRecord, LegoS32 p_rotation)
 {
+	LegoBool32 hasExtraIndex = FALSE;
+	LegoBool32 hasTextureIndex = FALSE;
 	LegoPieceLibrary* library = p_pieceRecord->m_library;
 	const LegoU16* indexCursor = library->GetIndexCursor(p_pieceRecord->m_indexOffset);
 	LegoS32 indexCount = p_pieceRecord->m_indexCommandCount;
@@ -1421,12 +1423,11 @@ void CarBuildModel::ComputePieceBounds(LegoPieceLibrary::PieceRecord* p_pieceRec
 	LegoFloat minY;
 	LegoFloat minZ;
 	library->GetPosition(indexCursor[1], &minX, &minY, &minZ);
+	LegoFloat maxX = minX;
 	LegoFloat maxY = minY;
 	LegoFloat maxZ = minZ;
-	LegoFloat maxX = minX;
 
-	LegoBool32 hasExtraIndex = FALSE;
-	LegoBool32 hasTextureIndex = FALSE;
+	LegoS32 remaining = indexCount;
 	do {
 		LegoU32 command = *indexCursor++;
 		LegoS32 mode = command & c_indexCommandModeMask;
@@ -1494,7 +1495,7 @@ void CarBuildModel::ComputePieceBounds(LegoPieceLibrary::PieceRecord* p_pieceRec
 				}
 			}
 		}
-	} while (--indexCount != 0);
+	} while (--remaining != 0);
 
 	LegoS32 rotation = p_rotation & 3;
 	if (rotation) {
