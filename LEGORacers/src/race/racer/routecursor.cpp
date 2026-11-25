@@ -310,7 +310,7 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 		segment.m_y = endPosition.m_y - startPosition.m_y;
 		segment.m_z = endPosition.m_z - startPosition.m_z;
 		segmentLength = static_cast<LegoFloat>(
-			sqrt(segment.m_z * segment.m_z + segment.m_y * segment.m_y + segment.m_x * segment.m_x)
+			sqrt((((segment.m_z * segment.m_z))) + segment.m_y * segment.m_y + segment.m_x * segment.m_x)
 		);
 
 		inverseLength = 1.0f / segmentLength;
@@ -366,7 +366,7 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 					segment.m_x = segment.m_x * inverseLength;
 					segment.m_y = segment.m_y * inverseLength;
 					segment.m_z = segment.m_z * inverseLength;
-					double sweepOld2 = segment.m_y;
+					double sweepOld2 = ((segment.m_y * inverseLength) * inverseLength);
 					sweepOld2 *= p_delta->m_y;
 					double sweepOld3 = p_delta->m_z;
 					sweepOld3 *= segment.m_z;
@@ -425,11 +425,11 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 					segment.m_x = segment.m_x * inverseLength;
 					segment.m_y = segment.m_y * inverseLength;
 					segment.m_z = segment.m_z * inverseLength;
-					double sweepC0 = segment.m_y;
-					sweepC0 *= p_delta->m_y;
-					double sweepC1 = p_delta->m_z;
-					sweepC1 *= segment.m_z;
-					projectedDelta = sweepC0 + sweepC1 + segment.m_x * p_delta->m_x;
+					double sweepOld4 = segment.m_y;
+					sweepOld4 *= p_delta->m_y;
+					double sweepOld5 = p_delta->m_z;
+					sweepOld5 *= segment.m_z;
+					projectedDelta = sweepOld4 + sweepOld5 + segment.m_x * p_delta->m_x;
 
 					remainingDistance = segmentLength;
 					if (projectedDelta < 0.0f) {
@@ -444,7 +444,7 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 		}
 	}
 
-	m_currentTime = ((static_cast<LegoFloat>(segmentEndTime - segmentStartTime))) * (segmentAmount * inverseLength) +
+	m_currentTime =GOL_MUL(((static_cast<LegoFloat>(segmentEndTime - segmentStartTime))), (segmentAmount * inverseLength)) +
 					(static_cast<LegoFloat>(segmentStartTime));
 	m_segmentStartTime = segmentStartTime;
 	m_startPosition = startPosition;
