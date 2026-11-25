@@ -1293,6 +1293,7 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 	average += m_wheelProbes[3].m_wheelPosition.m_z;
 	m_rearAxleMid.m_z = average * 0.5f;
 
+	LegoU32 previousContactCount = m_contactCount;
 	GolVec3 position;
 	m_physicsEntity.GetPosition(&position);
 
@@ -1304,7 +1305,7 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 	LegoFloat sweepHeight = m_carEntity->GetBoundsRadius() + verticalOffset;
 	LegoBool32 resetFromAir;
 	LegoFloat sweepDistance;
-	if (m_contactCount != 0) {
+	if (previousContactCount != 0) {
 		resetFromAir = FALSE;
 		sweepDistance = elapsedMs * g_slideSweepScale;
 	}
@@ -1315,7 +1316,6 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 	sweepDistance += m_slideLift;
 
 	WheelProbe* entry;
-	LegoU32 previousContactCount = m_contactCount;
 	m_contactCount = 0;
 	WheelProbe *selectedEntry;
 	LegoU32 selectedIndex;
@@ -1471,10 +1471,10 @@ next3:
 			m_contactCount++;
 		}
 		else {
-			entry->m_flags &= ~WheelProbe::c_flagContact;
 			entry->m_contactForce.m_x = 0.0f;
 			entry->m_contactForce.m_y = 0.0f;
 			entry->m_contactForce.m_z = 0.0f;
+			entry->m_flags &= ~WheelProbe::c_flagContact;
 		}
 	}
 
