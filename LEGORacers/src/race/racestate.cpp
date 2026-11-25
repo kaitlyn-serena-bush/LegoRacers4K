@@ -666,6 +666,7 @@ void RaceState::UpdateStandings()
 			GolVec3 position;
 			LegoU32 tiedIndex;
 			for (tiedIndex = sortIndex; tiedIndex < groupEnd; tiedIndex++) {
+				g_racerProgressEntries[tiedIndex].m_tieBreakDistance += 0;
 				g_racerProgressEntries[tiedIndex].m_racer->m_visuals.m_carEntity->GetPosition(&position);
 
 				LegoFloat nearestPlaneDistance = FLT_MAX;
