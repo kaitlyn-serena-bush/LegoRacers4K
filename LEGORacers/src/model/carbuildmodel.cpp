@@ -879,7 +879,7 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 		vertex.m_normalY = 0;
 		vertex.m_normalZ = 0;
 
-		LegoS32 rotation = p_rotation & 3;
+		p_rotation &= 3;
 		LegoPieceLibrary* library = p_pieceRecord->m_library;
 
 		LegoFloat width = static_cast<LegoFloat>(p_pieceRecord->GetWidth());
@@ -903,7 +903,7 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 
 				library->GetPosition(coordinateIndex, &sourceX, &sourceY, &sourceZ);
 
-				switch (rotation) {
+				switch (p_rotation) {
 				case 0:
 					vertex.m_position.m_x = sourceX + xOrigin;
 					vertex.m_position.m_y = sourceY + yOrigin;
@@ -962,7 +962,7 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 				LegoS8 normalY = static_cast<LegoS8>(normal[1]);
 				vertex.m_normalZ = static_cast<LegoS8>(normal[2]);
 
-				switch (rotation) {
+				switch (p_rotation) {
 				case 0:
 					vertex.m_normalX = normalX;
 					vertex.m_normalY = normalY;
@@ -1044,7 +1044,7 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 
 					library->GetPosition(coordinateIndex, &sourceX, &sourceY, &sourceZ);
 
-					switch (rotation) {
+					switch (p_rotation) {
 					case 0:
 						vertex.m_position.m_x = sourceX + xOrigin;
 						vertex.m_position.m_y = sourceY + yOrigin;
@@ -1085,7 +1085,7 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 					LegoS8 normalY = static_cast<LegoS8>(normal[1]);
 					vertex.m_normalZ = static_cast<LegoS8>(normal[2]);
 
-					switch (rotation) {
+					switch (p_rotation) {
 					case 0:
 						vertex.m_normalX = normalX;
 						vertex.m_normalY = normalY;
