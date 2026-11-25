@@ -111,8 +111,8 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 				corner.m_z = axisX.m_z;
 			}
 			else {
-				corner.m_y = -axisX.m_y;
 				corner.m_x = -axisX.m_x;
+				corner.m_y = -axisX.m_y;
 				corner.m_z = -axisX.m_z;
 			}
 
@@ -121,7 +121,7 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 				LegoFloat ayz = axisY.m_z;
 				corner.m_x += axisY.m_x;
 				corner.m_y = corner.m_y + ayy;
-				corner.m_z = corner.m_z + ayz;
+				corner.m_z = corner.m_z - (-ayz);
 			}
 			else if (cornerIndex < 4) {
 				corner.m_x -= axisY.m_x;
@@ -133,7 +133,7 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 				LegoFloat ayz = axisY.m_z;
 				corner.m_x += axisY.m_x;
 				corner.m_y = corner.m_y + ayy;
-				corner.m_z = corner.m_z + ayz;
+				corner.m_z = corner.m_z - (-ayz);
 			}
 			else {
 				corner.m_x -= axisY.m_x;
