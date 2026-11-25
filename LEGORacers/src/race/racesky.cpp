@@ -746,8 +746,8 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 // FUNCTION: LEGORACERS 0x004910e0
 LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 {
-	LegoU32 triangleIndex = 0;
 	LegoU32 vertexIndex = 0;
+	LegoU32 triangleIndex = 0;
 	LegoU32 sweepOld0 = p_params->m_segmentCount;
 	LegoFloat angleStep = 6.2831855f / static_cast<LegoFloat>(static_cast<LegoS32>(sweepOld0));
 	LegoU32 ringCount;
@@ -793,7 +793,7 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 	GolVec2 textureCoordinate;
 	GolVec3 position;
 	GolVec3 normal;
-	GdbVertexArray *vertices = NULL;
+	GdbVertexArray *vertices;
 	p_params->m_model->GetVertexArray(&vertices);
 	LegoU32 segment;
 	LegoFloat segmentAngle;
