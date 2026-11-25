@@ -97,7 +97,7 @@ private:
 		TimeRaceManager* p_timeRaceManager,
 		GolStringTable* p_stringTable,
 		RacerSoundSource* p_soundSource,
-		LegoBool p_isTimeRace,
+		LegoBool32 p_isTimeRace,
 		undefined4 p_hideRaceInfo
 	);
 	void SetLayout(LegoS32 p_mode);

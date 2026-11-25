@@ -1009,8 +1009,9 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 
 	DrawLoadProgress(0.56f);
 
+	LegoChar* commonDataDirectory = m_context->m_commonDataDirectory;
 	if (hashTable) {
-		hashTable->SetCurrentEntry(hashTable->AddString(m_context->m_commonDataDirectory));
+		hashTable->SetCurrentEntry(hashTable->AddString(commonDataDirectory));
 	}
 
 	racerContext.m_trackCollidable = m_trackCollidable;
@@ -1216,9 +1217,10 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 
 	DrawLoadProgress(0.9f);
 
+	gameDataDirectory = m_context->m_commonDataDirectory;
 	hashTable = g_hashTable;
 	if (hashTable) {
-		hashTable->SetCurrentEntry(hashTable->AddString(m_context->m_commonDataDirectory));
+		hashTable->SetCurrentEntry(hashTable->AddString(gameDataDirectory));
 	}
 
 	if (!m_demoMode) {
