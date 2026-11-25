@@ -436,6 +436,7 @@ LegoBool32 AwardCinematicScreen::GrantAwards()
 		records = &m_context->m_saveSystem.GetSessionSave();
 		break;
 	case 2:
+		context = m_context->m_context;
 		records = &m_context->m_saveSystem.GetMemoryCardSaves()[context->m_playerRecordStates[0].m_saveIndex];
 		break;
 	default:
