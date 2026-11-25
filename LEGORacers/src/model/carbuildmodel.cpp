@@ -2093,6 +2093,7 @@ void CarBuildModel::ExportModel(GolModelBase* p_model, GolMaterialLibrary* p_mat
 	GolVec3 normal;
 	GolMaterialParams params;
 
+	GolModelMaterialTable* outputTable = outputModel->GetMaterialTable();
 	LegoS32 outputMaterialIndex = 0;
 	LegoS32 textureIndex = 0;
 	for (i = 0; i < materialCount; i++) {
@@ -2117,7 +2118,7 @@ void CarBuildModel::ExportModel(GolModelBase* p_model, GolMaterialLibrary* p_mat
 			}
 
 			outputMaterial->SetParams(m_renderer, params);
-			outputModel->GetMaterialTable()->SetEntry(outputMaterialIndex, outputMaterial);
+			outputTable->SetEntry(outputMaterialIndex, outputMaterial);
 			outputMaterialIndex++;
 		}
 	}
