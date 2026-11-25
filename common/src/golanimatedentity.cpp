@@ -398,22 +398,21 @@ void GolAnimatedEntity::TransitionToPart(
 	}
 
 	p_partIndex &= 0xffff;
-	LegoBool32 updateQueued = p_updateQueued;
-	m_queuedMsPerFrame = GetModelPart()->GetPartData()[p_partIndex].GetMsPerFrame();
-	LegoBool32 updateCurrent = p_updateCurrent;
-	m_transitionProgress = 0.0f;
-	m_advanceCurrent = updateCurrent;
-	m_queuedPartTimeMs = p_time;
+	LegoU32 offset = p_partIndex * sizeof(CmbModelPartData);
 	CmbModelPart* modelPart = GetModelPart();
-	m_advanceQueued = updateQueued;
+	m_queuedMsPerFrame = (*reinterpret_cast<const CmbModelPartData*>(reinterpret_cast<const LegoU8*>(modelPart->GetPartData()) + offset)).GetMsPerFrame();
+	m_transitionProgress = 0.0f;
+	m_queuedPartTimeMs = p_time;
 	m_transitionRate = 1.0f / static_cast<LegoFloat>(p_transitionTime);
-	if (!updateCurrent) {
+	m_advanceCurrent = p_updateCurrent;
+	m_advanceQueued = p_updateQueued;
+	if (!p_updateCurrent) {
 		m_currentPartVelocity.m_x = 0.0f;
 		m_currentPartVelocity.m_y = 0.0f;
 		m_currentPartVelocity.m_z = 0.0f;
 	}
 
-	m_queuedPartVelocity = modelPart->GetPartData()[p_partIndex].GetVelocity();
+	m_queuedPartVelocity = (*reinterpret_cast<const CmbModelPartData*>(reinterpret_cast<const LegoU8*>(modelPart->GetPartData()) + offset)).GetVelocity();
 }
 
 // FUNCTION: GOLDP 0x10023b10
