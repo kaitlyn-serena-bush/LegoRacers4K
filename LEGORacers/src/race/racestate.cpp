@@ -758,7 +758,7 @@ void RaceState::UpdateStandings()
 
 			nearestRacer->m_visuals.m_carEntity->GetPosition(&position);
 			GolVec3 velocity = nearestRacer->m_physics.m_velocity;
-			m_roster.m_proximitySound->SetPosition(position);
+			m_roster.m_proximitySound->SetPosition(&position);
 			velocity.m_x *= g_unk0x004b0a1c;
 			velocity.m_y *= g_unk0x004b0a1c;
 			velocity.m_z *= g_unk0x004b0a1c;
