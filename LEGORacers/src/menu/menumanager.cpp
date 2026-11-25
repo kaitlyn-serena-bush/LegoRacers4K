@@ -1043,7 +1043,7 @@ void MenuManager::BuildPlayerDriverModel(
 			texture->SetColorKeyValue(params.m_texture->GetColorKey());
 			params.m_texture = texture;
 		}
-		else {
+		else if (renderer != 0) {
 			params.m_texture = NULL;
 		}
 

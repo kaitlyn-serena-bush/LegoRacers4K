@@ -51,7 +51,7 @@ public:
 		m_colorKey.m_alp = 0;
 		m_textureFlags = p_textureFlags;
 	}
-	void CopyMipmapCountFrom(const GolTexture* p_texture) { m_mipmapCount = p_texture->m_mipmapCount; }
+	void CopyMipmapCountFrom(const GolTexture* p_texture) { LegoU32 count = p_texture->m_mipmapCount; m_mipmapCount = count; }
 	void SetColorKey(const ColorRGBA& p_colorKey)
 	{
 		m_colorKey = p_colorKey;
