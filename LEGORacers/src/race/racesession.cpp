@@ -890,7 +890,7 @@ void RaceSession::LoadRouteRecords(LegoBool32 p_mirror)
 				fileName[5] = '0';
 				while (GolStream::FindFile(fileName) == GolStream::e_ioSuccess && *count < 10) {
 					(*count)++;
-					fileName[5] = static_cast<LegoChar>(*count + '0');
+					fileName[5] = '0' + static_cast<LegoChar>(*count);
 				}
 			}
 
