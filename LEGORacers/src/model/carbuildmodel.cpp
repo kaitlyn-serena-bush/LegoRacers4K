@@ -1905,6 +1905,12 @@ void CarBuildModel::BuildOverlay(LegoBool32 p_visible, LegoS32 p_height)
 // FUNCTION: LEGORACERS 0x0049c230
 void CarBuildModel::RefreshOverlay(Placement* p_placement, GolModelEntity* p_entity)
 {
+	LegoS32 i;
+	LegoS32 j;
+	if (i == 0) {
+	}
+	if (j == 0) {
+	}
 	GolModelBase* model = p_entity->GetModel(0);
 	::memset(m_overlayCells, 0, sizeof(m_overlayCells));
 	UpdateOffset(TRUE);
@@ -1952,8 +1958,8 @@ void CarBuildModel::RefreshOverlay(Placement* p_placement, GolModelEntity* p_ent
 				height = overlayPieceRecord->GetHeight();
 			}
 
-			for (LegoS32 i = 0; i < width; i++) {
-				for (LegoS32 j = 0; j < height; j++) {
+			for (i = 0; i < width; i++) {
+				for (j = 0; j < height; j++) {
 					LegoPieceLibrary::ShapeCell* cell = pieceRecord->GetCell(i, j, static_cast<LegoU8>(rotation));
 					if ((cell->m_first | cell->m_second) & 0x3f) {
 						m_overlayCells[x + i + 1][y + j + 1].m_flags |= c_overlayCellFlagOccupied;
@@ -1977,8 +1983,8 @@ void CarBuildModel::RefreshOverlay(Placement* p_placement, GolModelEntity* p_ent
 				height = overlayPieceRecord->GetHeight();
 			}
 
-			for (LegoS32 i = 0; i < width; i++) {
-				for (LegoS32 j = 0; j < height; j++) {
+			for (i = 0; i < width; i++) {
+				for (j = 0; j < height; j++) {
 					LegoPieceLibrary::ShapeCell* cell = pieceRecord->GetCell(i, j, static_cast<LegoU8>(rotation));
 					if ((cell->m_first | cell->m_second) & 0x3f) {
 						m_overlayCells[x + i + 1][y + j + 1].m_flags |= c_overlayCellFlagOccupied;
