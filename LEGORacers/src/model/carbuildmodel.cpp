@@ -1912,7 +1912,10 @@ void CarBuildModel::RefreshOverlay(Placement* p_placement, GolModelEntity* p_ent
 	if (j == 0) {
 	}
 	GolModelBase* model = p_entity->GetModel(0);
-	::memset(m_overlayCells, 0, sizeof(m_overlayCells));
+	LegoU32* cells = (LegoU32*)m_overlayCells;
+	for (LegoS32 k = 0; k < 24; k++) {
+		cells[k] = 0;
+	}
 	UpdateOffset(TRUE);
 
 	LegoS32 x;
