@@ -453,7 +453,7 @@ LegoBool32 GolBoundingVolume::IntersectSegment(
 							*m_hitAmount = amount;
 						}
 
-						return TRUE;
+						goto done;
 					}
 
 					candidate = triangle;
@@ -480,7 +480,7 @@ LegoBool32 GolBoundingVolume::IntersectSegment(
 					*m_hitAmount = amount;
 				}
 
-				return TRUE;
+				goto done;
 			}
 
 			if (childIndex < c_invalidChildIndex) {
@@ -499,6 +499,8 @@ LegoBool32 GolBoundingVolume::IntersectSegment(
 			node = &m_nodes[stack->m_nodeIndex];
 		}
 	}
+done:
+	return TRUE;
 }
 
 // FUNCTION: LEGORACERS 0x004044f0
