@@ -653,12 +653,8 @@ void RaceState::UpdateStandings()
 
 	for (sortIndex = 0; sortIndex < m_roster.m_racerCount - 1;) {
 		LegoU32 groupEnd = sortIndex + 1;
-		if (g_racerProgressEntries[sortIndex].m_progress == g_racerProgressEntries[groupEnd].m_progress &&
-			   groupEnd < m_roster.m_racerCount) {
-			do {
-				groupEnd++;
-			} while (g_racerProgressEntries[sortIndex].m_progress == g_racerProgressEntries[groupEnd].m_progress &&
-					 groupEnd < m_roster.m_racerCount);
+		while (g_racerProgressEntries[sortIndex].m_progress == g_racerProgressEntries[groupEnd].m_progress && groupEnd < m_roster.m_racerCount) {
+			groupEnd++;
 		}
 
 		CheckpointGraph::Entry* pathField = g_racerProgressEntries[sortIndex].m_racer->m_checkpoint;
