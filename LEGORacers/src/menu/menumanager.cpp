@@ -843,7 +843,7 @@ void MenuManager::PrepareRaceContext()
 		string.CopyToString(slot->m_playerName);
 
 		BuildPlayerCarModel(record, slot, &rendererState);
-		context->m_playerRecordStates[saveIndex].m_saveIndex = record->m_saveIndex;
+		m_gameContext.m_context->m_playerRecordStates[saveIndex].m_saveIndex = record->m_saveIndex;
 
 		context->m_playerRecordStates[saveIndex].m_recordId = record->m_recordId;
 		BuildPlayerDriverModel(record, slot, &rendererState);
