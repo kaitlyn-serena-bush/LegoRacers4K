@@ -1305,8 +1305,8 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 	LegoBool32 resetFromAir;
 	LegoFloat sweepDistance;
 	if (m_contactCount != 0) {
-		sweepDistance = elapsedMs * g_slideSweepScale;
 		resetFromAir = FALSE;
+		sweepDistance = elapsedMs * g_slideSweepScale;
 	}
 	else {
 		sweepDistance = 0.0f;
@@ -1325,8 +1325,8 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 		entry = &m_wheelProbes[entryIndex];
 		GolVec3* sweepCenter = &m_axleMidpoints[entryIndex];
 		entry->m_rayStart.m_x = sweepCenter->m_x;
-		entry->m_rayStart.m_y = sweepCenter->m_y;
 		entry->m_rayStart.m_z = sweepCenter->m_z + sweepHeight;
+		entry->m_rayStart.m_y = sweepCenter->m_y;
 		entry->m_rayEnd.m_x = sweepCenter->m_x;
 		entry->m_rayEnd.m_y = sweepCenter->m_y;
 		entry->m_rayEnd.m_z = sweepCenter->m_z - sweepDistance;
@@ -1427,9 +1427,9 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 			entry->m_hitDistanceSquared = hitPoint3->DistanceSquaredTo(*rayEnd2);
 
 			if (entry->m_hitDistanceSquared > bestDistance) {
+				bestDistance = entry->m_hitDistanceSquared;
 				selectedEntry = entry;
 				selectedIndex = entryIndex;
-				bestDistance = entry->m_hitDistanceSquared;
 			}
 
 			entry->m_flags |= WheelProbe::c_flagHit;
@@ -1454,8 +1454,8 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 	WheelProbe* entriesEnd = &m_wheelProbes[sizeOfArray(m_axleMidpoints)];
 	GolVec3& sn = m_supportNormal;
 	m_supportNormal.m_z = 0.0f;
-	m_supportNormal.m_y = 0.0f;
 	sn.m_x = 0.0f;
+	m_supportNormal.m_y = 0.0f;
 
 	for (entry = m_wheelProbes; entry < entriesEnd; entry++) {
 		if (entry->m_hitDistanceSquared >= contactLimitSquared) {
@@ -1521,8 +1521,8 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 		if (dot < 0.0f) {
 			if (dot < -g_landingBounceThreshold) {
 				LegoFloat scaled = dot * g_landingBounceScale;
-				m_contactCount = 0;
 				m_velocity.m_z -= scaled;
+				m_contactCount = 0;
 
 				for (entry = m_wheelProbes; entry < entriesEnd; entry++) {
 					entry->m_flags &= ~WheelProbe::c_flagContact;
