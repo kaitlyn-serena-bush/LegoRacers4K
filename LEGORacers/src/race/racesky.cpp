@@ -537,13 +537,13 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 		->Allocate(p_params->m_renderer, p_params->m_vertexType, vertexCount, triangleBudget, groupCount, 1);
 	LegoU32 second;
 	LegoU32 third;
-	if (p_params->m_reverseWinding) {
-		second = 2;
-		third = 1;
-	}
-	else {
+	if (!p_params->m_reverseWinding) {
 		second = 1;
 		third = 2;
+	}
+	else {
+		second = 2;
+		third = 1;
 	}
 
 	ColorRGBA color;
@@ -714,13 +714,13 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 				p_params->m_absoluteIndexArray
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
 			}
+			triangle[third] += static_cast<LegoU8>(scratchStart - first);
 			triangle[0] += static_cast<LegoU8>(scratchStart - first);
-			triangle[second] += static_cast<LegoU8>(scratchStart - first);
 			static_cast<GdbModelIndexArray*>(indexArrayBase)
 				->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
 			triangle[0] = static_cast<LegoU8>(first + segment);
 
-			triangle[third] += static_cast<LegoU8>(scratchStart - first);
+			triangle[second] += static_cast<LegoU8>(scratchStart - first);
 			triangle[third] = static_cast<LegoU8>(segment == p_params->m_segmentCount - 1 ? first : triangle[0] + 1);
 			LegoU32 sweepOld0 = p_params->m_segmentCount;
 			triangle[second] = static_cast<LegoU8>(
@@ -731,8 +731,8 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
 			}
 			triangle[0] += static_cast<LegoU8>(scratchStart - first);
-			triangle[second] += static_cast<LegoU8>(scratchStart - first);
 			triangle[third] += static_cast<LegoU8>(scratchStart - first);
+			triangle[second] += static_cast<LegoU8>(scratchStart - first);
 			static_cast<GdbModelIndexArray*>(indexArrayBase)
 				->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
 		}
