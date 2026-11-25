@@ -523,10 +523,6 @@ void GolAnimatedEntity::Update(LegoS32 p_elapsed)
 					}
 
 					m_partTimeMs = wrappedTime;
-#ifndef BUILDING_GOL
-					GolModelEntity::Update(p_elapsed);
-					return;
-#endif
 				}
 				else {
 					if (m_flags & c_flagRestartQueuedPart) {
@@ -537,12 +533,7 @@ void GolAnimatedEntity::Update(LegoS32 p_elapsed)
 #endif
 					}
 					else {
-#ifdef BUILDING_GOL
 						m_partTimeMs = endFrame;
-#else
-						LegoFloat finalFrame = endFrame;
-						m_partTimeMs = finalFrame;
-#endif
 					}
 					m_flags |= c_flagPartAnimationDone;
 				}
