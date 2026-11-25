@@ -1314,7 +1314,6 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 	}
 	sweepDistance += m_slideLift;
 
-	
 	WheelProbe* entry;
 	LegoU32 previousContactCount = m_contactCount;
 	m_contactCount = 0;
@@ -1349,43 +1348,48 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 		GolVec3* hitPoint2 = &entry->m_hitPoint;
 		GolVec3* rayStart = &entry->m_rayStart;
 		GolVec3* rayEnd = &entry->m_rayEnd;
-		for (; entryIndex < sizeOfArray(m_axleMidpoints); entry++, rayStart = (GolVec3*)((char*)rayStart + sizeof(WheelProbe)), rayEnd = (GolVec3*)((char*)rayEnd + sizeof(WheelProbe)), hitPoint2 = (GolVec3*)((char*)hitPoint2 + sizeof(WheelProbe)), entryIndex++) {
+		do {
 			if (entry->m_flags & WheelProbe::c_flagHit) {
-				continue;
+				goto next2;
 			}
+			{
+				GolVec3 start;
+				resource->WorldToLocal(*rayStart, &start);
+				resource->WorldToLocal(*rayEnd, &position);
 
-			GolVec3 start;
-			resource->WorldToLocal(*rayStart, &start);
-			resource->WorldToLocal(*rayEnd, &position);
+				GolVec3 hitPoint;
+				if (resource->IntersectSegment(&start, &position, collisionContext, &hitPoint, &hitRecord, NULL)) {
+					entry->m_flags |= WheelProbe::c_flagHit;
+					resource->LocalToWorld(hitPoint, hitPoint2);
 
-			GolVec3 hitPoint;
-			if (!resource->IntersectSegment(&start, &position, collisionContext, &hitPoint, &hitRecord, NULL)) {
-				continue;
+					GolVec3 collisionNormal = eventContext->m_normal;
+					resource->RotateToWorld(collisionNormal, &entry->m_contactForce);
+
+					if (entryIndex == 0) {
+						m_wheelProbes[0].m_hitRecord = hitRecord;
+						m_wheelProbes[1].m_hitRecord = hitRecord;
+					}
+					else {
+						m_wheelProbes[2].m_hitRecord = hitRecord;
+						m_wheelProbes[3].m_hitRecord = hitRecord;
+					}
+
+					entry->m_hitDistanceSquared = hitPoint.DistanceSquaredTo(position);
+
+					if (entry->m_hitDistanceSquared > bestDistance) {
+						selectedEntry = entry;
+						selectedIndex = entryIndex;
+						bestDistance = entry->m_hitDistanceSquared;
+					}
+				}
 			}
-
-			entry->m_flags |= WheelProbe::c_flagHit;
-			resource->LocalToWorld(hitPoint, hitPoint2);
-
-			GolVec3 collisionNormal = eventContext->m_normal;
-			resource->RotateToWorld(collisionNormal, &entry->m_contactForce);
-
-			if (entryIndex == 0) {
-				m_wheelProbes[0].m_hitRecord = hitRecord;
-				m_wheelProbes[1].m_hitRecord = hitRecord;
-			}
-			else {
-				m_wheelProbes[2].m_hitRecord = hitRecord;
-				m_wheelProbes[3].m_hitRecord = hitRecord;
-			}
-
-			entry->m_hitDistanceSquared = hitPoint.DistanceSquaredTo(position);
-
-			if (entry->m_hitDistanceSquared > bestDistance) {
-				selectedEntry = entry;
-				selectedIndex = entryIndex;
-				bestDistance = entry->m_hitDistanceSquared;
-			}
-		}
+		next2:
+			entry++;
+			rayStart = (GolVec3*)((char*)rayStart + sizeof(WheelProbe));
+			rayEnd = (GolVec3*)((char*)rayEnd + sizeof(WheelProbe));
+			hitPoint2 = (GolVec3*)((char*)hitPoint2 + sizeof(WheelProbe));
+			entryIndex++;
+		} while (entryIndex < sizeOfArray(m_axleMidpoints));
 	}
 
 	GolBoundedEntity* trackWorld = m_collisionWorlds[0];
@@ -1394,18 +1398,11 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 	GolVec3* rayStart2 = &entry->m_rayStart;
 	entryIndex = 0;
 	GolVec3* hitPoint3 = &entry->m_hitPoint;
-	for (; entryIndex < sizeOfArray(m_axleMidpoints); entryIndex++, entry++, rayStart2 = (GolVec3*)((char*)rayStart2 + sizeof(WheelProbe)), rayEnd2 = (GolVec3*)((char*)rayEnd2 + sizeof(WheelProbe)), hitPoint3 = (GolVec3*)((char*)hitPoint3 + sizeof(WheelProbe))) {
+	do {
 		if (!(entry->m_flags & WheelProbe::c_flagHit)) {
 			if (!TestCachedPlanes(entry)) {
-				if (!trackWorld->IntersectSegment(
-						rayStart2,
-						rayEnd2,
-						collisionContext,
-						hitPoint3,
-						&hitRecord,
-						NULL
-					)) {
-					continue;
+				if (!trackWorld->IntersectSegment(rayStart2, rayEnd2, collisionContext, hitPoint3, &hitRecord, NULL)) {
+					goto next3;
 				}
 
 				entry->m_cachedPlane = CachePlane(eventContext, hitRecord);
@@ -1434,7 +1431,13 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 
 			entry->m_flags |= WheelProbe::c_flagHit;
 		}
-	}
+next3:
+			entry++;
+			rayStart2 = (GolVec3*)((char*)rayStart2 + sizeof(WheelProbe));
+			rayEnd2 = (GolVec3*)((char*)rayEnd2 + sizeof(WheelProbe));
+			hitPoint3 = (GolVec3*)((char*)hitPoint3 + sizeof(WheelProbe));
+			entryIndex++;
+	} while (entryIndex < sizeOfArray(m_axleMidpoints));
 
 	if (selectedEntry == NULL) {
 		if (previousContactCount == 0) {
