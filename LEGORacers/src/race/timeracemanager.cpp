@@ -265,6 +265,7 @@ void TimeRaceManager::Draw(GolD3DRenderDevice* p_renderer)
 		GolVec3* attachedOffset;
 		GolVec3 position;
 
+		modelEntity = m_recordGhostCarModel;
 		if (i == 0) {
 			flags = m_flags;
 			if (!(flags & c_flagBestRunValid)) {
@@ -276,12 +277,12 @@ void TimeRaceManager::Draw(GolD3DRenderDevice* p_renderer)
 				continue;
 			}
 
-			if (m_bestGhostSecondary.HasModel()) {
-				optionalEntity = &m_bestGhostSecondary;
-			}
 			animatedEntity = &m_bestGhostMarker;
 			attachedEntity = &m_bestGhostDriver;
 			modelEntity = &m_bestGhostCarModel;
+			if (m_bestGhostSecondary.HasModel()) {
+				optionalEntity = &m_bestGhostSecondary;
+			}
 			attachedOffset = &m_bestDriverMountOffset;
 		}
 		else {
@@ -297,7 +298,6 @@ void TimeRaceManager::Draw(GolD3DRenderDevice* p_renderer)
 
 			attachedEntity = m_recordGhostDriver;
 			animatedEntity = m_recordGhostMarker;
-			modelEntity = m_recordGhostCarModel;
 			attachedOffset = &m_recordDriverMountOffset;
 		}
 
