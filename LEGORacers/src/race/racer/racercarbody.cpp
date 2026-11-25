@@ -1477,7 +1477,7 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 
 	if (m_contactCount >= 2) {
 		direction.m_x = m_wheelProbes[0].m_hitPoint.m_x - m_wheelProbes[1].m_hitPoint.m_x;
-		direction.m_y = m_wheelProbes[0].m_hitPoint.m_y - m_wheelProbes[1].m_hitPoint.m_y;
+		direction.m_y = (m_wheelProbes[0].m_hitPoint.m_y - m_wheelProbes[1].m_hitPoint.m_y);
 		direction.m_z = m_wheelProbes[0].m_hitPoint.m_z - m_wheelProbes[1].m_hitPoint.m_z;
 
 		GolOrientedEntity* orientationEntity = &m_physicsEntity;
