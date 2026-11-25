@@ -254,10 +254,18 @@ void PowerupProjectile::LaunchAtPoint(
 	scaledDelta.m_z = p_targetVelocity->m_z;
 	scaledDelta.m_z *= durationSeconds;
 	target->m_x += scaledDelta.m_x;
-	LegoFloat& sweepOld1 = target->m_y;
-	sweepOld1 += scaledDelta.m_y;
-	target->m_z += scaledDelta.m_z;
-	*target += params->m_targetOffset;
+	target->m_y += scaledDelta.m_y;
+	LegoFloat& rz = target->m_z;
+	rz += scaledDelta.m_z;
+	LegoFloat offset = target->m_x;
+	offset += params->m_targetOffset.m_x;
+	target->m_x = offset;
+	offset = target->m_y;
+	offset += params->m_targetOffset.m_y;
+	target->m_y = offset;
+	offset = target->m_z;
+	offset += params->m_targetOffset.m_z;
+	target->m_z = offset;
 	ComputeTrajectory(durationSeconds);
 	RegisterCollisionEvent(params->m_eventQueue);
 }
