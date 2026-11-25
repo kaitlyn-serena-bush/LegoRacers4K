@@ -1140,11 +1140,11 @@ void RaceState::ComputeStandingsDeltas(Racer* p_racer, Racer::StandingsDeltaEntr
 	}
 
 	for (LegoU32 racerIndex = 0; racerIndex < m_roster.m_racerCount; racerIndex++) {
-		Racer* racer = &m_roster.m_racers[racerIndex];
 		p_entries[racerIndex].m_racer = &m_roster.m_racers[racerIndex];
+		Racer* racer = &m_roster.m_racers[racerIndex];
 		p_entries[racerIndex].m_isValid = TRUE;
 
-		if (racer == p_racer) {
+		if (&m_roster.m_racers[racerIndex] == p_racer) {
 			p_entries[racerIndex].m_delta = 0;
 		}
 		else {
