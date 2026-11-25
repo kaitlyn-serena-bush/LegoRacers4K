@@ -1005,9 +1005,10 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 
 	DrawLoadProgress(0.54f);
 
+	m_raceState.LoadStartPositions(m_startPositionsFileName, m_context->m_useBinaryFiles, p_mirror);
+
 	DrawLoadProgress(0.56f);
 
-	m_raceState.LoadStartPositions(m_startPositionsFileName, m_context->m_useBinaryFiles, p_mirror);
 	if (hashTable) {
 		hashTable->SetCurrentEntry(hashTable->AddString(m_context->m_commonDataDirectory));
 	}
@@ -1038,10 +1039,9 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	RaceRouteRecord* routeRecord = m_routeRecords;
 	undefined4* slotState = &m_context->m_playerSetupSlots[0].m_slotState;
 	for (racerIndex = 0; racerIndex < racerParams.m_racerCount; racerIndex++) {
-		LegoRacers::Context::PlayerSetupSlot* slot = (LegoRacers::Context::PlayerSetupSlot*)((char*)slotState - 0x10);
-		racerParams.m_slots[racerIndex] = slot;
+		racerParams.m_slots[racerIndex] = (LegoRacers::Context::PlayerSetupSlot*)((char*)slotState - 0x10);
 
-		if ((slot->m_slotState == 2 || m_demoMode) && routeRecord->m_pathPoints) {
+		if ((*slotState == 2 || m_demoMode) && routeRecord->m_pathPoints) {
 			racerParams.m_racerRoutes[racerIndex] = routeRecord;
 		}
 		else {
@@ -1053,8 +1053,7 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	}
 
 	for (racerIndex = racerParams.m_racerCount; racerIndex < sizeOfArray(racerParams.m_slots); racerIndex++) {
-		LegoRacers::Context::PlayerSetupSlot** sweepElem0 = &racerParams.m_slots[racerIndex];
-		(*sweepElem0) = NULL;
+		racerParams.m_slots[racerIndex] = NULL;
 	}
 
 	m_raceState.CreateRacers(&racerParams, &racerContext, m_context->m_useBinaryFiles);
@@ -1078,8 +1077,8 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 			m_raceState.m_playerRacers[racerIndex] = racer;
 
 			cameraController->SetRacer(racer);
-			racer->InitializeSounds(cameraController, FALSE);
-			racer->SetCameraView(m_context->m_cameraViewIndex, m_splitScreen);
+			m_raceState.m_playerRacers[racerIndex]->InitializeSounds(cameraController, FALSE);
+			m_raceState.m_playerRacers[racerIndex]->SetCameraView(m_context->m_cameraViewIndex, m_splitScreen);
 			cameraController->Update(1.0f);
 			cameraController->SetMode(0);
 			cameraController->SnapPosition(&m_cameraStartPosition);
