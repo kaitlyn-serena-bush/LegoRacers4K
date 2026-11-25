@@ -199,19 +199,22 @@ done1:;
 				sound.StopDirectSoundBuffer();
 				sound.GetLink().Remove();
 				sound.SetPlaybackState(SoundBuffer::c_playbackStateQueued);
-				m_queuedSpatialSounds.Prepend(sound);
+				m_queuedSpatialSounds.Prepend(&sound.GetLink());
 			}
 		} while (link);
 	}
 
 	if (!m_paused) {
+		SoundBuffer *queuedSound;
 		while (TRUE) {
-			SoundBuffer *queuedSound = NULL;
 			LegoBool32 haveSound;
 			link = m_queuedSounds.LastLink();
 			if (m_queuedSounds.IsValidLastLink(link)) {
 				queuedSound = &m_queuedSounds.GetItem(*link);
 				haveSound = TRUE;
+			}
+			else {
+				haveSound = FALSE;
 			}
 			link = m_queuedSpatialSounds.LastLink();
 			if (m_queuedSpatialSounds.IsValidLastLink(link)) {
