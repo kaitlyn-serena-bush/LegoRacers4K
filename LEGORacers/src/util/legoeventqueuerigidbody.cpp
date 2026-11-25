@@ -49,7 +49,7 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 		GolVec3 axisZ;
 		if (!shapeIndex) {
 			GolOrientedEntity* sweepOld1 = m_body;
-			axisX.m_x = sweepOld1->m_orientation.m_m[0][0];
+			axisX.m_x = (sweepOld1->m_orientation.m_m[0][0]);
 			axisX.m_y = m_body->m_orientation.m_m[0][1];
 			axisX.m_z = m_body->m_orientation.m_m[0][2];
 			axisY.m_x = m_body->m_orientation.m_m[1][0];
