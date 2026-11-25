@@ -1001,7 +1001,7 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	m_decalManager.Initialize(m_renderer, m_golExport, m_trackCollidable, 4);
 	LoadRouteRecords(p_mirror);
 
-	GolHashTable* hashTable = g_hashTable;
+	LegoChar* commonDataDirectory = m_context->m_commonDataDirectory;
 
 	DrawLoadProgress(0.54f);
 
@@ -1009,7 +1009,7 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 
 	DrawLoadProgress(0.56f);
 
-	LegoChar* commonDataDirectory = m_context->m_commonDataDirectory;
+	GolHashTable* hashTable = g_hashTable;
 	if (hashTable) {
 		hashTable->SetCurrentEntry(hashTable->AddString(commonDataDirectory));
 	}
@@ -1017,8 +1017,8 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	racerContext.m_trackCollidable = m_trackCollidable;
 	racerContext.m_golExport = m_golExport;
 	racerContext.m_renderer = m_renderer;
-	racerContext.m_triggerWorld = m_extraTriggerWorldEntity;
 	racerContext.m_trackWorld = m_collisionWorld;
+	racerContext.m_triggerWorld = m_extraTriggerWorldEntity;
 	racerContext.m_soundSource = &m_soundSource;
 	racerContext.m_powerupManager = &m_powerupManager;
 	racerContext.m_eventTable = &m_eventTable;
@@ -1237,9 +1237,9 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	resetParams.m_triggers = &m_triggers;
 	resetParams.m_collisionWorlds = &m_racerCollisionWorlds;
 	resetParams.m_eventTable = &m_eventTable;
-	m_raceReset.Initialize(&resetParams);
-
 	LegoRacers::Context* sweepOld0 = m_context;
+
+	m_raceReset.Initialize(&resetParams);
 	m_particleAnimation.Load(
 		10,
 		m_golExport,
