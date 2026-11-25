@@ -870,7 +870,7 @@ void MenuManager::PrepareRaceContext()
 	}
 
 	for (saveIndex = 0; saveIndex < context->m_playerCount; saveIndex++) {
-		LegoU32 entryIndex = m_gameContext.m_saveSystem.GetGameState().GetSelectedInputBindingEntryIndex(saveIndex);
+		LegoU32 entryIndex = m_gameContext.m_saveSystem.GetGameState().GetState().m_inputBindings.m_players[saveIndex].m_selectedEntryIndex;
 		m_gameContext.m_saveSystem.GetGameState().GetInputBindingEntry(saveIndex, entryIndex, &context->m_inputBindings[saveIndex]);
 	}
 
