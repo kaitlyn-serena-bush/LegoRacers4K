@@ -671,10 +671,12 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 		if (p_params->m_hasTopCap) {
 			first++;
 		}
-		p_params->m_model->GetMutableGroups()[groupIndex++] =
+		LegoU32 gx = groupIndex;
+		p_params->m_model->GetMutableGroups()[gx++] =
 			((vertexIndex & 0x3f) << 22) | ((p_params->m_segmentCount & 0x3f) << 16) | (first & 0xffff);
-		p_params->m_model->GetMutableGroups()[groupIndex++] =
+		p_params->m_model->GetMutableGroups()[gx++] =
 			((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000 | (triangleIndex & 0xffff);
+		groupIndex = gx;
 		for (LegoU32 s2 = 1; s2 <= p_params->m_segmentCount; s2++) {
 			triangle[0] = static_cast<LegoU8>(vertexCount - 1);
 			triangle[third] = static_cast<LegoU8>(first + s2 - 1);
@@ -700,10 +702,12 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 		if (p_params->m_hasTopCap) {
 			first++;
 		}
-		p_params->m_model->GetMutableGroups()[groupIndex++] =
+		LegoU32 gx = groupIndex;
+		p_params->m_model->GetMutableGroups()[gx++] =
 			((vertexIndex & 0x3f) << 22) | (((p_params->m_segmentCount * 2 - 1) & 0x3f) << 16) | (first & 0xffff);
-		p_params->m_model->GetMutableGroups()[groupIndex++] =
+		p_params->m_model->GetMutableGroups()[gx++] =
 			(((p_params->m_segmentCount * 2) & 0x7f) << 16) | 0x20000000 | (triangleIndex & 0xffff);
+		groupIndex = gx;
 		for (segment = 0; segment < p_params->m_segmentCount; segment++) {
 			triangle[0] = static_cast<LegoU8>(first + segment);
 			triangle[second] = static_cast<LegoU8>(triangle[0] + p_params->m_segmentCount);
