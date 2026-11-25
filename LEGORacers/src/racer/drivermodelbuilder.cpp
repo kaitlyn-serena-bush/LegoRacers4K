@@ -559,12 +559,14 @@ void DriverModelBuilder::CopyGroupsUntilFace()
 		m_outputSummary.m_model->GetMutableGroups()[writeIndex] = group;
 	}
 
-	while (bodyCopyIndex < m_bodySummary.m_groupCount) {
+	LegoS32 tailIndex = bodyCopyIndex;
+	while (tailIndex < m_bodySummary.m_groupCount) {
 		LegoS32 writeIndex = outputIndex++;
-		m_outputSummary.m_model->GetMutableGroups()[writeIndex] = m_bodySummary.m_model->GetGroups()[bodyCopyIndex++];
+		m_outputSummary.m_model->GetMutableGroups()[writeIndex] = m_bodySummary.m_model->GetGroups()[tailIndex++];
 	}
 
 	GolModelBase* outputModel = m_outputSummary.m_model;
 	outputModel->GetMutableGroups()[outputIndex] = GolModel::c_groupTypeEnd;
 	outputModel->SetDirty(TRUE);
 }
+
