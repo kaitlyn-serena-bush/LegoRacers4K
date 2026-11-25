@@ -154,7 +154,9 @@ LegoS32 LegoPieceLibrary::PieceRecord::SetName(LegoChar* p_name)
 		LegoS32 remaining = 8 - length;
 		LegoChar* dest = &m_name[length];
 		length = 0;
-		::memset(dest, 0, remaining);
+		::memset(dest, length, remaining);
+		m_name[8] = 0;
+		return length;
 	}
 
 	m_name[8] = 0;
