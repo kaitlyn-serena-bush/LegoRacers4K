@@ -422,7 +422,7 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 						endPosition.m_z += offset.m_z;
 					} while (endPosition.DistanceSquaredTo(startPosition) < g_pathMinSegmentLengthSquared);
 
-					segment.m_x = endPosition.m_x - startPosition.m_x;
+					segment.m_x = ((endPosition.m_x - startPosition.m_x));
 					segment.m_y = endPosition.m_y - startPosition.m_y;
 					segment.m_z = endPosition.m_z - startPosition.m_z;
 					segmentLength = static_cast<LegoFloat>(

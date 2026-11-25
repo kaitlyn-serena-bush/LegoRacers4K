@@ -1318,7 +1318,7 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 	WheelProbe* entry;
 	LegoU32 previousContactCount = m_contactCount;
 	m_contactCount = 0;
-	WheelProbe* selectedEntry = NULL;
+	WheelProbe *selectedEntry;
 	LegoU32 selectedIndex;
 
 	for (entryIndex = 0; entryIndex < sizeOfArray(m_axleMidpoints); entryIndex++) {
@@ -1347,8 +1347,8 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 		entryIndex = 0;
 		entry = m_wheelProbes;
 		GolVec3* hitPoint2 = &entry->m_hitPoint;
-		GolVec3* rayEnd = &entry->m_rayEnd;
 		GolVec3* rayStart = &entry->m_rayStart;
+		GolVec3* rayEnd = &entry->m_rayEnd;
 		for (; entryIndex < sizeOfArray(m_axleMidpoints); entry++, rayStart = (GolVec3*)((char*)rayStart + sizeof(WheelProbe)), rayEnd = (GolVec3*)((char*)rayEnd + sizeof(WheelProbe)), hitPoint2 = (GolVec3*)((char*)hitPoint2 + sizeof(WheelProbe)), entryIndex++) {
 			if (entry->m_flags & WheelProbe::c_flagHit) {
 				continue;
@@ -1389,10 +1389,10 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 	}
 
 	GolBoundedEntity* trackWorld = m_collisionWorlds[0];
-	entryIndex = 0;
 	entry = m_wheelProbes;
-	GolVec3* rayStart2 = &entry->m_rayStart;
 	GolVec3* rayEnd2 = &entry->m_rayEnd;
+	GolVec3* rayStart2 = &entry->m_rayStart;
+	entryIndex = 0;
 	GolVec3* hitPoint3 = &entry->m_hitPoint;
 	for (; entryIndex < sizeOfArray(m_axleMidpoints); entryIndex++, entry++, rayStart2 = (GolVec3*)((char*)rayStart2 + sizeof(WheelProbe)), rayEnd2 = (GolVec3*)((char*)rayEnd2 + sizeof(WheelProbe)), hitPoint3 = (GolVec3*)((char*)hitPoint3 + sizeof(WheelProbe))) {
 		if (!(entry->m_flags & WheelProbe::c_flagHit)) {
@@ -1537,7 +1537,7 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 	LegoFloat responseScale = m_gravityForce;
 	responseScale *= m_supportNormal.m_z;
 	m_supportForce.m_x = -(sn.m_x * responseScale);
-	m_supportForce.m_y = -(sn.m_y * responseScale);
+	m_supportForce.m_y = -(GOL_MUL(sn.m_y, responseScale));
 	LegoFloat nz = m_supportNormal.m_z;
 	nz *= responseScale;
 	m_supportForce.m_z = m_gravityForce - nz;
