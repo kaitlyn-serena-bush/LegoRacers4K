@@ -537,13 +537,13 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 		->Allocate(p_params->m_renderer, p_params->m_vertexType, vertexCount, triangleBudget, groupCount, 1);
 	LegoU32 second;
 	LegoU32 third;
-	if (!p_params->m_reverseWinding) {
-		second = 1;
-		third = 2;
-	}
-	else {
+	if (p_params->m_reverseWinding) {
 		second = 2;
 		third = 1;
+	}
+	else {
+		second = 1;
+		third = 2;
 	}
 
 	ColorRGBA color;
@@ -592,7 +592,7 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 			position.m_y = static_cast<LegoFloat>(::sin(segmentAngle)) * radius + p_params->m_origin.m_y;
 			segmentAngle += angleStep;
 			vertices->SetPosition(vertexIndex, position);
-			normal.m_x = position.m_x - p_params->m_origin.m_x;
+			normal.m_x = (position.m_x - p_params->m_origin.m_x);
 			normal.m_y = position.m_y - p_params->m_origin.m_y;
 			normal.m_z = position.m_z - p_params->m_origin.m_z;
 			GolMath::NormalizeVector3(normal, &normal);
@@ -647,8 +647,8 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 		p_params->m_model->GetMutableGroups()[groupIndex++] = ((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000;
 		for (segment = 1; segment <= p_params->m_segmentCount; segment++) {
 			triangle[0] = 0;
-			triangle[second] = static_cast<LegoU8>(segment);
 			triangle[third] = static_cast<LegoU8>(segment == p_params->m_segmentCount ? 1 : segment + 1);
+			triangle[second] = static_cast<LegoU8>(segment);
 			if (p_params->m_absoluteIndexArray != NULL) {
 				p_params->m_absoluteIndexArray
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
@@ -667,20 +667,21 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 			first++;
 		}
 		p_params->m_model->GetMutableGroups()[groupIndex++] =
+			vertexIndex = vertexIndex;
 			((vertexIndex & 0x3f) << 22) | ((p_params->m_segmentCount & 0x3f) << 16) | (first & 0xffff);
 		p_params->m_model->GetMutableGroups()[groupIndex++] =
 			((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000 | (triangleIndex & 0xffff);
 		for (segment = 1; segment <= p_params->m_segmentCount; segment++) {
-			triangle[0] = static_cast<LegoU8>(vertexCount - 1);
 			triangle[third] = static_cast<LegoU8>(first + segment - 1);
+			triangle[0] = static_cast<LegoU8>(vertexCount - 1);
 			triangle[second] = static_cast<LegoU8>(segment == p_params->m_segmentCount ? first : triangle[third] + 1);
 			if (p_params->m_absoluteIndexArray != NULL) {
 				p_params->m_absoluteIndexArray
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
 			}
 			triangle[0] += static_cast<LegoU8>(vertexIndex - first);
-			triangle[second] += static_cast<LegoU8>(vertexIndex - first);
 			triangle[third] += static_cast<LegoU8>(vertexIndex - first);
+			triangle[second] += static_cast<LegoU8>(vertexIndex - first);
 			static_cast<GdbModelIndexArray*>(indexArrayBase)
 				->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
 		}
@@ -698,6 +699,7 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 		p_params->m_model->GetMutableGroups()[groupIndex++] =
 			((vertexIndex & 0x3f) << 22) | (((p_params->m_segmentCount * 2 - 1) & 0x3f) << 16) | (first & 0xffff);
 		p_params->m_model->GetMutableGroups()[groupIndex++] =
+			triangleIndex = triangleIndex;
 			(((p_params->m_segmentCount * 2) & 0x7f) << 16) | 0x20000000 | (triangleIndex & 0xffff);
 		for (segment = 0; segment < p_params->m_segmentCount; segment++) {
 			triangle[0] = static_cast<LegoU8>(first + segment);
@@ -710,8 +712,8 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
 			}
 			triangle[0] += static_cast<LegoU8>(vertexIndex - first);
-			triangle[second] += static_cast<LegoU8>(vertexIndex - first);
 			triangle[third] += static_cast<LegoU8>(vertexIndex - first);
+			triangle[second] += static_cast<LegoU8>(vertexIndex - first);
 			static_cast<GdbModelIndexArray*>(indexArrayBase)
 				->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
 
