@@ -140,8 +140,8 @@ void AwardCinematicScreen::CreateWidgets()
 	GolString string;
 	LegoChar path[20];
 
-	GolAnimatedEntity* swapEntity = NULL;
 	GolAnimatedEntity* pLegEntity = NULL;
+	GolAnimatedEntity* swapEntity = NULL;
 	GolAnimatedEntity* sourceDriverEntity = NULL;
 	GolModelEntity* carBodyEntity = NULL;
 	LegoBool32 carCreated = FALSE;
