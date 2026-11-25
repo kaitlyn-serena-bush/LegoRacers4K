@@ -716,10 +716,10 @@ void MenuManager::PrepareRaceContext()
 
 	if (!selectedRecords.GetSelectedRecordCount()) {
 		context->m_racerCount = 6;
-		context->m_raceMode = LegoRacers::Context::c_raceModeSingle;
-
 		g_randomTableIndex = (g_randomTableIndex + 1) & 0x3ff;
+
 		LegoU16 random = g_randomTable[g_randomTableIndex];
+		context->m_raceMode = LegoRacers::Context::c_raceModeSingle;
 		LegoS32 raceIndex = static_cast<LegoS32>(random) % 4;
 		RaceNameEntry* raceName = m_gameContext.m_circuitList.GetEntries()[0].GetRaceNameEntry(raceIndex);
 
@@ -845,7 +845,8 @@ void MenuManager::PrepareRaceContext()
 		BuildPlayerCarModel(record, slot, &rendererState);
 		m_gameContext.m_context->m_playerRecordStates[saveIndex].m_saveIndex = record->m_saveIndex;
 
-		context->m_playerRecordStates[saveIndex].m_recordId = record->m_recordId;
+		LegoU32 sweepOld1 = record->m_recordId;
+		context->m_playerRecordStates[saveIndex].m_recordId = sweepOld1;
 		BuildPlayerDriverModel(record, slot, &rendererState);
 		context->m_playerRecordStates[saveIndex].m_recordSource = record->m_recordSource;
 
