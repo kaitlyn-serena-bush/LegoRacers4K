@@ -1139,8 +1139,8 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 	}
 
 overflow:
-	m_buildStatus |= c_buildStatusOverflow;
 	return static_cast<LegoS16>(m_buildPrimitiveCount);
+	m_buildStatus |= c_buildStatusOverflow;
 }
 
 // FUNCTION: LEGORACERS 0x0049ad00
