@@ -199,18 +199,16 @@ void SpatialSoundInstance::UpdateSpatialFromNode(SoundNode* p_node)
 				direction.m_y = relativePosition.m_y;
 				direction.m_y *= inverseDistance;
 				direction.m_z = relativePosition.m_z;
-				direction.m_z *= inverseDistance;
 				double velocity = relativeVelocity.m_z;
-				velocity *= direction.m_z;
+				velocity *= (direction.m_z *= inverseDistance);
 				double dotY = relativeVelocity.m_y;
-				
 				dotY *= direction.m_y;
 				velocity += dotY;
 				velocity += relativeVelocity.m_x * direction.m_x;
-
 				velocity = velocity > (p_node->m_maxVelocity) ? p_node->m_maxVelocity : velocity;
 
-				m_spatialFrequencyScale = m_frequencyScale * p_node->m_soundSpeed / (p_node->m_soundSpeed - velocity);
+				m_spatialFrequencyScale = m_frequencyScale * p_node->m_soundSpeed;
+				m_spatialFrequencyScale /= (p_node->m_soundSpeed - velocity);
 			}
 			else {
 				m_spatialFrequencyScale = m_frequencyScale;
