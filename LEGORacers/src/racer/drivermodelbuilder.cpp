@@ -569,4 +569,3 @@ void DriverModelBuilder::CopyGroupsUntilFace()
 	outputModel->GetMutableGroups()[outputIndex] = GolModel::c_groupTypeEnd;
 	outputModel->SetDirty(TRUE);
 }
-
