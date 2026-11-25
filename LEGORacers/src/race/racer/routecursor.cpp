@@ -266,6 +266,9 @@ void RacerPhysics::RouteCursor::Advance(LegoFloat p_elapsedMs)
 // FUNCTION: LEGORACERS 0x004a5750
 void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 {
+	LegoFloat remainingDistance;
+	if (remainingDistance == 0.0f) {
+	}
 	LegoFloat inverseLength = 0.0f;
 	LegoFloat segmentLength;
 	GolVec3 segment;
@@ -386,7 +389,7 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 		}
 
 		{
-			LegoFloat remainingDistance = static_cast<LegoFloat>(sqrt(endPosition.DistanceSquaredTo(m_position)));
+			remainingDistance = static_cast<LegoFloat>(sqrt(endPosition.DistanceSquaredTo(m_position)));
 
 			while (projectedDelta > remainingDistance) {
 				{
