@@ -324,7 +324,6 @@ add_executable(legoracers WIN32
   common/src/golsurface.cpp
   common/src/golpalettedtexture.cpp
   common/src/golfontbase.cpp
-  LEGORacers/src/util/carshadowrenderstate.cpp
   LEGORacers/src/model/goltexturelist.cpp
   common/src/golimgfile.cpp
   common/src/golimgfilewriter.cpp
@@ -380,7 +379,6 @@ add_executable(legoracers WIN32
   LEGORacers/src/audio/nullsoundmanager.cpp
   LEGORacers/src/audio/nullmusicinstance.cpp
   LEGORacers/src/audio/nullmusicgroup.cpp
-  LEGORacers/src/audio/nullstreamingsoundinstance.cpp
   LEGORacers/src/audio/nullsoundgroup.cpp
   LEGORacers/src/audio/nullsoundinstance.cpp
   LEGORacers/src/race/racesky.cpp
@@ -428,11 +426,13 @@ add_executable(legoracers WIN32
   LEGORacers/src/util/legoeventqueueevent.cpp
   LEGORacers/src/race/racer/racerrigidbody.cpp
   LEGORacers/src/util/legoeventqueuerigidbody.cpp
+  LEGORacers/src/util/carshadowrenderstate.cpp
   LEGORacers/src/save/savegame.cpp
   LEGORacers/src/menu/screens/saverecordcursor.cpp
   LEGORacers/src/save/savesystem.cpp
   LEGORacers/src/save/memorycardsavegame.cpp
   LEGORacers/src/audio/staticnullsoundinstance.cpp
+  LEGORacers/src/audio/nullstreamingsoundinstance.cpp
   LEGORacers/src/race/racesoundsource.cpp
   LEGORacers/src/race/racer/racersoundsource.cpp
   LEGORacers/src/race/raceresourcemanager.cpp

@@ -29,34 +29,34 @@ extern const LegoS32 g_wheelSidewaysIndices[];
 RacerPhysics::SavedWheelState g_carBodySavedWheels[4];
 
 // GLOBAL: LEGORACERS 0x004c6db8
-GolBoundingVolume::HitTriangle g_carBodyHitTriangle;
+GolBoundingVolume::HitTriangle g_carBodyHitTriangle = {0};
 
 // GLOBAL: LEGORACERS 0x004c6df0
-RacerPhysics::SavedBodyPoints g_carBodySavedPoints;
+RacerPhysics::SavedBodyPoints g_carBodySavedPoints = {0};
 
 // GLOBAL: LEGORACERS 0x004c6e30
-GolVec3 g_carBodyRayEndsLocal[4];
+GolVec3 g_carBodyRayEndsLocal[4] = {0};
 
 // GLOBAL: LEGORACERS 0x004c6e60
-GolVec3 g_carBodyRayStartsLocal[4];
+GolVec3 g_carBodyRayStartsLocal[4] = {0};
 
 // GLOBAL: LEGORACERS 0x004c6e90
-GolVec3 g_carBodySavedAngularMomentum;
+GolVec3 g_carBodySavedAngularMomentum = {0};
 
 // GLOBAL: LEGORACERS 0x004c6e9c
-LegoFloat g_carBodySavedSlideLift;
+LegoFloat g_carBodySavedSlideLift = 0.0f;
 
 // GLOBAL: LEGORACERS 0x004c6ea0
-LegoFloat g_carBodySavedSlideBankAngle;
+LegoFloat g_carBodySavedSlideBankAngle = 0.0f;
 
 // GLOBAL: LEGORACERS 0x004c6ea8
-GolVec3 g_carBodyContactForce;
+GolVec3 g_carBodyContactForce = {0};
 
 // GLOBAL: LEGORACERS 0x004c6eb4
-GolMatrix3 g_carBodySavedInverseInertia;
+GolMatrix3 g_carBodySavedInverseInertia = {0};
 
 // GLOBAL: LEGORACERS 0x004c6ed8
-GolVec3 g_carBodySavedAngularVelocity;
+GolVec3 g_carBodySavedAngularVelocity = {0};
 
 extern LegoFloat g_cosineTable[1024];
 
