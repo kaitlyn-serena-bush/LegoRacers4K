@@ -353,9 +353,9 @@ void AwardCinematicScreen::CreateWidgets()
 		textName[1] = 'e';
 		textName[2] = 'x';
 		textName[3] = 't';
+		textName[6] = '\0';
 		textName[4] = 'C';
 		textName[5] = 'R';
-		textName[6] = '\0';
 
 		CutsceneTextVisual* textVisual = static_cast<CutsceneTextVisual*>(textVisuals->GetName(textName));
 		if (m_context->m_context->m_playerSetupSlots[1].m_driverName[0] != textName[4] ||
