@@ -758,7 +758,7 @@ void MenuManager::PrepareRaceContext()
 			context->m_racerCount = circuitDefinition->GetDriverCount();
 		}
 
-		LegoRacers::Context::PlayerSetupSlot* defaultSlot = slots;
+		LegoRacers::Context::PlayerSetupSlot* defaultSlot = context->m_playerSetupSlots;
 		for (saveIndex = 0; saveIndex < context->m_racerCount; saveIndex++) {
 			::memcpy(
 				defaultSlot->m_driverName,
