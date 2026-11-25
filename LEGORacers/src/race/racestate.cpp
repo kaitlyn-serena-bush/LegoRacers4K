@@ -651,25 +651,22 @@ void RaceState::UpdateStandings()
 		}
 	}
 
-	LegoU32 groupStart;
-	for (groupStart = 0; groupStart < m_roster.m_racerCount - 1;) {
-		LegoU32 groupEnd = groupStart + 1;
-		if (g_racerProgressEntries[groupStart].m_progress == g_racerProgressEntries[groupEnd].m_progress &&
+	for (sortIndex = 0; sortIndex < m_roster.m_racerCount - 1;) {
+		LegoU32 groupEnd = sortIndex + 1;
+		if (g_racerProgressEntries[sortIndex].m_progress == g_racerProgressEntries[groupEnd].m_progress &&
 			   groupEnd < m_roster.m_racerCount) {
 			do {
-			groupEnd++;
-		} while (g_racerProgressEntries[groupStart].m_progress == g_racerProgressEntries[groupEnd].m_progress &&
-			   groupEnd < m_roster.m_racerCount);
+				groupEnd++;
+			} while (g_racerProgressEntries[sortIndex].m_progress == g_racerProgressEntries[groupEnd].m_progress &&
+					 groupEnd < m_roster.m_racerCount);
 		}
 
-		CheckpointGraph::Entry* pathField = g_racerProgressEntries[groupStart].m_racer->m_checkpoint;
-		if (groupEnd > groupStart + 1 && pathField) {
+		CheckpointGraph::Entry* pathField = g_racerProgressEntries[sortIndex].m_racer->m_checkpoint;
+		if (groupEnd > sortIndex + 1 && pathField) {
 			GolVec3 position;
-			if (groupStart < groupEnd) {
-				LegoU32 tiedCount = groupEnd - groupStart;
-				RacerProgressEntry* tiedEntry = &g_racerProgressEntries[groupStart];
-				do {
-				(*tiedEntry).m_racer->m_visuals.m_carEntity->GetPosition(&position);
+			LegoU32 tiedIndex;
+			for (tiedIndex = sortIndex; tiedIndex < groupEnd; tiedIndex++) {
+				g_racerProgressEntries[tiedIndex].m_racer->m_visuals.m_carEntity->GetPosition(&position);
 
 				LegoFloat nearestPlaneDistance = FLT_MAX;
 				LegoU32 planeIndex;
@@ -688,39 +685,38 @@ void RaceState::UpdateStandings()
 					}
 				}
 
-				(*tiedEntry).m_tieBreakDistance = nearestPlaneDistance;
-				tiedEntry++;
-			} while (--tiedCount);
+				g_racerProgressEntries[tiedIndex].m_tieBreakDistance = nearestPlaneDistance;
 			}
 
-			for (sortIndex = groupStart; sortIndex < groupEnd; sortIndex++) {
-				LegoU32 maxIndex = sortIndex;
-				LegoFloat maxDistance = g_racerProgressEntries[sortIndex].m_tieBreakDistance;
+			LegoU32 tieIndex;
+			for (tieIndex = sortIndex; tieIndex < groupEnd; tieIndex++) {
+				LegoU32 maxIndex = tieIndex;
+				LegoFloat maxDistance = g_racerProgressEntries[tieIndex].m_tieBreakDistance;
 
 				LegoU32 tiedScanIndex;
-				for (tiedScanIndex = sortIndex + 1; tiedScanIndex < groupEnd; tiedScanIndex++) {
+				for (tiedScanIndex = tieIndex + 1; tiedScanIndex < groupEnd; tiedScanIndex++) {
 					if (maxDistance < g_racerProgressEntries[tiedScanIndex].m_tieBreakDistance) {
 						maxDistance = g_racerProgressEntries[tiedScanIndex].m_tieBreakDistance;
 						maxIndex = tiedScanIndex;
 					}
 				}
 
-				if (maxIndex > sortIndex) {
-					LegoFloat progress = g_racerProgressEntries[sortIndex].m_progress;
-					g_racerProgressEntries[sortIndex].m_progress = g_racerProgressEntries[maxIndex].m_progress;
+				if (maxIndex > tieIndex) {
+					LegoFloat progress = g_racerProgressEntries[tieIndex].m_progress;
+					g_racerProgressEntries[tieIndex].m_progress = g_racerProgressEntries[maxIndex].m_progress;
 					g_racerProgressEntries[maxIndex].m_progress = progress;
-					LegoFloat distance = g_racerProgressEntries[sortIndex].m_tieBreakDistance;
-					g_racerProgressEntries[sortIndex].m_tieBreakDistance =
+					LegoFloat distance = g_racerProgressEntries[tieIndex].m_tieBreakDistance;
+					g_racerProgressEntries[tieIndex].m_tieBreakDistance =
 						g_racerProgressEntries[maxIndex].m_tieBreakDistance;
 					g_racerProgressEntries[maxIndex].m_tieBreakDistance = distance;
-					Racer* racer = g_racerProgressEntries[sortIndex].m_racer;
-					g_racerProgressEntries[sortIndex].m_racer = g_racerProgressEntries[maxIndex].m_racer;
+					Racer* racer = g_racerProgressEntries[tieIndex].m_racer;
+					g_racerProgressEntries[tieIndex].m_racer = g_racerProgressEntries[maxIndex].m_racer;
 					g_racerProgressEntries[maxIndex].m_racer = racer;
 				}
 			}
 		}
 
-		groupStart++;
+		sortIndex++;
 	}
 
 	LegoU32 rankIndex;
