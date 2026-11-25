@@ -1924,9 +1924,8 @@ void CarBuildModel::RefreshOverlay(Placement* p_placement, GolModelEntity* p_ent
 	if (pieceRecord != NULL) {
 		LegoS32 y;
 		p_placement->GetPlacement(&x, &y, &rotation);
-
-		LegoS32 colorRecordIndex = p_placement->GetColorRecordIndex();
 		LegoS32 partType = p_placement->GetPartType();
+		LegoS32 colorRecordIndex = p_placement->GetColorRecordIndex();
 		BuildPieceModel(p_entity, pieceRecord, x, y, 21, rotation, colorRecordIndex, 239);
 
 		LegoS32 width;
