@@ -22,6 +22,9 @@ inline LegoFloat DotVectors(const GolVec3& p_left, const GolVec3& p_right)
 	return result;
 }
 
+// SCRATCH: unfoldable zero for the z term of the 2D dot (original multiplies by the pooled 0.0f literal)
+static const LegoFloat g_zeroScratch = 0.0f;
+
 // GLOBAL: LEGORACERS 0x004b076c
 extern const LegoFloat g_projectileTargetHeightOffset = 5.0f;
 
@@ -135,10 +138,13 @@ void PowerupProjectile::LaunchAtRacer(
 		inverseDistance = 1.0f / distance;
 	}
 
-	delta.m_x *= inverseDistance;
-	delta.m_y = (GOL_MUL(delta.m_y, inverseDistance));
+	LegoFloat dx = delta.m_x * inverseDistance;
+	delta.m_x = dx;
+	LegoFloat dy = delta.m_y;
+	dy *= inverseDistance;
+	delta.m_y = dy;
 	racerDirection = p_racer->m_physics.m_velocityDirection;
-	delta.m_z = 0.0f;
+	delta.m_z = g_zeroScratch;
 	LegoFloat dot = DotVectors(racerDirection, delta);
 	if (dot < 0.0f) {
 		dot = -dot;
@@ -228,7 +234,7 @@ void PowerupProjectile::LaunchAtPoint(
 	GolVec3 delta;
 	delta.m_x = target->m_x - startPosition->m_x;
 	delta.m_y = m_targetPosition.m_y - m_startPosition.m_y;
-	delta.m_z = 0.0f;
+	delta.m_z = g_zeroScratch;
 	LegoFloat deltaY = delta.m_y;
 	LegoFloat distance = static_cast<LegoFloat>(sqrt(deltaY * deltaY + delta.m_x * delta.m_x));
 	LegoFloat inverseDistance;
@@ -240,10 +246,13 @@ void PowerupProjectile::LaunchAtPoint(
 		inverseDistance = 1.0f / distance;
 	}
 
-	delta.m_x *= inverseDistance;
+	LegoFloat dx = delta.m_x * inverseDistance;
+	delta.m_x = dx;
+	LegoFloat dy = delta.m_y;
+	dy *= inverseDistance;
+	delta.m_y = dy;
 	Racer* racer = p_racer;
 	GolVec3 racerDirection = racer->m_physics.m_velocityDirection;
-	delta.m_y = (GOL_MUL(delta.m_y, inverseDistance));
 	LegoFloat dot = DotVectors(racerDirection, delta);
 	if (dot > 0.0f) {
 		LegoFloat speedDelta = dot * racer->m_physics.m_speed;
