@@ -541,7 +541,6 @@ void GolFontBase::MeasureString(
 		return;
 	}
 
-	*p_height = 0;
 	LegoU32 length = p_string->SelectionLength();
 	if (length == 0) {
 		return;
@@ -552,7 +551,8 @@ void GolFontBase::MeasureString(
 	}
 
 	p_wrapWidth = static_cast<LegoS32>(::floor(static_cast<LegoFloat>(p_wrapWidth) / p_scaleX));
-	p_lineSpacing += m_fontHeight;
+	LegoS32 fontHeight = m_fontHeight;
+	p_lineSpacing += fontHeight;
 	p_lineSpacing = static_cast<LegoS32>(::ceil(static_cast<LegoFloat>(p_lineSpacing) * p_scaleY));
 	*p_height += p_lineSpacing;
 
