@@ -606,10 +606,9 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 	LegoU8* end = indices + 4 * p_polygonCount;
 
 	while (indices < end) {
-		LegoU32 index0 = indices[0];
 		LegoU32 index1 = indices[1];
 		LegoU32 index2 = indices[2];
-		ProjectedVertex* vertex0 = &g_decalProjectedVertices[index0];
+		ProjectedVertex* vertex0 = &g_decalProjectedVertices[indices[0]];
 		ProjectedVertex* vertex1 = &g_decalProjectedVertices[index1];
 		ProjectedVertex* vertex2 = &g_decalProjectedVertices[index2];
 
@@ -638,7 +637,7 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 			LegoU32 indicesB[16];
 			LegoU32 flagsB[16];
 
-			indicesA[0] = index0;
+			indicesA[0] = indices[0];
 			indicesA[1] = index1;
 			flagsA[0] = vertex0->m_clipFlags;
 			flagsA[1] = vertex1->m_clipFlags;
