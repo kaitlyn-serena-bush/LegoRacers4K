@@ -1533,12 +1533,13 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 		}
 	}
 
-	LegoFloat responseScale = m_gravityForce * sn.m_z;
+	LegoFloat responseScale = m_gravityForce;
+	responseScale *= m_supportNormal.m_z;
 	m_supportForce.m_x = -(sn.m_x * responseScale);
 	m_supportForce.m_y = -(sn.m_y * responseScale);
-	LegoFloat sweepOld0 = sn.m_z;
-	sweepOld0 *= responseScale;
-	m_supportForce.m_z = m_gravityForce - sweepOld0;
+	LegoFloat nz = m_supportNormal.m_z;
+	nz *= responseScale;
+	m_supportForce.m_z = m_gravityForce - nz;
 
 	g_carBodyContactForce.m_x = 0.0f;
 	g_carBodyContactForce.m_y = 0.0f;
