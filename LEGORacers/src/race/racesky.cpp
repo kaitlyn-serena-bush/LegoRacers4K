@@ -925,13 +925,11 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 	LegoU8 triangle[3];
 	LegoU8 scratchStart = 0;
 	if (p_params->m_hasTopCap) {
-		LegoU32 gt = (groupIndex);
-		p_params->m_model->GetMutableGroups()[gt++] = ((p_params->m_segmentCount * 2) & 0x3f) << 16;
 		LegoU32 top32 = 2 * p_params->m_segmentCount + 1;
 		scratchStart = static_cast<LegoU8>(top32);
-		groupIndex = groupIndex;
-		groupIndex = gt;
-		p_params->m_model->GetMutableGroups()[gt++] = ((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000;
+		p_params->m_model->GetMutableGroups()[1] = ((p_params->m_segmentCount * 2) & 0x3f) << 16;
+		p_params->m_model->GetMutableGroups()[2] = ((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000;
+		groupIndex = 3;
 		for (segment = 0; segment < p_params->m_segmentCount; segment++) {
 			triangle[0] = static_cast<LegoU8>(segment);
 			triangle[second] = static_cast<LegoU8>(triangle[0] + p_params->m_segmentCount);
