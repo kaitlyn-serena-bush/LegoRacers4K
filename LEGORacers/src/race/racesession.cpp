@@ -974,6 +974,7 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	}
 
 	RacePowerupManager::Params powerupParams;
+	RaceDecalManager* decal = &m_decalManager;
 	RaceReset::Params resetParams;
 	RaceEventTable::Params params;
 	HazardContext dispatcherContext;
@@ -1000,10 +1001,8 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 
 	DrawLoadProgress(0.51f);
 
-	m_decalManager.Initialize(m_renderer, m_golExport, m_trackCollidable, 4);
+	decal->Initialize(m_renderer, m_golExport, m_trackCollidable, 4);
 	LoadRouteRecords(p_mirror);
-
-	LegoChar* commonDataDirectory = m_context->m_commonDataDirectory;
 
 	DrawLoadProgress(0.54f);
 
@@ -1011,6 +1010,7 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 
 	DrawLoadProgress(0.56f);
 
+	LegoChar* commonDataDirectory = m_context->m_commonDataDirectory;
 	GolHashTable* hashTable = g_hashTable;
 	if (hashTable) {
 		hashTable->SetCurrentEntry(hashTable->AddString(commonDataDirectory));
@@ -1026,7 +1026,7 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	racerContext.m_shadowsEnabled = TRUE;
 	racerContext.m_sharedParticleAnimation = &m_sharedParticleAnimation;
 	racerContext.m_particleAnimation = &m_particleAnimation;
-	racerContext.m_decalManager = &m_decalManager;
+	racerContext.m_decalManager = decal;
 	racerContext.m_eventTable = &m_eventTable;
 	racerContext.m_surfaceTable = &m_surfaceTable;
 	racerContext.m_checkpointGraph = &m_checkpointGraph;
@@ -1207,11 +1207,15 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 		m_huds[0].SetLayout(RaceHud::c_layoutSplitTop);
 
 		m_huds[1].SetRacer(m_raceState.m_playerRacers[1]);
-		m_huds[1].SetLayout(RaceHud::c_layoutSplitBottom);
 		m_huds[1].ResetDisplay(-1);
+		m_huds[1].SetLayout(RaceHud::c_layoutSplitBottom);
 	}
 	else {
-		m_huds[0].SetRacer(m_context->m_playerCount == 1 ? m_raceState.m_playerRacers[0] : m_raceState.GetRacers());
+		Racer* hudRacer = m_raceState.GetRacers();
+		if (m_context->m_playerCount == 1) {
+			hudRacer = m_raceState.m_playerRacers[0];
+		}
+		m_huds[0].SetRacer(hudRacer);
 		m_huds[0].ResetDisplay(-1);
 		m_huds[0].SetLayout(RaceHud::c_layoutFull);
 	}
