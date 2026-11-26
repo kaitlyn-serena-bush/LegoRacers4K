@@ -855,6 +855,7 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 	LegoU16 p_partIndex
 )
 {
+	LegoS32 result;
 	BuildPrimitive* primitive = NULL;
 	LegoFloat sourceX;
 	LegoFloat sourceY;
@@ -864,7 +865,7 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 	LegoBool32 hasTextureIndex = FALSE;
 	LegoBool32 hasNormalIndex = FALSE;
 
-	if (m_buildPrimitiveCount < c_buildPrimitiveCapacity) {
+	if ((result = m_buildPrimitiveCount) < c_buildPrimitiveCapacity) {
 		LegoS32 colorMaterialIndex = m_colorTable->GetMaterialIndexForColorRecord(p_colorRecordIndex);
 		LegoFloat xOrigin = static_cast<LegoFloat>(p_x);
 		LegoFloat yOrigin = static_cast<LegoFloat>(p_y);
@@ -1000,10 +1001,14 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 					vertex.m_textureCoordinate.m_y = 0.0f;
 				}
 
-				if (m_buildPrimitiveCount >= c_buildPrimitiveCapacity ||
-					(primitive->m_vertexIndices[3] = AddBuildVertex(&vertex), ++m_buildPrimitiveCount >= c_buildPrimitiveCapacity)) {
-					m_buildStatus |= c_buildStatusOverflow;
-					return static_cast<LegoS16>(m_buildPrimitiveCount);
+				if (m_buildPrimitiveCount >= c_buildPrimitiveCapacity) {
+					result = static_cast<LegoS16>(m_buildPrimitiveCount);
+					goto overflow;
+				}
+				primitive->m_vertexIndices[3] = AddBuildVertex(&vertex);
+				if (++m_buildPrimitiveCount >= c_buildPrimitiveCapacity) {
+					result = static_cast<LegoS16>(m_buildPrimitiveCount);
+					goto overflow;
 				}
 			}
 			else {
@@ -1127,8 +1132,8 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 				}
 
 				if (++m_buildPrimitiveCount >= c_buildPrimitiveCapacity) {
-					m_buildStatus |= c_buildStatusOverflow;
-					return static_cast<LegoS16>(m_buildPrimitiveCount);
+					result = static_cast<LegoS16>(m_buildPrimitiveCount);
+					goto overflow;
 				}
 			}
 
@@ -1139,8 +1144,8 @@ LegoS16 CarBuildModel::EmitPieceGeometry(
 	}
 
 overflow:
-	return static_cast<LegoS16>(m_buildPrimitiveCount);
 	m_buildStatus |= c_buildStatusOverflow;
+	return static_cast<LegoS16>(result);
 }
 
 // FUNCTION: LEGORACERS 0x0049ad00
