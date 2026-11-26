@@ -1345,8 +1345,8 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 
 		entryIndex = 0;
 		entry = m_wheelProbes;
-		GolVec3* hitPoint2 = &entry->m_hitPoint;
 		GolVec3* rayStart = &entry->m_rayStart;
+		GolVec3* hitPoint2 = &entry->m_hitPoint;
 		GolVec3* rayEnd = &entry->m_rayEnd;
 		do {
 			if (entry->m_flags & WheelProbe::c_flagHit) {
