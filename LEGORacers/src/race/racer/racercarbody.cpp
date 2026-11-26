@@ -1480,19 +1480,19 @@ next3:
 
 	if (m_contactCount >= 2) {
 		direction.m_x = m_wheelProbes[0].m_hitPoint.m_x - m_wheelProbes[1].m_hitPoint.m_x;
-		direction.m_y = (m_wheelProbes[0].m_hitPoint.m_y - m_wheelProbes[1].m_hitPoint.m_y);
+		direction.m_y = m_wheelProbes[0].m_hitPoint.m_y - m_wheelProbes[1].m_hitPoint.m_y;
 		direction.m_z = m_wheelProbes[0].m_hitPoint.m_z - m_wheelProbes[1].m_hitPoint.m_z;
 
 		GolOrientedEntity* orientationEntity = &m_physicsEntity;
 		const GolMatrix34& transform = orientationEntity->GetTransform();
-		up.m_x = (transform.m_m[2][0]);
+		up.m_x = transform.m_m[2][0];
 		up.m_y = transform.m_m[2][1];
 		up.m_z = transform.m_m[2][2];
 		orientationEntity->SetDirectionUp(direction, up);
 
-		sn.m_x = (transform.m_m[2][0]);
+		sn.m_x = transform.m_m[2][0];
 		sn.m_y = transform.m_m[2][1];
-		sn.m_z = (transform.m_m[2][2]);
+		sn.m_z = transform.m_m[2][2];
 	}
 	else {
 		GolMath::NormalizeVector3(sn, &sn);
