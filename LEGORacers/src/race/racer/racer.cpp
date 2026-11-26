@@ -62,6 +62,20 @@ inline LegoFloat DotVectors(const GolVec3& p_left, const GolVec3& p_right)
 	return result;
 }
 
+inline LegoFloat DotVectorsZxy(const GolVec3& p_left, const GolVec3& p_right)
+{
+	LegoFloat leftZ = p_left.m_z;
+	LegoFloat rightZ = p_right.m_z;
+	LegoFloat rightY = p_right.m_y;
+	LegoFloat leftY = p_left.m_y;
+	LegoFloat result = leftZ * rightZ;
+	LegoFloat x = p_left.m_x * p_right.m_x;
+	result += x;
+	result += rightY * leftY;
+
+	return result;
+}
+
 inline GolVec3 CrossVectors(const GolVec3& p_left, const GolVec3& p_right)
 {
 	GolVec3 result;
@@ -1442,7 +1456,7 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 	LegoFloat impulseNumerator = -DotVectors(relativeVelocity, collisionNormal);
 	impulseNumerator *= (g_collisionRestitution + 1.0f);
 
-	LegoFloat collisionNormalLengthSquared = DotVectors(collisionNormal, collisionNormal);
+	LegoFloat collisionNormalLengthSquared = DotVectorsZxy(collisionNormal, collisionNormal);
 	LegoFloat inverseMassTerm =
 		((((secondTarget->m_inverseMass + firstTarget->m_inverseMass)))) * collisionNormalLengthSquared;
 
