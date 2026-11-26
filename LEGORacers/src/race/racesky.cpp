@@ -944,13 +944,11 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 		if (p_params->m_hasTopCap) {
 			first += p_params->m_segmentCount;
 		}
-		groupIndex = groupIndex;
-		{ LegoU32 gx = groupIndex;
-		p_params->m_model->GetMutableGroups()[gx++] =
+				p_params->m_model->GetMutableGroups()[groupIndex] =
 			((scratchStart & 0x3f) << 22) | (((p_params->m_segmentCount * 2) & 0x3f) << 16) | (first & 0xffff);
-		p_params->m_model->GetMutableGroups()[gx++] =
+		p_params->m_model->GetMutableGroups()[groupIndex + 1] =
 			((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000 | (triangleIndex & 0xffff);
-		groupIndex = gx; }
+		groupIndex += 2;
 		for (segment = 1; segment <= p_params->m_segmentCount; segment++) {
 			segment = segment;
 			triangle[0] = static_cast<LegoU8>(segment + first + p_params->m_segmentCount);
