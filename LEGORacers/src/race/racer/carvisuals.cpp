@@ -543,13 +543,9 @@ void CarVisuals::Update(LegoU32 p_elapsedMs)
 				static_cast<GolVec3&>(position) = m_racerPhysics->m_wheelProbes[particleIndex].m_wheelPosition;
 				CopyParticleOrientation(m_carEntity, m_wheelParticles[particleIndex]);
 
-				if (m_wheelParticles[particleIndex]->m_particle) {
-					m_wheelParticles[particleIndex]->m_particle->SetPosition(&position);
-				}
+				m_wheelParticles[particleIndex]->SetPosition(&position);
 
-				if (m_wheelParticles[particleIndex]->m_particle) {
-					m_wheelParticles[particleIndex]->m_particle->SetVelocity(&velocity);
-				}
+				m_wheelParticles[particleIndex]->SetVelocity(&velocity);
 			}
 		}
 
@@ -623,13 +619,9 @@ void CarVisuals::Update(LegoU32 p_elapsedMs)
 
 				CopyParticleOrientation(m_carEntity, m_dustParticle);
 
-				if (m_dustParticle->m_particle) {
-					m_dustParticle->m_particle->SetPosition(&position);
-				}
+				m_dustParticle->SetPosition(&position);
 
-				if (m_dustParticle->m_particle) {
-					m_dustParticle->m_particle->SetVelocity(&velocity);
-				}
+				m_dustParticle->SetVelocity(&velocity);
 			}
 		}
 
@@ -648,13 +640,9 @@ void CarVisuals::Update(LegoU32 p_elapsedMs)
 
 				CopyParticleOrientation(m_carEntity, m_carSmokeParticle);
 
-				if (m_carSmokeParticle->m_particle) {
-					m_carSmokeParticle->m_particle->SetPosition(&position);
-				}
+				m_carSmokeParticle->SetPosition(&position);
 
-				if (m_carSmokeParticle->m_particle) {
-					m_carSmokeParticle->m_particle->SetVelocity(&velocity);
-				}
+				m_carSmokeParticle->SetVelocity(&velocity);
 			}
 		}
 
@@ -676,13 +664,9 @@ void CarVisuals::Update(LegoU32 p_elapsedMs)
 
 			CopyParticleOrientation(m_carEntity, m_tireSmokeParticle);
 
-			if (m_tireSmokeParticle->m_particle) {
-				m_tireSmokeParticle->m_particle->SetPosition(&position);
-			}
+			m_tireSmokeParticle->SetPosition(&position);
 
-			if (m_tireSmokeParticle->m_particle) {
-				m_tireSmokeParticle->m_particle->SetVelocity(&velocity);
-			}
+			m_tireSmokeParticle->SetVelocity(&velocity);
 		}
 		m_flags &= ~c_flagShadowVisible;
 	}
