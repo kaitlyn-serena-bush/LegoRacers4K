@@ -975,6 +975,7 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 
 	RacePowerupManager::Params powerupParams;
 	RaceDecalManager* decal = &m_decalManager;
+	SurfaceTable* surfaceTableP = &m_surfaceTable;
 	RaceReset::Params resetParams;
 	RaceEventTable::Params params;
 	HazardContext dispatcherContext;
@@ -1028,7 +1029,7 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	racerContext.m_particleAnimation = &m_particleAnimation;
 	racerContext.m_decalManager = decal;
 	racerContext.m_eventTable = &m_eventTable;
-	racerContext.m_surfaceTable = &m_surfaceTable;
+	racerContext.m_surfaceTable = surfaceTableP;
 	racerContext.m_checkpointGraph = &m_checkpointGraph;
 	racerContext.m_cheatFlags = m_context->m_cheatFlags;
 
@@ -1143,7 +1144,7 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	dispatcherContext.m_trackCollidable = m_trackCollidable;
 	dispatcherContext.m_golExport = m_golExport;
 	dispatcherContext.m_renderer = m_renderer;
-	dispatcherContext.m_colliderTable = &m_surfaceTable;
+	dispatcherContext.m_colliderTable = surfaceTableP;
 	dispatcherContext.m_raceState = &m_raceState;
 	dispatcherContext.m_triggerWorld = &m_triggerWorld;
 	dispatcherContext.m_powerupManager = &m_powerupManager;
@@ -1154,7 +1155,7 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	DrawLoadProgress(0.8f);
 
 	m_racerCollisionWorlds.Initialize(m_triggerDatabase, &m_raceState);
-	m_triggerWorld.Initialize(m_triggerDatabase, m_collisionWorldName, &m_eventTable, &m_surfaceTable);
+	m_triggerWorld.Initialize(m_triggerDatabase, m_collisionWorldName, &m_eventTable, surfaceTableP);
 	m_racerTriggers.Load(
 		&m_raceState,
 		&m_eventTable,
