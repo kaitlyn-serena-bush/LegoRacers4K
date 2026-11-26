@@ -923,7 +923,8 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 	if (p_params->m_hasTopCap) {
 		LegoU32 gt = groupIndex;
 		p_params->m_model->GetMutableGroups()[gt++] = ((p_params->m_segmentCount * 2) & 0x3f) << 16;
-		scratchStart = 2 + 1 * p_params->m_segmentCount;
+		LegoU32 top32 = 2 * p_params->m_segmentCount + 1;
+		scratchStart = static_cast<LegoU8>(top32);
 		groupIndex = groupIndex;
 		groupIndex = gt;
 		p_params->m_model->GetMutableGroups()[gt++] = ((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000;
