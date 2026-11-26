@@ -279,7 +279,8 @@ void AwardCinematicScreen::CreateWidgets()
 			if (swapEntity) {
 				MaterialTable* swapMaterials = swapEntity->GetPrimaryMaterialTable();
 				if (!swapMaterials) {
-					swapMaterials = swapEntity->GetModel(0)->GetMaterialTable();
+					swapMaterials = reinterpret_cast<MaterialTable*>(swapEntity->GetModel(0));
+					swapMaterials = reinterpret_cast<MaterialTable*>(reinterpret_cast<LegoU8*>(swapMaterials) + 4);
 				}
 				swapMaterials->SetEntry(0, driverMaterials->GetEntry(1));
 			}
@@ -287,7 +288,8 @@ void AwardCinematicScreen::CreateWidgets()
 			if (pLegEntity) {
 				MaterialTable* pLegMaterials = pLegEntity->GetPrimaryMaterialTable();
 				if (!pLegMaterials) {
-					pLegMaterials = pLegEntity->GetModel(0)->GetMaterialTable();
+					pLegMaterials = reinterpret_cast<MaterialTable*>(pLegEntity->GetModel(0));
+					pLegMaterials = reinterpret_cast<MaterialTable*>(reinterpret_cast<LegoU8*>(pLegMaterials) + 4);
 				}
 				pLegMaterials->SetEntry(0, driverMaterials->GetEntry(1));
 			}
