@@ -68,10 +68,10 @@ inline LegoFloat DotVectorsZxy(const GolVec3& p_left, const GolVec3& p_right, co
 	LegoFloat rightZ = p_right.m_z;
 	LegoFloat rightY = p_right.m_y;
 	LegoFloat leftY = p_left.m_y;
-	LegoFloat result = leftZ * rightZ;
 	LegoFloat x = p_left.m_x * p_same.m_x;
-	result += x;
-	result += rightY * leftY;
+	LegoFloat y = rightY * leftY;
+	LegoFloat result = x + y;
+	result += leftZ * rightZ;
 
 	return result;
 }
