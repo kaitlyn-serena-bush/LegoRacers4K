@@ -911,7 +911,7 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 	}
 
 	p_params->m_model->AddFlagsWithBounds(1, FALSE);
-	LegoU32 groupIndex = 0;
+	volatile LegoU32 groupIndex = 0;
 	p_params->m_model->GetMutableGroups()[groupIndex++] = 0x80000000;
 	if (p_params->m_absoluteIndexArray != NULL) {
 		p_params->m_absoluteIndexArray->Allocate(triangleCount);
@@ -921,10 +921,12 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 	LegoU8 triangle[3];
 	LegoU8 scratchStart = 0;
 	if (p_params->m_hasTopCap) {
-		p_params->m_model->GetMutableGroups()[groupIndex++] = ((p_params->m_segmentCount * 2) & 0x3f) << 16;
+		LegoU32 gt = groupIndex;
+		p_params->m_model->GetMutableGroups()[gt++] = ((p_params->m_segmentCount * 2) & 0x3f) << 16;
 		scratchStart = 2 + 1 * p_params->m_segmentCount;
 		groupIndex = groupIndex;
-		p_params->m_model->GetMutableGroups()[groupIndex++] = ((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000;
+		p_params->m_model->GetMutableGroups()[gt++] = ((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000;
+		groupIndex = gt;
 		for (segment = 0; segment < p_params->m_segmentCount; segment++) {
 			triangle[0] = static_cast<LegoU8>(segment);
 			triangle[second] = static_cast<LegoU8>(triangle[0] + p_params->m_segmentCount);
@@ -944,11 +946,12 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 		if (p_params->m_hasTopCap) {
 			first += p_params->m_segmentCount;
 		}
-				p_params->m_model->GetMutableGroups()[groupIndex] =
+		{ LegoU32 gb = groupIndex;
+				p_params->m_model->GetMutableGroups()[gb++] =
 			((scratchStart & 0x3f) << 22) | (((p_params->m_segmentCount * 2) & 0x3f) << 16) | (first & 0xffff);
-		p_params->m_model->GetMutableGroups()[groupIndex + 1] =
+		p_params->m_model->GetMutableGroups()[gb++] =
 			((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000 | (triangleIndex & 0xffff);
-		groupIndex += 2;
+		groupIndex = gb; }
 		for (segment = 1; segment <= p_params->m_segmentCount; segment++) {
 			segment = segment;
 			triangle[0] = static_cast<LegoU8>(segment + first + p_params->m_segmentCount);
