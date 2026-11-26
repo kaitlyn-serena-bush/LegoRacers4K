@@ -1050,11 +1050,9 @@ void CarVisuals::UpdateSkidMarks(LegoU32 p_elapsedMs)
 					m_wheelSkidFlags[i] = flags;
 				}
 				else {
-					m_wheelAirTimers[i] = m_wheelAirTimers[i];
 					if (!(m_racerPhysics->m_wheelProbes[i].m_flags & RacerPhysics::WheelProbe::c_flagContact)) {
-						LegoU32 elapsed = m_wheelAirTimers[i] + p_elapsedMs;
-						m_wheelAirTimers[i] = elapsed;
-						if (elapsed > 150) {
+						m_wheelAirTimers[i] += p_elapsedMs;
+						if (m_wheelAirTimers[i] > 150) {
 							m_wheelSkidFlags[i] &= ~c_wheelSkidGrounded;
 							m_wheelAirTimers[i] = 0;
 						}
