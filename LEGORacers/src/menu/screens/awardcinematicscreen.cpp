@@ -237,6 +237,7 @@ void AwardCinematicScreen::CreateWidgets()
 
 		m_context->m_modelBuilder.SetExpressionMask(0xffff);
 		m_driverModel = m_context->m_modelBuilder.BuildDriverModel(&cosmetics, NULL, 0);
+		GolAnimatedEntity* driverEntity = &m_driverEntity;
 		m_driverEntity.SetModel(
 			m_driverModel,
 			sourceDriverEntity->GetSceneNode(0),
@@ -269,7 +270,7 @@ void AwardCinematicScreen::CreateWidgets()
 		m_context->m_championDefinitions.ClearDefinitions();
 
 		if (swapEntity || pLegEntity) {
-			MaterialTable* driverMaterials = m_driverEntity.GetPrimaryMaterialTable();
+			MaterialTable* driverMaterials = driverEntity->GetPrimaryMaterialTable();
 			if (!driverMaterials) {
 				driverMaterials = m_driverEntity.GetModel(0)->GetMaterialTable();
 			}
