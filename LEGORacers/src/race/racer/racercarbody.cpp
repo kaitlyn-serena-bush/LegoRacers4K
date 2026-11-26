@@ -1384,11 +1384,11 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 				}
 			}
 		next2:
+			entryIndex++;
 			entry++;
 			rayStart = (GolVec3*)((char*)rayStart + sizeof(WheelProbe));
 			rayEnd = (GolVec3*)((char*)rayEnd + sizeof(WheelProbe));
 			hitPoint2 = (GolVec3*)((char*)hitPoint2 + sizeof(WheelProbe));
-			entryIndex++;
 		} while (entryIndex < sizeOfArray(m_axleMidpoints));
 	}
 
