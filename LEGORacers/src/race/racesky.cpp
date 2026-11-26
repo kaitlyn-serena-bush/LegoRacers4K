@@ -914,7 +914,8 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 
 	p_params->m_model->AddFlagsWithBounds(1, FALSE);
 	volatile LegoU32 groupIndex = 0;
-	p_params->m_model->GetMutableGroups()[groupIndex++] = 0x80000000;
+	p_params->m_model->GetMutableGroups()[0] = 0x80000000;
+	groupIndex = 1;
 	if (p_params->m_absoluteIndexArray != NULL) {
 		p_params->m_absoluteIndexArray->Allocate(triangleCount);
 	}
