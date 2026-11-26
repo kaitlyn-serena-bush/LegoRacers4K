@@ -641,11 +641,11 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 			indicesA[0] = indices[0];
 			indicesA[1] = index1;
 			flagsA[0] = vertex0->m_clipFlags;
-			flagsA[1] = vertex1->m_clipFlags;
-			flagsA[2] = vertex2->m_clipFlags;
 			indicesA[2] = index2;
-
+			flagsA[2] = vertex2->m_clipFlags;
 			LegoU32* inputIndices = indicesA;
+
+			flagsA[1] = vertex1->m_clipFlags;
 			LegoU32* inputFlags = flagsA;
 			LegoS32 inputCount = 3;
 			LegoU32* outputFlags = flagsB;
