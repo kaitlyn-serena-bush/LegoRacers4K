@@ -674,16 +674,16 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 		groupIndex = gx;
 		for (LegoU32 s2 = 1; s2 <= p_params->m_segmentCount; s2++) {
 			triangle[third] = static_cast<LegoU8>(first + s2 - 1);
-			triangle[0] = static_cast<LegoU8>(vertexCount - 1);
 			triangle[second] = static_cast<LegoU8>(s2 == p_params->m_segmentCount ? first : triangle[third] + 1);
+			triangle[0] = static_cast<LegoU8>(vertexCount - 1);
 			if (p_params->m_absoluteIndexArray != NULL) {
 				p_params->m_absoluteIndexArray
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
 			}
 			LegoU8* sweepElem0 = &triangle[0];
 			(*sweepElem0) += static_cast<LegoU8>(vertexIndex - first);
-			triangle[second] += static_cast<LegoU8>(vertexIndex - first);
 			triangle[third] += static_cast<LegoU8>(vertexIndex - first);
+			triangle[second] += static_cast<LegoU8>(vertexIndex - first);
 			static_cast<GdbModelIndexArray*>(indexArrayBase)
 				->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
 		}
