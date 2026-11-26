@@ -507,8 +507,8 @@ LegoBool32 DirectMusicInstance::SetPath(const LegoChar* p_path)
 	DWORD attributes = GetFileAttributes(m_path);
 	ReleaseMutex(m_mutex);
 
-	BYTE temp = attributes & 0xff;
-	return (!(temp & 0x80)) ? 0 : 1;
+	// Scratch form: _lrotl(x, 0) is the identity; it keeps attributes a dword in edi so the byte NOT runs on an eax copy.
+	return !(static_cast<BYTE>(_lrotl(attributes, 0)) & FILE_ATTRIBUTE_DIRECTORY);
 }
 
 // FUNCTION: LEGORACERS 0x004513d0 FOLDED
