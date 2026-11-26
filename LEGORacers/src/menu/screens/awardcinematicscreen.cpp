@@ -174,7 +174,8 @@ void AwardCinematicScreen::CreateWidgets()
 	}
 
 	CreateRegion(&m_sceneWidget, m_resourceMenuId);
-	m_sceneWidget.m_skippable = FALSE;
+	LegoBool32* skippable = &m_sceneWidget.m_skippable;
+	*skippable = FALSE;
 	CutsceneDefinition::Frame* frame = m_sceneWidget.m_frame;
 	definition = frame->GetDefinition();
 
