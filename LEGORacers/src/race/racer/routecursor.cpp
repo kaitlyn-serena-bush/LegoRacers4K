@@ -448,7 +448,10 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 				}
 			}
 
-			segmentAmount = projectedDelta + segmentLength - remainingDistance;
+			segmentAmount = projectedDelta;
+			segmentAmount += segmentLength;
+			segmentAmount -= remainingDistance;
+
 			break;
 		}
 	}
