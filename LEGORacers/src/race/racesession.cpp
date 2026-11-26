@@ -1074,19 +1074,21 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 		hashTable->SetCurrentEntry(hashTable->AddString(gameDataDirectory));
 	}
 
+	LegoU32 playerIndex = 0;
 	for (racerIndex = 0; racerIndex < m_context->m_racerCount; racerIndex++) {
 		if (m_context->m_playerSetupSlots[racerIndex].m_slotState == 0) {
-			RaceCameraController* cameraController = &m_cameraControllers[racerIndex];
+			RaceCameraController* cameraController = &m_cameraControllers[playerIndex];
 			Racer* racer = &m_raceState.GetRacers()[racerIndex];
-			m_raceState.m_playerRacers[racerIndex] = racer;
+			m_raceState.m_playerRacers[playerIndex] = racer;
 
 			cameraController->SetRacer(racer);
-			m_raceState.m_playerRacers[racerIndex]->InitializeSounds(cameraController, FALSE);
-			m_raceState.m_playerRacers[racerIndex]->SetCameraView(m_context->m_cameraViewIndex, m_splitScreen);
+			m_raceState.m_playerRacers[playerIndex]->InitializeSounds(cameraController, FALSE);
+			m_raceState.m_playerRacers[playerIndex]->SetCameraView(m_context->m_cameraViewIndex, m_splitScreen);
 			cameraController->Update(1.0f);
 			cameraController->SetMode(0);
 			cameraController->SnapPosition(&m_cameraStartPosition);
 			cameraController->SetOrientation(&m_cameraStartDirection, &m_cameraStartUp);
+			playerIndex++;
 		}
 
 		g_raceLapCount = m_lapCount;
