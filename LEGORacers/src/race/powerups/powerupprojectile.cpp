@@ -22,9 +22,6 @@ inline LegoFloat DotVectors(const GolVec3& p_left, const GolVec3& p_right)
 	return result;
 }
 
-// SCRATCH: unfoldable zero for the z term of the 2D dot (original multiplies by the pooled 0.0f literal)
-static const LegoFloat g_zeroScratch = 0.0f;
-
 // GLOBAL: LEGORACERS 0x004b076c
 extern const LegoFloat g_projectileTargetHeightOffset = 5.0f;
 
@@ -144,7 +141,9 @@ void PowerupProjectile::LaunchAtRacer(
 	dy *= inverseDistance;
 	delta.m_y = dy;
 	racerDirection = p_racer->m_physics.m_velocityDirection;
-	delta.m_z = g_zeroScratch;
+	// SCRATCH: a function-local static zero is not folded and has no data symbol reccmp names (original: pooled 0.0f)
+	static const LegoFloat zeroA = 0.0f;
+	delta.m_z = zeroA;
 	LegoFloat dot = DotVectors(racerDirection, delta);
 	if (dot < 0.0f) {
 		dot = -dot;
@@ -234,7 +233,9 @@ void PowerupProjectile::LaunchAtPoint(
 	GolVec3 delta;
 	delta.m_x = target->m_x - startPosition->m_x;
 	delta.m_y = m_targetPosition.m_y - m_startPosition.m_y;
-	delta.m_z = g_zeroScratch;
+	// SCRATCH: see LaunchAtRacer
+	static const LegoFloat zeroB = 0.0f;
+	delta.m_z = zeroB;
 	LegoFloat deltaY = delta.m_y;
 	LegoFloat distance = static_cast<LegoFloat>(sqrt(deltaY * deltaY + delta.m_x * delta.m_x));
 	LegoFloat inverseDistance;
