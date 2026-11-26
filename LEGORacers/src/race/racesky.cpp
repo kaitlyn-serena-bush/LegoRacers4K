@@ -816,8 +816,8 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 				vertexIndex = vertexIndex;
 				vertices->SetNormal(vertexIndex, normal);
 			}
+			textureCoordinate.m_x = (segmentAngle * g_raceSkyInverseTwoPi);
 			textureCoordinate.m_x += (textureHalfStep);
-			textureCoordinate.m_x = segmentAngle * g_raceSkyInverseTwoPi;
 			textureCoordinate.m_y = 0.0f;
 			vertices->SetTextureCoordinate(vertexIndex, textureCoordinate);
 			segmentAngle += angleStep;
@@ -839,6 +839,7 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 				position.m_y = (static_cast<LegoFloat>(::sin(segmentAngle)) * radius + p_params->m_origin.m_y);
 				segmentAngle += (angleStep);
 				vertices = vertices;
+				vertices = (vertices);
 				vertices->SetPosition(vertexIndex, position);
 				normal.m_x = position.m_x - p_params->m_origin.m_x;
 				normal.m_y = position.m_y - p_params->m_origin.m_y;
@@ -924,7 +925,7 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 	LegoU8 triangle[3];
 	LegoU8 scratchStart = 0;
 	if (p_params->m_hasTopCap) {
-		LegoU32 gt = groupIndex;
+		LegoU32 gt = (groupIndex);
 		p_params->m_model->GetMutableGroups()[gt++] = ((p_params->m_segmentCount * 2) & 0x3f) << 16;
 		LegoU32 top32 = 2 * p_params->m_segmentCount + 1;
 		scratchStart = static_cast<LegoU8>(top32);
@@ -958,8 +959,9 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 		groupIndex = gb; }
 		for (segment = 1; segment <= p_params->m_segmentCount; segment++) {
 			segment = segment;
-			triangle[0] = static_cast<LegoU8>(segment + first + p_params->m_segmentCount);
+			triangle[0] = (static_cast<LegoU8>(segment + first + p_params->m_segmentCount));
 			triangle[third] = static_cast<LegoU8>(segment + first - 1);
+			third = third;
 			triangle[second] = static_cast<LegoU8>(triangle[third] + 1);
 			if (p_params->m_absoluteIndexArray != NULL) {
 				p_params->m_absoluteIndexArray
@@ -979,6 +981,7 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 		}
 		LegoU32 first = (ring2 - 1) * (p_params->m_segmentCount + 1);
 		if (p_params->m_hasTopCap) {
+			first = first;
 			first += p_params->m_segmentCount;
 		}
 		{ LegoU32 gx = (groupIndex);
@@ -1016,6 +1019,7 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 		}
 	}
 	p_params->m_model->GetMutableGroups()[groupIndex] = 0xc0000000;
+	groupIndex = groupIndex;
 	p_params->m_model->AddFlags(1);
 
 	return vertexCount;
