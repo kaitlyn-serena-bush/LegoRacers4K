@@ -513,7 +513,7 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 	LegoU32 s2;
 	LegoU32 vertexIndex = 0;
 	LegoU32 triangleIndex = 0;
-	LegoFloat angleStep = 6.2831855f / static_cast<LegoFloat>(static_cast<LegoS32>(p_params->m_segmentCount));
+	LegoFloat angleStep = 6.2831855f / (((static_cast<LegoFloat>(static_cast<LegoS32>(p_params->m_segmentCount)))));
 	LegoU32 ringCount;
 	if (p_params->m_hemisphere) {
 		ringCount = 1 - static_cast<LegoS32>(g_raceSkyNegativeHalfPi / angleStep);
@@ -714,8 +714,9 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 			triangle[second] = static_cast<LegoU8>(triangle[0] + p_params->m_segmentCount);
 			LegoU8* sweepElem0 = &triangle[third];
 			LegoU8* sweepElem1 = &triangle[second];
+			LegoU32 sweepTmp0 = p_params->m_segmentCount;
 			(*sweepElem0) = static_cast<LegoU8>(
-				segment == p_params->m_segmentCount - 1 ? first + p_params->m_segmentCount : (*sweepElem1) + 1
+				segment == sweepTmp0 - 1 ? first + sweepTmp0 : (*sweepElem1) + 1
 			);
 			if (p_params->m_absoluteIndexArray != NULL) {
 				p_params->m_absoluteIndexArray
