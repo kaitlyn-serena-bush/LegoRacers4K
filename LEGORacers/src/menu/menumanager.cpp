@@ -494,7 +494,9 @@ void MenuManager::InitializeSaveSystem()
 	if (0 < m_gameContext.m_context->m_saveRecordCount) {
 		i = 0;
 		do {
-			::memcpy(m_gameContext.m_saveSystem.GetSessionSave().AllocateRecord()->m_data, m_gameContext.m_context->m_saveRecords[i], sizeof(m_gameContext.m_context->m_saveRecords[i]));
+			SaveRecordList::Record* record = m_gameContext.m_saveSystem.GetSessionSave().AllocateRecord();
+			savePad:; // scratch: scheduler-phase label (N287)
+			::memcpy(record->m_data, m_gameContext.m_context->m_saveRecords[i], sizeof(m_gameContext.m_context->m_saveRecords[i]));
 			i++;
 		} while (i < m_gameContext.m_context->m_saveRecordCount);
 	}
