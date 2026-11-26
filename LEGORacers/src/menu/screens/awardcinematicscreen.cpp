@@ -246,7 +246,8 @@ void AwardCinematicScreen::CreateWidgets()
 		);
 
 		if (carBodyEntity) {
-			if (!m_context->m_carBuildModel.IsInitialized()) {
+			MenuGameContext* context = m_context;
+			if (!context->m_carBuildModel.IsInitialized()) {
 				GolHashTable::Entry* currentEntry;
 				if (g_hashTable) {
 					currentEntry = g_hashTable->GetCurrentEntry();
