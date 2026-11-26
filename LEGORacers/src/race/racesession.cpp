@@ -974,7 +974,6 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	}
 
 	RacePowerupManager::Params powerupParams;
-	RaceDecalManager* decal = &m_decalManager;
 	SurfaceTable* surfaceTableP = &m_surfaceTable;
 	RaceReset::Params resetParams;
 	RaceEventTable::Params params;
@@ -1002,6 +1001,7 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 
 	DrawLoadProgress(0.51f);
 
+	RaceDecalManager* decal = &m_decalManager;
 	decal->Initialize(m_renderer, m_golExport, m_trackCollidable, 4);
 	LoadRouteRecords(p_mirror);
 
