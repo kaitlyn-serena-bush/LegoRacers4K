@@ -158,28 +158,31 @@ void DirectSoundManager::Update(undefined4)
 	ReleaseStoppedSounds();
 	m_activeSpatialSounds.Swap(spatialSounds);
 	GolListLink* link;
+	SoundBuffer* sound;
+	GolListLink* soundLink;
 	while ((link = spatialSounds.PopLastLink()) != NULL) {
-		SoundBuffer& sound = spatialSounds.GetItem(*link);
-		sound.m_streamingSoundInstance->UpdateSpatial(m_activeSoundNodes);
+		sound = &spatialSounds.GetItem(*link);
+		sound->m_streamingSoundInstance->UpdateSpatial(m_activeSoundNodes);
+		soundLink = &sound->GetLink();
 		link = m_activeSpatialSounds.FirstLink();
 		if (m_activeSpatialSounds.IsValidLink(link)) {
 			while (link) {
-				if (sound.m_priority <= m_activeSpatialSounds.GetItem(*link).m_priority) {
-					sound.GetLink().InsertBefore(link);
+				if (sound->m_priority <= m_activeSpatialSounds.GetItem(*link).m_priority) {
+					soundLink->InsertBefore(link);
 					goto done1;
 				}
 				link = link->NextValid();
 			}
 		}
-		sound.GetLink().InsertBefore(m_activeSpatialSounds.EndLink());
+		soundLink->InsertBefore(m_activeSpatialSounds.EndLink());
 done1:;
 	}
 	m_queuedSpatialSounds.Swap(spatialSounds);
 	if ((link = spatialSounds.PopLastLink()) != NULL) {
 		do {
-		SoundBuffer& sound = spatialSounds.GetItem(*link);
-		sound.m_streamingSoundInstance->UpdateSpatial(m_activeSoundNodes);
-		InsertByPriorityForUpdate(m_queuedSpatialSounds, sound, TRUE);
+		SoundBuffer& sound2 = spatialSounds.GetItem(*link);
+		sound2.m_streamingSoundInstance->UpdateSpatial(m_activeSoundNodes);
+		InsertByPriorityForUpdate(m_queuedSpatialSounds, sound2, TRUE);
 	} while ((link = spatialSounds.PopLastLink()) != NULL);
 	}
 
