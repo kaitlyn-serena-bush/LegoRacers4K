@@ -1316,7 +1316,7 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 
 	WheelProbe* entry;
 	m_contactCount = 0;
-	WheelProbe *selectedEntry;
+	WheelProbe* selectedEntry = NULL;
 	LegoU32 selectedIndex;
 
 	for (entryIndex = 0; entryIndex < sizeOfArray(m_axleMidpoints); entryIndex++) {
@@ -1386,8 +1386,8 @@ void RacerCarBody::UpdateSlideContacts(LegoU32 p_elapsedMs)
 			entryIndex++;
 			entry++;
 			rayStart = (GolVec3*)((char*)rayStart + sizeof(WheelProbe));
-			rayEnd = (GolVec3*)((char*)rayEnd + sizeof(WheelProbe));
 			hitPoint2 = (GolVec3*)((char*)hitPoint2 + sizeof(WheelProbe));
+			rayEnd = (GolVec3*)((char*)rayEnd + sizeof(WheelProbe));
 		} while (entryIndex < sizeOfArray(m_axleMidpoints));
 	}
 
@@ -1523,8 +1523,8 @@ next3:
 		if (dot < 0.0f) {
 			if (dot < -g_landingBounceThreshold) {
 				LegoFloat scaled = dot * g_landingBounceScale;
-				m_velocity.m_z -= scaled;
 				m_contactCount = 0;
+				m_velocity.m_z -= scaled;
 
 				for (entry = m_wheelProbes; entry < entriesEnd; entry++) {
 					entry->m_flags &= ~WheelProbe::c_flagContact;
