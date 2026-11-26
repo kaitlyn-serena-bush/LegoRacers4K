@@ -268,10 +268,10 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 {
 	LegoFloat segmentLength;
 	LegoFloat negativeDistance;
-	LegoFloat backwardDelta;
 	LegoFloat projectedDelta;
 	LegoFloat segmentAmount;
 	LegoFloat remainingDistance;
+	LegoFloat xx;
 	if (remainingDistance == 0.0f) {
 	}
 	if (projectedDelta == 0.0f) {
@@ -333,13 +333,13 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 		projectedDelta = sweepOld0 + sweepOld1 + segment.m_x * p_delta->m_x;
 
 		if (projectedDelta < 0.0f) {
-			backwardDelta = -projectedDelta;
-			segmentLength = static_cast<LegoFloat>(sqrt(startPosition.DistanceSquaredTo(m_position)));
+			projectedDelta = -projectedDelta;
+			xx = static_cast<LegoFloat>(sqrt(startPosition.DistanceSquaredTo(m_position)));
 
-			while (backwardDelta > segmentLength) {
+			while (projectedDelta > xx) {
 				{
 
-					negativeDistance = -segmentLength;
+					negativeDistance = -xx;
 					GolMath::ScaleVector3(&segment, negativeDistance, &consumed);
 					GolCameraBase::Subtract(p_delta, &consumed, p_delta);
 
@@ -370,6 +370,7 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 						sqrt(segment.m_z * segment.m_z + segment.m_y * segment.m_y + segment.m_x * segment.m_x)
 					);
 
+					xx = segmentLength;
 					inverseLength = 1.0f / segmentLength;
 					segment.m_x = segment.m_x * inverseLength;
 					segment.m_y = segment.m_y * inverseLength;
@@ -381,15 +382,15 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 					projectedDelta = sweepOld2 + sweepOld3 + segment.m_x * p_delta->m_x;
 
 					if (projectedDelta > 0.0f) {
-						backwardDelta = 0.0f;
+						projectedDelta = 0.0f;
 						break;
 					}
 
-					backwardDelta = -projectedDelta;
+					projectedDelta = -projectedDelta;
 				}
 			}
 
-			segmentAmount = segmentLength - backwardDelta;
+			segmentAmount = xx - projectedDelta;
 			break;
 		}
 
@@ -429,7 +430,8 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 						sqrt(segment.m_z * segment.m_z + segment.m_y * segment.m_y + segment.m_x * segment.m_x)
 					);
 
-					inverseLength = static_cast<LegoFloat>(1.0 / segmentLength);
+					remainingDistance = segmentLength;
+					inverseLength = 1.0f / segmentLength;
 					segment.m_x = segment.m_x * inverseLength;
 					segment.m_y = segment.m_y * inverseLength;
 					segment.m_z = segment.m_z * inverseLength;
@@ -439,7 +441,6 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 					sweepOld5 *= segment.m_z;
 					projectedDelta = sweepOld4 + sweepOld5 + segment.m_x * p_delta->m_x;
 
-					remainingDistance = segmentLength;
 					if (projectedDelta < 0.0f) {
 						projectedDelta = 0.0f;
 						break;
@@ -463,6 +464,8 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 	endPoint->GetRotation(&m_endRotation);
 	Advance(0.0f);
 }
+
+
 
 // FUNCTION: LEGORACERS 0x004a5e10
 void RaceRouteRecord::PathPoint::Load(GolFileParser* p_parser, LegoBool32 p_mirror)
