@@ -608,6 +608,9 @@ void RaceHud::DrawFixedMap()
 	);
 }
 
+// Scratch form (see N279): eight unreferenced labels shift where the scheduler 81-node window cap falls.
+#define GHOST_PAD8(p) p##0:; p##1:; p##2:; p##3:; p##4:; p##5:; p##6:; p##7:;
+
 // FUNCTION: LEGORACERS 0x00424fb0
 void RaceHud::DrawRotatingMap()
 {
@@ -700,6 +703,7 @@ void RaceHud::DrawRotatingMap()
 		vertices[0].m_u = 0.0f;
 		vertices[2].m_u = maxTextureCoordinate;
 		vertices[1].m_u = maxTextureCoordinate;
+		GHOST_PAD8(pad)
 
 		LegoFloat baseY0 = static_cast<LegoFloat>(mapCenterY) - deltaX0 * cameraDirection.m_x;
 		LegoFloat offsetY0 = deltaY0 * cameraDirection.m_y;
