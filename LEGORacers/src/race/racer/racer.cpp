@@ -1454,6 +1454,8 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 	firstVector = firstTarget->m_centerOfMassWorld;
 	GolVec3 secondCenter = secondTarget->m_centerOfMassWorld;
 	LegoFloat impulseNumerator = -DotVectors(relativeVelocity, collisionNormal);
+	if (impulseNumerator == 0) {
+	}
 	impulseNumerator *= (g_collisionRestitution + 1.0f);
 
 	LegoFloat collisionNormalLengthSquared = DotVectorsZxy(collisionNormal, collisionNormal, *normal);
