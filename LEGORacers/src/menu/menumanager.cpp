@@ -847,11 +847,11 @@ void MenuManager::PrepareRaceContext()
 		record->GetName(&string);
 		string.CopyToString(slot->m_playerName);
 
-		BuildPlayerCarModel(record, slot, &rendererState);
-		m_gameContext.m_context->m_playerRecordStates[saveIndex].m_saveIndex = record->m_saveIndex;
-
 		LegoU32 sweepOld1 = record->m_recordId;
 		context->m_playerRecordStates[saveIndex].m_recordId = sweepOld1;
+
+		m_gameContext.m_context->m_playerRecordStates[saveIndex].m_saveIndex = record->m_saveIndex;
+		BuildPlayerCarModel(record, slot, &rendererState);
 		BuildPlayerDriverModel(record, slot, &rendererState);
 		context->m_playerRecordStates[saveIndex].m_recordSource = record->m_recordSource;
 
