@@ -245,6 +245,12 @@ void TimeRaceManager::Update(LegoU32 p_elapsedMs)
 	}
 }
 
+// VC6 schedules machine code in windows of at most 81 IL nodes; a source label adds one node and no code.
+// 50 labels at the top of the sample-decode block shift Draw's window boundaries to the original's.
+#define GHOST_PAD5(p) p##0:; p##1:; p##2:; p##3:; p##4:;
+#define GHOST_PAD25(p) GHOST_PAD5(p##a) GHOST_PAD5(p##b) GHOST_PAD5(p##c) GHOST_PAD5(p##d) GHOST_PAD5(p##e)
+#define GHOST_PAD50(p) GHOST_PAD25(p##x) GHOST_PAD25(p##y)
+
 // FUNCTION: LEGORACERS 0x00422960
 void TimeRaceManager::Draw(GolD3DRenderDevice* p_renderer)
 {
@@ -330,6 +336,7 @@ void TimeRaceManager::Draw(GolD3DRenderDevice* p_renderer)
 				continue;
 			}
 
+			GHOST_PAD50(pad)
 			GhostRunData::Sample* sample = &ghostRun->m_samples[sampleIndex];
 			GhostRunData::Sample* nextSample = &ghostRun->m_samples[sampleIndex + 1];
 
