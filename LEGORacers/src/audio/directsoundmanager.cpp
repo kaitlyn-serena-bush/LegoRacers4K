@@ -242,18 +242,19 @@ done1:;
 				break;
 			}
 			m_availableSoundCount--;
-			queuedSound->GetLink().Remove();
+			GolListLink* qLink = &queuedSound->GetLink();
+			qLink->Remove();
 			link = m_activeSounds.FirstLink();
 			if (m_activeSounds.IsValidLink(link)) {
 				while (link) {
-					if (queuedSound->m_priority <= m_activeSounds.GetItem(*link).m_priority) {
-						queuedSound->GetLink().InsertBefore(link);
+					if (m_activeSounds.GetItem(*qLink).m_priority <= m_activeSounds.GetItem(*link).m_priority) {
+						qLink->InsertBefore(link);
 						goto done5;
 					}
 					link = link->NextValid();
 				}
 			}
-			queuedSound->GetLink().InsertBefore(m_activeSounds.EndLink());
+			qLink->InsertBefore(m_activeSounds.EndLink());
 done5:
 			queuedSound->SetPlaybackState(SoundBuffer::c_playbackStateActive);
 			queuedSound->StartDirectSoundBuffer();
