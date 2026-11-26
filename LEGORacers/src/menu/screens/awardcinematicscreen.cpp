@@ -271,9 +271,13 @@ void AwardCinematicScreen::CreateWidgets()
 		m_context->m_championDefinitions.ClearDefinitions();
 
 		if (swapEntity || pLegEntity) {
-			MaterialTable* driverMaterials = driverEntity->GetPrimaryMaterialTable();
-			if (!driverMaterials) {
-				driverMaterials = m_driverEntity.GetModel(0)->GetMaterialTable();
+			MaterialTable* driverMaterials;
+			if (driverEntity->GetPrimaryMaterialTable()) {
+				driverMaterials = driverEntity->GetPrimaryMaterialTable();
+			}
+			else {
+				driverMaterials = reinterpret_cast<MaterialTable*>(driverEntity->GetModel(0));
+				driverMaterials = reinterpret_cast<MaterialTable*>(reinterpret_cast<LegoU8*>(driverMaterials) + 4);
 			}
 
 			if (swapEntity) {
