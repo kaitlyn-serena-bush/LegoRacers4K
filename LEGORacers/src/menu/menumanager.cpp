@@ -695,8 +695,8 @@ void MenuManager::PrepareRaceContext()
 	GolRenderDevice::MaterialColor materialColor;
 	GolRenderDevice::Light light;
 	GolModelRenderState rendererState;
-	LegoRacers::Context* context = m_gameContext.m_context;
 	ActiveRecordBuffer& selectedRecords = m_gameContext.m_saveSystem.GetActiveRecord();
+	LegoRacers::Context* context = m_gameContext.m_context;
 
 	if (context->m_raceMode == LegoRacers::Context::c_raceModeCircuit ||
 		context->m_raceMode == LegoRacers::Context::c_raceModeTimeRace) {
@@ -715,7 +715,8 @@ void MenuManager::PrepareRaceContext()
 		session->GetFileImage(),
 		sizeof(context->m_saveState)
 	);
-	context->m_flags |= LegoRacers::Context::c_flagSaveStateValid;
+	LegoU8& sweepOld2 = context->m_flags;
+	sweepOld2 |= LegoRacers::Context::c_flagSaveStateValid;
 
 
 	if (!selectedRecords.GetSelectedRecordCount()) {
@@ -728,17 +729,17 @@ void MenuManager::PrepareRaceContext()
 		RaceNameEntry* raceName = m_gameContext.m_circuitList.GetEntries()[0].GetRaceNameEntry(raceIndex);
 
 		if (raceName) {
-			::memcpy(
-				context->m_raceSlots[0].m_raceName,
-				raceName->GetName(),
-				sizeof(context->m_raceSlots[0].m_raceName)
-			);
+			context->m_raceSlots[0].m_enabled = 1;
 			::memcpy(
 				context->m_raceSlots[0].m_folderName,
 				raceName->GetFolderName(),
 				sizeof(context->m_raceSlots[0].m_folderName)
 			);
-			context->m_raceSlots[0].m_enabled = 1;
+			::memcpy(
+				context->m_raceSlots[0].m_raceName,
+				raceName->GetName(),
+				sizeof(context->m_raceSlots[0].m_raceName)
+			);
 			context->m_raceSlots[0].m_mirror = raceName->GetMirror();
 		}
 
@@ -850,7 +851,8 @@ void MenuManager::PrepareRaceContext()
 		LegoU32 sweepOld1 = record->m_recordId;
 		context->m_playerRecordStates[saveIndex].m_recordId = sweepOld1;
 
-		m_gameContext.m_context->m_playerRecordStates[saveIndex].m_saveIndex = record->m_saveIndex;
+		LegoU32 sweepTmp0 = record->m_saveIndex;
+		m_gameContext.m_context->m_playerRecordStates[saveIndex].m_saveIndex = sweepTmp0;
 		BuildPlayerCarModel(record, slot, &rendererState);
 		BuildPlayerDriverModel(record, slot, &rendererState);
 		context->m_playerRecordStates[saveIndex].m_recordSource = record->m_recordSource;
