@@ -1229,6 +1229,7 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 		hashTable->SetCurrentEntry(hashTable->AddString(gameDataDirectory));
 	}
 
+	LegoRacers::Context* sweepOld0 = m_context;
 	if (!m_demoMode) {
 		m_dialog.Initialize(m_loadingFont, m_renderer, &m_stringTable, m_context->m_inputBindings[0].m_events[2]);
 	}
@@ -1244,7 +1245,6 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	resetParams.m_triggers = &m_triggers;
 	resetParams.m_collisionWorlds = &m_racerCollisionWorlds;
 	resetParams.m_eventTable = &m_eventTable;
-	LegoRacers::Context* sweepOld0 = m_context;
 
 	m_raceReset.Initialize(&resetParams);
 	m_particleAnimation.Load(
