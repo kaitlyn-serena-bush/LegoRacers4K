@@ -633,7 +633,8 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 
 	p_params->m_model->AddFlagsWithBounds(1, FALSE);
 	LegoU32 groupIndex = 0;
-	p_params->m_model->GetMutableGroups()[groupIndex++] = 0x80000000;
+	p_params->m_model->GetMutableGroups()[0] = 0x80000000;
+	groupIndex = 1;
 	if (p_params->m_absoluteIndexArray != NULL) {
 		p_params->m_absoluteIndexArray->Allocate(triangleBudget);
 	}
@@ -643,8 +644,9 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 
 	if (p_params->m_hasTopCap) {
 		vertexIndex = p_params->m_segmentCount + 1;
-		p_params->m_model->GetMutableGroups()[groupIndex++] = (p_params->m_segmentCount & 0x3f) << 16;
-		p_params->m_model->GetMutableGroups()[groupIndex++] = ((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000;
+		p_params->m_model->GetMutableGroups()[1] = (p_params->m_segmentCount & 0x3f) << 16;
+		p_params->m_model->GetMutableGroups()[2] = ((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000;
+		groupIndex = 3;
 		for (LegoU32 s1 = 1; s1 <= p_params->m_segmentCount; s1++) {
 			triangle[0] = 0;
 			triangle[second] = static_cast<LegoU8>(s1);
