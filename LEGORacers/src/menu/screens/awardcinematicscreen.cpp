@@ -337,8 +337,10 @@ void AwardCinematicScreen::CreateWidgets()
 							expressionIndex = ::strncmp(expressionName, "suprz", sizeof(GolName)) == 0 ? 5 : 0;
 						}
 
-						m_context->m_modelBuilder.GetPartResources()->GetPartCatalog()
-							->BuildFaceExpressionName(cosmetics.m_faceIndex, expressionIndex, expressionName);
+						LegoU8* p = reinterpret_cast<LegoU8*>(m_context);
+						p = *reinterpret_cast<LegoU8**>(p + 0x4b78);
+						p = *reinterpret_cast<LegoU8**>(p + 0x38);
+						reinterpret_cast<DriverPartCatalog*>(p)->BuildFaceExpressionName(cosmetics.m_faceIndex, expressionIndex, expressionName);
 						animationItems[frameIndex].SetMaterial(m_renderer->FindMaterialByName(expressionName));
 					}
 				}
@@ -346,6 +348,9 @@ void AwardCinematicScreen::CreateWidgets()
 			else if (entity == carBodyEntity) {
 				if (carCreated) {
 					model->SetEntity(&m_carGroup);
+				}
+				else {
+					model->SetEntity(NULL);
 				}
 			}
 			else if ((entity == swapEntity && cosmetics.m_legIndex == 10) || (entity == pLegEntity && cosmetics.m_legIndex != 10)) {
