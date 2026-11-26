@@ -613,6 +613,7 @@ void RaceHud::DrawRotatingMap()
 {
 	const LegoFloat maxTextureCoordinate = 0.9990000129f;
 
+	LegoS32 racerIndex = 0;
 	LegoFloat markerWidthScale = m_scaleX;
 	markerWidthScale *= g_hudMarkerSize;
 	LegoS32 markerWidth = static_cast<LegoS32>(markerWidthScale);
@@ -737,7 +738,7 @@ void RaceHud::DrawRotatingMap()
 	Rect destRect;
 	Rect sourceRect;
 
-	LegoS32 racerIndex = static_cast<LegoS32>(m_raceState->GetRacerCount());
+	racerIndex = static_cast<LegoS32>(m_raceState->GetRacerCount());
 	while (racerIndex > 0) {
 		racerIndex--;
 
