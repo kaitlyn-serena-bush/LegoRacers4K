@@ -752,7 +752,6 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSphere(Params* p_params)
 LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 {
 	LegoU32 vertexIndex = 0;
-	LegoU32 ring;
 	LegoU32 triangleIndex = 0;
 	LegoU32 sweepOld0 = p_params->m_segmentCount;
 	LegoFloat angleStep = 6.2831855f / static_cast<LegoFloat>(static_cast<LegoS32>(sweepOld0));
@@ -769,10 +768,10 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 	LegoU32 triangleCount = static_cast<LegoU32>(ringCount) * p_params->m_segmentCount * 2;
 	if (!p_params->m_hasTopCap) {
 		vertexCount -= p_params->m_segmentCount;
-		triangleCount -= p_params->m_segmentCount;
+		triangleCount -= (p_params->m_segmentCount);
 	}
 	if (!p_params->m_hasBottomCap) {
-		vertexCount -= p_params->m_segmentCount;
+		vertexCount -= (p_params->m_segmentCount);
 		triangleCount -= p_params->m_segmentCount;
 	}
 
@@ -787,8 +786,8 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 		third = 1;
 	}
 	else {
-		third = 2;
-		second = 1;
+		third = (2);
+		second = (1);
 	}
 	LegoFloat textureHalfStep = 1.0f / (static_cast<LegoFloat>(static_cast<LegoS32>(p_params->m_segmentCount)) * 2.0f);
 	ColorRGBA color;
@@ -807,16 +806,17 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 		position.m_x = p_params->m_origin.m_x;
 		position.m_y = p_params->m_origin.m_y;
 		position.m_z = p_params->m_radius + p_params->m_origin.m_z;
-		normal.m_x = 0.0f;
 		normal.m_y = 0.0f;
+		normal.m_x = 0.0f;
 		normal.m_z = 1.0f;
-		segmentAngle = 0.0f;
+		segmentAngle = (0.0f);
 		for (; vertexIndex < p_params->m_segmentCount; vertexIndex++) {
 			vertices->SetPosition(vertexIndex, position);
 			if (p_params->m_vertexType == Params::c_vertexColored) {
 				vertices->SetColor(vertexIndex, color);
 			}
 			else if (p_params->m_vertexType == Params::c_vertexLit) {
+				vertexIndex = vertexIndex;
 				vertices->SetNormal(vertexIndex, normal);
 			}
 			textureCoordinate.m_x = segmentAngle * g_raceSkyInverseTwoPi;
@@ -829,31 +829,34 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 
 	LegoFloat ringAngle = angleStep;
 	
-	for (ring = 0; ring < ringCount; ring++) {
+	for (LegoU32 ring = 0; ring < ringCount; ring++) {
 		if (p_params->m_hemisphere && ring == ringCount - 1) {
 			ringAngle = 1.5707964f;
 		}
-		position.m_z = static_cast<LegoFloat>(::cos(ringAngle)) * p_params->m_radius + p_params->m_origin.m_z;
+		position.m_z = p_params->m_origin.m_z + (static_cast<LegoFloat>(::cos(ringAngle)) * p_params->m_radius);
 		LegoFloat radius = static_cast<LegoFloat>(::sin(ringAngle)) * p_params->m_radius;
 		segmentAngle = 0.0f;
 		for (segment = 0; segment < p_params->m_segmentCount + 1; segment++) {
 			if (segment < p_params->m_segmentCount) {
-				position.m_x = static_cast<LegoFloat>(::cos(segmentAngle)) * radius + p_params->m_origin.m_x;
-				position.m_y = static_cast<LegoFloat>(::sin(segmentAngle)) * radius + p_params->m_origin.m_y;
-				segmentAngle += angleStep;
-				vertexIndex = vertexIndex;
+				position.m_x = p_params->m_origin.m_x + (static_cast<LegoFloat>(::cos(segmentAngle)) * radius);
+				position.m_y = (static_cast<LegoFloat>(::sin(segmentAngle)) * radius + p_params->m_origin.m_y);
+				segmentAngle += (angleStep);
+				vertices = vertices;
 				vertices->SetPosition(vertexIndex, position);
 				normal.m_x = position.m_x - p_params->m_origin.m_x;
 				normal.m_y = position.m_y - p_params->m_origin.m_y;
 				normal.m_z = position.m_z - p_params->m_origin.m_z;
 				GolMath::NormalizeVector3(normal, &normal);
 				if (p_params->m_vertexType == Params::c_vertexColored) {
+					vertices = (vertices);
 					vertices->SetColor(vertexIndex, color);
 				}
 				else if (p_params->m_vertexType == Params::c_vertexLit) {
+					vertexIndex = vertexIndex;
 					vertices->SetNormal(vertexIndex, normal);
 				}
 				textureCoordinate.m_x = (segmentAngle - angleStep) * g_raceSkyInverseTwoPi;
+				ringAngle = ringAngle;
 				textureCoordinate.m_y = ringAngle * g_raceSkyInversePi;
 				vertices->SetTextureCoordinate(vertexIndex, textureCoordinate);
 				vertexIndex++;
@@ -861,6 +864,7 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 			else {
 				vertices->GetPosition(vertexIndex - p_params->m_segmentCount, &position);
 				vertices->GetColor(vertexIndex - p_params->m_segmentCount, &color);
+				vertices = vertices;
 				vertices->GetNormal(vertexIndex - p_params->m_segmentCount, &normal);
 				vertices->GetTextureCoordinate(vertexIndex - p_params->m_segmentCount, &textureCoordinate);
 				textureCoordinate.m_x = 1.0f;
@@ -875,6 +879,7 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 				vertexIndex++;
 			}
 		}
+		ringAngle = (ringAngle);
 		ringAngle += angleStep;
 	}
 
@@ -887,20 +892,22 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 		else {
 			position.m_z = p_params->m_origin.m_z - p_params->m_radius;
 		}
+		normal.m_y = (0.0f);
 		normal.m_x = 0.0f;
-		normal.m_y = 0.0f;
-		normal.m_z = -1.0f;
 		segmentAngle = 0.0f;
+		normal.m_z = -1.0f;
 		for (segment = 0; segment < p_params->m_segmentCount; segment++) {
 			vertices->SetPosition(vertexIndex, position);
 			if (p_params->m_vertexType == Params::c_vertexColored) {
 				vertices->SetColor(vertexIndex, color);
 			}
 			else if (p_params->m_vertexType == Params::c_vertexLit) {
+				vertexIndex = vertexIndex;
 				vertices->SetNormal(vertexIndex, normal);
 			}
-			textureCoordinate.m_x = segmentAngle * g_raceSkyInverseTwoPi + textureHalfStep;
-			textureCoordinate.m_y = 1.0f;
+			textureCoordinate.m_x = textureHalfStep + (segmentAngle * g_raceSkyInverseTwoPi);
+			textureCoordinate.m_y = (1.0f);
+			vertexIndex = vertexIndex;
 			vertices->SetTextureCoordinate(vertexIndex, textureCoordinate);
 			vertexIndex++;
 			segmentAngle += angleStep;
@@ -913,19 +920,18 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 	if (p_params->m_absoluteIndexArray != NULL) {
 		p_params->m_absoluteIndexArray->Allocate(triangleCount);
 	}
-	GdbModelIndexArrayBase* indexArrayBase;
-	p_params->m_model->GetIndexArrayInto(&indexArrayBase);
-	GdbModelIndexArray* indices = static_cast<GdbModelIndexArray*>(indexArrayBase);
+	GdbModelIndexArray* indices;
+	p_params->m_model->GetIndexArrayInto(reinterpret_cast<GdbModelIndexArrayBase**>(&indices));
 	LegoU8 triangle[3];
-	LegoU32 scratchStart;
+	LegoU8 scratchStart = 0;
 	if (p_params->m_hasTopCap) {
-		p_params->m_model->GetMutableGroups()[groupIndex++] = ((p_params->m_segmentCount * 2) & 0x3f) << 16;
 		scratchStart = p_params->m_segmentCount * 2 + 1;
+		p_params->m_model->GetMutableGroups()[groupIndex++] = ((p_params->m_segmentCount * 2) & 0x3f) << 16;
+		groupIndex = groupIndex;
 		p_params->m_model->GetMutableGroups()[groupIndex++] = ((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000;
 		for (segment = 0; segment < p_params->m_segmentCount; segment++) {
 			triangle[0] = static_cast<LegoU8>(segment);
-			LegoU8* sweepElem0 = &triangle[second];
-			(*sweepElem0) = static_cast<LegoU8>(triangle[0] + p_params->m_segmentCount);
+			triangle[second] = static_cast<LegoU8>(triangle[0] + p_params->m_segmentCount);
 			triangle[third] = static_cast<LegoU8>(triangle[second] + 1);
 			if (p_params->m_absoluteIndexArray != NULL) {
 				p_params->m_absoluteIndexArray
@@ -940,42 +946,44 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 		}
 		LegoU32 first = (p_params->m_segmentCount + 1) * (ringCount - 1);
 		if (p_params->m_hasTopCap) {
-			first += (p_params->m_segmentCount);
+			first += p_params->m_segmentCount;
 		}
-		p_params->m_model->GetMutableGroups()[groupIndex++] =
+		groupIndex = groupIndex;
+		{ LegoU32 gx = groupIndex;
+		p_params->m_model->GetMutableGroups()[gx++] =
 			((scratchStart & 0x3f) << 22) | (((p_params->m_segmentCount * 2) & 0x3f) << 16) | (first & 0xffff);
-		LegoU32 indexOffset = scratchStart - first;
-		p_params->m_model->GetMutableGroups()[groupIndex++] =
+		p_params->m_model->GetMutableGroups()[gx++] =
 			((p_params->m_segmentCount & 0x7f) << 16) | 0x20000000 | (triangleIndex & 0xffff);
-		for (ring = 1; ring <= p_params->m_segmentCount; ring++) {
-			triangle[0] = static_cast<LegoU8>(ring + first + p_params->m_segmentCount);
-			triangle[third] = static_cast<LegoU8>(ring + first - 1);
+		groupIndex = gx; }
+		for (segment = 1; segment <= p_params->m_segmentCount; segment++) {
+			triangle[0] = static_cast<LegoU8>(segment + first + p_params->m_segmentCount);
+			triangle[third] = static_cast<LegoU8>(segment + first - 1);
 			triangle[second] = static_cast<LegoU8>(triangle[third] + 1);
 			if (p_params->m_absoluteIndexArray != NULL) {
 				p_params->m_absoluteIndexArray
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
 			}
-			triangle[0] += static_cast<LegoU8>(indexOffset);
-			triangle[third] += static_cast<LegoU8>(indexOffset);
-			triangle[second] += static_cast<LegoU8>(indexOffset);
+			triangle[second] += static_cast<LegoU8>(scratchStart - first);
+			triangle[0] += static_cast<LegoU8>(scratchStart - first);
+			triangle[third] += static_cast<LegoU8>(scratchStart - first);
 			indices->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
 		}
 		scratchStart += p_params->m_segmentCount * 2 + 1;
 	}
 	for (LegoU32 ring2 = 1; ring2 < ringCount; ring2++) {
 		if (scratchStart + (p_params->m_segmentCount + 1) * 2 > 64) {
-			scratchStart = scratchStart;
 			scratchStart = 0;
 		}
 		LegoU32 first = (ring2 - 1) * (p_params->m_segmentCount + 1);
 		if (p_params->m_hasTopCap) {
 			first += p_params->m_segmentCount;
 		}
-		LegoU32 indexOffset = scratchStart - first;
-		p_params->m_model->GetMutableGroups()[groupIndex++] =
+		{ LegoU32 gx = groupIndex;
+		p_params->m_model->GetMutableGroups()[gx++] =
 			((scratchStart & 0x3f) << 22) | (((p_params->m_segmentCount * 2 + 1) & 0x3f) << 16) | (first & 0xffff);
-		p_params->m_model->GetMutableGroups()[groupIndex++] =
+		p_params->m_model->GetMutableGroups()[gx++] =
 			(((p_params->m_segmentCount * 2) & 0x7f) << 16) | 0x20000000 | (triangleIndex & 0xffff);
+		groupIndex = gx; }
 		for (segment = 0; segment < p_params->m_segmentCount; segment++) {
 			triangle[0] = static_cast<LegoU8>(first + segment);
 			triangle[second] = static_cast<LegoU8>(triangle[0] + p_params->m_segmentCount + 1);
@@ -984,20 +992,23 @@ LegoU32 RaceSkyState::ModelBuilder::BuildSeamedSphere(Params* p_params)
 				p_params->m_absoluteIndexArray
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
 			}
-			triangle[0] += static_cast<LegoU8>(indexOffset);
+			triangle[0] = triangle[0] + static_cast<LegoU8>(scratchStart - first);
+			triangle[second] = triangle[second] + static_cast<LegoU8>(scratchStart - first);
+			triangle[third] = triangle[third] + static_cast<LegoU8>(scratchStart - first);
 			indices->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
-			triangle[third] += static_cast<LegoU8>(indexOffset);
 			triangle[0] = static_cast<LegoU8>(first + segment);
-			triangle[second] += static_cast<LegoU8>(indexOffset);
-			triangle[second] = static_cast<LegoU8>(triangle[0] + p_params->m_segmentCount + 2);
 			triangle[third] = static_cast<LegoU8>(triangle[0] + 1);
+			second = second;
+			triangle[second] = static_cast<LegoU8>(triangle[0] + p_params->m_segmentCount + 2);
 			if (p_params->m_absoluteIndexArray != NULL) {
 				p_params->m_absoluteIndexArray
 					->SetTriangleIndices(triangleIndex, triangle[0], triangle[1], triangle[2]);
 			}
-			triangle[0] += static_cast<LegoU8>(indexOffset);
-			triangle[third] += static_cast<LegoU8>(indexOffset);
-			triangle[second] += static_cast<LegoU8>(indexOffset);
+			triangle[0] = triangle[0] + static_cast<LegoU8>(scratchStart - first);
+			first = first;
+			triangle[second] = triangle[second] + static_cast<LegoU8>(scratchStart - first);
+			first = first;
+			triangle[third] = triangle[third] + static_cast<LegoU8>(scratchStart - first);
 			indices->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
 		}
 	}
