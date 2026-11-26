@@ -1041,11 +1041,10 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 
 	LegoU32 racerIndex;
 	RaceRouteRecord* routeRecord = m_routeRecords;
-	undefined4* slotState = &m_context->m_playerSetupSlots[0].m_slotState;
 	for (racerIndex = 0; racerIndex < racerParams.m_racerCount; racerIndex++) {
-		racerParams.m_slots[racerIndex] = (LegoRacers::Context::PlayerSetupSlot*)((char*)slotState - 0x10);
+		racerParams.m_slots[racerIndex] = &m_context->m_playerSetupSlots[racerIndex];
 
-		if ((*slotState == 2 || m_demoMode) && routeRecord->m_pathPoints) {
+		if ((m_context->m_playerSetupSlots[racerIndex].m_slotState == 2 || m_demoMode) && routeRecord->m_pathPoints) {
 			racerParams.m_racerRoutes[racerIndex] = routeRecord;
 		}
 		else {
@@ -1053,7 +1052,6 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 		}
 
 		routeRecord++;
-		slotState = (undefined4*)((char*)slotState + sizeof(LegoRacers::Context::PlayerSetupSlot));
 	}
 
 	for (racerIndex = racerParams.m_racerCount; racerIndex < sizeOfArray(racerParams.m_slots); racerIndex++) {
@@ -1273,9 +1271,9 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 	powerupParams.m_racerTriggers = &m_racerTriggers;
 	powerupParams.m_animationList = &m_animationList;
 	powerupParams.m_targetPoints = &m_targetPoints;
-	LegoRacers::Context* sweepOld1 = m_context;
 	powerupParams.m_cheatFlags = m_context->m_cheatFlags;
-	powerupParams.m_cameraFov = m_splitScreen ? sweepOld1->m_cameraFov - g_splitScreenFovDelta : sweepOld1->m_cameraFov;
+	powerupParams.m_cameraFov = m_splitScreen ? m_context->m_cameraFov - g_splitScreenFovDelta : m_context->m_cameraFov;
+
 	m_powerupManager.Initialize(&powerupParams);
 
 	m_powerupManager.LoadDatabases(m_powerupDatabaseName, m_turboDatabaseName, m_context->m_useBinaryFiles);
