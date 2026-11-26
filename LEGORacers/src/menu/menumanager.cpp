@@ -817,6 +817,7 @@ void MenuManager::PrepareRaceContext()
 	LegoRacers::Context::PlayerSetupSlot* slot = slots;
 	LoadPartResources(TRUE);
 	for (saveIndex = 0; saveIndex < selectedRecords.GetSelectedRecordCount(); saveIndex++) {
+		sweepPad0_0:; sweepPad0_1:; sweepPad0_2:; sweepPad0_3:; sweepPad0_4:; sweepPad0_5:; sweepPad0_6:; sweepPad0_7:; sweepPad0_8:; sweepPad0_9:; sweepPad0_10:; sweepPad0_11:; sweepPad0_12:; sweepPad0_13:; sweepPad0_14:; sweepPad0_15:;
 		SaveRecordList::Record* record = selectedRecords.GetSelectedRecord(saveIndex);
 
 		rendererState.ResetLighting();
