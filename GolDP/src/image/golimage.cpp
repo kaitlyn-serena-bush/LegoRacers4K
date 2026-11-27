@@ -12,6 +12,7 @@
 #include "surface/gold3dtexture.h"
 #include "surface/golrendertarget.h"
 
+#include <miniwin/miniwinapp.h>
 #include <string>
 #include <unordered_map>
 
@@ -255,8 +256,14 @@ void GolImage::DrawStretched(
 	clip.m_right = static_cast<LegoFloat>(renderTargetWidth);
 	clip.m_bottom = static_cast<LegoFloat>(renderTargetHeight);
 
+	// [library:2d] Widescreen: images may be drawn into the side areas.
+	LegoS32 wideExtra = MiniwinGetWideExtra();
+	clip.m_left -= static_cast<LegoFloat>(wideExtra);
+	clip.m_right += static_cast<LegoFloat>(wideExtra);
+	renderTargetWidth += wideExtra;
+
 	if (p_clipRect != NULL) {
-		if (p_clipRect->m_left > 0) {
+		if (p_clipRect->m_left > -wideExtra) {
 			clip.m_left = static_cast<LegoFloat>(p_clipRect->m_left);
 		}
 		if (p_clipRect->m_top > 0) {

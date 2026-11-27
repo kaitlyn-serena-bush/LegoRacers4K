@@ -120,6 +120,78 @@ void OptionsScreenBase::CreateWidgets()
 
 // [library:config] LegoRacers4K: lays every option out on the main options page. Widgets are
 // created in navigation order (top to bottom), then moved into rows.
+// [library:config] LegoRacers4K: volume bar at the options-page column, two thirds
+// of its original width, ending where the full-width bar ended.
+static void PlaceVolumeBar(OptionsRowBase* p_row, LegoS32 p_top)
+{
+	Rect rect = *p_row->GetRect();
+	LegoS32 width = rect.m_right - rect.m_left;
+	LegoS32 height = rect.m_bottom - rect.m_top;
+	LegoS32 newWidth = (width * 2) / 3;
+	rect.m_left = 20 + (width - newWidth);
+	rect.m_right = rect.m_left + newWidth;
+	rect.m_top = p_top;
+	rect.m_bottom = p_top + height;
+	p_row->SetRect(&rect);
+	p_row->LayoutButtons();
+	p_row->LayoutTrack();
+	p_row->LayoutThumb();
+}
+
+// [library:config] LegoRacers4K: "MUSIC VOLUME" / "SOUND VOLUME" on one line: the
+// localized title with line breaks turned into spaces and a leading "ADJUST" dropped.
+static void SetOneLineVolumeTitle(
+	MenuTextLabel* p_label,
+	undefined2* p_source,
+	GolString* p_string,
+	undefined2* p_buffer
+)
+{
+	if (!p_source) {
+		return;
+	}
+
+	static const char c_adjust[] = "ADJUST";
+	LegoS32 start = 0;
+	LegoS32 i;
+	for (i = 0; c_adjust[i]; i++) {
+		LegoU16 c = p_source[i];
+		if (c >= 'a' && c <= 'z') {
+			c -= 'a' - 'A';
+		}
+		if (c != static_cast<LegoU8>(c_adjust[i])) {
+			break;
+		}
+	}
+	if (!c_adjust[i] && (p_source[i] == ' ' || p_source[i] == '\n' || p_source[i] == '\r')) {
+		start = i + 1;
+	}
+
+	LegoS32 length = 0;
+	for (i = start; p_source[i] && length < 63; i++) {
+		LegoU16 c = p_source[i];
+		if (c == '\r') {
+			continue;
+		}
+		if (c == '\n') {
+			c = ' ';
+		}
+		if (c == ' ' && (length == 0 || p_buffer[length - 1] == ' ')) {
+			continue;
+		}
+		p_buffer[length++] = c;
+	}
+	while (length > 0 && p_buffer[length - 1] == ' ') {
+		length--;
+	}
+	p_buffer[length] = 0;
+	p_string->CopyFromBufSelection(p_buffer, static_cast<undefined2>(length + 1));
+	p_label->SetString(p_string, 0);
+}
+
+static LegoBool32 g_focusLanguageAfterReload = FALSE;
+static LegoBool32 g_languageReloadPending = FALSE;
+
 static void MoveWidget(MenuWidget* p_widget, LegoS32 p_left, LegoS32 p_top)
 {
 	Rect rect = *p_widget->GetRect();
@@ -152,6 +224,10 @@ void OptionsScreenBase::CreateSinglePageWidgets()
 
 	CreateOptionsRow(&m_musicVolumeSlider, 0xf9, 0xec);
 	CreateOptionsRow(&m_soundVolumeSlider, 0xfa, 0xec);
+	// Place and shrink the bars before laying them out again, so the thumb and the
+	// mouse-drag bounds (the track's screen rect) follow the new position.
+	PlaceVolumeBar(&m_musicVolumeSlider, c_rowMusic);
+	PlaceVolumeBar(&m_soundVolumeSlider, c_rowSound);
 	LegoFloat musicVolume = m_gameState->GetMusicVolume() * 0.003921569f;
 	m_musicVolumeSlider.SetValue(static_cast<LegoS32>(musicVolume * 20.0f + 0.5f));
 	LegoFloat soundVolume = m_gameState->GetSoundVolume() * 0.003921569f;
@@ -160,10 +236,14 @@ void OptionsScreenBase::CreateSinglePageWidgets()
 	OnWidgetValueChanged(&m_soundVolumeSlider);
 	for (i = 0; i < 2; i++) {
 		CreateTextLabel(&m_audioLabels[i], static_cast<undefined2>(i + 0x104), 0x37, static_cast<undefined2>(i + 0x5d));
+		SetOneLineVolumeTitle(
+			&m_audioLabels[i],
+			m_menuTextStrings->GetStringBuffer(static_cast<LegoU16>(i + 0x5d)),
+			&m_audioTitleStrings[i],
+			m_audioTitleBuffers[i]
+		);
 	}
-	MoveWidget(&m_musicVolumeSlider, 20, c_rowMusic);
 	MoveWidget(&m_audioLabels[0], 330, c_rowMusic + 4);
-	MoveWidget(&m_soundVolumeSlider, 20, c_rowSound);
 	MoveWidget(&m_audioLabels[1], 330, c_rowSound + 4);
 
 	CreateCarousel(&m_languageCarousel, 0x3d, 0x3b);
@@ -306,6 +386,7 @@ void OptionsScreenBase::OnWidgetValueChanged(MenuWidget* p_widget)
 		// [library:config] LegoRacers4K: inline language picker (saved when leaving options).
 		m_gameState->SetLanguageIndex(static_cast<LegoU8>(m_languageCarousel.GetSelectedIndex()));
 		m_gameState->SetDirty(TRUE);
+		ReloadForLanguage();
 	}
 	else if (p_widget == &m_stereoSelector) {
 		m_gameState->SetStereo(m_stereoCarousel.GetSelectedIndex() == 0);
@@ -327,6 +408,18 @@ void OptionsScreenBase::CreateVideoWidgets()
 {
 }
 
+// [library:config] LegoRacers4K: changing the language reopens the options screen,
+// which reloads the localized strings and fonts (MenuManager::OpenScreen).
+void OptionsScreenBase::ReloadForLanguage()
+{
+	if (m_languageCarousel.GetSelectedIndex() == static_cast<LegoS32>(m_context->m_context->m_languageIndex)) {
+		return;
+	}
+
+	g_focusLanguageAfterReload = TRUE;
+	g_languageReloadPending = TRUE;
+}
+
 // FUNCTION: LEGORACERS 0x004835a0
 void OptionsScreenBase::ShowMainButtons()
 {
@@ -343,7 +436,14 @@ void OptionsScreenBase::ShowMainButtons()
 	m_languageSelector.SetFlags(2);
 	m_languageTitle.SetFlags(2);
 
-	m_racerCountSelector.Select(4);
+	if (g_focusLanguageAfterReload) {
+		// Reopened for a live language change: keep the language row focused.
+		g_focusLanguageAfterReload = FALSE;
+		m_languageSelector.Select(4);
+	}
+	else {
+		m_racerCountSelector.Select(4);
+	}
 	m_infoLabel.SetStringByIndex(0x10, TRUE);
 	m_infoLabel.WrapText(20);
 	m_backButton.SetTextByIndex(2);
@@ -459,6 +559,14 @@ LegoBool32 OptionsScreenBase::Update(undefined4 p_elapsed)
 		else {
 			m_controls2Button.Enable(5);
 		}
+	}
+
+	if (g_languageReloadPending) {
+		// [library:config] LegoRacers4K: live language change (see ReloadForLanguage).
+		g_languageReloadPending = FALSE;
+		m_nextMenuId = 0xffff;
+		Navigate();
+		return FALSE;
 	}
 
 	return MenuGameScreen::Update(p_elapsed);

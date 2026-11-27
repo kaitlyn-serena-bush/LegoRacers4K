@@ -2461,10 +2461,7 @@ void RaceSession::DrawLoadProgress(LegoFloat p_progress)
 	m_renderer->EndFrame();
 	m_golApp->PresentFrame();
 
-	// [library:3d] Loading is progress-driven and finishes near-instantly with cached
-	// assets on modern hardware, so the loading screen would only flash. Throttle each
-	// step so the progression stays visible, as it was on period hardware.
-	Sleep(50);
+	// [library:3d] LegoRacers4K: no artificial per-step wait; loading runs at full speed.
 }
 
 // FUNCTION: LEGORACERS 0x00435bf0

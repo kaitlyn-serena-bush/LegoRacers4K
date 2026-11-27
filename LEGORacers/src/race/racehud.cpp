@@ -13,6 +13,7 @@
 #include "surface/golrendertarget.h"
 
 #include <math.h>
+#include <miniwin/miniwinapp.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -1183,6 +1184,19 @@ void RaceHud::SetLayout(LegoS32 p_mode)
 		return;
 	}
 
+	// [library:3d] Widescreen: views touching a screen edge reach into the side areas, so
+	// the HUD anchors to the real screen corners.
+	LegoS32 wideExtra = MiniwinGetWideExtra();
+	if (wideExtra > 0) {
+		if (m_viewport.m_left == 0) {
+			m_viewport.m_left = -wideExtra;
+		}
+		if (m_viewport.m_right == static_cast<LegoS32>(m_screenWidth)) {
+			m_viewport.m_right += wideExtra;
+		}
+		width = m_viewport.m_right;
+	}
+
 	width -= m_viewport.m_left;
 
 	FormatTime(m_lapTimeText.m_text, 0);
@@ -1820,11 +1834,65 @@ void RaceHud::Draw()
 		break;
 	case 2:
 		DrawSpeedometer();
+		DrawSpeedReadout();
 		break;
 	case 3:
 		DrawRotatingMap();
 		break;
+	case 4: {
+		// [library:2d] LegoRacers4K: speedometer to the left of the minimap.
+		DrawRotatingMap();
+		LegoS32 right = m_viewport.m_right;
+		m_viewport.m_right -= static_cast<LegoS32>(150.0f * m_scaleX);
+		DrawSpeedometer();
+		DrawSpeedReadout();
+		m_viewport.m_right = right;
+		break;
 	}
+	}
+}
+
+// [library:2d] LegoRacers4K: the speedometer shows the speed as a number in
+// studs per second (one world unit is one stud; m_speedValue is units per ms).
+void RaceHud::DrawSpeedReadout()
+{
+	GolImage* dial = m_images->GetItem(0);
+	LegoS32 dialWidth = static_cast<LegoS32>(
+		static_cast<double>(dial->GetWidth()) * static_cast<double>(m_mapScale) * static_cast<double>(m_textScaleX)
+	);
+	LegoS32 dialHeight = static_cast<LegoS32>(
+		static_cast<double>(dial->GetHeight()) * static_cast<double>(m_mapScale) * static_cast<double>(m_scaleY)
+	);
+	LegoS32 centerX = m_viewport.m_right - ((52 * dialWidth) >> 7) - 2;
+	LegoS32 centerY = m_viewport.m_bottom - ((52 * dialHeight) >> 7) - 2;
+
+	LegoS32 speed = static_cast<LegoS32>(m_speedValue * 1000.0f + 0.5f);
+	if (speed < 0) {
+		speed = -speed;
+	}
+
+	LegoChar text[16];
+	::sprintf(text, "%d SPS", speed);
+	CopyToGolString(text, m_scratchString);
+
+	LegoFloat scale = m_textScale * 0.6f;
+	LegoFloat scaleX = scale * m_textScaleX;
+	LegoFloat scaleY = scale * m_scaleY;
+	LegoS32 textWidth;
+	LegoS32 textHeight;
+	m_font->MeasureString(m_scratchString, &textWidth, &textHeight);
+	textWidth = static_cast<LegoS32>(static_cast<LegoFloat>(textWidth) * scaleX);
+	textHeight = static_cast<LegoS32>(static_cast<LegoFloat>(textHeight) * scaleY);
+	m_renderer->DrawString(
+		m_scratchString,
+		m_font,
+		centerX - (textWidth >> 1),
+		centerY + (dialHeight >> 3),
+		scaleX,
+		scaleY,
+		NULL,
+		0
+	);
 }
 
 // FUNCTION: LEGORACERS 0x00427140

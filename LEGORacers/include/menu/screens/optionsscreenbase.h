@@ -83,6 +83,9 @@ protected:
 	MenuCarouselNavigator m_languageCarousel;
 	MenuTextLabel m_languageLabels[9];
 	MenuTextLabel m_languageTitle;
+	GolString m_audioTitleStrings[2];
+	undefined2 m_audioTitleBuffers[2][64];
+	void ReloadForLanguage();
 };
 
 #endif // OPTIONSSCREENBASE_H

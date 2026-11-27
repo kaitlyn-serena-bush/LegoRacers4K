@@ -5,6 +5,8 @@
 #include "render/gold3drenderdevice.h"
 #include "surface/golrendertarget.h"
 
+#include <miniwin/miniwinapp.h>
+
 DECOMP_SIZE_ASSERT(RaceDialog, 0x68)
 
 extern LegoFloat g_cosineTable[1024];
@@ -258,7 +260,12 @@ void RaceDialog::DrawBackdrop()
 	bottomRight.m_x = right;
 	bottomRight.m_y = bottom;
 
-	topLeft.m_x = 0.0f;
+	// [library:3d] Widescreen: the dimmed backdrop covers the side areas too.
+	LegoFloat wideExtra = static_cast<LegoFloat>(MiniwinGetWideExtra());
+	topRight.m_x += wideExtra;
+	bottomRight.m_x += wideExtra;
+
+	topLeft.m_x = -wideExtra;
 	topLeft.m_y = 0.0f;
 	topLeft.m_z = 0.0f;
 	topLeft.m_u = 0.0f;
@@ -268,7 +275,7 @@ void RaceDialog::DrawBackdrop()
 	topLeft.m_color.m_blu = 0;
 	topLeft.m_color.m_alp = c_backdropAlpha;
 
-	bottomLeft.m_x = 0.0f;
+	bottomLeft.m_x = -wideExtra;
 	bottomLeft.m_z = 0.0f;
 	bottomLeft.m_u = 0.0f;
 	bottomLeft.m_v = 0.0f;

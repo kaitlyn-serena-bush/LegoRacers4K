@@ -1598,10 +1598,8 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 		secondRacer->AttachCurse(&firstRacer->m_visuals.m_curseEntity, firstRacer->m_curseTimerMs);
 		firstRacer->RemoveCurse();
 	}
-	else if (
-		(secondRacer->m_flags & c_flagCursed) && !(firstRacer->m_flags & c_flagCursed) && secondRacer->m_curseTickMs &&
-		!(firstRacer->m_flags & c_flagShielded)
-	) {
+	else if ((secondRacer->m_flags & c_flagCursed) && !(firstRacer->m_flags & c_flagCursed) &&
+			 secondRacer->m_curseTickMs && !(firstRacer->m_flags & c_flagShielded)) {
 		firstRacer->AttachCurse(&secondRacer->m_visuals.m_curseEntity, secondRacer->m_curseTimerMs);
 		secondRacer->RemoveCurse();
 	}
@@ -2474,7 +2472,8 @@ LegoFloat Racer::GetRaceProgress()
 // FUNCTION: LEGORACERS 0x0043a0c0
 void Racer::CycleHudGadget()
 {
-	m_hud->m_gadgetMode = (m_hud->m_gadgetMode + 1) & 3;
+	// [library:2d] LegoRacers4K: a fifth mode shows the speedometer and the minimap together.
+	m_hud->m_gadgetMode = (m_hud->m_gadgetMode + 1) % 5;
 }
 
 // FUNCTION: LEGORACERS 0x0043a0e0

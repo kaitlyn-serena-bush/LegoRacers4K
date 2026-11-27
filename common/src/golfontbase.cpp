@@ -18,6 +18,7 @@ extern GolTgaFile g_textureTgaFile;
 extern GolBmpFile g_textureBmpFile;
 
 #include <math.h>
+#include <miniwin/miniwinapp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1095,6 +1096,10 @@ LegoBool32 GolFontBase::ComputeClipRect(GolRenderDevice* p_renderer, Rect* p_rec
 		p_result->m_right = p_renderer->GetRenderTargetInfo()->GetWidth();
 		p_result->m_top = 0;
 		p_result->m_bottom = p_renderer->GetRenderTargetInfo()->GetHeight();
+		// [library:2d] Widescreen: text may be drawn into the side areas.
+		LegoS32 wideExtra = MiniwinGetWideExtra();
+		p_result->m_left -= wideExtra;
+		p_result->m_right += wideExtra;
 	}
 	else {
 		if (p_rect->m_right <= 0) {

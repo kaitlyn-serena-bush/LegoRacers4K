@@ -1,6 +1,10 @@
 #include "menu/widgets/menuimage.h"
 
 #include "image/golimage.h"
+#include "render/gold3drenderdevice.h"
+#include "surface/golrendertarget.h"
+
+#include <miniwin/miniwinapp.h>
 
 DECOMP_SIZE_ASSERT(MenuImage, 0x5c)
 DECOMP_SIZE_ASSERT(MenuImage::CreateParams, 0x3c)
@@ -54,6 +58,35 @@ MenuWidget* MenuImage::DrawSelf(Rect* p_rect, Rect* p_arg)
 	ComputeScale(&sourceRect, &m_rect);
 	ScaleRect(p_rect, &sourceRect);
 	DrawImage(p_arg, &sourceRect, m_image);
+
+	// [library:3d] Widescreen: a full-screen backdrop continues into the side areas
+	// (the image wraps around, so the stud grid stays square).
+	LegoS32 wideExtra = MiniwinGetWideExtra();
+	const GolRenderTarget* target = m_renderer->GetRenderTargetInfo();
+	if (wideExtra > 0 && m_rect.m_left == 0 && m_rect.m_top == 0 &&
+		m_rect.m_right == static_cast<LegoS32>(target->GetWidth()) &&
+		m_rect.m_bottom == static_cast<LegoS32>(target->GetHeight())) {
+		LegoS32 imageWidth = m_image->GetWidth();
+		LegoS32 sourceExtra = wideExtra * imageWidth / m_rect.m_right;
+		Rect side;
+		Rect source;
+		side.m_top = 0;
+		side.m_bottom = m_rect.m_bottom;
+		source.m_top = 0;
+		source.m_bottom = m_image->GetHeight();
+
+		side.m_left = -wideExtra;
+		side.m_right = 0;
+		source.m_left = imageWidth - sourceExtra;
+		source.m_right = imageWidth;
+		DrawImage(&side, &source, m_image);
+
+		side.m_left = m_rect.m_right;
+		side.m_right = m_rect.m_right + wideExtra;
+		source.m_left = 0;
+		source.m_right = sourceExtra;
+		DrawImage(&side, &source, m_image);
+	}
 
 	return NULL;
 }

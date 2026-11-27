@@ -94,6 +94,7 @@ private:
 	void DrawMapArrow(LegoS32 p_x, LegoS32 p_y, LegoFloat p_directionX, LegoFloat p_directionY);
 	void FormatTime(LegoChar* p_buffer, LegoU32 p_time);
 	void DrawSpeedometer();
+	void DrawSpeedReadout(); // [library:2d] LegoRacers4K: studs-per-second number
 	void Draw();
 	LegoS32 DrawTime(const LegoChar* p_text, LegoS32 p_x, LegoS32 p_y);
 	void Initialize(
