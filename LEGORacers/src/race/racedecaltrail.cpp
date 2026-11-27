@@ -792,9 +792,9 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 					previousOutside = currentOutside;
 				}
 
-				
+				LegoU32* swapIndices = inputIndices;
 				inputIndices = outputIndices;
-				outputIndices = inputIndices;
+				outputIndices = swapIndices;
 				LegoU32* swapFlags = inputFlags;
 				inputFlags = outputFlags;
 				inputCount = outputCount;
