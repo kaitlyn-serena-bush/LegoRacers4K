@@ -312,7 +312,6 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 
 	RaceRouteRecord::PathPoint* startPoint = &m_record->m_pathPoints[startIndex];
 
-
 	for (;;) {
 		segment.m_x = endPosition.m_x - startPosition.m_x;
 		segment.m_y = endPosition.m_y - startPosition.m_y;
@@ -456,8 +455,9 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 		}
 	}
 
-	m_currentTime =GOL_MUL(((static_cast<LegoFloat>(segmentEndTime - segmentStartTime))), (segmentAmount * inverseLength)) +
-					(static_cast<LegoFloat>(segmentStartTime));
+	m_currentTime =
+		GOL_MUL(((static_cast<LegoFloat>(segmentEndTime - segmentStartTime))), (segmentAmount * inverseLength)) +
+		(static_cast<LegoFloat>(segmentStartTime));
 	m_segmentStartTime = segmentStartTime;
 	m_startPosition = startPosition;
 	m_endPosition = endPosition;

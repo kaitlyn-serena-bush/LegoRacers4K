@@ -299,7 +299,6 @@ void DriveController::ApplySteering()
 				}
 				m_turnRadius = value;
 			}
-	
 		}
 	}
 	else if (!(flags & c_flagBit1)) {

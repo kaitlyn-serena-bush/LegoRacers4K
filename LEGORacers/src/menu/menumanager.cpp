@@ -1227,7 +1227,7 @@ LegoS32 MenuManager::CommitBestTimes()
 
 		if (context->m_bestRaceTimes[i]) {
 			if (!hasRaceIndex) {
-					raceIndex = m_gameContext.m_raceNames.GetEntryIndexByName(context->m_raceSlots[i].m_raceName);
+				raceIndex = m_gameContext.m_raceNames.GetEntryIndexByName(context->m_raceSlots[i].m_raceName);
 			}
 
 			LegoRacers::Context::PlayerSetupSlot* slot = &context->m_playerSetupSlots[context->m_bestRaceHolders[i]];

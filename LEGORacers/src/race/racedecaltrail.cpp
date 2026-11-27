@@ -111,7 +111,7 @@ void GolBoundingShape::CollectLeavesAtPoints(GolVec3* p_points, LegoU32 p_pointC
 	node->m_data.m_node.m_previous = NULL;
 	node->m_data.m_node.m_next = NULL;
 	if (node->m_nextLeafIndex == TreeNode::c_invalidIndex) {
-		
+
 		m_lastVisibleLeaf = (&node->m_data.m_node);
 		m_firstVisibleLeaf = (&node->m_data.m_node);
 		return;
@@ -355,7 +355,7 @@ void RaceDecalManager::Trail::Decal::BeginGeometry(GolModelBase* p_model)
 	model->GetVertexArray(&m_vertices);
 
 	m_model->GetIndexArrayInto(&indexArrayBase);
-	LegoU8* destIndexBytes = static_cast<GdbModelIndexArray*>(indexArrayBase)->GetIndexBytes();
+	m_indexBytes = static_cast<GdbModelIndexArray*>(indexArrayBase)->GetIndexBytes();
 
 	m_vertexCount = 0;
 	m_batchFirstVertex = 0;
@@ -365,7 +365,6 @@ void RaceDecalManager::Trail::Decal::BeginGeometry(GolModelBase* p_model)
 	m_batchTriangleCount = 0;
 
 	model = m_model;
-	m_indexBytes = destIndexBytes;
 	model->SetDirty(TRUE);
 	model->GetMutableGroups()[0] = c_commandModelFlags;
 	m_groupIndex = 1;
@@ -453,8 +452,9 @@ void RaceDecalManager::Trail::Decal::SetOrientation(GolVec3* p_normal, GolVec3* 
 	GolVec3* normalized = &m_normal;
 	GolMath::NormalizeVector3(*p_normal, normalized);
 
-	LegoFloat dot = ((GOL_MUL(normalized->m_z, p_lengthAxis->m_z) + GOL_MUL(normalized->m_y, p_lengthAxis->m_y) +
-					GOL_MUL(normalized->m_x, p_lengthAxis->m_x)));
+	LegoFloat dot =
+		((GOL_MUL(normalized->m_z, p_lengthAxis->m_z) + GOL_MUL(normalized->m_y, p_lengthAxis->m_y) +
+		  GOL_MUL(normalized->m_x, p_lengthAxis->m_x)));
 	GolVec3* perpendicular = &m_lengthAxis;
 
 	GolVec3 scaled;
@@ -562,11 +562,9 @@ LegoU32 RaceDecalManager::Trail::Decal::TransformVertices(
 	while (vertexIndex < end) {
 		m_sourceVertices->GetPosition(vertexIndex, &projected->m_position);
 
-		LegoFloat value = g_decalUAxisX;
-		value *= projected->m_position.m_x;
-		projected->m_projected.m_x.m_float = value;
+		projected->m_projected.m_x.m_float = g_decalUAxisX * projected->m_position.m_x;
 		projected->m_projected.m_y.m_float = g_decalVAxisX * projected->m_position.m_x;
-		value = projected->m_position.m_y;
+		LegoFloat value = projected->m_position.m_y;
 		value *= g_decalUAxisY;
 		projected->m_projected.m_x.m_float += value;
 		value = projected->m_position.m_y;

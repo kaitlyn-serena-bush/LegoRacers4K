@@ -189,7 +189,8 @@ void FUN_10032c80(GolSoftwareRenderer* p_renderer)
 					else {
 						p_renderer->SetTriangleRasterizer(FUN_1003c780);
 					}
-					if ((p_renderer->GetRasterizerFlags() & 4) && (p_renderer->GetCurrentMipmap()->m_bytesPerPixel == 4)) {
+					if ((p_renderer->GetRasterizerFlags() & 4) &&
+						(p_renderer->GetCurrentMipmap()->m_bytesPerPixel == 4)) {
 						p_renderer->SetSpanRasterizer(g_spanRasterizers[62 - sizeLog2]);
 					}
 					else if (p_renderer->GetRasterizerFlags() & 2) {

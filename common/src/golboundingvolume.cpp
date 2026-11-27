@@ -445,7 +445,8 @@ LegoBool32 GolBoundingVolume::IntersectSegment(
 						LegoFloat vx = m_hitTriangle->m_vertex0.m_x;
 						LegoFloat vy = m_hitTriangle->m_vertex0.m_y;
 						LegoFloat vz = m_hitTriangle->m_vertex0.m_z;
-						m_hitTriangle->m_planeDistance = -(vz * g_hitNormal.m_z + vy * g_hitNormal.m_y + vx * g_hitNormal.m_x);
+						m_hitTriangle->m_planeDistance =
+							-(vz * g_hitNormal.m_z + vy * g_hitNormal.m_y + vx * g_hitNormal.m_x);
 
 						if (m_hitRecord) {
 							*m_hitRecord = static_cast<RaceEventRecord*>(

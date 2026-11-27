@@ -352,8 +352,8 @@ void RaceState::CreateRacer(
 	}
 
 	initParams.m_driverMountOffset = chassisItem->m_driverMountOffset;
-	LegoU32 racerOff = p_racerIndex * sizeof(Racer);
-	initParams.m_racer = &m_roster.m_racers[p_racerIndex];
+	LegoU32 racerIndex = p_racerIndex;
+	initParams.m_racer = &m_roster.m_racers[racerIndex];
 	initParams.m_shadowWidth = chassisItem->m_shadowSize.m_x;
 	initParams.m_shadowLength = chassisItem->m_shadowSize.m_y;
 	initParams.m_frontSkidWidth = chassisItem->m_skidWidths.m_x;
@@ -425,13 +425,12 @@ void RaceState::CreateRacer(
 	shadowMaterialParams.m_texture = shadowTexture;
 	shadowMaterial->SetParams(p_context->m_renderer, shadowMaterialParams);
 
-
 	LegoEventQueue::Descriptor descriptor;
 	descriptor.m_type = LegoEventQueue::Descriptor::c_typeCollision;
 	descriptor.m_flags = 5;
 	descriptor.m_hitThreshold = 0;
-	descriptor.m_data = &((Racer*)((char*)m_roster.m_racers + racerOff))->m_physics;
-	m_roster.m_racerEvents[p_racerIndex] = m_roster.AllocateEvent((Racer*)((char*)m_roster.m_racers + racerOff), &descriptor);
+	descriptor.m_data = &m_roster.m_racers[racerIndex].m_physics;
+	m_roster.m_racerEvents[p_racerIndex] = m_roster.AllocateEvent(&m_roster.m_racers[racerIndex], &descriptor);
 }
 
 // FUNCTION: LEGORACERS 0x0043bc10
@@ -521,8 +520,7 @@ void RaceState::RecordBestTimes(LegoRacers::Context* p_context)
 
 	for (LegoU32 racerIndex = 0; racerIndex < racerCount; racerIndex++) {
 		if (!p_context->m_playerSetupSlots[racerIndex].m_slotState) {
-			
-			
+
 			if (m_roster.m_racers[racerIndex].m_lapsCompleted >= m_setup.m_lapCount) {
 				LegoU32 raceTime = 0;
 				for (LegoU32 lap = 0; lap < m_setup.m_lapCount; lap++) {
@@ -653,7 +651,8 @@ void RaceState::UpdateStandings()
 
 	for (sortIndex = 0; sortIndex < m_roster.m_racerCount - 1;) {
 		LegoU32 groupEnd = sortIndex + 1;
-		while (g_racerProgressEntries[sortIndex].m_progress == g_racerProgressEntries[groupEnd].m_progress && groupEnd < m_roster.m_racerCount) {
+		while (g_racerProgressEntries[sortIndex].m_progress == g_racerProgressEntries[groupEnd].m_progress &&
+			   groupEnd < m_roster.m_racerCount) {
 			groupEnd++;
 		}
 
@@ -732,7 +731,7 @@ void RaceState::UpdateStandings()
 
 		LegoU32 nearestIndex;
 		for (nearestIndex = 0; nearestIndex < m_roster.m_racerCount; nearestIndex++) {
-			
+
 			if ((&m_roster.m_racers[nearestIndex]) != m_roster.m_currentRacer) {
 				GolVec3 racerPosition;
 				m_roster.m_racers[nearestIndex].m_visuals.m_carEntity->GetPosition(&racerPosition);
@@ -1140,33 +1139,27 @@ void RaceState::ComputeStandingsDeltas(Racer* p_racer, Racer::StandingsDeltaEntr
 	}
 
 	for (LegoU32 racerIndex = 0; racerIndex < m_roster.m_racerCount; racerIndex++) {
-		Racer* first = &m_roster.m_racers[racerIndex];
-		p_entries[racerIndex].m_racer = first;
+		p_entries[racerIndex].m_racer = &m_roster.m_racers[racerIndex];
 		p_entries[racerIndex].m_isValid = TRUE;
-		Racer* racer = &m_roster.m_racers[racerIndex];
 
-		if (first == p_racer) {
+		if (&m_roster.m_racers[racerIndex] == p_racer) {
 			p_entries[racerIndex].m_delta = 0;
 		}
-		else {
-			if (racer->m_lapsCompleted < m_setup.m_lapCount) {
-			p_entries[racerIndex].m_delta = racer->m_standingsPosition + 2147483641;
+		else if (m_roster.m_racers[racerIndex].m_lapsCompleted < m_setup.m_lapCount) {
+			p_entries[racerIndex].m_delta = m_roster.m_racers[racerIndex].m_standingsPosition + 2147483641;
 		}
 		else {
 			LegoS32 otherTime = 0;
 			LegoU32 remaining = m_setup.m_lapCount;
 
 			if (remaining > 0) {
-				LegoU32* lapTime = racer->m_lapTimes;
-
-				do {
-					otherTime += *lapTime++;
-				} while (--remaining);
+				for (LegoU32 lapIndex = 0; lapIndex < remaining; lapIndex++) {
+					otherTime += m_roster.m_racers[racerIndex].m_lapTimes[lapIndex];
+				}
 			}
 
 			p_entries[racerIndex].m_delta = otherTime - racerTime;
 		}
-				}
 	}
 
 	for (LegoU32 i = m_roster.m_racerCount; i < 6; i++) {

@@ -204,9 +204,8 @@ void GolCameraBase::ComputeFrustum(GolViewFrustum* p_view)
 	p_view->m_planes[4].m_normal.m_x = -normal.m_x;
 	p_view->m_planes[4].m_normal.m_y = -normal.m_y;
 	p_view->m_planes[4].m_normal.m_z = -normal.m_z;
-	p_view->m_planes[4].m_distance =
-		(p_view->m_corners[2].m_z) * (normal.m_z) + (p_view->m_corners[2].m_y) * (normal.m_y) +
-		p_view->m_corners[2].m_x * normal.m_x;
+	p_view->m_planes[4].m_distance = (p_view->m_corners[2].m_z) * (normal.m_z) +
+									 (p_view->m_corners[2].m_y) * (normal.m_y) + p_view->m_corners[2].m_x * normal.m_x;
 }
 
 // FUNCTION: GOLDP 0x1001c450
@@ -305,9 +304,8 @@ void GolCameraBase::ComputeFrustumFromBounds(GolViewFrustum* p_view)
 	p_view->m_planes[4].m_normal.m_x = -normal.m_x;
 	p_view->m_planes[4].m_normal.m_y = -normal.m_y;
 	p_view->m_planes[4].m_normal.m_z = -normal.m_z;
-	p_view->m_planes[4].m_distance =
-		(p_view->m_corners[2].m_z) * (normal.m_z) + (p_view->m_corners[2].m_y) * (normal.m_y) +
-		p_view->m_corners[2].m_x * normal.m_x;
+	p_view->m_planes[4].m_distance = (p_view->m_corners[2].m_z) * (normal.m_z) +
+									 (p_view->m_corners[2].m_y) * (normal.m_y) + p_view->m_corners[2].m_x * normal.m_x;
 }
 
 // FUNCTION: GOLDP 0x1001c900
@@ -330,7 +328,10 @@ LegoBool32 GolCameraBase::ProjectSphere(GolVec3* p_center, LegoFloat p_radius, G
 	m_transform->GetUp(&up);
 
 	const GolViewFrustum::Plane* plane = &m_viewFrustum.m_planes[1];
-	LegoFloat dot = (((((GOL_MUL(plane->m_normal.m_y, up.m_y) + GOL_MUL(plane->m_normal.m_z, up.m_z) + GOL_MUL(up.m_x, plane->m_normal.m_x))))));
+	LegoFloat dot = ((
+		(((GOL_MUL(plane->m_normal.m_y, up.m_y) + GOL_MUL(plane->m_normal.m_z, up.m_z) +
+		   GOL_MUL(up.m_x, plane->m_normal.m_x))))
+	));
 	dot = -dot;
 	LegoFloat scale = p_radius / dot;
 	{
@@ -349,7 +350,8 @@ LegoBool32 GolCameraBase::ProjectSphere(GolVec3* p_center, LegoFloat p_radius, G
 	}
 
 	plane = &m_viewFrustum.m_planes[0];
-	dot = GOL_MUL(plane->m_normal.m_y, up.m_y) + GOL_MUL(plane->m_normal.m_z, up.m_z) + GOL_MUL(up.m_x, plane->m_normal.m_x);
+	dot = GOL_MUL(plane->m_normal.m_y, up.m_y) + GOL_MUL(plane->m_normal.m_z, up.m_z) +
+		  GOL_MUL(up.m_x, plane->m_normal.m_x);
 	scale = -(p_radius / dot);
 	{
 		GolVec3 scaledAxis;
@@ -369,7 +371,10 @@ LegoBool32 GolCameraBase::ProjectSphere(GolVec3* p_center, LegoFloat p_radius, G
 	m_transform->GetForward(&forward);
 
 	plane = &m_viewFrustum.m_planes[3];
-	dot = ((((((((GOL_MUL(plane->m_normal.m_y, forward.m_y) + GOL_MUL(plane->m_normal.m_z, forward.m_z) + GOL_MUL(forward.m_x, plane->m_normal.m_x)))))))));
+	dot = ((((
+		((((GOL_MUL(plane->m_normal.m_y, forward.m_y) + GOL_MUL(plane->m_normal.m_z, forward.m_z) +
+			GOL_MUL(forward.m_x, plane->m_normal.m_x)))))
+	))));
 	scale = -(p_radius / dot);
 	{
 		GolVec3 scaledAxis;
@@ -387,7 +392,8 @@ LegoBool32 GolCameraBase::ProjectSphere(GolVec3* p_center, LegoFloat p_radius, G
 	}
 
 	plane = &m_viewFrustum.m_planes[2];
-	dot = GOL_MUL(plane->m_normal.m_y, forward.m_y) + GOL_MUL(plane->m_normal.m_z, forward.m_z) + GOL_MUL(forward.m_x, plane->m_normal.m_x);
+	dot = GOL_MUL(plane->m_normal.m_y, forward.m_y) + GOL_MUL(plane->m_normal.m_z, forward.m_z) +
+		  GOL_MUL(forward.m_x, plane->m_normal.m_x);
 	dot = -dot;
 	scale = p_radius / dot;
 	{

@@ -340,7 +340,8 @@ void AwardCinematicScreen::CreateWidgets()
 						LegoU8* p = (LegoU8*) m_context;
 						p = *(LegoU8**) (p + 0x4b78);
 						p = *(LegoU8**) (p + 0x38);
-						((DriverPartCatalog*) p)->BuildFaceExpressionName(cosmetics.m_faceIndex, expressionIndex, expressionName);
+						((DriverPartCatalog*) p)
+							->BuildFaceExpressionName(cosmetics.m_faceIndex, expressionIndex, expressionName);
 						animationItems[frameIndex].SetMaterial(m_renderer->FindMaterialByName(expressionName));
 					}
 				}
@@ -353,7 +354,10 @@ void AwardCinematicScreen::CreateWidgets()
 					model->SetEntity(NULL);
 				}
 			}
-			else if ((entity == swapEntity && cosmetics.m_legIndex == 10) || (entity == pLegEntity && cosmetics.m_legIndex != 10)) {
+			else if (
+				(entity == swapEntity && cosmetics.m_legIndex == 10) ||
+				(entity == pLegEntity && cosmetics.m_legIndex != 10)
+			) {
 				model->SetEntity(NULL);
 			}
 		}
@@ -604,10 +608,13 @@ LegoBool32 AwardCinematicScreen::CreateWinnerCar(undefined4)
 		if (m_resourceMenuId == c_menuWinCar && m_context->m_context->m_playerSetupSlots[1].m_driverName[0]) {
 			const LegoChar* driverName = m_context->m_context->m_playerSetupSlots[1].m_driverName;
 			DriverCosmeticTable* cosmetics = &m_context->m_cosmeticTable;
-			DriverCosmeticTable::Entry* driverEntry = static_cast<DriverCosmeticTable::Entry*>(cosmetics->GetName(driverName));
+			DriverCosmeticTable::Entry* driverEntry =
+				static_cast<DriverCosmeticTable::Entry*>(cosmetics->GetName(driverName));
 			ChampionDefinitionList* championList = &m_context->m_championDefinitions;
 			ChampionDefinitionList::ChampionDefinition* championDefinition =
-				static_cast<ChampionDefinitionList::ChampionDefinition*>(championList->GetName(driverEntry->m_championName));
+				static_cast<ChampionDefinitionList::ChampionDefinition*>(
+					championList->GetName(driverEntry->m_championName)
+				);
 
 			SaveGame* quickBuildSave = &m_context->m_saveSystem.GetQuickBuildSave();
 			for (LegoU32 i = 0; !found && i < quickBuildSave->GetRecordCount(); i++) {

@@ -210,7 +210,6 @@ void GrabberHazard::OnEvent(LegoEventQueue::CallbackData* p_data)
 			GolVec3 racerPosition;
 			m_racer->m_visuals.GetPosition(&racerPosition);
 
-			
 			force.m_x = position.m_x - racerPosition.m_x;
 			force.m_y = position.m_y - racerPosition.m_y;
 			force.m_z = 0.0f;

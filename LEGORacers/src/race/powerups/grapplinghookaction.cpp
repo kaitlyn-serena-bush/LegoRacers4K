@@ -430,7 +430,6 @@ void GrapplingHookAction::AdvanceState()
 		m_projectile.ResetRope();
 	}
 
-
 	m_smokeParticleRef = m_owner->m_cutsceneAnimation->SpawnParticle("cannsmk", NULL, NULL, NULL);
 	if (m_smokeParticleRef != NULL) {
 		m_ownerRacer->m_physics.m_carEntity->GetPosition(&position);
@@ -448,7 +447,8 @@ void GrapplingHookAction::AdvanceState()
 	}
 
 	m_ownerRacer->m_visuals.GetPosition(&position);
-	m_soundSource->PlaySpatialSoundById(c_soundFire, &position, g_hookSoundMinDistance, g_hookSoundMaxDistance, 1.0f, 1.0f);
+	m_soundSource
+		->PlaySpatialSoundById(c_soundFire, &position, g_hookSoundMinDistance, g_hookSoundMaxDistance, 1.0f, 1.0f);
 }
 
 // FUNCTION: LEGORACERS 0x004545d0

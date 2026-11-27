@@ -99,7 +99,7 @@ void BeamMesh::Initialize(const SetupParams* p_params)
 
 	LegoU32 modelIndexCount = m_ringQuadCount * m_sectionCount * m_segmentCount;
 	LegoU32 doubledIndexCount = 2 * modelIndexCount;
-	
+
 	m_textureColumnCount = params->m_textureColumnCount;
 
 	LegoU32 extra;
@@ -116,7 +116,9 @@ void BeamMesh::Initialize(const SetupParams* p_params)
 		m_vertexCapacity = (m_segmentCount + 1) * m_sectionCount * m_ringVertexCount;
 	}
 
-	LegoU32 stride = (m_segmentCount >= m_textureColumnCount ? 2 * m_segmentCount - m_textureColumnCount + 1 : m_segmentCount + 1) * m_ringVertexCount;
+	LegoU32 stride =
+		(m_segmentCount >= m_textureColumnCount ? 2 * m_segmentCount - m_textureColumnCount + 1 : m_segmentCount + 1) *
+		m_ringVertexCount;
 	LegoU32 vertexCount = m_sectionCount * (2 * (0x40 / stride) + 5) + 2;
 	m_model = m_golExport->CreateModel();
 	m_model->Allocate(params->m_renderer, 1, m_vertexCapacity, doubledIndexCount, vertexCount, 1);

@@ -99,7 +99,6 @@ void RacerModelScreenBase::OpenRecordCursors(MenuGameContext* p_context, LegoU32
 	for (LegoS32 i = 0; i < m_modelSlotCount; i++) {
 		LegoU32* count = &m_recordCounts[i];
 		InputBindingState::PlayerState* player = &players[i];
-		
 
 		m_recordCursors[i].SetSaveSystem(&p_context->m_saveSystem);
 		m_recordCursors[i].Begin(p_mask);
