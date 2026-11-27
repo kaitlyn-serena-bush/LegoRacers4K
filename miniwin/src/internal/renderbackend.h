@@ -119,5 +119,6 @@ void MiniwinBackend_HandleFrameDump(MiniwinRenderBackend* p_backend, Uint64 p_fr
 // side; game coordinates are shifted right by g_miniwinWideExtra on the way in.
 extern int g_miniwinWideExtra;
 bool MiniwinGetWidescreen();
+void MiniwinPublishWideExtra(int p_extra);
 // Called once per frame (BeginScene): resizes the backend canvas to the window aspect.
 void MiniwinWide_Update(MiniwinRenderBackend* p_backend, SDL_Window* p_window);

@@ -607,7 +607,7 @@ void MiniwinWide_Update(MiniwinRenderBackend* p_backend, SDL_Window* p_window)
 	}
 	if (!s_baseWidth || p_backend->m_width != s_baseWidth + 2 * g_miniwinWideExtra) {
 		s_baseWidth = p_backend->m_width;
-		g_miniwinWideExtra = 0;
+		MiniwinPublishWideExtra(0);
 	}
 
 	int extra = 0;
@@ -626,7 +626,7 @@ void MiniwinWide_Update(MiniwinRenderBackend* p_backend, SDL_Window* p_window)
 	}
 
 	if (extra != g_miniwinWideExtra) {
-		g_miniwinWideExtra = extra;
+		MiniwinPublishWideExtra(extra);
 		p_backend->Resize(s_baseWidth + 2 * extra, p_backend->m_height);
 		SDL_Log("Widescreen: canvas %dx%d (+%d each side)", p_backend->m_width, p_backend->m_height, extra);
 	}

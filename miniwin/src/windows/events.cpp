@@ -30,22 +30,31 @@ MiniwinScaleMode MiniwinGetScaleMode()
 	return g_scaleMode;
 }
 
-static bool g_widescreen = true;
+// The exe and GolDP each link their own copy of miniwin (separate globals on Windows),
+// so the widescreen switch and the current extra width live in SDL's global properties.
+#define MINIWIN_PROP_WIDESCREEN "miniwin.widescreen"
+#define MINIWIN_PROP_WIDE_EXTRA "miniwin.wide_extra"
 int g_miniwinWideExtra = 0;
 
 void MiniwinSetWidescreen(bool p_enabled)
 {
-	g_widescreen = p_enabled;
+	SDL_SetBooleanProperty(SDL_GetGlobalProperties(), MINIWIN_PROP_WIDESCREEN, p_enabled);
 }
 
 bool MiniwinGetWidescreen()
 {
-	return g_widescreen;
+	return SDL_GetBooleanProperty(SDL_GetGlobalProperties(), MINIWIN_PROP_WIDESCREEN, true);
+}
+
+void MiniwinPublishWideExtra(int p_extra)
+{
+	g_miniwinWideExtra = p_extra;
+	SDL_SetNumberProperty(SDL_GetGlobalProperties(), MINIWIN_PROP_WIDE_EXTRA, p_extra);
 }
 
 int MiniwinGetWideExtra()
 {
-	return g_miniwinWideExtra;
+	return (int) SDL_GetNumberProperty(SDL_GetGlobalProperties(), MINIWIN_PROP_WIDE_EXTRA, 0);
 }
 
 static MiniwinRenderResolution g_renderResolution = MINIWIN_RESOLUTION_NATIVE;
