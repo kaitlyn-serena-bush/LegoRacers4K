@@ -23,6 +23,9 @@ LegoBool32 g_shiftPressed;
 // GLOBAL: LEGORACERS 0x004c764c
 LegoBool32 g_controlPressed;
 
+// [library:input] LegoRacers4K: see ProcessInputEvents.
+LegoBool32 g_menuRawInput = FALSE;
+
 // FUNCTION: LEGORACERS 0x00468ec0
 MenuInputDispatcher::MenuInputDispatcher()
 {
@@ -207,6 +210,18 @@ LegoS32 MenuInputDispatcher::ProcessInputEvents(MenuIcon*)
 			break;
 		}
 
+		// [library:input] LegoRacers4K: screens that read every device themselves (the 4-player
+		// Versus pick) get all keys and buttons, without menu focus navigation.
+		if (g_menuRawInput) {
+			if (item->m_isPressed) {
+				m_activeScreen->GetRootIcon()->DispatchKeyDown(item, x, y);
+			}
+			else {
+				m_activeScreen->GetRootIcon()->DispatchKeyUp(item, x, y);
+			}
+			continue;
+		}
+
 		switch (item->m_keyCode) {
 		case c_keyboardLeftShift:
 		case c_keyboardRightShift:
@@ -281,7 +296,12 @@ LegoS32 MenuInputDispatcher::Update(undefined4 p_elapsedMs)
 		// (rubber-banding). Only accumulate in true fullscreen; windowed -- and the web, which is
 		// never real fullscreen -- relies on the absolute path.
 		if (SDL_getenv("RACERS_INPUT_LOG") && (mouse->GetAxisValue(1) != 0.0f || mouse->GetAxisValue(2) != 0.0f)) {
-			SDL_Log("menu cursor: hw=%d fullscreen=%d dx=%f", (int) ((m_drawState->m_flags & GolDrawState::c_flagHardwareDevice) != 0), (int) MiniwinApp_IsWindowFullscreen(), mouse->GetAxisValue(1));
+			SDL_Log(
+				"menu cursor: hw=%d fullscreen=%d dx=%f",
+				(int) ((m_drawState->m_flags & GolDrawState::c_flagHardwareDevice) != 0),
+				(int) MiniwinApp_IsWindowFullscreen(),
+				mouse->GetAxisValue(1)
+			);
 		}
 		if ((m_drawState->m_flags & GolDrawState::c_flagHardwareDevice) && MiniwinApp_IsWindowFullscreen()) {
 			m_cursor.UpdatePosition(p_elapsedMs);

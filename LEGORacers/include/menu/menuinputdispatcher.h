@@ -126,4 +126,7 @@ private:
 	LegoS32 m_screenHeight;          // 0x5c
 };
 
+// [library:input] LegoRacers4K: when set, menus pass every key/button to the active screen.
+extern LegoBool32 g_menuRawInput;
+
 #endif // MENUINPUTDISPATCHER_H

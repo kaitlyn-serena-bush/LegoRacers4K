@@ -109,6 +109,7 @@ static void DisplayArgumentHelp()
 	SDL_Log("  --nohd               use the original textures");
 	SDL_Log("  --language <index>   language index (seeds the emulated registry LangID)");
 	SDL_Log("  --scale <mode>       fullscreen scaling: letterbox (default) or stretch");
+	SDL_Log("  --widescreen on|off  races fill wide screens with a wider view (default on)");
 	SDL_Log("  --resolution <mode>  render at native (default) or original (640x480) resolution");
 	SDL_Log("  --renderer <name>    render backend: sdlgpu (default), opengl3, or opengles3");
 	SDL_Log("  --help               show this help");
@@ -210,6 +211,11 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 			else {
 				MiniwinSetRenderResolution(MINIWIN_RESOLUTION_NATIVE);
 			}
+			i++;
+			continue;
+		}
+		if (SDL_strcmp(argv[i], "--widescreen") == 0 && i + 1 < argc) {
+			MiniwinSetWidescreen(SDL_strcmp(argv[i + 1], "off") != 0);
 			i++;
 			continue;
 		}

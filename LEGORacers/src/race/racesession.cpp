@@ -35,6 +35,7 @@
 #include "world/golworlddatabase.h"
 
 #include <memory.h>
+#include <miniwin/miniwinapp.h>
 #include <miniwin/touch.h>
 #include <mmsystem.h>
 #include <stdio.h>
@@ -1433,6 +1434,22 @@ void RaceSession::CreateCameras()
 					viewport.m_bottom = height;
 					break;
 				}
+			}
+
+			// [library:3d] Widescreen: views touching a screen edge extend into the side areas
+			// (wider horizontal view, same vertical view).
+			LegoS32 wideExtra = MiniwinGetWideExtra();
+			if (wideExtra > 0) {
+				if (viewport.m_left == 0) {
+					viewport.m_left -= wideExtra;
+				}
+				if (viewport.m_right == static_cast<LegoS32>(width)) {
+					viewport.m_right += wideExtra;
+				}
+				m_cameras[i]->SetAspectRatio(
+					static_cast<LegoFloat>(viewport.m_right - viewport.m_left) /
+					static_cast<LegoFloat>(viewport.m_bottom - viewport.m_top)
+				);
 			}
 
 			m_cameras[i]->SetViewport(&viewport);

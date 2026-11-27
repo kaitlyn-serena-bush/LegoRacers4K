@@ -9,7 +9,7 @@ enum {
 	c_menuSplash = 0x01,        // MENUNAME[1]  = "splash"
 	c_menuMainMenu = 0x02,      // MENUNAME[2]  = "mainmenu"
 	c_menuGarage = 0x03,        // MENUNAME[3]  = "garage"
-	c_menuPickSet = 0x04,       // MENUNAME[4]  = "pickset", no MenuScreenFactory branch
+	c_menuPickSet = 0x04,       // MENUNAME[4]  = "pickset"; LegoRacers4K: Versus setup screen
 	c_menuCircuitRace = 0x05,   // MENUNAME[5]  = "circrace"
 	c_menuSingleRace = 0x06,    // MENUNAME[6]  = "singrace"
 	c_menuTuneUp = 0x07,        // MENUNAME[7]  = "tuneup", no MenuScreenFactory branch

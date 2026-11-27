@@ -529,7 +529,8 @@ LegoU8 GameState::GetPartUnlockFlags() const
 // FUNCTION: LEGORACERS 0x0042f1f0
 LegoU8 GameState::GetUnlockedCircuits() const
 {
-	return m_state.m_unlockedCircuits | 1;
+	// [library:config] LegoRacers4K: every circuit is open from the start.
+	return m_state.m_unlockedCircuits | 0x7f;
 }
 
 // FUNCTION: LEGORACERS 0x0042f200
@@ -549,7 +550,8 @@ void GameState::UnlockCircuits(LegoU8 p_flags)
 // FUNCTION: LEGORACERS 0x0042f240
 LegoU16 GameState::GetUnlockedRaces() const
 {
-	return m_state.m_unlockedRaces;
+	// [library:config] LegoRacers4K: every track is open from the start.
+	return m_state.m_unlockedRaces | 0x0fff;
 }
 
 // FUNCTION: LEGORACERS 0x0042f250

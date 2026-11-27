@@ -598,6 +598,40 @@ void MiniwinBackend_Relaunch(MiniwinBackendId p_backend)
 
 // --- Video presentation through the active backend ---
 
+// [library:3d] Widescreen canvas; see renderbackend.h.
+void MiniwinWide_Update(MiniwinRenderBackend* p_backend, SDL_Window* p_window)
+{
+	static int s_baseWidth = 0;
+	if (!p_backend || !p_window) {
+		return;
+	}
+	if (!s_baseWidth || p_backend->m_width != s_baseWidth + 2 * g_miniwinWideExtra) {
+		s_baseWidth = p_backend->m_width;
+		g_miniwinWideExtra = 0;
+	}
+
+	int extra = 0;
+	int pixelW = 0;
+	int pixelH = 0;
+	if (MiniwinGetWidescreen() && MiniwinGetScaleMode() == MINIWIN_SCALE_LETTERBOX &&
+		SDL_GetWindowSizeInPixels(p_window, &pixelW, &pixelH) && pixelW > 0 && pixelH > 0) {
+		float canvasW = (float) p_backend->m_height * (float) pixelW / (float) pixelH;
+		extra = (int) ((canvasW - (float) s_baseWidth) * 0.5f);
+		extra = extra > 0 ? extra & ~1 : 0;
+		// Beyond ~21:9 the side views would mostly show track edges; cap there.
+		int maxExtra = (s_baseWidth * 21 / 12 - s_baseWidth) / 2;
+		if (extra > maxExtra) {
+			extra = maxExtra & ~1;
+		}
+	}
+
+	if (extra != g_miniwinWideExtra) {
+		g_miniwinWideExtra = extra;
+		p_backend->Resize(s_baseWidth + 2 * extra, p_backend->m_height);
+		SDL_Log("Widescreen: canvas %dx%d (+%d each side)", p_backend->m_width, p_backend->m_height, extra);
+	}
+}
+
 void MiniwinBackend_PresentVideoFrame(SDL_Window* p_window, const void* p_rgba, int p_width, int p_height)
 {
 	MiniwinRenderBackend* backend = MiniwinBackend_Acquire(p_window, p_width, p_height);

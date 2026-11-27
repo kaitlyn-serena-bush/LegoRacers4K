@@ -32,10 +32,14 @@ cmake --build build
 
 ## Local multiplayer (LegoRacers4K)
 
-Versus supports 2-4 players (split screen; 3-4 use quadrants). Player screens chain: after player 2, the CONFIG button becomes "ADD PLAYER n". Versus controls come from `controls.ini` next to the exe (`LEGORacers/src/app/coopcontrols.cpp`; default: player N = gamepad N if plugged in, else keyboard set N). miniwin exposes four fixed DirectInput joysticks ("Gamepad 1-4") bound to SDL gamepads with hot-plug (`miniwin/src/dinput/dinput.cpp`); RT/LT also press A/B; Start pauses.
+Versus supports 2-4 players (split screen; 3-4 use quadrants). Flow: main menu VERSUS -> `VersusSetupScreen` (menu 0x04, reuses options.mib: race type Single/Grand Prix, players, laps) -> track or circuit pick (RaceModeSetupScreen) -> `CoopPickScreen` (menu 0x1e, reuses pickrcr.mib): every player joins at once by pressing accelerate on a pad or keyboard set, picks with their own left/right, locks in with accelerate; the joined preset overrides `[players]` for that session (`CoopControls_SetSessionPreset`). The screen sets `g_menuRawInput` (menu focus navigation off) and raw pad button mapping while open. Versus controls come from `controls.ini` next to the exe (`LEGORacers/src/app/coopcontrols.cpp`; default: player N = gamepad N if plugged in, else keyboard set N). miniwin exposes four fixed DirectInput joysticks ("Gamepad 1-4") bound to SDL gamepads with hot-plug (`miniwin/src/dinput/dinput.cpp`); RT/LT also press A/B; Start pauses.
 
 ## Player-facing options
 
-`--path <dir>`, `--language <index>`, `--scale letterbox|stretch`, `--resolution native|original`, plus the original arguments (`-window`, `-novideo`, …). No `-window` means fullscreen. Alt+Enter toggles fullscreen.
+`--path <dir>`, `--language <index>`, `--scale letterbox|stretch`, `--resolution native|original`, `--widescreen on|off`, plus the original arguments (`-window`, `-novideo`, …). No `-window` means fullscreen. Alt+Enter toggles fullscreen.
+
+Widescreen (default on, letterbox mode): the backend canvas grows to the window aspect (capped at 21:9) and game x coordinates are shifted by `MiniwinGetWideExtra()`; 2D stays in the centered 4:3 area while race cameras touching a screen edge extend their viewport into the sides (Hor+, `racesession.cpp`).
+
+Options are one page (opponents, music/sound volume, language, controls, credits); video options and the Pick Language screen are gone. QUIT exits without confirming; all circuits and tracks are unlocked (`gamestate.cpp`).
 
 Touch (touchscreens/web): always-on additive controls — left-half drag steers (thumb held = throttle), drawn buttons for power-up/slide/brake + pause/look-back, tap-to-click menus, pause-dialog ▲✓▼ cluster, OSK name entry. Single local player only: Versus split-screen sessions stand the whole layer down (no overlay, fingers ignored; menus unaffected). Layer lives in `miniwin/src/dinput/touch.cpp` + `miniwin/src/d3d/backends/overlay.cpp`; game-side hooks are tagged `// [library:input]` (playercontrols.cpp, racesession.cpp, menutextfield.cpp, driverlicensescreen.cpp).

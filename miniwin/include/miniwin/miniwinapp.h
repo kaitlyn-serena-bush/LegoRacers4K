@@ -63,6 +63,13 @@ enum MiniwinScaleMode {
 void MiniwinSetScaleMode(MiniwinScaleMode p_mode);
 MiniwinScaleMode MiniwinGetScaleMode();
 
+// [library:3d] Widescreen: with letterbox scaling on a window wider than the game's
+// 4:3, the canvas grows sideways. 2D stays in the centered 4:3 area; the game can draw
+// 3D into the extra MiniwinGetWideExtra() logical pixels on each side (x < 0 and
+// x >= 640). On by default; MiniwinSetWidescreen(false) restores pillarboxing.
+void MiniwinSetWidescreen(bool p_enabled);
+int MiniwinGetWideExtra();
+
 // Internal rasterization resolution: the native drawable size (default) or the
 // game's original logical resolution (640x480) upscaled at present time.
 enum MiniwinRenderResolution {

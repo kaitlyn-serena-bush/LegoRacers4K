@@ -7,6 +7,7 @@
 #include "menu/screens/circuitracescreen.h"
 #include "menu/screens/circuitselectscreen.h"
 #include "menu/screens/controlconfigscreen.h"
+#include "menu/screens/cooppickscreen.h"
 #include "menu/screens/driverlicensescreen.h"
 #include "menu/screens/editcarscreen.h"
 #include "menu/screens/editdriverscreen.h"
@@ -22,6 +23,7 @@
 #include "menu/screens/racemodesetupscreen.h"
 #include "menu/screens/saveloadscreen.h"
 #include "menu/screens/splashcinematicscreen.h"
+#include "menu/screens/versussetupscreen.h"
 
 DECOMP_SIZE_ASSERT(MenuScreenFactory, 0x4)
 
@@ -139,7 +141,13 @@ MenuGameScreen* MenuScreenFactory::CreateScreen(LegoU16 p_menuId)
 		break;
 
 	case c_menuMultiPic:
-		screen = new MultiplayerPickScreen();
+		// [library:input] LegoRacers4K: simultaneous 2-4 player Versus pick (multipic.mib never shipped).
+		screen = new CoopPickScreen();
+		break;
+
+	case c_menuPickSet:
+		// [library:config] LegoRacers4K: Versus setup (race type, players, laps).
+		screen = new VersusSetupScreen();
 		break;
 
 	case c_menuPickLanguage:

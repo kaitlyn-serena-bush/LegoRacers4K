@@ -18,6 +18,7 @@ class GolSceneNode;
 
 // VTABLE: LEGORACERS 0x004b3c78
 // SIZE 0x270c
+// [library:input] LegoRacers4K: per-slot arrays hold 4 slots (4-player Versus pick screen).
 class RacerModelScreenBase : public MenuGameScreen {
 public:
 	RacerModelScreenBase();
@@ -62,20 +63,20 @@ protected:
 	GolVec3 m_carUpAxis;                                   // 0x0758
 	undefined4 m_unk0x764;                                 // 0x0764
 	undefined4 m_unk0x768;                                 // 0x0768
-	LegoBool32 m_slotSettled[2];                           // 0x076c
-	LegoBool32 m_slotDirty[2];                             // 0x0774
+	LegoBool32 m_slotSettled[4];                           // 0x076c
+	LegoBool32 m_slotDirty[4];                             // 0x0774
 	LegoS32 m_slotCount;                                   // 0x077c
-	LegoS32 m_slotModelToggle[2];                          // 0x0780
+	LegoS32 m_slotModelToggle[4];                          // 0x0780
 	undefined m_carData[0x98c - 0x788];                    // 0x0788
 	MenuFramedSceneView m_sceneViews[4];                   // 0x098c
-	MenuTextLabel m_sourceLabels[2];                       // 0x1cec
+	MenuTextLabel m_sourceLabels[4];                       // 0x1cec
 	RacerModelSlot m_carSlots[4];                          // 0x1ddc
 	RacerModelSlot m_driverSlots[4];                       // 0x205c
-	SaveRecordCursor m_recordCursors[2];                   // 0x22dc
+	SaveRecordCursor m_recordCursors[4];                   // 0x22dc
 	GolAnimatedEntity m_driverEntities[4];                 // 0x232c
 	LegoS32 m_modelSlotCount;                              // 0x26fc
 	LegoS32 m_modelsPerSlot;                               // 0x2700
-	undefined4 m_recordCounts[2];                          // 0x2704
+	undefined4 m_recordCounts[4];                          // 0x2704
 };
 
 #endif // RACERMODELSCREENBASE_H

@@ -113,3 +113,11 @@ MiniwinRenderBackend* MiniwinBackend_Get();
 // Backend-agnostic screenshot hook (RACERS_DUMP_EVERY / RACERS_DUMP_FRAME): reads the
 // backbuffer and writes a BMP. Call once per Present with the backend's frame counter.
 void MiniwinBackend_HandleFrameDump(MiniwinRenderBackend* p_backend, Uint64 p_frameCounter);
+
+// [library:3d] Widescreen canvas (see MiniwinGetWideExtra in <miniwin/miniwinapp.h>).
+// The backend's logical width is the game's width plus g_miniwinWideExtra on each
+// side; game coordinates are shifted right by g_miniwinWideExtra on the way in.
+extern int g_miniwinWideExtra;
+bool MiniwinGetWidescreen();
+// Called once per frame (BeginScene): resizes the backend canvas to the window aspect.
+void MiniwinWide_Update(MiniwinRenderBackend* p_backend, SDL_Window* p_window);

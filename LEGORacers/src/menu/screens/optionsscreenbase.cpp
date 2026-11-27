@@ -111,11 +111,80 @@ void OptionsScreenBase::CreateAudioOptionWidgets()
 // FUNCTION: LEGORACERS 0x004831a0
 void OptionsScreenBase::CreateWidgets()
 {
+	// [library:config] LegoRacers4K: one page instead of Game/Video/Audio sub-pages and the
+	// Pick Language screen. Versus laps moved to the Versus setup; the display driver is auto-picked.
 	CreateHeaderWidgets();
-	CreateMainButtons();
-	CreateGameOptionWidgets();
-	CreateAudioOptionWidgets();
+	CreateSinglePageWidgets();
 	ShowMainButtons();
+}
+
+// [library:config] LegoRacers4K: lays every option out on the main options page. Widgets are
+// created in navigation order (top to bottom), then moved into rows.
+static void MoveWidget(MenuWidget* p_widget, LegoS32 p_left, LegoS32 p_top)
+{
+	Rect rect = *p_widget->GetRect();
+	rect.m_right += p_left - rect.m_left;
+	rect.m_bottom += p_top - rect.m_top;
+	rect.m_left = p_left;
+	rect.m_top = p_top;
+	p_widget->SetRect(&rect);
+}
+
+void OptionsScreenBase::CreateSinglePageWidgets()
+{
+	LegoS32 i;
+	const LegoS32 c_rowOpponents = 74;
+	const LegoS32 c_rowMusic = 138;
+	const LegoS32 c_rowSound = 204;
+	const LegoS32 c_rowLanguage = 276;
+
+	CreateCarousel(&m_racerCountCarousel, 0x3d, 0x3b);
+	CreateSelector(&m_racerCountSelector, &m_racerCountCarousel, 0xf3, 0x4c);
+	CreateTextLabel(&m_gameOptionLabels[0], 0x100, 0x37, 0x59);
+	for (i = 0; i < 6; i++) {
+		CreateTextLabel(&m_racerCountLabels[i], 0x96, 0x37, static_cast<undefined2>(i + 0x60));
+		m_racerCountCarousel.AddItem(&m_racerCountLabels[i]);
+	}
+	m_racerCountCarousel.SetSelection(m_gameState->GetRacerCount());
+	OnWidgetValueChanged(&m_racerCountSelector);
+	MoveWidget(&m_racerCountSelector, 72, c_rowOpponents);
+	MoveWidget(&m_gameOptionLabels[0], 330, c_rowOpponents - 2);
+
+	CreateOptionsRow(&m_musicVolumeSlider, 0xf9, 0xec);
+	CreateOptionsRow(&m_soundVolumeSlider, 0xfa, 0xec);
+	LegoFloat musicVolume = m_gameState->GetMusicVolume() * 0.003921569f;
+	m_musicVolumeSlider.SetValue(static_cast<LegoS32>(musicVolume * 20.0f + 0.5f));
+	LegoFloat soundVolume = m_gameState->GetSoundVolume() * 0.003921569f;
+	m_soundVolumeSlider.SetValue(static_cast<LegoS32>(soundVolume * 20.0f + 0.5f));
+	OnWidgetValueChanged(&m_musicVolumeSlider);
+	OnWidgetValueChanged(&m_soundVolumeSlider);
+	for (i = 0; i < 2; i++) {
+		CreateTextLabel(&m_audioLabels[i], static_cast<undefined2>(i + 0x104), 0x37, static_cast<undefined2>(i + 0x5d));
+	}
+	MoveWidget(&m_musicVolumeSlider, 20, c_rowMusic);
+	MoveWidget(&m_audioLabels[0], 330, c_rowMusic + 4);
+	MoveWidget(&m_soundVolumeSlider, 20, c_rowSound);
+	MoveWidget(&m_audioLabels[1], 330, c_rowSound + 4);
+
+	CreateCarousel(&m_languageCarousel, 0x3d, 0x3b);
+	CreateSelector(&m_languageSelector, &m_languageCarousel, 0xf3, 0x4c);
+	for (i = 0; i < 9; i++) {
+		CreateTextLabel(&m_languageLabels[i], 0x96, 0x37, static_cast<undefined2>(i + 0x9d));
+		m_languageCarousel.AddItem(&m_languageLabels[i]);
+	}
+	m_languageCarousel.SetSelection(m_context->m_saveSystem.GetLanguageIndex());
+	CreateTextLabel(&m_languageTitle, 0x100, 0x37, 0x9c);
+	MoveWidget(&m_languageSelector, 72, c_rowLanguage);
+	MoveWidget(&m_languageTitle, 330, c_rowLanguage - 2);
+
+	CreateTextButton(&m_controls1Button, 0xf0, 0x42, 0x17);
+	CreateTextButton(&m_controls2Button, 0xf1, 0x42, 0x18);
+	CreateTextButton(&m_creditsButton, 0x27, 0x42, 0x58);
+	CreateTextButton(&m_backButton, 0x3f, 0x43, 2);
+	MoveWidget(&m_controls1Button, 3, 340);
+	MoveWidget(&m_controls2Button, 3, 368);
+	MoveWidget(&m_creditsButton, 3, 396);
+	MoveWidget(&m_backButton, 16, 436);
 }
 
 // FUNCTION: LEGORACERS 0x004831d0
@@ -233,6 +302,11 @@ void OptionsScreenBase::OnWidgetValueChanged(MenuWidget* p_widget)
 		GameState* gameState = m_gameState;
 		gameState->SetLapCount(m_context->m_context->m_lapCount);
 	}
+	else if (p_widget == &m_languageSelector) {
+		// [library:config] LegoRacers4K: inline language picker (saved when leaving options).
+		m_gameState->SetLanguageIndex(static_cast<LegoU8>(m_languageCarousel.GetSelectedIndex()));
+		m_gameState->SetDirty(TRUE);
+	}
 	else if (p_widget == &m_stereoSelector) {
 		m_gameState->SetStereo(m_stereoCarousel.GetSelectedIndex() == 0);
 
@@ -256,14 +330,20 @@ void OptionsScreenBase::CreateVideoWidgets()
 // FUNCTION: LEGORACERS 0x004835a0
 void OptionsScreenBase::ShowMainButtons()
 {
-	m_gameOptionsButton.SetFlags(2);
-	m_audioButton.SetFlags(2);
+	// [library:config] LegoRacers4K: single options page.
 	m_controls1Button.SetFlags(2);
 	m_controls2Button.SetFlags(2);
-	m_languageButton.SetFlags(2);
 	m_creditsButton.SetFlags(2);
+	m_racerCountSelector.SetFlags(2);
+	m_gameOptionLabels[0].SetFlags(2);
+	m_musicVolumeSlider.SetFlags(2);
+	m_soundVolumeSlider.SetFlags(2);
+	m_audioLabels[0].SetFlags(2);
+	m_audioLabels[1].SetFlags(2);
+	m_languageSelector.SetFlags(2);
+	m_languageTitle.SetFlags(2);
 
-	m_gameOptionsButton.Select(4);
+	m_racerCountSelector.Select(4);
 	m_infoLabel.SetStringByIndex(0x10, TRUE);
 	m_infoLabel.WrapText(20);
 	m_backButton.SetTextByIndex(2);

@@ -30,6 +30,24 @@ MiniwinScaleMode MiniwinGetScaleMode()
 	return g_scaleMode;
 }
 
+static bool g_widescreen = true;
+int g_miniwinWideExtra = 0;
+
+void MiniwinSetWidescreen(bool p_enabled)
+{
+	g_widescreen = p_enabled;
+}
+
+bool MiniwinGetWidescreen()
+{
+	return g_widescreen;
+}
+
+int MiniwinGetWideExtra()
+{
+	return g_miniwinWideExtra;
+}
+
 static MiniwinRenderResolution g_renderResolution = MINIWIN_RESOLUTION_NATIVE;
 
 void MiniwinSetRenderResolution(MiniwinRenderResolution p_resolution)

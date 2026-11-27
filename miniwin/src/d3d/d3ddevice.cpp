@@ -25,6 +25,21 @@ struct MiniwinD3DDevice : public IDirect3DDevice3 {
 	HRESULT EnumTextureFormats(LPD3DENUMPIXELFORMATSCALLBACK lpd3dEnumPixelProc, LPVOID lpArg) override;
 	HRESULT GetCaps(LPD3DDEVICEDESC lpD3DHWDevDesc, LPD3DDEVICEDESC lpD3DHELDevDesc) override;
 
+	// [library:3d] Shifts game x coordinates onto the widescreen canvas.
+	const D3DTLVERTEX* Widen(const D3DTLVERTEX* p_vertices, DWORD p_count)
+	{
+		if (!g_miniwinWideExtra) {
+			return p_vertices;
+		}
+		m_wideScratch.assign(p_vertices, p_vertices + p_count);
+		float extra = (float) g_miniwinWideExtra;
+		for (D3DTLVERTEX& vertex : m_wideScratch) {
+			vertex.sx += extra;
+		}
+		return m_wideScratch.data();
+	}
+	std::vector<D3DTLVERTEX> m_wideScratch;
+
 	MiniwinRenderBackend* Backend()
 	{
 		return m_renderTarget && m_renderTarget->m_ddraw ? m_renderTarget->m_ddraw->GetBackend() : nullptr;
@@ -311,6 +326,7 @@ HRESULT IDirect3DDevice3::BeginScene()
 {
 	MiniwinD3DDevice* self = static_cast<MiniwinD3DDevice*>(this);
 	if (MiniwinRenderBackend* backend = self->Backend()) {
+		MiniwinWide_Update(backend, reinterpret_cast<SDL_Window*>(self->m_renderTarget->m_ddraw->m_hwnd));
 		backend->BeginScene();
 	}
 	return D3D_OK;
@@ -385,7 +401,7 @@ HRESULT IDirect3DDevice3::DrawPrimitive(
 	}
 
 	MiniwinRasterState state = self->BuildState();
-	const D3DTLVERTEX* vertices = (const D3DTLVERTEX*) lpvVertices;
+	const D3DTLVERTEX* vertices = self->Widen((const D3DTLVERTEX*) lpvVertices, dwVertexCount);
 
 	if (dptPrimitiveType == D3DPT_TRIANGLELIST) {
 		backend->DrawTriangles(state, vertices, dwVertexCount, nullptr, 0);
@@ -433,7 +449,8 @@ HRESULT IDirect3DDevice3::DrawIndexedPrimitive(
 	}
 
 	MiniwinRasterState state = self->BuildState();
-	backend->DrawTriangles(state, (const D3DTLVERTEX*) lpvVertices, dwVertexCount, lpwIndices, dwIndexCount);
+	const D3DTLVERTEX* vertices = self->Widen((const D3DTLVERTEX*) lpvVertices, dwVertexCount);
+	backend->DrawTriangles(state, vertices, dwVertexCount, lpwIndices, dwIndexCount);
 	return D3D_OK;
 }
 
@@ -487,6 +504,15 @@ HRESULT IDirect3DViewport3::Clear(DWORD dwCount, LPD3DRECT lpRects, DWORD dwFlag
 		rect.w = lpRects[0].x2 - lpRects[0].x1;
 		rect.h = lpRects[0].y2 - lpRects[0].y1;
 		rectPtr = &rect;
+		// [library:3d] Widescreen: a full-screen clear covers the side areas too.
+		if (g_miniwinWideExtra) {
+			if (rect.x <= 0 && rect.w >= backend->m_width - 2 * g_miniwinWideExtra) {
+				rectPtr = nullptr;
+			}
+			else {
+				rect.x += g_miniwinWideExtra;
+			}
+		}
 	}
 
 	backend->Clear(rectPtr, r, g, b, (dwFlags & D3DCLEAR_TARGET) != 0, (dwFlags & D3DCLEAR_ZBUFFER) != 0);

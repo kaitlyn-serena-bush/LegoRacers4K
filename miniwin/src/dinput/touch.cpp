@@ -686,7 +686,9 @@ bool MiniwinTouch_GetMenuCursor(long* p_x, long* p_y, int p_logicalW, int p_logi
 	if (backend && backend->m_drawableW > 0 && backend->m_drawableH > 0 && backend->m_vpW > 0 && backend->m_vpH > 0) {
 		float px = g_menuCursorNX * (float) backend->m_drawableW;
 		float py = g_menuCursorNY * (float) backend->m_drawableH;
-		lx = (px - (float) backend->m_vpX) * (float) p_logicalW / (float) backend->m_vpW;
+		// [library:3d] The letterbox rect spans the widescreen canvas (game width + extras).
+		lx = (px - (float) backend->m_vpX) * (float) backend->m_width / (float) backend->m_vpW -
+			 (float) g_miniwinWideExtra;
 		ly = (py - (float) backend->m_vpY) * (float) p_logicalH / (float) backend->m_vpH;
 	}
 	else {

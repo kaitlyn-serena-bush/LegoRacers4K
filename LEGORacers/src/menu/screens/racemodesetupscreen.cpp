@@ -1,5 +1,6 @@
 #include "menu/screens/racemodesetupscreen.h"
 
+#include "app/coopcontrols.h"
 #include "golname.h"
 #include "golstringtable.h"
 #include "menu/menugamecontext.h"
@@ -130,6 +131,12 @@ LegoBool32 RaceModeSetupScreen::Initialize(MenuGameContext* p_context, MenuScree
 	OnWidgetValueChanged(&m_trackSelector);
 	m_startButton.Select(0);
 	m_recordToggleMs = 2500;
+
+	// [library:input] LegoRacers4K: a Versus Grand Prix picks the circuit only.
+	if ((p_context->m_modelBuilder.GetMenuFlowFlags() & DriverModelBuilder::c_menuFlowVersus) &&
+		CoopVersus_GetSettings()->m_grandPrix) {
+		m_raceSelector.ClearFlags(2);
+	}
 	return TRUE;
 }
 
@@ -166,7 +173,19 @@ void RaceModeSetupScreen::OnIconUnfocused(MenuWidget* p_source)
 
 			// Both branches assign the same id in the original; the flag test is real but inert
 			if (m_context->m_modelBuilder.GetMenuFlowFlags() & DriverModelBuilder::c_menuFlowVersus) {
-				m_nextMenuId = 0x13;
+				// [library:input] LegoRacers4K: all players pick at once; a Grand Prix runs every
+				// race of the chosen circuit.
+				if (CoopVersus_GetSettings()->m_grandPrix) {
+					for (LegoU32 i = 0; i < sizeOfArray(context->m_raceSlots); i++) {
+						LegoRacers::RaceSlot* slot = &context->m_raceSlots[i];
+						RaceNameEntry* entry = m_circuitEntry->GetRaceNameEntry(i);
+						slot->m_enabled = entry != NULL;
+						slot->m_mirror = entry ? entry->GetMirror() : 0;
+						::memcpy(slot->m_raceName, entry ? entry->GetName() : "", entry ? sizeof(GolName) : 1);
+						::memcpy(slot->m_folderName, entry ? entry->GetFolderName() : "", entry ? sizeof(GolName) : 1);
+					}
+				}
+				m_nextMenuId = 0x1e;
 			}
 			else {
 				m_nextMenuId = 0x13;

@@ -166,12 +166,14 @@ void MiniwinSurface::CompositeToBackend(MiniwinRenderBackend* p_backend)
 	}
 
 	// Fullscreen quad in the logical coordinate space, on top of everything.
-	float w = (float) p_backend->m_width;
+	// [library:3d] Centered on a widescreen canvas.
+	float x0 = (float) g_miniwinWideExtra;
+	float w = (float) (p_backend->m_width - g_miniwinWideExtra);
 	float h = (float) p_backend->m_height;
 	D3DTLVERTEX vertices[4];
 	memset(vertices, 0, sizeof(vertices));
 	for (int i = 0; i < 4; i++) {
-		vertices[i].sx = (i == 1 || i == 3) ? w : 0.0f;
+		vertices[i].sx = (i == 1 || i == 3) ? w : x0;
 		vertices[i].sy = (i >= 2) ? h : 0.0f;
 		vertices[i].sz = 0.0f;
 		vertices[i].rhw = 1.0f;

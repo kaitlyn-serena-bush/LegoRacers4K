@@ -299,6 +299,112 @@ const char* CoopControls_GetPath()
 	return g_path;
 }
 
+namespace
+{
+LegoS32 g_sessionPresets[c_coopMaxPlayers] = {c_coopPresetNone, c_coopPresetNone, c_coopPresetNone, c_coopPresetNone};
+CoopVersusSettings g_versusSettings = {2, FALSE, 3};
+
+void UpperCopy(char* p_out, size_t p_size, const char* p_in)
+{
+	size_t i = 0;
+	for (; p_in[i] && i + 1 < p_size; i++) {
+		p_out[i] = static_cast<char>(SDL_toupper(static_cast<unsigned char>(p_in[i])));
+	}
+	p_out[i] = '\0';
+}
+} // namespace
+
+CoopVersusSettings* CoopVersus_GetSettings()
+{
+	return &g_versusSettings;
+}
+
+void CoopControls_SetSessionPreset(LegoU32 p_playerIndex, LegoS32 p_preset)
+{
+	if (p_playerIndex < c_coopMaxPlayers) {
+		g_sessionPresets[p_playerIndex] = p_preset;
+	}
+}
+
+void CoopControls_GetPresetEvents(LegoS32 p_preset, LegoU32 p_events[c_coopActionCount])
+{
+	Ini ini;
+	LoadIni(&ini);
+	for (LegoS32 i = 0; i < c_coopActionCount; i++) {
+		if (p_preset >= c_coopPresetKeyboard1 && p_preset < c_coopPresetCount) {
+			p_events[i] = KeyEvent(ini.m_values[2 + p_preset - c_coopPresetKeyboard1][i]);
+		}
+		else if (p_preset >= c_coopPresetGamepad1 && p_preset < c_coopPresetKeyboard1) {
+			p_events[i] = PadEvent(ini.m_values[1][i]);
+		}
+		else {
+			p_events[i] = 0;
+		}
+	}
+	if (p_preset >= c_coopPresetGamepad1 && p_preset < c_coopPresetKeyboard1) {
+		// Steering is always on the left stick.
+		if (!p_events[c_coopActionLeft]) {
+			p_events[c_coopActionLeft] = InputDevice::c_sourceJoystickAxisButton | 1;
+		}
+		if (!p_events[c_coopActionRight]) {
+			p_events[c_coopActionRight] = InputDevice::c_sourceJoystickAxisButton | 0;
+		}
+	}
+}
+
+void CoopControls_GetActionName(LegoS32 p_preset, LegoS32 p_action, char* p_buffer, LegoU32 p_size)
+{
+	Ini ini;
+	LoadIni(&ini);
+	LegoBool32 pad = p_preset >= c_coopPresetGamepad1 && p_preset < c_coopPresetKeyboard1;
+	LegoS32 section = pad ? 1 : 2 + (p_preset - c_coopPresetKeyboard1);
+	if (section < 1 || section > 5 || p_action < 0 || p_action >= c_coopActionCount) {
+		p_buffer[0] = '\0';
+		return;
+	}
+	UpperCopy(p_buffer, p_size, ini.m_values[section][p_action][0] ? ini.m_values[section][p_action] : "NONE");
+}
+
+void CoopControls_DescribePreset(LegoS32 p_preset, char* p_buffer, LegoU32 p_size)
+{
+	Ini ini;
+	LoadIni(&ini);
+	char names[c_coopActionCount][48];
+	LegoBool32 pad = p_preset >= c_coopPresetGamepad1 && p_preset < c_coopPresetKeyboard1;
+	LegoS32 section = pad ? 1 : 2 + (p_preset - c_coopPresetKeyboard1);
+	if (section < 1 || section > 5) {
+		p_buffer[0] = '\0';
+		return;
+	}
+	for (LegoS32 i = 0; i < c_coopActionCount; i++) {
+		UpperCopy(names[i], sizeof(names[i]), ini.m_values[section][i][0] ? ini.m_values[section][i] : "NONE");
+	}
+	if (pad) {
+		SDL_snprintf(
+			p_buffer,
+			p_size,
+			"STEER STICK  GO %s  BRAKE %s\nITEM %s  SLIDE %s",
+			names[c_coopActionAccelerate],
+			names[c_coopActionBrake],
+			names[c_coopActionPowerup],
+			names[c_coopActionSlide]
+		);
+	}
+	else {
+		SDL_snprintf(
+			p_buffer,
+			p_size,
+			"STEER %s %s  GO %s  BRAKE %s\nITEM %s  SLIDE %s",
+			names[c_coopActionLeft],
+			names[c_coopActionRight],
+			names[c_coopActionAccelerate],
+			names[c_coopActionBrake],
+			names[c_coopActionPowerup],
+			names[c_coopActionSlide]
+		);
+	}
+}
+
 LegoBool32 CoopControls_GetBinding(
 	InputManager* p_inputManager,
 	LegoU32 p_playerIndex,
@@ -317,8 +423,15 @@ LegoBool32 CoopControls_GetBinding(
 	const char* device = ini.m_players[p_playerIndex];
 	LegoS32 padSlot = -1;
 	LegoS32 keyboardSet = -1;
+	LegoS32 preset = g_sessionPresets[p_playerIndex];
 
-	if (SDL_strncasecmp(device, "gamepad", 7) == 0 && device[7] >= '1' && device[7] <= '4') {
+	if (preset >= c_coopPresetKeyboard1 && preset < c_coopPresetCount) {
+		keyboardSet = preset - c_coopPresetKeyboard1;
+	}
+	else if (preset >= c_coopPresetGamepad1 && preset < c_coopPresetKeyboard1) {
+		padSlot = preset;
+	}
+	else if (SDL_strncasecmp(device, "gamepad", 7) == 0 && device[7] >= '1' && device[7] <= '4') {
 		padSlot = device[7] - '1';
 	}
 	else if (SDL_strncasecmp(device, "keyboard", 8) == 0 && device[8] >= '1' && device[8] <= '4') {

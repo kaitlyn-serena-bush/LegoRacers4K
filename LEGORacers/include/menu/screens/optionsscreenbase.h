@@ -76,6 +76,13 @@ protected:
 	MenuTextLabel m_monoLabel;                  // 0x4fc8
 	MenuTextLabel m_audioLabels[3];             // 0x5040
 	LegoS32 m_driverCount;                      // 0x51a8
+
+	// [library:config] LegoRacers4K: single options page (language picker inline).
+	void CreateSinglePageWidgets();
+	MenuSelector m_languageSelector;
+	MenuCarouselNavigator m_languageCarousel;
+	MenuTextLabel m_languageLabels[9];
+	MenuTextLabel m_languageTitle;
 };
 
 #endif // OPTIONSSCREENBASE_H

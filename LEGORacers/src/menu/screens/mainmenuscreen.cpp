@@ -148,10 +148,9 @@ void MainMenuScreen::OnIconUnfocused(MenuWidget* p_source)
 		);
 	}
 	else if (p_source == &m_versusRaceButton) {
-		m_nextMenuId = 6;
-		m_context->m_modelBuilder.SetMenuFlowFlags(
-			m_context->m_modelBuilder.GetMenuFlowFlags() | DriverModelBuilder::c_menuFlowVersus
-		);
+		// [library:config] LegoRacers4K: Versus opens its setup screen (race type, players, laps)
+		// first; that screen sets the Versus flow flag.
+		m_nextMenuId = 4;
 	}
 	else if (p_source == &m_timeRaceButton) {
 		m_nextMenuId = 0x1d;
@@ -164,9 +163,8 @@ void MainMenuScreen::OnIconUnfocused(MenuWidget* p_source)
 		m_nextMenuId = 8;
 	}
 	else if (p_source == &m_exitButton) {
-		CreateTextButton(&m_confirmYesButton, 0x99, 0x46, 0x73);
-		CreateTextButton(&m_confirmNoButton, 0x99, 0x45, 0x74);
-		ShowConfirmDialog(&m_confirmYesButton, &m_confirmNoButton, 0x75);
+		// [library:window] LegoRacers4K: QUIT exits straight away (no "are you sure").
+		m_nextMenuId = 0;
 	}
 	else if (p_source == &m_confirmYesButton) {
 		m_dialog->DismissTop();
