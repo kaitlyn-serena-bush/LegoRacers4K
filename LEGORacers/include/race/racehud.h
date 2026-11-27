@@ -30,7 +30,15 @@ public:
 		c_layoutFull = 1,
 		c_layoutSplitTop = 2,
 		c_layoutSplitBottom = 3,
+		// [library:input] 4-player couch co-op: screen quadrants.
+		c_layoutQuadTopLeft = 4,
+		c_layoutQuadTopRight = 5,
+		c_layoutQuadBottomLeft = 6,
+		c_layoutQuadBottomRight = 7,
 	};
+
+	// [library:input] Any reduced-size (split screen) layout.
+	LegoBool32 IsSplitLayout() const { return m_layout >= c_layoutSplitTop && m_layout <= c_layoutQuadBottomRight; }
 
 	// SIZE 0x09
 	struct TimeText {

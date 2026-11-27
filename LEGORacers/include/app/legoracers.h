@@ -73,8 +73,8 @@ public:
 			c_flagBit7 = 1 << 7,
 
 			c_playerSetupSlotCount = 6,
-			c_playerRecordStateCount = 2,
-			c_inputBindingEntryCount = 2,
+			c_playerRecordStateCount = 4, // [library:input] 4-player couch co-op (was 2)
+			c_inputBindingEntryCount = 4, // [library:input] 4-player couch co-op (was 2)
 		};
 
 		enum {

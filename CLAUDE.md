@@ -27,7 +27,12 @@ cmake --build build
 - `RACERS_DUMP_EVERY=ms:prefix` / `RACERS_DUMP_FRAME=N:path` — periodic / single-frame screenshots.
 - `RACERS_WATCHDOG=<ms>` — reports game-thread stalls with the miniwin phase they occurred in; slow operations (>30 ms) log themselves.
 - `RACERS_GL_STATS=1` — per-100-frame draw stats and frame-time min/avg/max (run with `SDL_LOGGING="*=info"`).
+- `RACERS_VIRTUAL_PADS=N` attaches N SDL virtual gamepads; `RACERS_AUTOPAD="ms:pad:button[:holdMs],..."` presses SDL gamepad button numbers on them (pad 1-4). `RACERS_CONTROLS=<file>` overrides the controls.ini path.
 - `RACERS_VSYNC=1`, `RACERS_WINDOW_TITLE=...` — vsync A/B lever; distinct window title for scripted test instances.
+
+## Local multiplayer (LegoRacers4K)
+
+Versus supports 2-4 players (split screen; 3-4 use quadrants). Player screens chain: after player 2, the CONFIG button becomes "ADD PLAYER n". Versus controls come from `controls.ini` next to the exe (`LEGORacers/src/app/coopcontrols.cpp`; default: player N = gamepad N if plugged in, else keyboard set N). miniwin exposes four fixed DirectInput joysticks ("Gamepad 1-4") bound to SDL gamepads with hot-plug (`miniwin/src/dinput/dinput.cpp`); RT/LT also press A/B; Start pauses.
 
 ## Player-facing options
 

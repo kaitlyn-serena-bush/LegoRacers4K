@@ -1196,7 +1196,15 @@ void RaceSession::LoadRaceContent(LegoBool32 p_mirror)
 		m_huds[i].SetMapInfo(material, m_mapMinX, m_mapMaxY, m_mapMaxX, m_mapMinY, p_mirror);
 	}
 
-	if (m_splitScreen) {
+	if (m_splitScreen && m_context->m_playerCount > 2) {
+		// [library:input] 4-player couch co-op: one quadrant HUD per player.
+		for (LegoU32 i = 0; i < m_context->m_playerCount; i++) {
+			m_huds[i].SetRacer(m_raceState.m_playerRacers[i]);
+			m_huds[i].ResetDisplay(-1);
+			m_huds[i].SetLayout(RaceHud::c_layoutQuadTopLeft + i);
+		}
+	}
+	else if (m_splitScreen) {
 		m_huds[0].SetRacer(m_raceState.m_playerRacers[0]);
 		m_huds[0].ResetDisplay(-1);
 		m_huds[0].SetLayout(RaceHud::c_layoutSplitTop);
@@ -1362,7 +1370,16 @@ void RaceSession::CreateCameras()
 			GolCamera* camera = m_golExport->CreateCamera();
 			m_cameras[i] = camera;
 
-			if (m_splitScreen) {
+			// [library:input] 3-4 players use screen quadrants (full-screen aspect and FOV).
+			if (m_splitScreen && m_context->m_playerCount > 2) {
+				camera->SetLens(
+					m_context->m_cameraFov,
+					m_context->m_cameraNearClip,
+					m_context->m_cameraFarClip,
+					1.3333334f
+				);
+			}
+			else if (m_splitScreen) {
 				camera->SetLens(
 					m_context->m_cameraFov - g_splitScreenFovDelta,
 					m_context->m_cameraNearClip,
@@ -1388,7 +1405,14 @@ void RaceSession::CreateCameras()
 			currentCamera->m_flags |= GolCamera::c_flagViewDirty;
 
 			Rect viewport;
-			if (!m_splitScreen) {
+			if (m_splitScreen && m_context->m_playerCount > 2) {
+				// [library:input] Quadrants: P1 top-left, P2 top-right, P3 bottom-left, P4 bottom-right.
+				viewport.m_left = (i & 1) ? (width >> 1) : 0;
+				viewport.m_right = (i & 1) ? width : (width >> 1);
+				viewport.m_top = (i & 2) ? (height >> 1) : 0;
+				viewport.m_bottom = (i & 2) ? height : (height >> 1);
+			}
+			else if (!m_splitScreen) {
 				viewport.m_left = 0;
 				viewport.m_top = 0;
 				viewport.m_right = width;
@@ -1523,7 +1547,9 @@ void RaceSession::InitializeInput()
 					joystick->Acquire();
 
 					if (!m_demoMode) {
-						if (m_context->m_inputBindings[playerIndex].m_deviceSubType == 4) {
+						// [library:input] Versus: stick/trigger "buttons" (RT/LT bindings) and
+						// pause-menu navigation need axis button events on every pad.
+						if (m_context->m_inputBindings[playerIndex].m_deviceSubType == 4 || m_splitScreen) {
 							joystick->SetAxisButtonEventsEnabled(TRUE);
 						}
 
@@ -2109,8 +2135,10 @@ void RaceSession::Draw()
 	ClearViewport();
 
 	if (m_splitScreen) {
-		m_raceState.m_playerRacers[0]->m_visuals.UpdateShadow(m_cameras[0]);
-		m_raceState.m_playerRacers[1]->m_visuals.UpdateShadow(m_cameras[1]);
+		// [library:input] every local player's racer (2-4)
+		for (LegoU32 i = 0; i < m_context->m_playerCount; i++) {
+			m_raceState.m_playerRacers[i]->m_visuals.UpdateShadow(m_cameras[i]);
+		}
 	}
 	else {
 		m_raceState.UpdateShadows(m_cameras[0]);
@@ -2435,6 +2463,25 @@ void RaceSession::OnKeyDown(LegoU32 p_keyCode)
 		m_running = 0;
 		m_context->m_flags |= LegoRacers::Context::c_flagBit7;
 		return;
+	}
+
+	// [library:input] Gamepads: Start pauses; in the pause menu A confirms and the
+	// D-pad/left stick moves (SDL gamepad layout through the miniwin joystick slots).
+	if (p_keyCode == (InputDevice::c_sourceJoystickButton | 6)) {
+		p_keyCode = c_keyPause;
+	}
+	else if (m_pauseState) {
+		switch (p_keyCode) {
+		case InputDevice::c_sourceJoystickButton | 0:
+			p_keyCode = 0x1000001c; // Enter
+			break;
+		case InputDevice::c_sourceJoystickAxisButton | 3:
+			p_keyCode = 0x100000c8; // Up
+			break;
+		case InputDevice::c_sourceJoystickAxisButton | 2:
+			p_keyCode = 0x100000d0; // Down
+			break;
+		}
 	}
 
 	switch (p_keyCode) {

@@ -164,7 +164,7 @@ private:
 	RaceRoster m_roster;                                   // 0x0f0
 	RaceSetup m_setup;                                     // 0x284
 	RacerPhysics::RouteCursorInstance m_sharedRouteCursor; // 0x2a0
-	Racer* m_playerRacers[2];                              // 0x318
+	Racer* m_playerRacers[4];                              // 0x318 // [library:input] 4-player couch co-op (was 2).
 };
 
 #endif // RACESTATE_H

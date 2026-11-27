@@ -20,8 +20,10 @@ public:
 	void SetSelectedRecordCount(undefined4 p_count) { m_selectedRecordCount = p_count; }
 	void ClearSelectedRecords()
 	{
-		m_selectedRecords[1] = NULL;
-		m_selectedRecords[0] = NULL;
+		// [library:input] 4-player couch co-op: clear every slot.
+		for (LegoU32 i = 0; i < sizeOfArray(m_selectedRecords); i++) {
+			m_selectedRecords[i] = NULL;
+		}
 	}
 	void SetSelectedRecord(SaveRecordList::Record* p_record) { m_selectedRecords[0] = p_record; }
 	void SetSelectedRecord(LegoU32 p_index, SaveRecordList::Record* p_record) { m_selectedRecords[p_index] = p_record; }
@@ -30,7 +32,7 @@ private:
 	friend class NewRacerScreen;
 
 	LegoU32 m_selectedRecordCount;                // 0x244
-	SaveRecordList::Record* m_selectedRecords[2]; // 0x248
+	SaveRecordList::Record* m_selectedRecords[4]; // 0x248 // [library:input] 4-player couch co-op (was 2).
 };
 
 #endif // ACTIVERECORDBUFFER_H

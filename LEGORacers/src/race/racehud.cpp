@@ -535,7 +535,7 @@ void RaceHud::DrawFixedMap()
 			else {
 				sourceRect.m_left = 0;
 			}
-			if (m_layout == c_layoutSplitTop || m_layout == c_layoutSplitBottom) {
+			if (IsSplitLayout()) { // [library:input] includes quadrants
 				sourceRect.m_top = 0x10;
 			}
 			else {
@@ -557,7 +557,7 @@ void RaceHud::DrawFixedMap()
 		destRect.m_right = destRect.m_left + markerWidth;
 
 		sourceRect.m_left = 0x10;
-		if (m_layout == c_layoutSplitTop || m_layout == c_layoutSplitBottom) {
+		if (IsSplitLayout()) { // [library:input] includes quadrants
 			sourceRect.m_top = 0x10;
 		}
 		else {
@@ -578,7 +578,7 @@ void RaceHud::DrawFixedMap()
 		destRect.m_right = destRect.m_left + markerWidth;
 
 		sourceRect.m_left = 0;
-		if (m_layout == c_layoutSplitTop || m_layout == c_layoutSplitBottom) {
+		if (IsSplitLayout()) { // [library:input] includes quadrants
 			sourceRect.m_top = 0x10;
 		}
 		else {
@@ -764,7 +764,7 @@ void RaceHud::DrawRotatingMap()
 			else {
 				sourceRect.m_left = 0;
 			}
-			if (m_layout == c_layoutSplitTop || m_layout == c_layoutSplitBottom) {
+			if (IsSplitLayout()) { // [library:input] includes quadrants
 				sourceRect.m_top = 0x10;
 			}
 			else {
@@ -793,7 +793,7 @@ void RaceHud::DrawRotatingMap()
 		destRect.m_right = destRect.m_left + markerWidth;
 
 		sourceRect.m_left = 0x10;
-		if (m_layout == c_layoutSplitTop || m_layout == c_layoutSplitBottom) {
+		if (IsSplitLayout()) { // [library:input] includes quadrants
 			sourceRect.m_top = 0x10;
 		}
 		else {
@@ -821,7 +821,7 @@ void RaceHud::DrawRotatingMap()
 		destRect.m_right = destRect.m_left + markerWidth;
 
 		sourceRect.m_left = 0;
-		if (m_layout == c_layoutSplitTop || m_layout == c_layoutSplitBottom) {
+		if (IsSplitLayout()) { // [library:input] includes quadrants
 			sourceRect.m_top = 0x10;
 		}
 		else {
@@ -1145,6 +1145,31 @@ void RaceHud::SetLayout(LegoS32 p_mode)
 	case c_layoutSplitBottom:
 		m_viewport.m_top = m_screenHeight >> 1;
 		m_viewport.m_bottom = m_screenHeight;
+		break;
+	// [library:input] 4-player couch co-op quadrants (smaller text, map and banners).
+	case c_layoutQuadTopLeft:
+	case c_layoutQuadTopRight:
+	case c_layoutQuadBottomLeft:
+	case c_layoutQuadBottomRight:
+		if (m_layout == c_layoutQuadTopLeft || m_layout == c_layoutQuadTopRight) {
+			m_viewport.m_top = 0;
+			m_viewport.m_bottom = m_screenHeight >> 1;
+		}
+		else {
+			m_viewport.m_top = m_screenHeight >> 1;
+			m_viewport.m_bottom = m_screenHeight;
+		}
+		if (m_layout == c_layoutQuadTopRight || m_layout == c_layoutQuadBottomRight) {
+			m_viewport.m_left = m_screenWidth >> 1;
+		}
+		else {
+			m_viewport.m_right = m_screenWidth >> 1;
+		}
+		width = m_viewport.m_right;
+		m_mapScale = 0.6f;
+		m_bannerScale = 0.6f;
+		m_textScale = 0.7f;
+		m_imageScale = 0.75f;
 		break;
 	case c_layoutFull:
 		m_viewport.m_top = 0;

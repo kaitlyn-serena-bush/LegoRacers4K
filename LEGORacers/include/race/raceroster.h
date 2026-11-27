@@ -43,8 +43,8 @@ private:
 	Racer* m_currentRacer;                     // 0x080
 	GolExport* m_golExport;                    // 0x084
 	TimeRaceManager* m_timeRaceManager;        // 0x088
-	GolModelEntity* m_customCarModels[2];      // 0x08c
-	GolAnimatedEntity* m_customCarEntities[2]; // 0x094
+	GolModelEntity* m_customCarModels[4];      // 0x08c [library:input] 4-player couch co-op (was 2)
+	GolAnimatedEntity* m_customCarEntities[4]; // 0x094
 	LegoU32 m_customCarCount;                  // 0x09c
 	RaceRouteRecord* m_routeRecords;           // 0x0a0
 	GolVec3 m_startPositions[6];               // 0x0a4

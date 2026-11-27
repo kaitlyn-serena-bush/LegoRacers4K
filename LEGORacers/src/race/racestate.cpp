@@ -257,9 +257,9 @@ void RaceState::CreateRacer(
 			static_cast<DriverCosmeticTable::Entry*>(m_driverTable.GetName(p_slot->m_driverName));
 
 		initParams.m_driverEntity = m_driverTable.LoadEntry(p_slot->m_driverName);
-		championDefinition = static_cast<ChampionDefinitionList::ChampionDefinition*>(
-			m_championList.GetName(driverEntry->m_championName)
-		);
+		championDefinition =
+			static_cast<ChampionDefinitionList::ChampionDefinition*>(m_championList.GetName(driverEntry->m_championName)
+			);
 		initParams.m_bodyModel = m_championList.CreateChampionModel(driverEntry->m_championName);
 		chassisItem = static_cast<ChassisModelTable::Item*>(m_chassisTable.GetName(championDefinition->m_chassisName));
 		m_chassisTable.InstantiateModels(chassisItem, &initParams.m_carEntity, &initParams.m_secondaryModel);
@@ -398,6 +398,10 @@ void RaceState::CreateRacer(
 	}
 	else if (p_splitScreen && p_racerIndex == 0) {
 		m_roster.m_placementSlots[0] = 2;
+	}
+	else if (p_splitScreen && p_racerIndex == 2) {
+		// [library:input] 3-4 player versus: player 3 takes the grid slot player 1 left.
+		m_roster.m_placementSlots[2] = 0;
 	}
 
 	LegoU32 placementIndex = m_roster.m_placementSlots[p_racerIndex];

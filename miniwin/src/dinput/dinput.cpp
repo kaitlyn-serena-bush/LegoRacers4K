@@ -320,7 +320,13 @@ void MiniwinInput_HandleEvent(const SDL_Event& p_event)
 		static float accumX = 0.0f;
 		static float accumY = 0.0f;
 		if (SDL_getenv("RACERS_INPUT_LOG")) {
-			SDL_Log("motion xrel=%f yrel=%f scale=%f,%f", p_event.motion.xrel, p_event.motion.yrel, g_mouseScaleX, g_mouseScaleY);
+			SDL_Log(
+				"motion xrel=%f yrel=%f scale=%f,%f",
+				p_event.motion.xrel,
+				p_event.motion.yrel,
+				g_mouseScaleX,
+				g_mouseScaleY
+			);
 		}
 		accumX += p_event.motion.xrel * g_mouseScaleX;
 		accumY += p_event.motion.yrel * g_mouseScaleY;
@@ -368,24 +374,217 @@ void MiniwinInput_HandleEvent(const SDL_Event& p_event)
 	}
 }
 
-// --- Joystick instance GUIDs (synthesized from the SDL instance id) ---
+int MiniwinInput_DikFromKeyName(const char* p_name)
+{
+	SDL_Scancode scancode = SDL_GetScancodeFromName(p_name);
+	if (scancode == SDL_SCANCODE_UNKNOWN) {
+		return 0;
+	}
+	return ScancodeToDik(scancode);
+}
 
-static GUID JoystickGuid(SDL_JoystickID p_id)
+// --- Gamepad slots (4-player couch co-op, hot-plug) ---
+// The game enumerates joysticks once at startup and keeps the device objects for
+// the whole session, so DirectInput sees four fixed virtual pads ("Gamepad 1".."4").
+// Each slot is bound to whichever SDL gamepad is plugged in: a new pad takes the
+// lowest free slot, and a pad that is unplugged frees its slot for the next one.
+// Slots are opened/closed on the main thread (SDL_AppEvent) and read under a mutex
+// from the game thread.
+
+static const int c_gamepadSlotCount = MINIWIN_GAMEPAD_SLOTS;
+
+struct GamepadSlot {
+	SDL_JoystickID m_id = 0;
+	SDL_Gamepad* m_pad = nullptr;
+};
+
+static GamepadSlot g_gamepadSlots[MINIWIN_GAMEPAD_SLOTS];
+static SDL_Mutex* g_gamepadMutex = nullptr;
+
+static SDL_Mutex* GamepadMutex()
+{
+	if (!g_gamepadMutex) {
+		g_gamepadMutex = SDL_CreateMutex();
+	}
+	return g_gamepadMutex;
+}
+
+// Main thread only.
+static void GamepadSlots_Add(SDL_JoystickID p_id)
+{
+	for (int i = 0; i < c_gamepadSlotCount; i++) {
+		if (g_gamepadSlots[i].m_id == p_id) {
+			return;
+		}
+	}
+	for (int i = 0; i < c_gamepadSlotCount; i++) {
+		if (!g_gamepadSlots[i].m_pad) {
+			SDL_Gamepad* pad = SDL_OpenGamepad(p_id);
+			if (!pad) {
+				return;
+			}
+			SDL_LockMutex(GamepadMutex());
+			g_gamepadSlots[i].m_id = p_id;
+			g_gamepadSlots[i].m_pad = pad;
+			SDL_UnlockMutex(GamepadMutex());
+			const char* name = SDL_GetGamepadName(pad);
+			SDL_Log("Gamepad %d connected: %s", i + 1, name ? name : "?");
+			SDL_SetGamepadPlayerIndex(pad, i);
+			return;
+		}
+	}
+	SDL_Log("Gamepad ignored (all %d slots in use)", c_gamepadSlotCount);
+}
+
+// Main thread only.
+static void GamepadSlots_Remove(SDL_JoystickID p_id)
+{
+	for (int i = 0; i < c_gamepadSlotCount; i++) {
+		if (g_gamepadSlots[i].m_id == p_id && g_gamepadSlots[i].m_pad) {
+			SDL_LockMutex(GamepadMutex());
+			SDL_Gamepad* pad = g_gamepadSlots[i].m_pad;
+			g_gamepadSlots[i].m_pad = nullptr;
+			g_gamepadSlots[i].m_id = 0;
+			SDL_UnlockMutex(GamepadMutex());
+			SDL_CloseGamepad(pad);
+			SDL_Log("Gamepad %d disconnected", i + 1);
+			return;
+		}
+	}
+}
+
+static void GamepadSlots_ScanAll()
+{
+	int count = 0;
+	SDL_JoystickID* ids = SDL_GetGamepads(&count);
+	if (ids) {
+		for (int i = 0; i < count; i++) {
+			GamepadSlots_Add(ids[i]);
+		}
+		SDL_free(ids);
+	}
+}
+
+void MiniwinGamepad_HandleMainThreadEvent(const SDL_Event& p_event)
+{
+	switch (p_event.type) {
+	case SDL_EVENT_GAMEPAD_ADDED:
+		GamepadSlots_Add(p_event.gdevice.which);
+		break;
+	case SDL_EVENT_GAMEPAD_REMOVED:
+		GamepadSlots_Remove(p_event.gdevice.which);
+		break;
+	default:
+		break;
+	}
+}
+
+struct PadScriptStep {
+	SDL_Joystick* m_joystick;
+	int m_button;
+	Uint64 m_start;
+	Uint64 m_end;
+	int m_state;
+};
+static SDL_Joystick* g_virtualPads[MINIWIN_GAMEPAD_SLOTS];
+static PadScriptStep g_padScript[32];
+static size_t g_padScriptCount = 0;
+
+void MiniwinGamepad_Init()
+{
+	// RACERS_VIRTUAL_PADS=N attaches N SDL virtual gamepads (automated tests).
+	const char* virtualPads = SDL_getenv("RACERS_VIRTUAL_PADS");
+	if (virtualPads) {
+		int count = SDL_atoi(virtualPads);
+		for (int i = 0; i < count && i < c_gamepadSlotCount; i++) {
+			SDL_VirtualJoystickDesc desc;
+			SDL_INIT_INTERFACE(&desc);
+			desc.type = SDL_JOYSTICK_TYPE_GAMEPAD;
+			desc.naxes = SDL_GAMEPAD_AXIS_COUNT;
+			desc.nbuttons = SDL_GAMEPAD_BUTTON_COUNT;
+			desc.name = "Virtual Test Pad";
+			SDL_JoystickID id = SDL_AttachVirtualJoystick(&desc);
+			g_virtualPads[i] = id ? SDL_OpenJoystick(id) : nullptr;
+		}
+
+		// RACERS_AUTOPAD="ms:pad:button:holdMs,..." presses SDL gamepad button numbers on
+		// the virtual pads (pad 1-4) for scripted tests.
+		const char* script = SDL_getenv("RACERS_AUTOPAD");
+		while (script && *script && g_padScriptCount < SDL_arraysize(g_padScript)) {
+			unsigned ms = 0, pad = 0, button = 0, hold = 100;
+			if (SDL_sscanf(script, "%u:%u:%u:%u", &ms, &pad, &button, &hold) >= 3 && pad >= 1 && pad <= 4 &&
+				g_virtualPads[pad - 1]) {
+				g_padScript[g_padScriptCount++] = {g_virtualPads[pad - 1], (int) button, ms, ms + hold, 0};
+			}
+			const char* comma = SDL_strchr(script, ',');
+			script = comma ? comma + 1 : nullptr;
+		}
+		if (g_padScriptCount) {
+			SDL_AddTimer(
+				10,
+				[](void*, SDL_TimerID, Uint32 p_interval) -> Uint32 {
+					Uint64 now = SDL_GetTicks();
+					for (size_t i = 0; i < g_padScriptCount; i++) {
+						PadScriptStep& step = g_padScript[i];
+						int state = now >= step.m_start && now < step.m_end ? 1 : 0;
+						if (state != step.m_state) {
+							step.m_state = state;
+							SDL_SetJoystickVirtualButton(step.m_joystick, step.m_button, state != 0);
+						}
+					}
+					return p_interval;
+				},
+				nullptr
+			);
+		}
+	}
+	GamepadSlots_ScanAll();
+}
+
+int MiniwinGamepad_ConnectedMask()
+{
+	int mask = 0;
+	SDL_LockMutex(GamepadMutex());
+	for (int i = 0; i < c_gamepadSlotCount; i++) {
+		if (g_gamepadSlots[i].m_pad) {
+			mask |= 1 << i;
+		}
+	}
+	SDL_UnlockMutex(GamepadMutex());
+	return mask;
+}
+
+bool MiniwinGamepad_GetName(int p_slot, char* p_buffer, size_t p_size)
+{
+	bool connected = false;
+	SDL_LockMutex(GamepadMutex());
+	if (p_slot >= 0 && p_slot < c_gamepadSlotCount && g_gamepadSlots[p_slot].m_pad) {
+		const char* name = SDL_GetGamepadName(g_gamepadSlots[p_slot].m_pad);
+		SDL_strlcpy(p_buffer, name ? name : "Gamepad", p_size);
+		connected = true;
+	}
+	SDL_UnlockMutex(GamepadMutex());
+	return connected;
+}
+
+// --- Joystick instance GUIDs (one per gamepad slot) ---
+
+static GUID JoystickGuid(int p_slot)
 {
 	GUID guid = {};
 	guid.Data1 = 0x52435253; // 'RCRS'
-	guid.Data2 = (Uint16) (p_id & 0xFFFF);
-	guid.Data3 = (Uint16) (p_id >> 16);
+	guid.Data2 = (Uint16) (p_slot + 1);
+	guid.Data3 = 0;
 	memcpy(guid.Data4, "SDLPAD\0", 8);
 	return guid;
 }
 
-static SDL_JoystickID JoystickIdFromGuid(const GUID& p_guid)
+static int JoystickSlotFromGuid(const GUID& p_guid)
 {
-	if (p_guid.Data1 != 0x52435253) {
-		return 0;
+	if (p_guid.Data1 != 0x52435253 || p_guid.Data2 < 1 || p_guid.Data2 > c_gamepadSlotCount) {
+		return -1;
 	}
-	return (SDL_JoystickID) ((Uint32) p_guid.Data2 | ((Uint32) p_guid.Data3 << 16));
+	return (int) p_guid.Data2 - 1;
 }
 
 // The gamepad axes exposed to the game: left stick = X/Y, right stick = Rx/Ry, and
@@ -428,30 +627,13 @@ struct MiniwinInputDevice : public IDirectInputDevice2A {
 
 	Kind m_kind;
 	bool m_acquired = false;
-	SDL_Gamepad* m_gamepad = nullptr;
-	SDL_JoystickID m_joystickId = 0;
+	int m_padSlot = -1;
 	DWORD m_deadZone = 0; // DirectInput units, 0..10000
 	LONG m_rangeMin = -1000;
 	LONG m_rangeMax = 1000;
 	int m_nameBudget = 0; // remaining wchars in the game's control-name buffer
 
 	explicit MiniwinInputDevice(Kind p_kind) : m_kind(p_kind) {}
-
-	~MiniwinInputDevice() override
-	{
-		if (m_gamepad) {
-			SDL_Gamepad* gamepad = m_gamepad;
-			MiniwinApp_RunOnMainThread([gamepad]() { SDL_CloseGamepad(gamepad); });
-		}
-	}
-
-	bool OpenGamepad(SDL_JoystickID p_id)
-	{
-		m_joystickId = p_id;
-		SDL_Gamepad** result = &m_gamepad;
-		MiniwinApp_RunOnMainThread([result, p_id]() { *result = SDL_OpenGamepad(p_id); });
-		return m_gamepad != nullptr;
-	}
 
 	HRESULT QueryInterface(REFIID riid, void** ppvObject) override
 	{
@@ -491,10 +673,9 @@ struct MiniwinInputDevice : public IDirectInputDevice2A {
 			break;
 		case Kind::Joystick: {
 			pdidi->dwDevType = DIDEVTYPE_JOYSTICK;
-			const char* name = m_gamepad ? SDL_GetGamepadName(m_gamepad) : "Gamepad";
-			SDL_strlcpy(pdidi->tszProductName, name ? name : "Gamepad", sizeof(pdidi->tszProductName));
+			SDL_snprintf(pdidi->tszProductName, sizeof(pdidi->tszProductName), "Gamepad %d", m_padSlot + 1);
 			SDL_strlcpy(pdidi->tszInstanceName, pdidi->tszProductName, sizeof(pdidi->tszInstanceName));
-			pdidi->guidInstance = JoystickGuid(m_joystickId);
+			pdidi->guidInstance = JoystickGuid(m_padSlot);
 			break;
 		}
 		}
@@ -728,20 +909,34 @@ struct MiniwinInputDevice : public IDirectInputDevice2A {
 		}
 		memset(lpvData, 0, cbData);
 
-		if (m_kind != Kind::Joystick || !m_gamepad || cbData < sizeof(DIJOYSTATE2)) {
+		if (m_kind != Kind::Joystick || cbData < sizeof(DIJOYSTATE2)) {
 			return DI_OK;
 		}
 
 		DIJOYSTATE2* state = (DIJOYSTATE2*) lpvData;
-		state->lX = ScaleAxis(SDL_GetGamepadAxis(m_gamepad, SDL_GAMEPAD_AXIS_LEFTX));
-		state->lY = ScaleAxis(SDL_GetGamepadAxis(m_gamepad, SDL_GAMEPAD_AXIS_LEFTY));
+		state->lX = state->lY = state->lZ = state->lRx = state->lRy = (m_rangeMin + m_rangeMax) / 2;
+		state->rgdwPOV[0] = state->rgdwPOV[1] = state->rgdwPOV[2] = state->rgdwPOV[3] = 0xFFFFFFFF;
+
+		SDL_LockMutex(GamepadMutex());
+		SDL_Gamepad* pad = g_gamepadSlots[m_padSlot].m_pad;
+		if (pad) {
+			ReadGamepad(pad, state);
+		}
+		SDL_UnlockMutex(GamepadMutex());
+		return DI_OK;
+	}
+
+	void ReadGamepad(SDL_Gamepad* pad, DIJOYSTATE2* state)
+	{
+		state->lX = ScaleAxis(SDL_GetGamepadAxis(pad, SDL_GAMEPAD_AXIS_LEFTX));
+		state->lY = ScaleAxis(SDL_GetGamepadAxis(pad, SDL_GAMEPAD_AXIS_LEFTY));
 
 		// D-pad input overrides the left stick independently on each axis.
 		// Neither or both opposing directions leave that axis's analog value intact.
-		bool left = SDL_GetGamepadButton(m_gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT);
-		bool right = SDL_GetGamepadButton(m_gamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
-		bool up = SDL_GetGamepadButton(m_gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP);
-		bool down = SDL_GetGamepadButton(m_gamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN);
+		bool left = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_DPAD_LEFT);
+		bool right = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
+		bool up = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_DPAD_UP);
+		bool down = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_DPAD_DOWN);
 		if (left != right) {
 			state->lX = left ? m_rangeMin : m_rangeMax;
 		}
@@ -749,12 +944,12 @@ struct MiniwinInputDevice : public IDirectInputDevice2A {
 			state->lY = up ? m_rangeMin : m_rangeMax;
 		}
 
-		state->lRx = ScaleAxis(SDL_GetGamepadAxis(m_gamepad, SDL_GAMEPAD_AXIS_RIGHTX));
-		state->lRy = ScaleAxis(SDL_GetGamepadAxis(m_gamepad, SDL_GAMEPAD_AXIS_RIGHTY));
+		state->lRx = ScaleAxis(SDL_GetGamepadAxis(pad, SDL_GAMEPAD_AXIS_RIGHTX));
+		state->lRy = ScaleAxis(SDL_GetGamepadAxis(pad, SDL_GAMEPAD_AXIS_RIGHTY));
 
 		// Combined trigger axis: right trigger pulls positive, left negative.
-		Sint16 lt = SDL_GetGamepadAxis(m_gamepad, SDL_GAMEPAD_AXIS_LEFT_TRIGGER);
-		Sint16 rt = SDL_GetGamepadAxis(m_gamepad, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER);
+		Sint16 lt = SDL_GetGamepadAxis(pad, SDL_GAMEPAD_AXIS_LEFT_TRIGGER);
+		Sint16 rt = SDL_GetGamepadAxis(pad, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER);
 		state->lZ = ScaleAxis((Sint16) ((rt - lt) / 2 * 2));
 
 		state->rgdwPOV[0] = 0xFFFFFFFF;
@@ -769,10 +964,16 @@ struct MiniwinInputDevice : public IDirectInputDevice2A {
 				// so menu navigation cannot also select an item.
 				continue;
 			}
-			state->rgbButtons[i] = SDL_GetGamepadButton(m_gamepad, (SDL_GamepadButton) i) ? 0x80 : 0x00;
+			state->rgbButtons[i] = SDL_GetGamepadButton(pad, (SDL_GamepadButton) i) ? 0x80 : 0x00;
 		}
 
-		return DI_OK;
+		// Triggers double as A (accelerate) and B (brake/reverse) when pulled past halfway.
+		if (rt > 16384) {
+			state->rgbButtons[SDL_GAMEPAD_BUTTON_SOUTH] = 0x80;
+		}
+		if (lt > 16384) {
+			state->rgbButtons[SDL_GAMEPAD_BUTTON_EAST] = 0x80;
+		}
 	}
 
 	HRESULT Acquire() override
@@ -814,14 +1015,12 @@ struct MiniwinInputDevice : public IDirectInputDevice2A {
 		}
 		*ppdeff = nullptr;
 
-		if (m_kind != Kind::Joystick || !m_gamepad || !(rguid == GUID_Sine)) {
+		if (m_kind != Kind::Joystick || !(rguid == GUID_Sine)) {
 			return DIERR_GENERIC;
 		}
 
-		SDL_PropertiesID props = SDL_GetGamepadProperties(m_gamepad);
-		if (!SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false)) {
-			return DIERR_GENERIC;
-		}
+		// Rumble support is checked when the effect plays: the pad in this slot can
+		// change at any time (hot-plug), so the effect is always created.
 
 		DWORD magnitude = 5000;
 		if (lpeff && lpeff->lpvTypeSpecificParams && lpeff->cbTypeSpecificParams >= sizeof(DIPERIODIC)) {
@@ -837,14 +1036,22 @@ HRESULT MiniwinInputEffect::Start(DWORD, DWORD)
 {
 	m_playing = true;
 	Uint16 strength = (Uint16) ((Uint32) m_magnitude * 65535 / 10000);
-	SDL_RumbleGamepad(m_device->m_gamepad, strength, strength, 600000);
+	SDL_LockMutex(GamepadMutex());
+	if (SDL_Gamepad* pad = g_gamepadSlots[m_device->m_padSlot].m_pad) {
+		SDL_RumbleGamepad(pad, strength, strength, 600000);
+	}
+	SDL_UnlockMutex(GamepadMutex());
 	return DI_OK;
 }
 
 HRESULT MiniwinInputEffect::Stop()
 {
 	m_playing = false;
-	SDL_RumbleGamepad(m_device->m_gamepad, 0, 0, 0);
+	SDL_LockMutex(GamepadMutex());
+	if (SDL_Gamepad* pad = g_gamepadSlots[m_device->m_padSlot].m_pad) {
+		SDL_RumbleGamepad(pad, 0, 0, 0);
+	}
+	SDL_UnlockMutex(GamepadMutex());
 	return DI_OK;
 }
 
@@ -877,16 +1084,13 @@ struct MiniwinDirectInput : public IDirectInputA {
 			return DI_OK;
 		}
 
-		SDL_JoystickID id = JoystickIdFromGuid(rguid);
-		if (!id) {
+		int slot = JoystickSlotFromGuid(rguid);
+		if (slot < 0) {
 			return DIERR_GENERIC;
 		}
 
 		MiniwinInputDevice* device = new MiniwinInputDevice(MiniwinInputDevice::Kind::Joystick);
-		if (!device->OpenGamepad(id)) {
-			device->Release();
-			return DIERR_GENERIC;
-		}
+		device->m_padSlot = slot;
 
 		*lplpDirectInputDevice = device;
 		return DI_OK;
@@ -898,23 +1102,14 @@ struct MiniwinDirectInput : public IDirectInputA {
 			return DI_OK;
 		}
 
-		int count = 0;
-		SDL_JoystickID* ids = SDL_GetGamepads(&count);
-		if (!ids) {
-			return DI_OK;
-		}
-
-		for (int i = 0; i < count; i++) {
-			// For the force-feedback pass, report every gamepad; CreateEffect verifies
-			// actual rumble support and fails safely without it.
+		// Always four slots, connected or not, so pads can be plugged in mid-game.
+		for (int i = 0; i < c_gamepadSlotCount; i++) {
 			DIDEVICEINSTANCEA instance;
 			memset(&instance, 0, sizeof(instance));
 			instance.dwSize = sizeof(instance);
 			instance.dwDevType = DIDEVTYPE_JOYSTICK;
-			instance.guidInstance = JoystickGuid(ids[i]);
-
-			const char* name = SDL_GetGamepadNameForID(ids[i]);
-			SDL_strlcpy(instance.tszProductName, name ? name : "Gamepad", sizeof(instance.tszProductName));
+			instance.guidInstance = JoystickGuid(i);
+			SDL_snprintf(instance.tszProductName, sizeof(instance.tszProductName), "Gamepad %d", i + 1);
 			SDL_strlcpy(instance.tszInstanceName, instance.tszProductName, sizeof(instance.tszInstanceName));
 
 			if (!lpCallback(&instance, pvRef)) {
@@ -922,7 +1117,6 @@ struct MiniwinDirectInput : public IDirectInputA {
 			}
 		}
 
-		SDL_free(ids);
 		return DI_OK;
 	}
 };

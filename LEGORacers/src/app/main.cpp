@@ -183,6 +183,9 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 		return SDL_APP_FAILURE;
 	}
 
+	// [library:input] Gamepad slots 1-4 (hot-plug, local multiplayer).
+	MiniwinGamepad_Init();
+
 	// Saved so the in-game renderer switch can relaunch with a different --renderer.
 	MiniwinApp_SetCommandLine(argc, argv);
 
@@ -569,6 +572,9 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 			break;
 		}
 	}
+
+	// [library:input] Gamepad hot-plug: slots are opened/closed on the main thread.
+	MiniwinGamepad_HandleMainThreadEvent(*event);
 
 	MiniwinApp_PushEvent(*event);
 	return SDL_APP_CONTINUE;

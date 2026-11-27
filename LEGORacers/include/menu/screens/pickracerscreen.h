@@ -3,6 +3,7 @@
 
 #include "compat.h"
 #include "decomp.h"
+#include "golstring.h"
 #include "menu/screens/racerpickscreenbase.h"
 #include "menu/widgets/menuimage.h"
 #include "menu/widgets/menutextbutton.h"
@@ -31,6 +32,14 @@ protected:
 	MenuTextButton m_controlsButton;   // 0x46a8
 	MenuTextButton m_backButton;       // 0x4998
 	undefined4 m_unk0x4c88;            // 0x4c88
+
+	// [library:input] 4-player couch co-op: player 3/4 titles and the "add player" button.
+	void SetCoopText(GolString* p_string, undefined2* p_buffer, LegoU32 p_size, const LegoChar* p_text);
+	void SetupCoopVersusButtons();
+	GolString m_coopTitle;
+	undefined2 m_coopTitleBuffer[64];
+	GolString m_coopAddText;
+	undefined2 m_coopAddBuffer[32];
 };
 
 #endif // PICKRACERSCREEN_H

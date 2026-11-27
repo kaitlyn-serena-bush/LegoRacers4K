@@ -1,7 +1,11 @@
 #include "menu/screens/pickracerscreen.h"
 
+#include "app/coopcontrols.h"
+#include "golstringtable.h"
 #include "menu/menugamecontext.h"
 #include "menu/menuscreenid.h"
+
+#include <SDL3/SDL.h>
 
 DECOMP_SIZE_ASSERT(PickRacerScreen, 0x4c8c)
 
@@ -27,6 +31,10 @@ void PickRacerScreen::CreateWidgets()
 
 	if (m_context->m_modelBuilder.GetMenuFlowFlags() & DriverModelBuilder::c_menuFlowVersus) {
 		textId = m_context->m_saveSystem.GetActiveRecord().GetSelectedRecordCountAsU16();
+		// [library:input] Players 3-4 reuse the player 2 title (digit swapped in Initialize).
+		if (textId > 1) {
+			textId = 1;
+		}
 		textId += 0x15;
 	}
 
@@ -58,15 +66,8 @@ LegoBool32 PickRacerScreen::Initialize(MenuGameContext* p_context, MenuScreenCre
 
 	if (p_context->m_modelBuilder.GetMenuFlowFlags() & DriverModelBuilder::c_menuFlowVersus) {
 		m_nameSelectors[0].SetAcceptUnfocusedInput(TRUE);
-
-		if (p_context->m_saveSystem.GetActiveRecord().GetSelectedRecordCount() == 0) {
-			m_startButton.ClearFlags(2);
-			m_nextPlayerButton.Select(0);
-		}
-		else {
-			m_nextPlayerButton.ClearFlags(2);
-			m_startButton.Select(0);
-		}
+		// [library:input] 4-player couch co-op flow (players 1-4, "add player" button).
+		SetupCoopVersusButtons();
 	}
 	else {
 		m_nextPlayerButton.ClearFlags(2);
@@ -76,9 +77,70 @@ LegoBool32 PickRacerScreen::Initialize(MenuGameContext* p_context, MenuScreenCre
 	return TRUE;
 }
 
+// [library:input] Points p_string at p_buffer holding p_text.
+void PickRacerScreen::SetCoopText(GolString* p_string, undefined2* p_buffer, LegoU32 p_size, const LegoChar* p_text)
+{
+	LegoU32 i = 0;
+	for (; p_text[i] && i < p_size - 1; i++) {
+		p_buffer[i] = static_cast<LegoU8>(p_text[i]);
+	}
+	p_buffer[i] = 0;
+	p_string->CopyFromBufSelection(p_buffer, static_cast<undefined2>(i + 1));
+}
+
+// [library:input] Versus with up to 4 players. Each player picks in turn; from player 2
+// on, "OK" starts the race and "ADD PLAYER n" (in place of CONFIG, since Versus controls
+// come from controls.ini) brings in the next player.
+void PickRacerScreen::SetupCoopVersusButtons()
+{
+	LegoU32 count = m_context->m_saveSystem.GetActiveRecord().GetSelectedRecordCount();
+
+	if (count >= 2) {
+		GolString title;
+		LegoChar text[128];
+		m_menuTextStrings->CopyStringByIndex(&title, 0x16);
+		title.CopyToString(text);
+		for (LegoU32 i = 0; text[i]; i++) {
+			if (text[i] == '2') {
+				text[i] = static_cast<LegoChar>('1' + count);
+				break;
+			}
+		}
+		SetCoopText(&m_coopTitle, m_coopTitleBuffer, sizeOfArray(m_coopTitleBuffer), text);
+		m_infoLabel.SetString(&m_coopTitle, TRUE);
+	}
+
+	if (count == 0) {
+		m_controlsButton.ClearFlags(2);
+		m_startButton.ClearFlags(2);
+		m_nextPlayerButton.Select(0);
+	}
+	else if (count + 1 < c_coopMaxPlayers) {
+		// The CONFIG button becomes "ADD PLAYER n" (see OnIconUnfocused).
+		LegoChar text[32];
+		SDL_snprintf(text, sizeof(text), "ADD PLAYER %u", count + 2);
+		SetCoopText(&m_coopAddText, m_coopAddBuffer, sizeOfArray(m_coopAddBuffer), text);
+		m_controlsButton.SetText(&m_coopAddText);
+		m_nextPlayerButton.ClearFlags(2);
+		m_startButton.Select(0);
+	}
+	else {
+		m_controlsButton.ClearFlags(2);
+		m_nextPlayerButton.ClearFlags(2);
+		m_startButton.Select(0);
+	}
+}
+
 // FUNCTION: LEGORACERS 0x00484f40
 void PickRacerScreen::OnIconUnfocused(MenuWidget* p_source)
 {
+	// [library:input] Versus players 2-3: the CONFIG button is "ADD PLAYER n".
+	if (p_source == &m_controlsButton &&
+		(m_context->m_modelBuilder.GetMenuFlowFlags() & DriverModelBuilder::c_menuFlowVersus) &&
+		m_context->m_saveSystem.GetActiveRecord().GetSelectedRecordCount() > 0) {
+		p_source = &m_nextPlayerButton;
+	}
+
 	if (p_source == &m_controlsButton) {
 		m_nextMenuId = static_cast<LegoU16>(
 			m_context->m_saveSystem.GetActiveRecord().GetSelectedRecordCountAsU16() + c_menuControl1

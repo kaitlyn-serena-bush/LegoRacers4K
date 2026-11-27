@@ -30,7 +30,7 @@ private:
 	void Reset();
 
 	DirectInputDevice* m_device;            // 0x04
-	PlayerControls::InputState* m_sinks[2]; // 0x08
+	PlayerControls::InputState* m_sinks[4]; // 0x08 // [library:input] 4-player couch co-op (was 2).
 	LegoU32 m_sinkCount;                    // 0x10
 	InputDevice::Callback* m_fallback;      // 0x14
 	LegoBool32 m_enabled;                   // 0x18

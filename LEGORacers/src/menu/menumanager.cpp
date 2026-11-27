@@ -1,6 +1,7 @@
 #include "menu/menumanager.h"
 
 #include "app/cheatflags.h"
+#include "app/coopcontrols.h"
 #include "app/win32golapp.h"
 #include "audio/musicinstance.h"
 #include "camera/golcamera.h"
@@ -33,6 +34,7 @@
 #include <float.h>
 #include <golerror.h>
 #include <golstream.h>
+#include <miniwin/miniwinapp.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -270,7 +272,7 @@ LegoS32 MenuManager::Initialize(LegoRacers::Context* p_context)
 
 	m_renderer->SetViewportRect(7, g_menuViewportParams);
 
-	m_gameContext.m_menuStack.Allocate(10);
+	m_gameContext.m_menuStack.Allocate(16); // [library:input] deeper versus flow (4 player screens)
 	m_gameContext.m_menuStack.Push(m_gameContext.m_context->m_nextMenuId);
 
 	if (flag && HasPendingMemoryCardSaves()) {
@@ -864,10 +866,36 @@ void MenuManager::PrepareRaceContext()
 		context->m_playerCount = m_gameContext.m_inputBindings.GetInputManager()->GetJoystickCount();
 	}
 
+	// [library:input] The joystick count is always 4 now (fixed gamepad slots); the
+	// demo path above only has save-state bindings for two players.
+	if (!selectedRecords.GetSelectedRecordCount() && context->m_playerCount > 2) {
+		context->m_playerCount = 2;
+	}
+
 	for (LegoU32 playerIndex = 0; playerIndex < context->m_playerCount; playerIndex++) {
+		// [library:input] Versus (2-4 local players) takes controls from controls.ini.
+		if (selectedRecords.GetSelectedRecordCount() > 1 && CoopControls_GetBinding(
+																m_gameContext.m_inputBindings.GetInputManager(),
+																playerIndex,
+																&context->m_inputBindings[playerIndex]
+															)) {
+			continue;
+		}
+
 		LegoU32 entryIndex = m_gameContext.m_saveSystem.GetGameState().GetSelectedInputBindingEntryIndex(playerIndex);
 		m_gameContext.m_saveSystem.GetGameState()
 			.GetInputBindingEntry(playerIndex, entryIndex, &context->m_inputBindings[playerIndex]);
+
+		// [library:input] Gamepad slots always exist now; if the chosen pad isn't plugged
+		// in, fall back to the default (gamepad N if connected, else keyboard set N).
+		if (context->m_inputBindings[playerIndex].m_deviceType == DIDEVTYPE_JOYSTICK &&
+			!(MiniwinGamepad_ConnectedMask() & (1 << context->m_inputBindings[playerIndex].m_deviceId))) {
+			CoopControls_GetBinding(
+				m_gameContext.m_inputBindings.GetInputManager(),
+				playerIndex,
+				&context->m_inputBindings[playerIndex]
+			);
+		}
 	}
 
 	if (!selectedRecords.GetSelectedRecordCount()) {

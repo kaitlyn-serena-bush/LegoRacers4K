@@ -17,6 +17,17 @@ bool MiniwinApp_PollEvent(SDL_Event& p_event);
 // (keyboard/mouse rings). Call once per polled event, on the game thread.
 void MiniwinInput_HandleEvent(const SDL_Event& p_event);
 
+// [library:input] Gamepad slots for local multiplayer: four fixed DirectInput
+// joysticks ("Gamepad 1".."4") bound to whichever SDL gamepads are plugged in
+// (hot-plug). Init after SDL_Init; feed every main-thread SDL event.
+#define MINIWIN_GAMEPAD_SLOTS 4
+void MiniwinGamepad_Init();
+void MiniwinGamepad_HandleMainThreadEvent(const SDL_Event& p_event);
+int MiniwinGamepad_ConnectedMask(); // bit i set = slot i has a pad
+bool MiniwinGamepad_GetName(int p_slot, char* p_buffer, size_t p_size);
+// DirectInput DIK_* code for an SDL key name ("Left", "Right Ctrl", "Keypad 4"), 0 if unknown.
+int MiniwinInput_DikFromKeyName(const char* p_name);
+
 // Scales the relative mouse deltas fed to DirectInput into the game's cursor coordinate space
 // (1.0 = no scaling). Used on the web, where the window fills the browser tab but the UI
 // renders at a smaller fixed resolution, so unscaled deltas overshoot the cursor.

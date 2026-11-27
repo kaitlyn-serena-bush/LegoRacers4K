@@ -268,8 +268,8 @@ private:
 	InputManager* m_inputManager;                          // 0x21c
 	InputEventQueue m_inputEvents;                         // 0x220
 	RaceInputRouter m_inputRouter;                         // 0x23c
-	PlayerControls m_playerControls[2];                    // 0x258
-	RaceForceFeedback m_forceFeedback[2];                  // 0x340
+	PlayerControls m_playerControls[4];                    // 0x258 // [library:input] 4-player couch co-op (was 2).
+	RaceForceFeedback m_forceFeedback[4];                  // 0x340
 	GolWorldDatabase* m_trackDatabase;                     // 0x390
 	GolCollidableEntity* m_trackCollidable;                // 0x394
 	GolWorldDatabase* m_sharedDatabase;                    // 0x398
@@ -297,13 +297,13 @@ private:
 	MenuAnimationList m_animationList;                     // 0x27fc
 	TgbTargetPointList m_targetPoints;                     // 0x2804
 	LoadingScreen m_loadingScreen;                         // 0x280c
-	RaceHud m_huds[2];                                     // 0x283c
+	RaceHud m_huds[4];                                     // 0x283c
 	LegoFloat m_mapMinX;                                   // 0x2abc
 	LegoFloat m_mapMaxX;                                   // 0x2ac0
 	LegoFloat m_mapMaxY;                                   // 0x2ac4
 	LegoFloat m_mapMinY;                                   // 0x2ac8
-	GolCamera* m_cameras[2];                               // 0x2acc
-	RaceCameraController m_cameraControllers[2];           // 0x2ad4
+	GolCamera* m_cameras[4];                               // 0x2acc
+	RaceCameraController m_cameraControllers[4];           // 0x2ad4
 	GolFontTable* m_fontTable;                             // 0x2d74
 	GolFontBase* m_hudFont;                                // 0x2d78
 	GolFontBase* m_loadingFont;                            // 0x2d7c
@@ -320,7 +320,7 @@ private:
 	RacerCollisionWorlds m_racerCollisionWorlds;           // 0x32c4
 	RaceSoundSource m_soundSource;                         // 0x3300
 	MusicGroup* m_musicGroup;                              // 0x3314
-	SoundNode* m_listenerNodes[2];                         // 0x3318
+	SoundNode* m_listenerNodes[4];                         // 0x3318
 	MusicInstance* m_music;                                // 0x3320
 	LegoFloat m_musicVolume;                               // 0x3324
 	undefined4 m_state;                                    // 0x3328
