@@ -280,6 +280,9 @@ LegoS32 MenuInputDispatcher::Update(undefined4 p_elapsedMs)
 		// the cursor every frame, so also accumulating the relative deltas double-counts the motion
 		// (rubber-banding). Only accumulate in true fullscreen; windowed -- and the web, which is
 		// never real fullscreen -- relies on the absolute path.
+		if (SDL_getenv("RACERS_INPUT_LOG") && (mouse->GetAxisValue(1) != 0.0f || mouse->GetAxisValue(2) != 0.0f)) {
+			SDL_Log("menu cursor: hw=%d fullscreen=%d dx=%f", (int) ((m_drawState->m_flags & GolDrawState::c_flagHardwareDevice) != 0), (int) MiniwinApp_IsWindowFullscreen(), mouse->GetAxisValue(1));
+		}
 		if ((m_drawState->m_flags & GolDrawState::c_flagHardwareDevice) && MiniwinApp_IsWindowFullscreen()) {
 			m_cursor.UpdatePosition(p_elapsedMs);
 		}

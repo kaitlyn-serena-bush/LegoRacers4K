@@ -28,6 +28,7 @@ namespace
 struct HdImage {
 	int m_width = 0;
 	int m_height = 0;
+	bool m_hasAlpha = false;
 	std::vector<Uint8> m_rgba;
 };
 
@@ -174,6 +175,7 @@ std::shared_ptr<HdImage> LoadImage(const std::string& p_key, const std::string& 
 	auto image = std::make_shared<HdImage>();
 	image->m_width = width;
 	image->m_height = height;
+	image->m_hasAlpha = channels == 2 || channels == 4;
 	image->m_rgba.assign(pixels, pixels + (size_t) width * height * 4);
 	stbi_image_free(pixels);
 
@@ -208,13 +210,22 @@ bool MiniwinHdHasReplacement(const char* p_gamePath)
 	return state.m_files.count(KeyFromPath(p_gamePath)) != 0;
 }
 
-bool MiniwinHdAttach(IDirectDrawSurface* p_surface, const char* p_gamePath, const MiniwinHdRegion& p_region)
+static bool AttachBinding(
+	IDirectDrawSurface* p_surface,
+	const char* p_gamePath,
+	const MiniwinHdRegion& p_region,
+	const MiniwinHdBlit* p_blits,
+	int p_blitCount
+)
 {
 	if (!p_surface || !MiniwinHdHasReplacement(p_gamePath)) {
 		return false;
 	}
 	if (p_region.m_imageWidth <= 0 || p_region.m_imageHeight <= 0 || p_region.m_textureWidth <= 0 ||
-		p_region.m_textureHeight <= 0 || p_region.m_srcWidth <= 0 || p_region.m_srcHeight <= 0) {
+		p_region.m_textureHeight <= 0) {
+		return false;
+	}
+	if (!p_blits && (p_region.m_srcWidth <= 0 || p_region.m_srcHeight <= 0)) {
 		return false;
 	}
 
@@ -226,9 +237,31 @@ bool MiniwinHdAttach(IDirectDrawSurface* p_surface, const char* p_gamePath, cons
 		hd->m_file = State().m_files[hd->m_key];
 	}
 	hd->m_region = p_region;
+	if (p_blits) {
+		hd->m_blits.assign(p_blits, p_blits + p_blitCount);
+	}
 	surface->m_hd = hd;
 	surface->m_textureDirty = true;
 	return true;
+}
+
+bool MiniwinHdAttach(IDirectDrawSurface* p_surface, const char* p_gamePath, const MiniwinHdRegion& p_region)
+{
+	return AttachBinding(p_surface, p_gamePath, p_region, nullptr, 0);
+}
+
+bool MiniwinHdAttachBlits(
+	IDirectDrawSurface* p_surface,
+	const char* p_gamePath,
+	const MiniwinHdRegion& p_region,
+	const MiniwinHdBlit* p_blits,
+	int p_blitCount
+)
+{
+	if (!p_blits || p_blitCount <= 0) {
+		return false;
+	}
+	return AttachBinding(p_surface, p_gamePath, p_region, p_blits, p_blitCount);
 }
 
 void MiniwinHdDetach(IDirectDrawSurface* p_surface)
@@ -265,41 +298,81 @@ bool MiniwinHdBuildPixels(const MiniwinHdBinding& p_binding, std::vector<Uint8>&
 
 	int outW = (int) std::lround(region.m_textureWidth * scaleX);
 	int outH = (int) std::lround(region.m_textureHeight * scaleY);
-	int srcX = (int) std::lround(region.m_srcX * scaleX);
-	int srcY = (int) std::lround(region.m_srcY * scaleY);
-	int copyW = std::min((int) std::lround(region.m_srcWidth * scaleX), image->m_width - srcX);
-	int copyH = std::min((int) std::lround(region.m_srcHeight * scaleY), image->m_height - srcY);
-	copyW = std::min(copyW, outW);
-	copyH = std::min(copyH, outH);
-	if (outW <= 0 || outH <= 0 || copyW <= 0 || copyH <= 0) {
-		return false;
-	}
 
 	// GPU limit; every current backend handles 8192, and the art set caps at 4096.
 	const int c_maxSize = 8192;
-	if (outW > c_maxSize || outH > c_maxSize) {
+	if (outW <= 0 || outH <= 0 || outW > c_maxSize || outH > c_maxSize) {
 		return false;
 	}
+
+	auto imageRowPtr = [&](int p_row) {
+		if (region.m_flipVertically) {
+			// The game stored the image's rows bottom-up; regions are in that flipped space.
+			p_row = image->m_height - 1 - p_row;
+		}
+		return image->m_rgba.data() + (size_t) p_row * image->m_width * 4;
+	};
 
 	p_width = outW;
 	p_height = outH;
 	p_out.assign((size_t) outW * outH * 4, 0);
 
-	for (int y = 0; y < outH; y++) {
-		// Rows past the copied region repeat its last row so linear filtering at the
-		// region's edge does not pull in the padding.
-		int srcRow = std::min(y, copyH - 1);
-		int imageRow = srcY + srcRow;
-		if (region.m_flipVertically) {
-			// The original image's rows were stored bottom-up, and the tile region was
-			// taken in that flipped space.
-			imageRow = image->m_height - 1 - imageRow;
+	if (p_binding.m_blits.empty()) {
+		int srcX = (int) std::lround(region.m_srcX * scaleX);
+		int srcY = (int) std::lround(region.m_srcY * scaleY);
+		int copyW = std::min((int) std::lround(region.m_srcWidth * scaleX), image->m_width - srcX);
+		int copyH = std::min((int) std::lround(region.m_srcHeight * scaleY), image->m_height - srcY);
+		copyW = std::min(copyW, outW);
+		copyH = std::min(copyH, outH);
+		if (copyW <= 0 || copyH <= 0) {
+			return false;
 		}
-		const Uint8* src = image->m_rgba.data() + ((size_t) imageRow * image->m_width + srcX) * 4;
-		Uint8* dst = p_out.data() + (size_t) y * outW * 4;
-		SDL_memcpy(dst, src, (size_t) copyW * 4);
-		for (int x = copyW; x < outW; x++) {
-			SDL_memcpy(dst + x * 4, src + (copyW - 1) * 4, 4);
+
+		for (int y = 0; y < outH; y++) {
+			// Rows/columns past the copied region repeat its edge so linear filtering at
+			// the region's edge does not pull in the padding.
+			const Uint8* src = imageRowPtr(srcY + std::min(y, copyH - 1)) + (size_t) srcX * 4;
+			Uint8* dst = p_out.data() + (size_t) y * outW * 4;
+			SDL_memcpy(dst, src, (size_t) copyW * 4);
+			for (int x = copyW; x < outW; x++) {
+				SDL_memcpy(dst + x * 4, src + (copyW - 1) * 4, 4);
+			}
+		}
+	}
+	else {
+		for (const MiniwinHdBlit& blit : p_binding.m_blits) {
+			// Scale edges rather than sizes so neighbouring pieces meet without gaps.
+			int sx0 = (int) std::lround(blit.m_srcX * scaleX);
+			int sx1 = (int) std::lround((blit.m_srcX + blit.m_width) * scaleX);
+			int sy0 = (int) std::lround(blit.m_srcY * scaleY);
+			int sy1 = (int) std::lround((blit.m_srcY + blit.m_height) * scaleY);
+			int dx0 = (int) std::lround(blit.m_dstX * scaleX);
+			int dy0 = (int) std::lround(blit.m_dstY * scaleY);
+			int w = std::min({sx1 - sx0, image->m_width - sx0, outW - dx0});
+			int h = std::min({sy1 - sy0, image->m_height - sy0, outH - dy0});
+			if (w <= 0 || h <= 0 || sx0 < 0 || sy0 < 0 || dx0 < 0 || dy0 < 0) {
+				continue;
+			}
+			for (int y = 0; y < h; y++) {
+				SDL_memcpy(
+					p_out.data() + ((size_t) (dy0 + y) * outW + dx0) * 4,
+					imageRowPtr(sy0 + y) + (size_t) sx0 * 4,
+					(size_t) w * 4
+				);
+			}
+		}
+	}
+
+	if (region.m_colorKeyed && !image->m_hasAlpha) {
+		// No alpha in the replacement: key out its background colour like the original.
+		const int c_tolerance = 40;
+		for (size_t i = 0; i < p_out.size(); i += 4) {
+			int dr = (int) p_out[i] - region.m_keyRed;
+			int dg = (int) p_out[i + 1] - region.m_keyGreen;
+			int db = (int) p_out[i + 2] - region.m_keyBlue;
+			if (dr * dr + dg * dg + db * db <= c_tolerance * c_tolerance) {
+				p_out[i + 3] = 0;
+			}
 		}
 	}
 	return true;

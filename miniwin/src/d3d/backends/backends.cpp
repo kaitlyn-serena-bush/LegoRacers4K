@@ -253,7 +253,22 @@ static SDL_Window* g_backendWindow;
 // transition is harmless). See the menu cursor in menuinputdispatcher.cpp.
 bool MiniwinApp_IsWindowFullscreen()
 {
-	return g_backendWindow && (SDL_GetWindowFlags(g_backendWindow) & SDL_WINDOW_FULLSCREEN) != 0;
+	SDL_Window* window = g_backendWindow;
+	if (!window) {
+		// [library:hd-port] miniwin is a static library linked into both LEGORacers and
+		// GolDP, so each has its own g_backendWindow and only GolDP's copy (which owns the
+		// renderer) is set. The game asks from LEGORacers, so look the window up through
+		// SDL, which is shared. Without this the fullscreen menu cursor never moved.
+		int count = 0;
+		SDL_Window** windows = SDL_GetWindows(&count);
+		if (windows) {
+			if (count > 0) {
+				window = windows[0];
+			}
+			SDL_free(windows);
+		}
+	}
+	return window && (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN) != 0;
 }
 
 MiniwinRenderBackend* MiniwinBackend_Acquire(SDL_Window* p_window, int p_width, int p_height)

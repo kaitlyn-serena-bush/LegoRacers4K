@@ -319,6 +319,9 @@ void MiniwinInput_HandleEvent(const SDL_Event& p_event)
 		// is carried across events so slow motion is not lost to integer rounding.
 		static float accumX = 0.0f;
 		static float accumY = 0.0f;
+		if (SDL_getenv("RACERS_INPUT_LOG")) {
+			SDL_Log("motion xrel=%f yrel=%f scale=%f,%f", p_event.motion.xrel, p_event.motion.yrel, g_mouseScaleX, g_mouseScaleY);
+		}
 		accumX += p_event.motion.xrel * g_mouseScaleX;
 		accumY += p_event.motion.yrel * g_mouseScaleY;
 		LONG dx = (LONG) accumX;
@@ -689,6 +692,9 @@ struct MiniwinInputDevice : public IDirectInputDevice2A {
 			}
 		}
 
+		if (produced && m_kind == Kind::Mouse && SDL_getenv("RACERS_INPUT_LOG")) {
+			SDL_Log("mouse GetDeviceData produced %u", (unsigned) produced);
+		}
 		*pdwInOut = produced;
 		return DI_OK;
 	}

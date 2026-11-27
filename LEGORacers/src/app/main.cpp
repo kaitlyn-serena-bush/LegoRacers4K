@@ -6,6 +6,7 @@
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include <stdio.h>
 
 // clang-format off
 #include <windows.h>
@@ -127,8 +128,42 @@ static void DisableBrowserFullscreenExit()
 }
 #endif
 
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+// [library:hd-port] A Windows GUI app has no console, so SDL's log output is invisible.
+// Mirror it into LEGORacers.log next to the executable for troubleshooting.
+static FILE* g_logFile;
+static SDL_LogOutputFunction g_defaultLogOutput;
+static void* g_defaultLogUserdata;
+
+static void SDLCALL LogToFile(void* p_userdata, int p_category, SDL_LogPriority p_priority, const char* p_message)
+{
+	if (g_logFile) {
+		fprintf(g_logFile, "[%llu] %s\n", (unsigned long long) SDL_GetTicks(), p_message);
+		fflush(g_logFile);
+	}
+	if (g_defaultLogOutput) {
+		g_defaultLogOutput(g_defaultLogUserdata, p_category, p_priority, p_message);
+	}
+}
+
+static void OpenLogFile()
+{
+	const char* base = SDL_GetBasePath();
+	char path[1024];
+	SDL_snprintf(path, sizeof(path), "%sLEGORacers.log", base ? base : "");
+	g_logFile = fopen(path, "w");
+	if (g_logFile) {
+		SDL_GetLogOutputFunction(&g_defaultLogOutput, &g_defaultLogUserdata);
+		SDL_SetLogOutputFunction(LogToFile, nullptr);
+	}
+}
+#endif
+
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 {
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+	OpenLogFile();
+#endif
 	// The game thread owns the GL context; without async dispatch, macOS CGL context
 	// updates block the swapping thread until the main thread runs, which shows up as
 	// random multi-hundred-ms frame stalls.

@@ -83,6 +83,16 @@ public:
 		LegoU32 p_srcX,
 		LegoU32 p_srcY
 	);
+	// [library:hd] Same, for a texture assembled from pieces of the image (font glyphs).
+	// p_blits are in original pixels; p_flipVertically matches how the pieces were loaded.
+	void BindHdReplacementBlits(
+		const LegoChar* p_sourcePath,
+		LegoU32 p_imageWidth,
+		LegoU32 p_imageHeight,
+		LegoBool32 p_flipVertically,
+		const struct MiniwinHdBlit* p_blits,
+		LegoU32 p_blitCount
+	);
 	void AttachHdReplacement();
 	void ForgetHdReplacement();
 

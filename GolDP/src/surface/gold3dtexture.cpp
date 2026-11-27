@@ -3,6 +3,7 @@
 #include <miniwin/hdtexture.h>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "device/ddrawutil.h"
 #include "device/goldirectdrawpalette.h"
@@ -12,6 +13,7 @@
 #include "render/gold3drenderdevice.h"
 #include "surface/gold3dtexturepalette.h"
 
+#include <SDL3/SDL_log.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -24,6 +26,7 @@ namespace
 struct HdBinding {
 	std::string m_path;
 	MiniwinHdRegion m_region;
+	std::vector<MiniwinHdBlit> m_blits;
 };
 
 std::unordered_map<const GolD3DTexture*, HdBinding>& HdBindings()
@@ -761,7 +764,7 @@ void GolD3DTexture::BindHdReplacement(
 {
 	bool hasReplacement = p_sourcePath != NULL && MiniwinHdHasReplacement(p_sourcePath);
 	if (getenv("RACERS_HD_LOG")) {
-		fprintf(stderr, "HD bind %s %ux%u -> %s\n", p_sourcePath ? p_sourcePath : "(null)", (unsigned) p_imageWidth, (unsigned) p_imageHeight, hasReplacement ? "HD" : "original");
+		SDL_Log("HD bind %s %ux%u -> %s", p_sourcePath ? p_sourcePath : "(null)", (unsigned) p_imageWidth, (unsigned) p_imageHeight, hasReplacement ? "HD" : "original");
 	}
 	if (!hasReplacement) {
 		return;
@@ -778,6 +781,45 @@ void GolD3DTexture::BindHdReplacement(
 	binding.m_region.m_textureWidth = (int) m_deviceWidth;
 	binding.m_region.m_textureHeight = (int) m_deviceHeight;
 	binding.m_region.m_flipVertically = (m_textureFlags & c_textureFlagFlipVertically) != 0;
+	binding.m_region.m_colorKeyed = (m_textureFlags & c_textureFlagColorKeyed) != 0;
+	binding.m_region.m_keyRed = m_colorKey.m_red;
+	binding.m_region.m_keyGreen = m_colorKey.m_grn;
+	binding.m_region.m_keyBlue = m_colorKey.m_blu;
+	HdBindings()[this] = binding;
+	AttachHdReplacement();
+}
+
+// [library:hd]
+void GolD3DTexture::BindHdReplacementBlits(
+	const LegoChar* p_sourcePath,
+	LegoU32 p_imageWidth,
+	LegoU32 p_imageHeight,
+	LegoBool32 p_flipVertically,
+	const MiniwinHdBlit* p_blits,
+	LegoU32 p_blitCount
+)
+{
+	bool hasReplacement = p_sourcePath != NULL && p_blitCount != 0 && MiniwinHdHasReplacement(p_sourcePath);
+	if (getenv("RACERS_HD_LOG")) {
+		SDL_Log("HD bind %s %ux%u (%u pieces) -> %s", p_sourcePath ? p_sourcePath : "(null)", (unsigned) p_imageWidth, (unsigned) p_imageHeight, (unsigned) p_blitCount, hasReplacement ? "HD" : "original");
+	}
+	if (!hasReplacement) {
+		return;
+	}
+
+	HdBinding binding;
+	binding.m_path = p_sourcePath;
+	binding.m_region = MiniwinHdRegion();
+	binding.m_region.m_imageWidth = (int) p_imageWidth;
+	binding.m_region.m_imageHeight = (int) p_imageHeight;
+	binding.m_region.m_textureWidth = (int) m_deviceWidth;
+	binding.m_region.m_textureHeight = (int) m_deviceHeight;
+	binding.m_region.m_flipVertically = p_flipVertically != 0;
+	binding.m_region.m_colorKeyed = (m_textureFlags & c_textureFlagColorKeyed) != 0;
+	binding.m_region.m_keyRed = m_colorKey.m_red;
+	binding.m_region.m_keyGreen = m_colorKey.m_grn;
+	binding.m_region.m_keyBlue = m_colorKey.m_blu;
+	binding.m_blits.assign(p_blits, p_blits + p_blitCount);
 	HdBindings()[this] = binding;
 	AttachHdReplacement();
 }
@@ -790,7 +832,19 @@ void GolD3DTexture::AttachHdReplacement()
 	}
 	auto found = HdBindings().find(this);
 	if (found != HdBindings().end()) {
-		MiniwinHdAttach(m_surface, found->second.m_path.c_str(), found->second.m_region);
+		const HdBinding& binding = found->second;
+		if (binding.m_blits.empty()) {
+			MiniwinHdAttach(m_surface, binding.m_path.c_str(), binding.m_region);
+		}
+		else {
+			MiniwinHdAttachBlits(
+				m_surface,
+				binding.m_path.c_str(),
+				binding.m_region,
+				binding.m_blits.data(),
+				(int) binding.m_blits.size()
+			);
+		}
 	}
 }
 

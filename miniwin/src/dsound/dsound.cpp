@@ -22,6 +22,7 @@ static SDL_AudioStream* g_stream;
 // whenever the app lost focus; the window layer mirrors that through this hook.
 void MiniwinSound_SetSuspended(bool p_suspended)
 {
+	SDL_Log("audio: %s (window focus)", p_suspended ? "paused" : "resumed");
 	if (!g_stream) {
 		return;
 	}
@@ -38,6 +39,12 @@ static void SDLCALL PullAudio(void* p_userdata, SDL_AudioStream* p_stream, int p
 {
 	static float buffer[4096];
 	const int frameSize = (int) (sizeof(float) * c_engineChannels);
+	if (SDL_getenv("RACERS_AUDIO_LOG")) {
+		static int calls = 0;
+		if ((calls++ % 50) == 0) {
+			SDL_Log("PullAudio call %d want %d", calls, p_additionalAmount);
+		}
+	}
 
 	while (p_additionalAmount > 0) {
 		ma_uint64 framesWanted = (ma_uint64) (p_additionalAmount / frameSize);
@@ -49,11 +56,23 @@ static void SDLCALL PullAudio(void* p_userdata, SDL_AudioStream* p_stream, int p
 		}
 
 		ma_uint64 framesRead = 0;
-		if (ma_engine_read_pcm_frames(&g_engine, buffer, framesWanted, &framesRead) != MA_SUCCESS || !framesRead) {
+		ma_result readResult = ma_engine_read_pcm_frames(&g_engine, buffer, framesWanted, &framesRead);
+		if (readResult != MA_SUCCESS || !framesRead) {
+			if (SDL_getenv("RACERS_AUDIO_LOG")) {
+				SDL_Log("ma_engine_read_pcm_frames result=%d frames=%llu", (int) readResult, (unsigned long long) framesRead);
+			}
 			break;
 		}
 
 		static const char* statsEnv = getenv("RACERS_AUDIO_STATS");
+		if (statsEnv) {
+			float p = 0;
+			for (ma_uint64 i = 0; i < framesRead * c_engineChannels; i++) {
+				float v = buffer[i] < 0 ? -buffer[i] : buffer[i];
+				if (v > p) p = v;
+			}
+			if (p > 0) SDL_Log("mix peak %.3f", p);
+		}
 		if (statsEnv) {
 			static ma_uint64 totalFrames = 0;
 			static float peak = 0.0f;
@@ -110,6 +129,7 @@ static bool EnsureEngine()
 
 	SDL_ResumeAudioStreamDevice(g_stream);
 	g_engineReady = true;
+	SDL_Log("audio: opened via SDL driver '%s'", SDL_GetCurrentAudioDriver() ? SDL_GetCurrentAudioDriver() : "(none)");
 	return true;
 }
 
@@ -391,6 +411,10 @@ HRESULT IDirectSoundBuffer::Lock(
 
 HRESULT IDirectSoundBuffer::Play(DWORD dwReserved1, DWORD dwPriority, DWORD dwFlags)
 {
+	if (SDL_getenv("RACERS_AUDIO_LOG")) {
+		MiniwinSoundBuffer* dbg = static_cast<MiniwinSoundBuffer*>(this);
+		SDL_Log("dsound Play size=%u vol=%ld ready=%d", (unsigned) dbg->m_size, (long) dbg->m_volume, (int) dbg->m_soundReady);
+	}
 	MiniwinPhaseScope phase(MINIWIN_PHASE_AUDIO);
 	MiniwinSlowOpLog slowLog("dsound", "Play");
 
@@ -439,6 +463,9 @@ HRESULT IDirectSoundBuffer::SetVolume(LONG lVolume)
 		lVolume = DSBVOLUME_MAX;
 	}
 	self->m_volume = lVolume;
+	if (SDL_getenv("RACERS_AUDIO_LOG")) {
+		SDL_Log("dsound SetVolume %ld", (long) lVolume);
+	}
 
 	if (self->m_soundReady) {
 		// DirectSound volume is in hundredths of a decibel of attenuation.
@@ -489,6 +516,17 @@ HRESULT IDirectSoundBuffer::Stop()
 HRESULT IDirectSoundBuffer::Unlock(LPVOID pvAudioPtr1, DWORD dwAudioBytes1, LPVOID pvAudioPtr2, DWORD dwAudioBytes2)
 {
 	// The mixer reads the ring memory directly; written regions are audible as-is.
+	if (SDL_getenv("RACERS_AUDIO_LOG") && pvAudioPtr1 && dwAudioBytes1) {
+		int peak = 0;
+		const unsigned char* b = (const unsigned char*) pvAudioPtr1;
+		for (DWORD i = 0; i < dwAudioBytes1; i++) {
+			int v = b[i] > 128 ? b[i] - 128 : 128 - b[i];
+			if (v > peak) {
+				peak = v;
+			}
+		}
+		SDL_Log("dsound Unlock %u bytes, byte-peak %d", (unsigned) dwAudioBytes1, peak);
+	}
 	return DS_OK;
 }
 

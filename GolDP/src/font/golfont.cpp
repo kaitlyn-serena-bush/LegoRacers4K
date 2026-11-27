@@ -1,5 +1,17 @@
 #include "font/golfont.h"
 
+#include <miniwin/hdtexture.h>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+// [library:hd] Game path each font was loaded from, for its glyph textures' HD pixels.
+static std::unordered_map<const GolFont*, std::string>& HdFontPaths()
+{
+	static std::unordered_map<const GolFont*, std::string> s_paths;
+	return s_paths;
+}
+
 #include "decomp.h"
 #include "device/golpalettebase.h"
 #include "golbmpfile.h"
@@ -39,6 +51,7 @@ GolFont::GolFont()
 // FUNCTION: GOLDP 0x10004480
 GolFont::~GolFont()
 {
+	HdFontPaths().erase(this); // [library:hd]
 	Clear();
 }
 
@@ -75,6 +88,7 @@ void GolFont::Load(const LegoChar* p_name, GolD3DRenderDevice* p_renderer)
 	g_fontSourceImage = &m_sourceImage;
 	m_sourceImage.Allocate(*p_renderer, sourceFormat, sourceWidth, m_fontHeight);
 	imageFile->LoadSurface(&m_sourceImage, m_flags & c_flagBit2, NULL);
+	HdFontPaths()[this] = imageFile->GetHdSourcePath(); // [library:hd]
 	imageFile->Destroy();
 
 	ScanGlyphs(p_name);
@@ -352,6 +366,35 @@ void GolFont::CopyGlyphsToTextures(
 
 	texture->UnlockPixels();
 	font->m_sourceImage.UnlockPixels();
+
+	// [library:hd] Give each glyph texture the same glyphs cut from the HD font strip.
+	auto hdPath = HdFontPaths().find(this);
+	if (hdPath != HdFontPaths().end()) {
+		for (LegoU32 surface = 0; surface < m_surfaceCount; surface++) {
+			std::vector<MiniwinHdBlit> blits;
+			for (LegoU32 i = 0; i < static_cast<LegoU32>(m_glyphCount); i++) {
+				if (m_glyphs[i].m_surfaceIndex != surface) {
+					continue;
+				}
+				MiniwinHdBlit blit;
+				blit.m_srcX = m_glyphs[i].m_sourceX;
+				blit.m_srcY = 0;
+				blit.m_width = m_glyphs[i].m_width;
+				blit.m_height = m_fontHeight;
+				blit.m_dstX = m_glyphs[i].m_textureX;
+				blit.m_dstY = m_glyphs[i].m_textureY;
+				blits.push_back(blit);
+			}
+			GetTexture(surface)->BindHdReplacementBlits(
+				hdPath->second.c_str(),
+				m_sourceImage.GetWidth(),
+				m_sourceImage.GetHeight(),
+				(m_flags & c_flagBit2) != 0,
+				blits.data(),
+				(LegoU32) blits.size()
+			);
+		}
+	}
 }
 
 // FUNCTION: GOLDP 0x10029920 FOLDED

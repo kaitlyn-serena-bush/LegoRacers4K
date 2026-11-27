@@ -11,6 +11,7 @@ struct MiniwinHdBinding {
 	std::string m_key;
 	std::string m_file;
 	MiniwinHdRegion m_region;
+	std::vector<MiniwinHdBlit> m_blits; // empty: the single region in m_region
 };
 
 // Builds the RGBA pixels the backend should sample for an HD-tagged surface.
