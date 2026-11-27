@@ -437,6 +437,9 @@ bool MiniwinSdlGpuBackend::Init(SDL_Window* p_window)
 			info.min_filter = linear ? SDL_GPU_FILTER_LINEAR : SDL_GPU_FILTER_NEAREST;
 			info.mag_filter = linear ? SDL_GPU_FILTER_LINEAR : SDL_GPU_FILTER_NEAREST;
 			info.mipmap_mode = linear ? SDL_GPU_SAMPLERMIPMAPMODE_LINEAR : SDL_GPU_SAMPLERMIPMAPMODE_NEAREST;
+			// [library:hd] Keeps HD track textures sharp at grazing angles.
+			info.enable_anisotropy = linear ? true : false;
+			info.max_anisotropy = 16.0f;
 			SDL_GPUSamplerAddressMode address =
 				wrap ? SDL_GPU_SAMPLERADDRESSMODE_REPEAT : SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE;
 			info.address_mode_u = address;

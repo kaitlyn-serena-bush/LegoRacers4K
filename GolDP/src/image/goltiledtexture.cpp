@@ -85,6 +85,19 @@ void GolTiledTexture::Load()
 		imageFile->LoadTiledTexture(this, m_flags & GolTexture::c_textureFlagFlipVertically, NULL);
 	}
 
+	// [library:hd] Tile (x, y) holds the image region starting at the summed sizes of the
+	// tiles before it (same layout GolImage::UploadTiles copies with).
+	LegoU32 sourceX = 0;
+	for (LegoU32 x = 0; x < m_tileColumnCount; x++) {
+		LegoU32 sourceY = 0;
+		for (LegoU32 y = 0; y < m_tileRowCount; y++) {
+			GolD3DTexture* tile = GetTile(x, y);
+			tile->BindHdReplacement(imageFile->GetHdSourcePath(), m_width, m_height, sourceX, sourceY);
+			sourceY += tile->GetHeight();
+		}
+		sourceX += GetTile(x, 0)->GetWidth();
+	}
+
 	imageFile->Destroy();
 }
 

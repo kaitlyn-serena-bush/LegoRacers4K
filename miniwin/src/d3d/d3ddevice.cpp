@@ -3,6 +3,7 @@
 // (SDL3 GPU / OpenGL / OpenGL ES) attach here in M2.
 
 #include "ddraw_impl.h"
+#include "hdtexture_impl.h"
 #include "miniwin.h"
 #include "renderbackend.h"
 
@@ -46,17 +47,49 @@ struct MiniwinD3DDevice : public IDirect3DDevice3 {
 
 		int width = (int) p_surface->m_desc.dwWidth;
 		int height = (int) p_surface->m_desc.dwHeight;
-		m_convertScratch.resize((size_t) width * height * 4);
-		if (!p_surface->ConvertToRGBA(m_convertScratch.data())) {
-			return 0;
+		bool mipmaps = (p_surface->m_desc.ddsCaps.dwCaps & DDSCAPS_MIPMAP) != 0;
+
+		// [library:hd] Sample the HD replacement instead of the original pixels. Always
+		// mipmapped: a 4K texture on a small on-screen triangle shimmers without them.
+		bool hd = false;
+		if (p_surface->m_hd) {
+			int hdWidth = 0;
+			int hdHeight = 0;
+			if (MiniwinHdBuildPixels(*p_surface->m_hd, m_convertScratch, hdWidth, hdHeight)) {
+				width = hdWidth;
+				height = hdHeight;
+				mipmaps = true;
+				hd = true;
+			}
+			else {
+				p_surface->m_hd.reset();
+			}
+		}
+		if (!hd) {
+			m_convertScratch.resize((size_t) width * height * 4);
+			if (!p_surface->ConvertToRGBA(m_convertScratch.data())) {
+				return 0;
+			}
 		}
 
-		bool mipmaps = (p_surface->m_desc.ddsCaps.dwCaps & DDSCAPS_MIPMAP) != 0;
+		if (p_surface->m_backendTexture != 0 &&
+			(p_surface->m_backendWidth != width || p_surface->m_backendHeight != height ||
+			 p_surface->m_backendMipmaps != mipmaps)) {
+			backend->DestroyTexture(p_surface->m_backendTexture);
+			p_surface->m_backendTexture = 0;
+		}
 		if (p_surface->m_backendTexture == 0) {
 			p_surface->m_backendTexture = backend->CreateTexture(width, height, m_convertScratch.data(), mipmaps);
 		}
 		else {
 			backend->UpdateTexture(p_surface->m_backendTexture, width, height, m_convertScratch.data(), mipmaps);
+		}
+		p_surface->m_backendWidth = width;
+		p_surface->m_backendHeight = height;
+		p_surface->m_backendMipmaps = mipmaps;
+		if (hd) {
+			// Large HD buffers are not worth keeping between uploads.
+			std::vector<Uint8>().swap(m_convertScratch);
 		}
 		if (getenv("RACERS_DUMP_TEX")) {
 			SDL_LogInfo(

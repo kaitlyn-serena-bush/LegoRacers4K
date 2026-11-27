@@ -136,6 +136,7 @@ typedef ptrdiff_t GLintptr;
 		 const void* pixels)                                                                                           \
 	)                                                                                                                  \
 	GL3_FUNC(void, glTexParameteri, (GLenum target, GLenum pname, GLint param))                                        \
+	GL3_FUNC(void, glTexParameterf, (GLenum target, GLenum pname, GLfloat param)) \
 	GL3_FUNC(void, glGenerateMipmap, (GLenum target))                                                                  \
 	GL3_FUNC(void, glActiveTexture, (GLenum texture))                                                                  \
 	GL3_FUNC(GLuint, glCreateShader, (GLenum type))                                                                    \

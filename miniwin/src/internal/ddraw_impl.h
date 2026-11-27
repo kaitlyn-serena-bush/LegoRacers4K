@@ -6,6 +6,9 @@
 #include <miniwin/d3d.h>
 #include <miniwin/ddraw.h>
 #include <miniwin/miniwinapp.h>
+#include <memory>
+
+struct MiniwinHdBinding;
 
 class MiniwinRenderBackend;
 
@@ -73,6 +76,11 @@ struct MiniwinSurface : public IDirectDrawSurface {
 	Uint32 m_backendTexture = 0;
 	bool m_textureDirty = false;
 	int m_paletteVersion = -1;
+	// [library:hd] HD replacement sampled instead of m_pixels (see miniwin/hdtexture.h).
+	std::shared_ptr<MiniwinHdBinding> m_hd;
+	int m_backendWidth = 0; // size/mips the backend texture was created with
+	int m_backendHeight = 0;
+	bool m_backendMipmaps = false;
 };
 
 struct MiniwinDirectDraw : public IDirectDraw {

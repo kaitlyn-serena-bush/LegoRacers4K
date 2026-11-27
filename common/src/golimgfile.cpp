@@ -1,5 +1,7 @@
 #include "golimgfile.h"
 
+#include "golstream.h"
+
 #include "device/golpalettebase.h"
 #include "golerror.h"
 
@@ -16,6 +18,7 @@ ColorRGBA g_nearBlackColor = {0x08, 0x08, 0x08, 0xff};
 // FUNCTION: LEGORACERS 0x0040a8b0
 GolImgFile::GolImgFile()
 {
+	m_hdSourcePath[0] = '\0'; // [library:hd]
 	m_width = 0;
 	m_height = 0;
 	m_rowByteStride = 0;
@@ -61,6 +64,10 @@ void GolImgFile::Open(const LegoChar* p_fileName)
 		::strcat(buffer, p_fileName);
 		GOL_FATALERROR_MESSAGE(buffer);
 	}
+
+	// [library:hd] BufferedOpen left the resolved path in g_pathBuffer.
+	::strncpy(m_hdSourcePath, g_pathBuffer, sizeof(m_hdSourcePath) - 1);
+	m_hdSourcePath[sizeof(m_hdSourcePath) - 1] = '\0';
 
 	m_format.ClearMasks();
 	m_keepNibbleOrder = 0;

@@ -7,6 +7,7 @@
 #include "renderbackend.h"
 
 #include <miniwin/miniwinapp.h>
+#include <unordered_set>
 #include <stdlib.h>
 #include <string.h>
 
@@ -124,6 +125,7 @@ private:
 	void HandleFrameDump();
 
 	SDL_Window* m_window = nullptr;
+	std::unordered_set<Uint32> m_mipmappedTextures; // [library:hd]
 	SDL_GLContext m_context = nullptr;
 	Gl3Functions gl;
 	GLuint m_program = 0;
@@ -433,11 +435,21 @@ void MiniwinGl3Backend::UpdateTexture(Uint32 p_id, int p_width, int p_height, co
 	gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, p_width, p_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, p_rgba);
 	if (p_mipmaps) {
 		gl.glGenerateMipmap(GL_TEXTURE_2D);
+		// [library:hd] Anisotropic filtering keeps HD track textures sharp at grazing
+		// angles. GL_TEXTURE_MAX_ANISOTROPY (core 4.6 / EXT); ignored where unsupported.
+		gl.glTexParameterf(GL_TEXTURE_2D, 0x84FE, 16.0f);
+		while (gl.glGetError() != 0) {
+		}
+		m_mipmappedTextures.insert(p_id);
+	}
+	else {
+		m_mipmappedTextures.erase(p_id);
 	}
 }
 
 void MiniwinGl3Backend::DestroyTexture(Uint32 p_id)
 {
+	m_mipmappedTextures.erase(p_id);
 	GLuint id = p_id;
 	gl.glDeleteTextures(1, &id);
 }
@@ -578,7 +590,12 @@ void MiniwinGl3Backend::ApplyState(const MiniwinRasterState& p_state)
 		gl.glBindTexture(GL_TEXTURE_2D, p_state.textureId);
 		GLint filter = p_state.textureLinear ? GL_LINEAR : GL_NEAREST;
 		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
-		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+		// [library:hd] Mipmapped textures (HD replacements) filter across their levels.
+		GLint minFilter = filter;
+		if (m_mipmappedTextures.count(p_state.textureId)) {
+			minFilter = p_state.textureLinear ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST;
+		}
+		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
 		GLint wrap = p_state.textureWrap ? GL_REPEAT : GL_CLAMP_TO_EDGE;
 		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
 		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);

@@ -104,6 +104,8 @@ static void DisplayArgumentHelp()
 {
 	SDL_Log("racers-portable options:");
 	SDL_Log("  --path <directory>   game data directory (LEGO.JAM, *.TUN, *.AVI)");
+	SDL_Log("  --hd <directory>     HD texture folder (default: HD next to the game data)");
+	SDL_Log("  --nohd               use the original textures");
 	SDL_Log("  --language <index>   language index (seeds the emulated registry LangID)");
 	SDL_Log("  --scale <mode>       fullscreen scaling: letterbox (default) or stretch");
 	SDL_Log("  --resolution <mode>  render at native (default) or original (640x480) resolution");
@@ -208,6 +210,17 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 			i++;
 			continue;
 #endif
+		}
+		if (SDL_strcmp(argv[i], "--nohd") == 0) {
+			// [library:hd] Use the original textures even when an HD folder is present.
+			SDL_setenv_unsafe("RACERS_NO_HD", "1", 1);
+			continue;
+		}
+		if (SDL_strcmp(argv[i], "--hd") == 0 && i + 1 < argc) {
+			// [library:hd] Folder of HD replacement PNGs (default: HD next to the game data).
+			SDL_setenv_unsafe("RACERS_HD_DIR", argv[i + 1], 1);
+			i++;
+			continue;
 		}
 		if (SDL_strcmp(argv[i], "--path") == 0 && i + 1 < argc) {
 #if defined(__EMSCRIPTEN__)

@@ -12,6 +12,7 @@ add_library(miniwin STATIC
   src/ddraw/ddraw.cpp
   src/ddraw/ddsurface.cpp
   src/ddraw/ddpalette.cpp
+  src/ddraw/hdtexture.cpp
 
   # Direct3D (immediate mode)
   src/d3d/d3d.cpp
@@ -75,6 +76,7 @@ target_include_directories(miniwin
   PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/internal"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/d3d/backends"
+    "${PROJECT_SOURCE_DIR}/3rdparty/stb"
 )
 
 # POSIX shims for MSVC-specific CRT headers (<io.h>); real Windows provides these natively.

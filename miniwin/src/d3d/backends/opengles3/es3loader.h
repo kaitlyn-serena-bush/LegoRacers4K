@@ -132,6 +132,7 @@ typedef ptrdiff_t GLintptr;
 		 const void* pixels)                                                                                           \
 	)                                                                                                                  \
 	ES3_FUNC(void, glTexParameteri, (GLenum target, GLenum pname, GLint param))                                        \
+	ES3_FUNC(void, glTexParameterf, (GLenum target, GLenum pname, GLfloat param)) \
 	ES3_FUNC(void, glGenerateMipmap, (GLenum target))                                                                  \
 	ES3_FUNC(void, glActiveTexture, (GLenum texture))                                                                  \
 	ES3_FUNC(GLuint, glCreateShader, (GLenum type))                                                                    \

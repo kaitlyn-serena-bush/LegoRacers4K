@@ -72,6 +72,20 @@ public:
 
 	MipmapLevel* GetMipmaps() { return m_mipmaps; }
 
+	// [library:hd] HD replacement (LegoRacers4K, see miniwin/hdtexture.h). Call after the
+	// original pixels are loaded. p_sourcePath is the game path they came from;
+	// p_imageWidth/Height is that image's size and p_srcX/Y the corner of it this texture
+	// holds (0, 0 unless the image is split into tiles).
+	void BindHdReplacement(
+		const LegoChar* p_sourcePath,
+		LegoU32 p_imageWidth,
+		LegoU32 p_imageHeight,
+		LegoU32 p_srcX,
+		LegoU32 p_srcY
+	);
+	void AttachHdReplacement();
+	void ForgetHdReplacement();
+
 	// SYNTHETIC: GOLDP 0x10004aa0
 	// GolD3DTexture::`vector deleting destructor'
 

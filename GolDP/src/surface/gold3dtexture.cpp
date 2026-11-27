@@ -1,5 +1,9 @@
 #include "surface/gold3dtexture.h"
 
+#include <miniwin/hdtexture.h>
+#include <string>
+#include <unordered_map>
+
 #include "device/ddrawutil.h"
 #include "device/goldirectdrawpalette.h"
 #include "golerror.h"
@@ -13,6 +17,21 @@
 
 DECOMP_SIZE_ASSERT(GolD3DTexture, 0x7c)
 DECOMP_SIZE_ASSERT(GolD3DTexture::NameRecord, 0x08)
+
+// [library:hd] Per-texture HD binding, kept beside the object so its layout is untouched.
+namespace
+{
+struct HdBinding {
+	std::string m_path;
+	MiniwinHdRegion m_region;
+};
+
+std::unordered_map<const GolD3DTexture*, HdBinding>& HdBindings()
+{
+	static std::unordered_map<const GolD3DTexture*, HdBinding> s_bindings;
+	return s_bindings;
+}
+} // namespace
 DECOMP_SIZE_ASSERT(MipmapLevel, 0x18)
 
 extern const ColorRGBA g_transparentBlack;
@@ -59,6 +78,8 @@ void GolD3DTexture::LoadFromImgFile(GolRenderDevice& p_renderer, GolImgFile* p_s
 	p_source->SetRemapPureBlack(FALSE);
 	p_source->LoadSurface(this, m_textureFlags & c_textureFlagFlipVertically, NULL);
 	p_source->SetKeepNibbleOrder(FALSE);
+
+	BindHdReplacement(p_source->GetHdSourcePath(), m_width, m_height, 0, 0); // [library:hd]
 }
 
 // FUNCTION: GOLDP 0x10015d00
@@ -113,6 +134,7 @@ void GolD3DTexture::Allocate(
 // FUNCTION: GOLDP 0x10015e00
 void GolD3DTexture::Destroy()
 {
+	ForgetHdReplacement(); // [library:hd]
 	ReleaseDeviceObjects();
 	m_sourcePalette.Shutdown();
 
@@ -127,6 +149,12 @@ void GolD3DTexture::Destroy()
 // FUNCTION: GOLDP 0x10015e30
 void GolD3DTexture::LockPixels(LegoU8** p_pixels, LegoU32* p_pitch, LegoU32 p_flags)
 {
+	// [library:hd] The game is about to change this texture's pixels itself (animated
+	// textures); the HD replacement no longer matches, so show what the game draws.
+	if (p_flags & c_lockRequestWrite) {
+		ForgetHdReplacement();
+	}
+
 	if (p_flags & c_lockRequestRead) {
 		m_pixelFlags |= c_lockFlagRead;
 	}
@@ -463,6 +491,7 @@ void GolD3DTexture::RestoreDeviceObjects(GolD3DRenderDevice& p_renderer)
 	if (m_pixelFlags & c_lockRequestRead) {
 		CreateDeviceObjects(p_renderer);
 		UploadPixels();
+		AttachHdReplacement(); // [library:hd] new surface, re-tag it
 	}
 }
 
@@ -719,4 +748,61 @@ void GolD3DTexture::CreateMipmapBuffers(GolD3DRenderDevice& p_renderer)
 	}
 
 	m_mipmapCount = static_cast<LegoU16>(i);
+}
+
+// [library:hd]
+void GolD3DTexture::BindHdReplacement(
+	const LegoChar* p_sourcePath,
+	LegoU32 p_imageWidth,
+	LegoU32 p_imageHeight,
+	LegoU32 p_srcX,
+	LegoU32 p_srcY
+)
+{
+	bool hasReplacement = p_sourcePath != NULL && MiniwinHdHasReplacement(p_sourcePath);
+	if (getenv("RACERS_HD_LOG")) {
+		fprintf(stderr, "HD bind %s %ux%u -> %s\n", p_sourcePath ? p_sourcePath : "(null)", (unsigned) p_imageWidth, (unsigned) p_imageHeight, hasReplacement ? "HD" : "original");
+	}
+	if (!hasReplacement) {
+		return;
+	}
+
+	HdBinding binding;
+	binding.m_path = p_sourcePath;
+	binding.m_region.m_imageWidth = (int) p_imageWidth;
+	binding.m_region.m_imageHeight = (int) p_imageHeight;
+	binding.m_region.m_srcX = (int) p_srcX;
+	binding.m_region.m_srcY = (int) p_srcY;
+	binding.m_region.m_srcWidth = (int) m_width;
+	binding.m_region.m_srcHeight = (int) m_height;
+	binding.m_region.m_textureWidth = (int) m_deviceWidth;
+	binding.m_region.m_textureHeight = (int) m_deviceHeight;
+	binding.m_region.m_flipVertically = (m_textureFlags & c_textureFlagFlipVertically) != 0;
+	HdBindings()[this] = binding;
+	AttachHdReplacement();
+}
+
+// [library:hd]
+void GolD3DTexture::AttachHdReplacement()
+{
+	if (m_surface == NULL) {
+		return;
+	}
+	auto found = HdBindings().find(this);
+	if (found != HdBindings().end()) {
+		MiniwinHdAttach(m_surface, found->second.m_path.c_str(), found->second.m_region);
+	}
+}
+
+// [library:hd]
+void GolD3DTexture::ForgetHdReplacement()
+{
+	auto found = HdBindings().find(this);
+	if (found == HdBindings().end()) {
+		return;
+	}
+	HdBindings().erase(found);
+	if (m_surface != NULL) {
+		MiniwinHdDetach(m_surface);
+	}
 }

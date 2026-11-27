@@ -107,7 +107,12 @@ public:
 	void UpscaleRow(LegoU8* p_row, LegoS32 p_xScale, LegoU32 p_scaledWidth, LegoU32 p_bitsPerPixel);
 	void DownsampleRowPair(LegoU8* p_top, LegoU8* p_bottom, LegoU8* p_dst);
 
+	// [library:hd] Resolved game path of the file last opened (for HD replacements).
+	const LegoChar* GetHdSourcePath() const { return m_hdSourcePath; }
+
 protected:
+	LegoChar m_hdSourcePath[256]; // [library:hd] not in the original layout
+
 	LegoU32 m_paletteCount;          // 0x004
 	LegoU32 m_paletteReservedEnd;    // 0x008
 	LegoU32 m_paletteCapacity;       // 0x00c

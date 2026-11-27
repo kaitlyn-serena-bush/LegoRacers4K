@@ -12,6 +12,16 @@
 #include "surface/gold3dtexture.h"
 #include "surface/golrendertarget.h"
 
+#include <string>
+#include <unordered_map>
+
+// [library:hd] Game path each image was loaded from, so its tiles can take HD pixels.
+static std::unordered_map<const GolImage*, std::string>& HdImagePaths()
+{
+	static std::unordered_map<const GolImage*, std::string> s_paths;
+	return s_paths;
+}
+
 DECOMP_SIZE_ASSERT(GolImage, 0xa4)
 DECOMP_SIZE_ASSERT(ColorBGR, 0x3)
 DECOMP_SIZE_ASSERT(FColorRGB, 0xc)
@@ -41,6 +51,7 @@ GolImage::GolImage()
 // FUNCTION: GOLDP 0x10005040
 GolImage::~GolImage()
 {
+	HdImagePaths().erase(this); // [library:hd]
 	DestroyTiles();
 	m_surface.Destroy();
 	GolTiledTexture::Reset();
@@ -75,6 +86,7 @@ void GolImage::Load()
 	imageFile->SetRemapPureBlack(FALSE);
 	imageFile->LoadSurface(&m_surface, m_flags & GolTexture::c_textureFlagFlipVertically, NULL);
 	imageFile->SetKeepNibbleOrder(FALSE);
+	HdImagePaths()[this] = imageFile->GetHdSourcePath(); // [library:hd]
 	imageFile->Destroy();
 
 	GolSurfaceFormat textureFormat = m_surface.GetTextureFormat();
@@ -488,6 +500,12 @@ void GolImage::UploadTiles()
 			g_tileImgFile
 				.ConvertImage(source, destPixels, copyWidth, copyHeight, destPitch, m_format, destPalette, 0, colorKey);
 			texture->UnlockPixels();
+
+			// [library:hd]
+			auto hdPath = HdImagePaths().find(this);
+			if (hdPath != HdImagePaths().end()) {
+				texture->BindHdReplacement(hdPath->second.c_str(), m_width, m_height, sourceX, sourceY);
+			}
 
 			sourceY += copyHeight;
 		}
