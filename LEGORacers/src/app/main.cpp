@@ -4,6 +4,8 @@
 // forwarded to it through the miniwin event queue.
 
 #define SDL_MAIN_USE_CALLBACKS
+#include "app/coopcontrols.h"
+
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <stdio.h>
@@ -318,6 +320,9 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 	// Keep the game from ever exiting the user's browser fullscreen.
 	DisableBrowserFullscreenExit();
 #endif
+
+	// [library:hd] LegoRacers4K: the saved Options > Font choice.
+	GameSettings_Load();
 
 	CoInitialize(0);
 

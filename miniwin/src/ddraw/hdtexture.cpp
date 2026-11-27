@@ -1,8 +1,7 @@
 // [library:hd] HD texture overrides (LegoRacers4K). See miniwin/hdtexture.h.
 
-#include "hdtexture_impl.h"
-
 #include "ddraw_impl.h"
+#include "hdtexture_impl.h"
 
 #include <SDL3/SDL.h>
 #include <algorithm>
@@ -40,8 +39,11 @@ struct HdState {
 	std::unordered_map<std::string, std::string> m_files; // "GAMEDATA/COMMON/AD_CHST" -> full path
 	// Small most-recently-used cache: menu images are split into many tiles that all
 	// read the same PNG, so decode it once per image rather than once per tile.
-	std::list<std::pair<std::string, std::shared_ptr<HdImage>>> m_cache;
+	std::list<std::pair<std::string, std::shared_ptr<HdImage> > > m_cache;
 	size_t m_cacheBytes = 0;
+	// Font sets: alternative font strips that override the base folder's files while
+	// selected (LegoRacers4K Options > Font). Set name -> (key -> full path).
+	std::unordered_map<std::string, std::unordered_map<std::string, std::string> > m_fontSets;
 };
 
 HdState& State()
@@ -70,14 +72,9 @@ std::string KeyFromPath(const char* p_path)
 	return key;
 }
 
-bool TryRoot(const fs::path& p_root)
+size_t IndexFolder(const fs::path& p_root, std::unordered_map<std::string, std::string>& p_files)
 {
 	std::error_code ec;
-	if (p_root.empty() || !fs::is_directory(p_root, ec)) {
-		return false;
-	}
-
-	HdState& state = State();
 	size_t count = 0;
 	fs::recursive_directory_iterator it(p_root, fs::directory_options::skip_permission_denied, ec);
 	for (; !ec && it != fs::recursive_directory_iterator(); it.increment(ec)) {
@@ -99,10 +96,21 @@ bool TryRoot(const fs::path& p_root)
 		if (ec) {
 			continue;
 		}
-		state.m_files[KeyFromPath(relative.c_str())] = path.string();
+		p_files[KeyFromPath(relative.c_str())] = path.string();
 		count++;
 	}
+	return count;
+}
 
+bool TryRoot(const fs::path& p_root)
+{
+	std::error_code ec;
+	if (p_root.empty() || !fs::is_directory(p_root, ec)) {
+		return false;
+	}
+
+	HdState& state = State();
+	size_t count = IndexFolder(p_root, state.m_files);
 	if (count == 0) {
 		return false;
 	}
@@ -143,6 +151,60 @@ void EnsureIndexed()
 		}
 	}
 	SDL_Log("HD textures: no HD folder found, using original textures");
+}
+
+// The selected font set's folder of replacement files, indexed on first use. Sets live
+// in RACERS_FONT_SETS, else <HD folder>/../fonts/alt/sets, else "fonts" next to the exe.
+const std::unordered_map<std::string, std::string>* FontSetFiles()
+{
+	const char* name = SDL_GetStringProperty(SDL_GetGlobalProperties(), "miniwin.hd_font_set", "");
+	if (!name || !*name) {
+		return nullptr;
+	}
+
+	HdState& state = State();
+	auto found = state.m_fontSets.find(name);
+	if (found != state.m_fontSets.end()) {
+		return &found->second;
+	}
+
+	std::unordered_map<std::string, std::string>& files = state.m_fontSets[name];
+	std::vector<fs::path> roots;
+	if (const char* env = SDL_getenv("RACERS_FONT_SETS")) {
+		roots.push_back(fs::path(env));
+	}
+	if (!state.m_root.empty()) {
+		roots.push_back(fs::path(state.m_root).parent_path() / "fonts" / "alt" / "sets");
+	}
+	if (const char* base = SDL_GetBasePath()) {
+		roots.push_back(fs::path(base) / "fonts");
+	}
+	for (const fs::path& root : roots) {
+		std::error_code ec;
+		fs::path dir = root / name;
+		if (fs::is_directory(dir, ec) && IndexFolder(dir, files) > 0) {
+			SDL_Log("HD textures: font set '%s' from %s", name, dir.string().c_str());
+			break;
+		}
+	}
+	if (files.empty()) {
+		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "HD textures: font set '%s' not found", name);
+	}
+	return &files;
+}
+
+// Full path of the replacement for p_key, or an empty string.
+std::string ResolveFile(const std::string& p_key)
+{
+	HdState& state = State();
+	if (const auto* set = FontSetFiles()) {
+		auto it = set->find(p_key);
+		if (it != set->end()) {
+			return it->second;
+		}
+	}
+	auto it = state.m_files.find(p_key);
+	return it != state.m_files.end() ? it->second : std::string();
 }
 
 std::shared_ptr<HdImage> LoadImage(const std::string& p_key, const std::string& p_file)
@@ -190,6 +252,11 @@ std::shared_ptr<HdImage> LoadImage(const std::string& p_key, const std::string& 
 
 } // namespace
 
+void MiniwinHdSetFontSet(const char* p_name)
+{
+	SDL_SetStringProperty(SDL_GetGlobalProperties(), "miniwin.hd_font_set", p_name ? p_name : "");
+}
+
 void MiniwinHdSetEnabled(bool p_enabled)
 {
 	std::lock_guard<std::mutex> lock(State().m_mutex);
@@ -207,7 +274,7 @@ bool MiniwinHdHasReplacement(const char* p_gamePath)
 	if (!state.m_enabled) {
 		return false;
 	}
-	return state.m_files.count(KeyFromPath(p_gamePath)) != 0;
+	return !ResolveFile(KeyFromPath(p_gamePath)).empty();
 }
 
 static bool AttachBinding(
@@ -234,7 +301,7 @@ static bool AttachBinding(
 	hd->m_key = KeyFromPath(p_gamePath);
 	{
 		std::lock_guard<std::mutex> lock(State().m_mutex);
-		hd->m_file = State().m_files[hd->m_key];
+		hd->m_file = ResolveFile(hd->m_key);
 	}
 	hd->m_region = p_region;
 	if (p_blits) {
@@ -281,7 +348,7 @@ bool MiniwinHdBuildPixels(const MiniwinHdBinding& p_binding, std::vector<Uint8>&
 	std::shared_ptr<HdImage> image;
 	{
 		std::lock_guard<std::mutex> lock(State().m_mutex);
-		image = LoadImage(p_binding.m_key, p_binding.m_file);
+		image = LoadImage(p_binding.m_file, p_binding.m_file); // keyed by file: font sets share keys
 	}
 	if (!image) {
 		return false;

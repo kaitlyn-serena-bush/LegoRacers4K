@@ -69,4 +69,17 @@ struct CoopVersusSettings {
 };
 CoopVersusSettings* CoopVersus_GetSettings();
 
+// LegoRacers4K Options > Font: 0 = original (HD) font, 1-3 = alternative font sets
+// (folders legomovie, clicky2, clicky3; see MiniwinHdSetFontSet). Saved in settings.ini
+// next to the exe.
+enum {
+	c_fontSetCount = 4
+};
+void GameSettings_Load();
+LegoS32 GameSettings_GetFontIndex();
+void GameSettings_SetFontIndex(LegoS32 p_index);
+const char* GameSettings_GetFontLabel(LegoS32 p_index);
+// True once after the font changed (menus reload their fonts).
+LegoBool32 GameSettings_TakeFontChanged();
+
 #endif // COOPCONTROLS_H

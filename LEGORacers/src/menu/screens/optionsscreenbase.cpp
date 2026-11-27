@@ -1,5 +1,6 @@
 #include "menu/screens/optionsscreenbase.h"
 
+#include "app/coopcontrols.h"
 #include "audio/musicinstance.h"
 #include "audio/soundmanager.h"
 #include "input/inputmanager.h"
@@ -202,6 +203,19 @@ static void SetOneLineVolumeTitle(
 }
 
 static LegoBool32 g_focusLanguageAfterReload = FALSE;
+static LegoBool32 g_focusFontAfterReload = FALSE;
+
+// [library:hd] LegoRacers4K: a label showing fixed ASCII text.
+static void SetLabelText(MenuTextLabel* p_label, GolString* p_string, undefined2* p_buffer, const char* p_text)
+{
+	LegoU32 length = 0;
+	for (; p_text[length] && length < 23; length++) {
+		p_buffer[length] = static_cast<LegoU8>(p_text[length]);
+	}
+	p_buffer[length] = 0;
+	p_string->CopyFromBufSelection(p_buffer, static_cast<undefined2>(length + 1));
+	p_label->SetString(p_string, 0);
+}
 static LegoBool32 g_languageReloadPending = FALSE;
 
 static void MoveWidget(MenuWidget* p_widget, LegoS32 p_left, LegoS32 p_top)
@@ -217,10 +231,11 @@ static void MoveWidget(MenuWidget* p_widget, LegoS32 p_left, LegoS32 p_top)
 void OptionsScreenBase::CreateSinglePageWidgets()
 {
 	LegoS32 i;
-	const LegoS32 c_rowOpponents = 74;
-	const LegoS32 c_rowMusic = 138;
-	const LegoS32 c_rowSound = 204;
-	const LegoS32 c_rowLanguage = 276;
+	const LegoS32 c_rowOpponents = 66;
+	const LegoS32 c_rowMusic = 122;
+	const LegoS32 c_rowSound = 178;
+	const LegoS32 c_rowLanguage = 236;
+	const LegoS32 c_rowFont = 288;
 
 	CreateCarousel(&m_racerCountCarousel, 0x3d, 0x3b);
 	CreateSelector(&m_racerCountSelector, &m_racerCountCarousel, 0xf3, 0x4c);
@@ -268,6 +283,20 @@ void OptionsScreenBase::CreateSinglePageWidgets()
 	CreateTextLabel(&m_languageTitle, 0x100, 0x37, 0x9c);
 	MoveWidget(&m_languageSelector, 72, c_rowLanguage);
 	MoveWidget(&m_languageTitle, 330, c_rowLanguage - 2);
+
+	// [library:hd] LegoRacers4K: font row (labels are fixed English names).
+	CreateCarousel(&m_fontCarousel, 0x3d, 0x3b);
+	CreateSelector(&m_fontSelector, &m_fontCarousel, 0xf3, 0x4c);
+	for (i = 0; i < c_fontSetCount; i++) {
+		CreateTextLabel(&m_fontLabels[i], 0x96, 0x37, 0x9d);
+		SetLabelText(&m_fontLabels[i], &m_fontStrings[i], m_fontBuffers[i], GameSettings_GetFontLabel(i));
+		m_fontCarousel.AddItem(&m_fontLabels[i]);
+	}
+	m_fontCarousel.SetSelection(GameSettings_GetFontIndex());
+	CreateTextLabel(&m_fontTitle, 0x100, 0x37, 0x9c);
+	SetLabelText(&m_fontTitle, &m_fontStrings[4], m_fontBuffers[4], "FONT");
+	MoveWidget(&m_fontSelector, 72, c_rowFont);
+	MoveWidget(&m_fontTitle, 330, c_rowFont + 8);
 
 	CreateTextButton(&m_controls1Button, 0xf0, 0x42, 0x17);
 	CreateTextButton(&m_controls2Button, 0xf1, 0x42, 0x18);
@@ -400,6 +429,14 @@ void OptionsScreenBase::OnWidgetValueChanged(MenuWidget* p_widget)
 		m_gameState->SetDirty(TRUE);
 		ReloadForLanguage();
 	}
+	else if (p_widget == &m_fontSelector) {
+		// [library:hd] LegoRacers4K: switch fonts live by reopening the screen (fonts reload).
+		if (m_fontCarousel.GetSelectedIndex() != GameSettings_GetFontIndex()) {
+			GameSettings_SetFontIndex(m_fontCarousel.GetSelectedIndex());
+			g_focusFontAfterReload = TRUE;
+			g_languageReloadPending = TRUE;
+		}
+	}
 	else if (p_widget == &m_stereoSelector) {
 		m_gameState->SetStereo(m_stereoCarousel.GetSelectedIndex() == 0);
 
@@ -447,8 +484,14 @@ void OptionsScreenBase::ShowMainButtons()
 	m_audioLabels[1].SetFlags(2);
 	m_languageSelector.SetFlags(2);
 	m_languageTitle.SetFlags(2);
+	m_fontSelector.SetFlags(2);
+	m_fontTitle.SetFlags(2);
 
-	if (g_focusLanguageAfterReload) {
+	if (g_focusFontAfterReload) {
+		g_focusFontAfterReload = FALSE;
+		m_fontSelector.Select(4);
+	}
+	else if (g_focusLanguageAfterReload) {
 		// Reopened for a live language change: keep the language row focused.
 		g_focusLanguageAfterReload = FALSE;
 		m_languageSelector.Select(4);

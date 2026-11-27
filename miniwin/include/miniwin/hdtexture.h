@@ -16,7 +16,7 @@ struct IDirectDrawSurface;
 // Region of an original image held by one texture surface. A whole-image texture uses
 // x = y = 0 and the image size; tiled 2D images (menus) use one region per tile.
 struct MiniwinHdRegion {
-	int m_imageWidth;  // original image size, in original pixels
+	int m_imageWidth; // original image size, in original pixels
 	int m_imageHeight;
 	int m_srcX; // region of the original image copied into the texture's top-left
 	int m_srcY;
@@ -64,6 +64,11 @@ bool MiniwinHdAttachBlits(
 
 // Removes any HD tag (e.g. when the game starts writing the texture's pixels itself).
 void MiniwinHdDetach(IDirectDrawSurface* p_surface);
+
+// Selects a font set: files in that set's folder (mirroring the HD folder) override the
+// HD folder's while selected. NULL or "" = none. Shared by every copy of miniwin through
+// an SDL global property; textures bound afterwards pick it up.
+void MiniwinHdSetFontSet(const char* p_name);
 
 // Disables HD replacements for this run (command line --nohd).
 void MiniwinHdSetEnabled(bool p_enabled);
