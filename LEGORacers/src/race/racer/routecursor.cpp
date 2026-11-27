@@ -326,11 +326,11 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 		segment.m_y = segment.m_y * inverseLength;
 		segment.m_z = segment.m_z * inverseLength;
 
-		LegoFloat sweepOld0 = segment.m_y;
-		sweepOld0 *= p_delta->m_y;
-		LegoFloat sweepOld1 = p_delta->m_z;
-		sweepOld1 *= segment.m_z;
-		projectedDelta = sweepOld0 + sweepOld1 + segment.m_x * p_delta->m_x;
+		LegoFloat yProduct = segment.m_y;
+		yProduct *= p_delta->m_y;
+		LegoFloat zProduct = p_delta->m_z;
+		zProduct *= segment.m_z;
+		projectedDelta = yProduct + zProduct + segment.m_x * p_delta->m_x;
 
 		if (projectedDelta < 0.0f) {
 			projectedDelta = -projectedDelta;
@@ -375,11 +375,11 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 					segment.m_x = segment.m_x * inverseLength;
 					segment.m_y = segment.m_y * inverseLength;
 					segment.m_z = segment.m_z * inverseLength;
-					double sweepOld2 = segment.m_y;
-					sweepOld2 *= p_delta->m_y;
-					double sweepOld3 = p_delta->m_z;
-					sweepOld3 *= segment.m_z;
-					projectedDelta = sweepOld2 + sweepOld3 + segment.m_x * p_delta->m_x;
+					double yProductNeg = segment.m_y;
+					yProductNeg *= p_delta->m_y;
+					double zProductNeg = p_delta->m_z;
+					zProductNeg *= segment.m_z;
+					projectedDelta = yProductNeg + zProductNeg + segment.m_x * p_delta->m_x;
 
 					if (projectedDelta > 0.0f) {
 						projectedDelta = 0.0f;
@@ -435,11 +435,11 @@ void RacerPhysics::RouteCursor::SeekByDelta(GolVec3* p_delta)
 					segment.m_x = segment.m_x * inverseLength;
 					segment.m_y = segment.m_y * inverseLength;
 					segment.m_z = segment.m_z * inverseLength;
-					double sweepOld4 = segment.m_y;
-					sweepOld4 *= p_delta->m_y;
-					double sweepOld5 = p_delta->m_z;
-					sweepOld5 *= segment.m_z;
-					projectedDelta = sweepOld4 + sweepOld5 + segment.m_x * p_delta->m_x;
+					double yProductPos = segment.m_y;
+					yProductPos *= p_delta->m_y;
+					double zProductPos = p_delta->m_z;
+					zProductPos *= segment.m_z;
+					projectedDelta = yProductPos + zProductPos + segment.m_x * p_delta->m_x;
 
 					if (projectedDelta < 0.0f) {
 						projectedDelta = 0.0f;

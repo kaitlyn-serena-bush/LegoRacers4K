@@ -776,7 +776,7 @@ void GolFontBase::DrawString(
 						p_scaleX,
 						p_scaleY,
 						p_rect,
-						reinterpret_cast<undefined4>(p_color)
+						(undefined4) p_color
 					);
 				}
 

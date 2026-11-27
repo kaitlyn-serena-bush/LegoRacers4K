@@ -224,8 +224,8 @@ void RacePowerupManager::BrickDebris::Spawn(const GolVec3* p_position, const Gol
 			}
 
 			if (p_racer) {
-				LegoU32 sweepTmp0 = p_racer->m_materialIndex;
-				material = m_manager->m_raceState->GetMaterialLibrary()->GetItem(sweepTmp0);
+				LegoU32 materialIdx = p_racer->m_materialIndex;
+				material = m_manager->m_raceState->GetMaterialLibrary()->GetItem(materialIdx);
 			}
 
 			m_entries[entryIndex]

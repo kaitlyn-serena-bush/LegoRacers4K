@@ -207,7 +207,7 @@ LegoBool32 CarBuildScreenBase::Draw(Rect* p_clipRect, Rect* p_sourceRect)
 	LegoBool32 result = MenuScreen::Draw(p_clipRect, p_sourceRect);
 
 	if (m_tooltipMs <= 0) {
-		goto sweepDone;
+		goto layoutComplete;
 	}
 
 	if (m_layoutDirty) {
@@ -229,11 +229,11 @@ LegoBool32 CarBuildScreenBase::Draw(Rect* p_clipRect, Rect* p_sourceRect)
 		if (!m_tooltipWrapWidth) {
 			LegoS32 fontHeight;
 			m_tooltipFont->MeasureString(m_tooltipString, &width, &fontHeight);
-			LegoS32& sweepOld0 = m_tooltipWrapWidth;
+			LegoS32& wrapWidthRef = m_tooltipWrapWidth;
 			m_tooltipLineSpacing = 1;
 
 			LegoFloat measuredWidth = static_cast<LegoFloat>(width);
-			sweepOld0 = static_cast<LegoS32>(::sqrt((static_cast<LegoFloat>(fontHeight + 1) * 3.0f) * measuredWidth));
+			wrapWidthRef = static_cast<LegoS32>(::sqrt((static_cast<LegoFloat>(fontHeight + 1) * 3.0f) * measuredWidth));
 
 			LegoS32 maxWidth = p_clipRect->m_right - (fontHeight * 2) - p_clipRect->m_left;
 			if (m_tooltipWrapWidth > maxWidth) {
@@ -360,6 +360,6 @@ LegoBool32 CarBuildScreenBase::Draw(Rect* p_clipRect, Rect* p_sourceRect)
 		NULL,
 		0
 	);
-	sweepDone:
+	layoutComplete:
 	return result;
 }

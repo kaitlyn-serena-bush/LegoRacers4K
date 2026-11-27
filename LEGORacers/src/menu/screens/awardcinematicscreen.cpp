@@ -277,15 +277,15 @@ void AwardCinematicScreen::CreateWidgets()
 				driverMaterials = driverEntity->GetPrimaryMaterialTable();
 			}
 			else {
-				driverMaterials = reinterpret_cast<MaterialTable*>(driverEntity->GetModel(0));
-				driverMaterials = reinterpret_cast<MaterialTable*>(reinterpret_cast<LegoU8*>(driverMaterials) + 4);
+				driverMaterials = (MaterialTable*) driverEntity->GetModel(0);
+				driverMaterials = (MaterialTable*) ((LegoU8*) driverMaterials + 4);
 			}
 
 			if (swapEntity) {
 				MaterialTable* swapMaterials = swapEntity->GetPrimaryMaterialTable();
 				if (!swapMaterials) {
-					swapMaterials = reinterpret_cast<MaterialTable*>(swapEntity->GetModel(0));
-					swapMaterials = reinterpret_cast<MaterialTable*>(reinterpret_cast<LegoU8*>(swapMaterials) + 4);
+					swapMaterials = (MaterialTable*) swapEntity->GetModel(0);
+					swapMaterials = (MaterialTable*) ((LegoU8*) swapMaterials + 4);
 				}
 				swapMaterials->SetEntry(0, driverMaterials->GetEntry(1));
 			}
@@ -293,8 +293,8 @@ void AwardCinematicScreen::CreateWidgets()
 			if (pLegEntity) {
 				MaterialTable* pLegMaterials = pLegEntity->GetPrimaryMaterialTable();
 				if (!pLegMaterials) {
-					pLegMaterials = reinterpret_cast<MaterialTable*>(pLegEntity->GetModel(0));
-					pLegMaterials = reinterpret_cast<MaterialTable*>(reinterpret_cast<LegoU8*>(pLegMaterials) + 4);
+					pLegMaterials = (MaterialTable*) pLegEntity->GetModel(0);
+					pLegMaterials = (MaterialTable*) ((LegoU8*) pLegMaterials + 4);
 				}
 				pLegMaterials->SetEntry(0, driverMaterials->GetEntry(1));
 			}
@@ -337,10 +337,10 @@ void AwardCinematicScreen::CreateWidgets()
 							expressionIndex = ::strncmp(expressionName, "suprz", sizeof(GolName)) == 0 ? 5 : 0;
 						}
 
-						LegoU8* p = reinterpret_cast<LegoU8*>(m_context);
-						p = *reinterpret_cast<LegoU8**>(p + 0x4b78);
-						p = *reinterpret_cast<LegoU8**>(p + 0x38);
-						reinterpret_cast<DriverPartCatalog*>(p)->BuildFaceExpressionName(cosmetics.m_faceIndex, expressionIndex, expressionName);
+						LegoU8* p = (LegoU8*) m_context;
+						p = *(LegoU8**) (p + 0x4b78);
+						p = *(LegoU8**) (p + 0x38);
+						((DriverPartCatalog*) p)->BuildFaceExpressionName(cosmetics.m_faceIndex, expressionIndex, expressionName);
 						animationItems[frameIndex].SetMaterial(m_renderer->FindMaterialByName(expressionName));
 					}
 				}
