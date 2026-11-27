@@ -59,8 +59,9 @@ MenuWidget* MenuImage::DrawSelf(Rect* p_rect, Rect* p_arg)
 	ScaleRect(p_rect, &sourceRect);
 	DrawImage(p_arg, &sourceRect, m_image);
 
-	// [library:3d] Widescreen: a full-screen backdrop continues into the side areas
-	// (the image wraps around, so the stud grid stays square).
+	// [library:3d] Widescreen: a full-screen backdrop continues into the side areas.
+	// Each side repeats the whole studs next to its own edge (the menu backdrops are
+	// 12 studs wide), so the stud grid and the left-dark/right-bright shading continue.
 	LegoS32 wideExtra = MiniwinGetWideExtra();
 	const GolRenderTarget* target = m_renderer->GetRenderTargetInfo();
 	if (wideExtra > 0 && m_rect.m_left == 0 && m_rect.m_top == 0 &&
@@ -75,16 +76,22 @@ MenuWidget* MenuImage::DrawSelf(Rect* p_rect, Rect* p_arg)
 		source.m_top = 0;
 		source.m_bottom = m_image->GetHeight();
 
+		LegoS32 studWidth = imageWidth / 12;
+		LegoS32 studSpan = studWidth > 0 ? ((sourceExtra + studWidth - 1) / studWidth) * studWidth : sourceExtra;
+		if (studSpan > imageWidth) {
+			studSpan = imageWidth;
+		}
+
 		side.m_left = -wideExtra;
 		side.m_right = 0;
-		source.m_left = imageWidth - sourceExtra;
-		source.m_right = imageWidth;
+		source.m_left = studSpan - sourceExtra;
+		source.m_right = studSpan;
 		DrawImage(&side, &source, m_image);
 
 		side.m_left = m_rect.m_right;
 		side.m_right = m_rect.m_right + wideExtra;
-		source.m_left = 0;
-		source.m_right = sourceExtra;
+		source.m_left = imageWidth - studSpan;
+		source.m_right = source.m_left + sourceExtra;
 		DrawImage(&side, &source, m_image);
 	}
 

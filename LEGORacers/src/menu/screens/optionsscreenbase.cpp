@@ -120,16 +120,15 @@ void OptionsScreenBase::CreateWidgets()
 
 // [library:config] LegoRacers4K: lays every option out on the main options page. Widgets are
 // created in navigation order (top to bottom), then moved into rows.
-// [library:config] LegoRacers4K: volume bar at the options-page column, two thirds
-// of its original width, ending where the full-width bar ended.
+// [library:config] LegoRacers4K: move a volume bar, then lay it out again so the thumb
+// and the mouse-drag bounds (the track's screen rect) follow the new position.
 static void PlaceVolumeBar(OptionsRowBase* p_row, LegoS32 p_top)
 {
 	Rect rect = *p_row->GetRect();
 	LegoS32 width = rect.m_right - rect.m_left;
 	LegoS32 height = rect.m_bottom - rect.m_top;
-	LegoS32 newWidth = (width * 2) / 3;
-	rect.m_left = 20 + (width - newWidth);
-	rect.m_right = rect.m_left + newWidth;
+	rect.m_left = 20;
+	rect.m_right = 20 + width;
 	rect.m_top = p_top;
 	rect.m_bottom = p_top + height;
 	p_row->SetRect(&rect);
@@ -224,7 +223,7 @@ void OptionsScreenBase::CreateSinglePageWidgets()
 
 	CreateOptionsRow(&m_musicVolumeSlider, 0xf9, 0xec);
 	CreateOptionsRow(&m_soundVolumeSlider, 0xfa, 0xec);
-	// Place and shrink the bars before laying them out again, so the thumb and the
+	// Place the bars before laying them out again, so the thumb and the
 	// mouse-drag bounds (the track's screen rect) follow the new position.
 	PlaceVolumeBar(&m_musicVolumeSlider, c_rowMusic);
 	PlaceVolumeBar(&m_soundVolumeSlider, c_rowSound);
