@@ -120,18 +120,31 @@ void OptionsScreenBase::CreateWidgets()
 
 // [library:config] LegoRacers4K: lays every option out on the main options page. Widgets are
 // created in navigation order (top to bottom), then moved into rows.
-// [library:config] LegoRacers4K: move a volume bar, then lay it out again so the thumb
-// and the mouse-drag bounds (the track's screen rect) follow the new position.
+// [library:config] LegoRacers4K: move a volume bar, shrink its minifig-head buttons to
+// 70% (the track keeps its height), widen the bar a little, then lay it out again so
+// the thumb and the mouse-drag bounds (the track's screen rect) follow.
+static void ScaleButton(MenuButton* p_button, LegoS32 p_height)
+{
+	Rect rect = *p_button->GetRect();
+	LegoS32 width = ((rect.m_right - rect.m_left) * 7) / 10;
+	rect.m_right = rect.m_left + width;
+	rect.m_bottom = rect.m_top + p_height;
+	p_button->SetRect(&rect);
+}
+
 static void PlaceVolumeBar(OptionsRowBase* p_row, LegoS32 p_top)
 {
 	Rect rect = *p_row->GetRect();
 	LegoS32 width = rect.m_right - rect.m_left;
 	LegoS32 height = rect.m_bottom - rect.m_top;
-	rect.m_left = 20;
-	rect.m_right = 20 + width;
-	rect.m_top = p_top;
-	rect.m_bottom = p_top + height;
+	LegoS32 newHeight = (height * 7) / 10;
+	rect.m_left = 8;
+	rect.m_right = 20 + width + 6;
+	rect.m_top = p_top + ((height - newHeight) >> 1);
+	rect.m_bottom = rect.m_top + newHeight;
 	p_row->SetRect(&rect);
+	ScaleButton(&p_row->GetPrevButton(), newHeight);
+	ScaleButton(&p_row->GetNextButton(), newHeight);
 	p_row->LayoutButtons();
 	p_row->LayoutTrack();
 	p_row->LayoutThumb();
