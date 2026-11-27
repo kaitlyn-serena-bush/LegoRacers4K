@@ -305,7 +305,6 @@ void CarShadowRenderState::DrawTriangles4Bpp(TransformedVertex** p_triangle)
 				return;
 			}
 
-
 			if (edge1EndsFirst) {
 				base1 = edge1;
 				edge1Index = g_nextVertexIndex[edge1Index];
@@ -330,7 +329,6 @@ void CarShadowRenderState::DrawTriangles4Bpp(TransformedVertex** p_triangle)
 				xStep0 = static_cast<LegoS32>(((edge0->m_x - base0->m_x) / deltaY0) * 65536.0f);
 				yEnd = (0xffff - static_cast<LegoS32>(-65536.0f * edge0->m_y)) & 0xffff0000;
 			}
-
 
 			if (y >= yEnd) {
 				return;
@@ -449,7 +447,6 @@ void CarShadowRenderState::DrawTriangles8Bpp(TransformedVertex** p_triangle)
 				return;
 			}
 
-
 			if (edge1EndsFirst) {
 				base1 = edge1;
 				edge1Index = g_nextVertexIndex[edge1Index];
@@ -474,7 +471,6 @@ void CarShadowRenderState::DrawTriangles8Bpp(TransformedVertex** p_triangle)
 				xStep0 = static_cast<LegoS32>(((edge0->m_x - base0->m_x) / deltaY0) * 65536.0f);
 				yEnd = (0xffff - static_cast<LegoS32>(-65536.0f * edge0->m_y)) & 0xffff0000;
 			}
-
 
 			if (y >= yEnd) {
 				return;
@@ -582,7 +578,6 @@ void CarShadowRenderState::DrawTriangles16Bpp(TransformedVertex** p_triangle)
 				return;
 			}
 
-
 			if (edge1EndsFirst) {
 				base1 = edge1;
 				edge1Index = g_nextVertexIndex[edge1Index];
@@ -608,15 +603,14 @@ void CarShadowRenderState::DrawTriangles16Bpp(TransformedVertex** p_triangle)
 				yEnd = (0xffff - static_cast<LegoS32>(-65536.0f * edge0->m_y)) & 0xffff0000;
 			}
 
-
 			if (y >= yEnd) {
 				return;
 			}
 			advancedEdge = TRUE;
 		}
 
-		LegoU16* dst = (LegoU16*) row + ((x0 + 0xffff) >> 16);
-		LegoU16* end = (LegoU16*) row + ((x1 + 0xffff) >> 16);
+		LegoU16* dst = reinterpret_cast<LegoU16*>(row) + ((x0 + 0xffff) >> 16);
+		LegoU16* end = reinterpret_cast<LegoU16*>(row) + ((x1 + 0xffff) >> 16);
 		while (dst < end) {
 			*dst++ = color;
 		}

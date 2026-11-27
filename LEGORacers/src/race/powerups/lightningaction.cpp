@@ -339,8 +339,8 @@ void LightningAction::UpdateSound(LegoU32 p_elapsedMs)
 		switch (m_state) {
 		case c_stateRampIn:
 			m_sound->SetFrequencyScale(
-				1.0f - static_cast<LegoFloat>(static_cast<LegoS32>(m_stateTimerMs)) * 0.002f *
-						   g_lightningFrequencyRampScale
+				1.0f -
+				static_cast<LegoFloat>(static_cast<LegoS32>(m_stateTimerMs)) * 0.002f * g_lightningFrequencyRampScale
 			);
 			break;
 		case c_stateSustain:
@@ -348,8 +348,8 @@ void LightningAction::UpdateSound(LegoU32 p_elapsedMs)
 			break;
 		case c_stateFade:
 			m_sound->SetFrequencyScale(
-				1.0f - static_cast<LegoFloat>(static_cast<LegoS32>(c_fadeDurationMs - m_stateTimerMs)) *
-						   0.002f * g_lightningFrequencyRampScale
+				1.0f - static_cast<LegoFloat>(static_cast<LegoS32>(c_fadeDurationMs - m_stateTimerMs)) * 0.002f *
+						   g_lightningFrequencyRampScale
 			);
 			break;
 		}

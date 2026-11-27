@@ -743,7 +743,6 @@ void GolFontBase::DrawString(
 								LegoU32 glyphIndex = font->FindGlyphIndex(textChar);
 								lineWidth -= font->m_glyphs[glyphIndex].m_width + font->m_charSpacing;
 							}
-
 						}
 					}
 					else {
@@ -776,7 +775,7 @@ void GolFontBase::DrawString(
 						p_scaleX,
 						p_scaleY,
 						p_rect,
-						(undefined4) p_color
+						reinterpret_cast<undefined4>(p_color)
 					);
 				}
 

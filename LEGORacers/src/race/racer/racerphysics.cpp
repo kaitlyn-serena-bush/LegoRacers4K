@@ -777,7 +777,8 @@ void RacerPhysics::UpdateRouteMotion(LegoU32 p_elapsedMs)
 
 			LegoFloat elapsedF = static_cast<LegoFloat>(static_cast<LegoS32>(p_elapsedMs));
 			LegoFloat elapsed = elapsedF;
-			if ((m_flags & c_flagRoutePushed) || !(m_flags & (c_flagSpinning | c_flagBoost | c_flagCurseSlow)) || m_contactCount == 0) {
+			if ((m_flags & c_flagRoutePushed) || !(m_flags & (c_flagSpinning | c_flagBoost | c_flagCurseSlow)) ||
+				m_contactCount == 0) {
 				LegoFloat currentSpeed = m_routeCursor.m_playbackSpeed;
 				if (currentSpeed < m_routeTargetSpeed) {
 					LegoFloat rate;

@@ -304,8 +304,7 @@ void HomingMissileAction::Update(LegoU32 p_elapsedMs)
 			if (!skipBurst) {
 				up = m_projectile.GetHitNormal();
 				LegoBool32 upwardHit =
-					(projectileState == PowerupProjectile::c_stateHitWorld && up.m_z > 0.7071f) ? TRUE
-																											  : FALSE;
+					(projectileState == PowerupProjectile::c_stateHitWorld && up.m_z > 0.7071f) ? TRUE : FALSE;
 
 				m_owner->FUN_0045b4d0(&hitPosition, upwardHit, m_ownerRacer);
 				if (projectileState == PowerupProjectile::c_stateHitRacer &&

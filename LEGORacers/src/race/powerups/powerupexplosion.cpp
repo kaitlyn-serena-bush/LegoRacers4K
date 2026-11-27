@@ -445,7 +445,6 @@ void PowerupExplosion::OnEvent(LegoEventQueue::CallbackData* p_data)
 		GolVec3 direction = physics->m_facingDirection;
 		racer->StartSpinOut();
 
-		
 		impulse.m_x = 0.0f;
 		impulse.m_y = 0.0f;
 		impulse.m_z = 0.0f;

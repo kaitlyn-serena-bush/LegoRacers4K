@@ -408,7 +408,6 @@ void RaceTrailManager::Trail::RebuildGeometry()
 	for (frameOffset = 0; frameOffset < frameCount; frameOffset++) {
 		LegoU32 frameIndex = (m_headIndex + m_ringSize - frameOffset) % m_ringSize;
 
-
 		LegoFloat tailAmount;
 		if (frameOffset > 0) {
 			tailAmount = ((static_cast<LegoFloat>(static_cast<LegoS32>(elapsedMs)))) /
@@ -467,13 +466,15 @@ void RaceTrailManager::Trail::RebuildGeometry()
 			triangle[1] = static_cast<LegoU8>(rowBase + pointIndex);
 			triangle[2] = static_cast<LegoU8>((pointIndex + 1) % m_pointCount + m_pointCount + rowBase);
 			if (triangleIndex < 0x35) {
-				static_cast<GdbModelIndexArray*>(indexArrayBase)->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
+				static_cast<GdbModelIndexArray*>(indexArrayBase)
+					->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
 			}
 
 			triangle[0] = triangle[2];
 			triangle[2] = static_cast<LegoU8>((pointIndex + 1) % m_pointCount + rowBase);
 			if (triangleIndex < 0x35) {
-				static_cast<GdbModelIndexArray*>(indexArrayBase)->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
+				static_cast<GdbModelIndexArray*>(indexArrayBase)
+					->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
 			}
 		}
 	}
@@ -486,7 +487,8 @@ void RaceTrailManager::Trail::RebuildGeometry()
 			triangle[1] = static_cast<LegoU8>(lastRowBase + pointIndex);
 			triangle[2] = static_cast<LegoU8>(lastRowBase + 1 + pointIndex);
 			if (triangleIndex < 0x35) {
-				static_cast<GdbModelIndexArray*>(indexArrayBase)->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
+				static_cast<GdbModelIndexArray*>(indexArrayBase)
+					->SetTriangleIndices(triangleIndex++, triangle[0], triangle[1], triangle[2]);
 			}
 		}
 	}
@@ -506,7 +508,11 @@ void RaceTrailManager::Trail::RebuildGeometry()
 			);
 		}
 
-		LegoU32 word = frameOffset < groupCount - 1 ? GolModel::c_groupTypeTriangleBatch | ((batchTriangleCount & GolModel::c_triangleCountMask) << GolModel::c_groupDataUpperWordShift) : GolModel::c_groupTypeTriangleBatch | ((triangleIndex & GolModel::c_triangleCountMask) << GolModel::c_groupDataUpperWordShift);
+		LegoU32 word = frameOffset < groupCount - 1
+						   ? GolModel::c_groupTypeTriangleBatch | ((batchTriangleCount & GolModel::c_triangleCountMask)
+																   << GolModel::c_groupDataUpperWordShift)
+						   : GolModel::c_groupTypeTriangleBatch | ((triangleIndex & GolModel::c_triangleCountMask)
+																   << GolModel::c_groupDataUpperWordShift);
 
 		if (groupWordIndex < 4) {
 			m_model->SetGroup(groupWordIndex++, word);

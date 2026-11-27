@@ -108,9 +108,14 @@ void GolCamera::UpdateViewMatrix()
 	m_cameraMatrices.m_view.m_m[2][1] = up.m_z;
 	m_cameraMatrices.m_view.m_m[2][2] = direction.m_z;
 	m_cameraMatrices.m_view.m_m[2][3] = 0.0f;
-	m_cameraMatrices.m_view.m_m[3][0] = ((((((((-(GOL_MUL(position.m_z, right.m_z) + GOL_MUL(position.m_y, right.m_y) + GOL_MUL(position.m_x, right.m_x))))))))));
-	m_cameraMatrices.m_view.m_m[3][1] = -(GOL_MUL(position.m_z, up.m_z) + GOL_MUL(position.m_y, up.m_y) + GOL_MUL(position.m_x, up.m_x));
-	m_cameraMatrices.m_view.m_m[3][2] = -(GOL_MUL(position.m_z, direction.m_z) + GOL_MUL(position.m_y, direction.m_y) + GOL_MUL(position.m_x, direction.m_x));
+	m_cameraMatrices.m_view.m_m[3][0] = (((((
+		(((-(GOL_MUL(position.m_z, right.m_z) + GOL_MUL(position.m_y, right.m_y) + GOL_MUL(position.m_x, right.m_x)))))
+	)))));
+	m_cameraMatrices.m_view.m_m[3][1] =
+		-(GOL_MUL(position.m_z, up.m_z) + GOL_MUL(position.m_y, up.m_y) + GOL_MUL(position.m_x, up.m_x));
+	m_cameraMatrices.m_view.m_m[3][2] =
+		-(GOL_MUL(position.m_z, direction.m_z) + GOL_MUL(position.m_y, direction.m_y) +
+		  GOL_MUL(position.m_x, direction.m_x));
 	m_cameraMatrices.m_view.m_m[3][3] = 1.0f;
 	m_flags &= ~c_flagViewDirty;
 	if (m_flags & c_flagCustomViewBounds) {

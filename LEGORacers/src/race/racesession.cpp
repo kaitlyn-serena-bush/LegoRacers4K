@@ -872,7 +872,6 @@ void RaceSession::LoadRouteRecords(LegoBool32 p_mirror)
 			fileName[9] = m_context->m_useBinaryFiles ? 'b' : 'f';
 			fileName[10] = '\0';
 
-
 			for (type = 0; type < 3; type++) {
 				switch (type) {
 				case 0:

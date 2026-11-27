@@ -370,15 +370,33 @@ void GolOrientedEntity::TransformMatrixToLocal(const GolMatrix3& p_matrix, GolMa
 {
 	GolMatrix3 localMatrix;
 
-	localMatrix.m_m[0][0] = GOL_MUL(m_orientation.m_m[1][0], p_matrix.m_m[1][0]) + GOL_MUL(m_orientation.m_m[2][0], p_matrix.m_m[2][0]) + GOL_MUL(m_orientation.m_m[0][0], p_matrix.m_m[0][0]);
-	localMatrix.m_m[0][1] = GOL_MUL(p_matrix.m_m[2][1], m_orientation.m_m[2][0]) + GOL_MUL(m_orientation.m_m[1][0], p_matrix.m_m[1][1]) + GOL_MUL(p_matrix.m_m[0][1], m_orientation.m_m[0][0]);
-	localMatrix.m_m[0][2] = GOL_MUL(p_matrix.m_m[2][2], m_orientation.m_m[2][0]) + GOL_MUL(m_orientation.m_m[1][0], p_matrix.m_m[1][2]) + GOL_MUL(p_matrix.m_m[0][2], m_orientation.m_m[0][0]);
-	localMatrix.m_m[1][0] = GOL_MUL(m_orientation.m_m[2][1], p_matrix.m_m[2][0]) + GOL_MUL(p_matrix.m_m[1][0], m_orientation.m_m[1][1]) + GOL_MUL(m_orientation.m_m[0][1], p_matrix.m_m[0][0]);
-	localMatrix.m_m[1][1] = GOL_MUL(m_orientation.m_m[2][1], p_matrix.m_m[2][1]) + GOL_MUL(m_orientation.m_m[0][1], p_matrix.m_m[0][1]) + GOL_MUL(m_orientation.m_m[1][1], p_matrix.m_m[1][1]);
-	localMatrix.m_m[1][2] = GOL_MUL(m_orientation.m_m[2][1], p_matrix.m_m[2][2]) + GOL_MUL(m_orientation.m_m[0][1], p_matrix.m_m[0][2]) + GOL_MUL(m_orientation.m_m[1][1], p_matrix.m_m[1][2]);
-	localMatrix.m_m[2][0] = GOL_MUL(m_orientation.m_m[2][2], p_matrix.m_m[2][0]) + GOL_MUL(p_matrix.m_m[1][0], m_orientation.m_m[1][2]) + GOL_MUL(m_orientation.m_m[0][2], p_matrix.m_m[0][0]);
-	localMatrix.m_m[2][1] = GOL_MUL(m_orientation.m_m[2][2], p_matrix.m_m[2][1]) + GOL_MUL(m_orientation.m_m[0][2], p_matrix.m_m[0][1]) + GOL_MUL(m_orientation.m_m[1][2], p_matrix.m_m[1][1]);
-	localMatrix.m_m[2][2] = GOL_MUL(m_orientation.m_m[2][2], p_matrix.m_m[2][2]) + GOL_MUL(m_orientation.m_m[0][2], p_matrix.m_m[0][2]) + GOL_MUL(m_orientation.m_m[1][2], p_matrix.m_m[1][2]);
+	localMatrix.m_m[0][0] = GOL_MUL(m_orientation.m_m[1][0], p_matrix.m_m[1][0]) +
+							GOL_MUL(m_orientation.m_m[2][0], p_matrix.m_m[2][0]) +
+							GOL_MUL(m_orientation.m_m[0][0], p_matrix.m_m[0][0]);
+	localMatrix.m_m[0][1] = GOL_MUL(p_matrix.m_m[2][1], m_orientation.m_m[2][0]) +
+							GOL_MUL(m_orientation.m_m[1][0], p_matrix.m_m[1][1]) +
+							GOL_MUL(p_matrix.m_m[0][1], m_orientation.m_m[0][0]);
+	localMatrix.m_m[0][2] = GOL_MUL(p_matrix.m_m[2][2], m_orientation.m_m[2][0]) +
+							GOL_MUL(m_orientation.m_m[1][0], p_matrix.m_m[1][2]) +
+							GOL_MUL(p_matrix.m_m[0][2], m_orientation.m_m[0][0]);
+	localMatrix.m_m[1][0] = GOL_MUL(m_orientation.m_m[2][1], p_matrix.m_m[2][0]) +
+							GOL_MUL(p_matrix.m_m[1][0], m_orientation.m_m[1][1]) +
+							GOL_MUL(m_orientation.m_m[0][1], p_matrix.m_m[0][0]);
+	localMatrix.m_m[1][1] = GOL_MUL(m_orientation.m_m[2][1], p_matrix.m_m[2][1]) +
+							GOL_MUL(m_orientation.m_m[0][1], p_matrix.m_m[0][1]) +
+							GOL_MUL(m_orientation.m_m[1][1], p_matrix.m_m[1][1]);
+	localMatrix.m_m[1][2] = GOL_MUL(m_orientation.m_m[2][1], p_matrix.m_m[2][2]) +
+							GOL_MUL(m_orientation.m_m[0][1], p_matrix.m_m[0][2]) +
+							GOL_MUL(m_orientation.m_m[1][1], p_matrix.m_m[1][2]);
+	localMatrix.m_m[2][0] = GOL_MUL(m_orientation.m_m[2][2], p_matrix.m_m[2][0]) +
+							GOL_MUL(p_matrix.m_m[1][0], m_orientation.m_m[1][2]) +
+							GOL_MUL(m_orientation.m_m[0][2], p_matrix.m_m[0][0]);
+	localMatrix.m_m[2][1] = GOL_MUL(m_orientation.m_m[2][2], p_matrix.m_m[2][1]) +
+							GOL_MUL(m_orientation.m_m[0][2], p_matrix.m_m[0][1]) +
+							GOL_MUL(m_orientation.m_m[1][2], p_matrix.m_m[1][1]);
+	localMatrix.m_m[2][2] = GOL_MUL(m_orientation.m_m[2][2], p_matrix.m_m[2][2]) +
+							GOL_MUL(m_orientation.m_m[0][2], p_matrix.m_m[0][2]) +
+							GOL_MUL(m_orientation.m_m[1][2], p_matrix.m_m[1][2]);
 
 	GolMath::MultiplyMatrix3(&localMatrix.m_m[0][0], &m_orientation.m_m[0][0], &p_dest->m_m[0][0]);
 }
