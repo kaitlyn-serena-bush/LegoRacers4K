@@ -583,6 +583,11 @@ void OptionsScreenBase::ShowMainButtons()
 		m_rowTitleStrings[3].CopyFromBufSelection(m_rowTitleBuffers[3], static_cast<undefined2>(length + 1));
 		m_backButton.SetText(&m_rowTitleStrings[3]);
 	}
+	// MAIN MENU is centred on the screen.
+	{
+		const Rect* backRect = m_backButton.GetRect();
+		PlaceAt(&m_backButton, 320 - ((backRect->m_right - backRect->m_left) >> 1), c_backTop);
+	}
 }
 
 // FUNCTION: LEGORACERS 0x00483640

@@ -24,6 +24,8 @@ public:
 	// SYNTHETIC: LEGORACERS 0x00466100
 	// MenuFramedSceneView::`scalar deleting destructor'
 
+	MenuFrame* GetFrame() { return &m_frame; } // [library:config]
+
 protected:
 	LegoBool32 CreateFrame(CreateParams* p_createParams);
 

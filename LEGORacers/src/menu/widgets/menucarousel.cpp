@@ -440,6 +440,10 @@ void MenuModelCarousel::SnapToSelection()
 void MenuModelCarousel::StartScroll(undefined4)
 {
 	m_scrollDurationMs = m_style->m_scrollDurationMs;
+	// [library:config] LegoRacers4K: scrolls are near-instant.
+	if (m_scrollDurationMs > 90) {
+		m_scrollDurationMs = 90;
+	}
 	m_scrolling = 1;
 
 	Item* item = m_items;
@@ -790,6 +794,11 @@ void MenuCarouselNavigator::StartScroll(undefined4 p_distance)
 {
 	LegoS32 count = m_style->m_scrollDurationMs;
 
+	// [library:config] LegoRacers4K: scrolls are near-instant.
+	if (count > 90) {
+		count = 90;
+	}
+
 	m_scrollDurationMs = count;
 	LegoFloat divisor = (LegoFloat) count;
 	LegoFloat scrollSpeed = (LegoFloat) (LegoS32) p_distance;
@@ -800,12 +809,29 @@ void MenuCarouselNavigator::StartScroll(undefined4 p_distance)
 	m_scrollPosition = (LegoFloat) m_offsetX;
 }
 
+// [library:config] LegoRacers4K: a click during a scroll finishes it at once so presses never get dropped.
+void MenuCarouselNavigator::FinishScrollNow()
+{
+	if (m_scrolling) {
+		m_scrolling = 0;
+		m_animFlags &= 0xfe;
+		m_scrollDurationMs = 0;
+		SnapToSelection();
+
+		if (m_notifyHandler) {
+			m_notifyHandler->OnCarouselSettled(this);
+		}
+	}
+}
+
 // FUNCTION: LEGORACERS 0x0046db80
 LegoS32 MenuCarouselNavigator::ScrollNext()
 {
 	if (!m_itemCount) {
 		return 0;
 	}
+
+	FinishScrollNow();
 
 	if (!m_scrolling) {
 		if (m_selectedIndex >= m_itemCount - 1 && !m_style->m_wrap) {
@@ -828,9 +854,7 @@ LegoS32 MenuCarouselNavigator::ScrollPrevious()
 		return 0;
 	}
 
-	if (m_scrolling) {
-		return m_selectedIndex;
-	}
+	FinishScrollNow();
 
 	if (m_selectedIndex == 0 && !m_style->m_wrap) {
 		m_soundGroupBinding->PlaySoundByIndex(m_style->m_soundIds[2]);

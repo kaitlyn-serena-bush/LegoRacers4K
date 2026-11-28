@@ -63,6 +63,7 @@ LegoBool32 PickRacerScreen::Initialize(MenuGameContext* p_context, MenuScreenCre
 	}
 
 	SetupLighting();
+	LayoutCentered();
 
 	if (p_context->m_modelBuilder.GetMenuFlowFlags() & DriverModelBuilder::c_menuFlowVersus) {
 		m_nameSelectors[0].SetAcceptUnfocusedInput(TRUE);
@@ -75,6 +76,37 @@ LegoBool32 PickRacerScreen::Initialize(MenuGameContext* p_context, MenuScreenCre
 	}
 
 	return TRUE;
+}
+
+// [library:config] LegoRacers4K layout: title and racer picture centred, arrows and name
+// underneath, CANCEL bottom-left and OK bottom-right, no CONFIG button (it lives in Options).
+static void PlaceWidget(MenuWidget* p_widget, LegoS32 p_left, LegoS32 p_top)
+{
+	Rect rect = *p_widget->GetRect();
+	rect.m_right += p_left - rect.m_left;
+	rect.m_bottom += p_top - rect.m_top;
+	rect.m_left = p_left;
+	rect.m_top = p_top;
+	p_widget->SetRect(&rect);
+}
+
+void PickRacerScreen::LayoutCentered()
+{
+	auto centerX = [](MenuWidget* w) {
+		const Rect* r = w->GetRect();
+		return 320 - ((r->m_right - r->m_left) >> 1);
+	};
+
+	PlaceWidget(&m_infoLabel, centerX(&m_infoLabel), m_infoLabel.GetRect()->m_top);
+	{
+		const Rect* fr = m_sceneViews[0].GetFrame()->GetRect();
+		PlaceWidget(m_sceneViews[0].GetFrame(), 320 - ((fr->m_right - fr->m_left) >> 1), fr->m_top);
+	}
+	m_sceneViews[0].RefreshViewport();
+	PlaceWidget(&m_nameSelectors[0], centerX(&m_nameSelectors[0]), 388);
+	m_controlsButton.ClearFlags(2);
+	PlaceWidget(&m_backButton, 3, 418);
+	PlaceWidget(&m_startButton, 640 - 3 - (m_startButton.GetRect()->m_right - m_startButton.GetRect()->m_left), 418);
 }
 
 // [library:input] Points p_string at p_buffer holding p_text.

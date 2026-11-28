@@ -1,5 +1,7 @@
 #include "menu/screens/menuscreen.h"
 
+#include <miniwin/miniwinapp.h>
+
 #include "core/gol.h"
 #include "font/golfonttable.h"
 #include "golerror.h"
@@ -771,6 +773,45 @@ LegoBool32 MenuScreen::Update(undefined4)
 // FUNCTION: LEGORACERS 0x0046c7e0 FOLDED
 LegoBool32 MenuScreen::Draw(Rect* p_arg1, Rect* p_arg2)
 {
+	// [library:3d] Widescreen: let widgets draw into the side areas.
+	LegoS32 wideExtra = MiniwinGetWideExtra();
+	if (wideExtra > 0) {
+		Rect wideRect1 = *p_arg1;
+		Rect wideRect2 = *p_arg2;
+		// The clip widening is temporary: the widgets keep their layout rects between frames.
+		Rect savedRoot = *m_rootIcon.GetRect();
+		LegoS32 savedRootOffset = m_rootIcon.GetOffsetX();
+		m_rootIcon.SetWideClip(wideExtra);
+		// The widgets hang off one full-width container below the root.
+		MenuWidget* container = NULL;
+		if (m_rootIcon.GetFirstChild()) {
+			container = m_rootIcon.GetFirstChild()->GetParent();
+		}
+		if (container == &m_rootIcon ||
+			(container && (container->GetRect()->m_left > 5 || container->GetRect()->m_right < 635))) {
+			container = NULL;
+		}
+		Rect savedContainer;
+		LegoS32 savedContainerOffset = 0;
+		if (container) {
+			savedContainer = *container->GetRect();
+			savedContainerOffset = container->GetOffsetX();
+			container->SetWideClip(wideExtra);
+		}
+		wideRect1.m_left -= wideExtra;
+		wideRect1.m_right += wideExtra;
+		wideRect2.m_left -= wideExtra;
+		wideRect2.m_right += wideExtra;
+		m_rootIcon.Draw(&wideRect2, &wideRect1);
+		if (container) {
+			container->SetRectRaw(savedContainer);
+			container->SetOffsetX(savedContainerOffset);
+		}
+		m_rootIcon.SetRectRaw(savedRoot);
+		m_rootIcon.SetOffsetX(savedRootOffset);
+		return TRUE;
+	}
+
 	m_rootIcon.Draw(p_arg1, p_arg2);
 	return TRUE;
 }

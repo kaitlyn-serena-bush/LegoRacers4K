@@ -36,6 +36,7 @@ protected:
 	// [library:input] 4-player couch co-op: player 3/4 titles and the "add player" button.
 	void SetCoopText(GolString* p_string, undefined2* p_buffer, LegoU32 p_size, const LegoChar* p_text);
 	void SetupCoopVersusButtons();
+	void LayoutCentered();
 	GolString m_coopTitle;
 	undefined2 m_coopTitleBuffer[64];
 	GolString m_coopAddText;

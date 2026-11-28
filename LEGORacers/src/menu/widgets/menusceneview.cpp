@@ -305,6 +305,13 @@ void MenuSceneView::UpdateFreeCamera(undefined4 p_elapsedMs)
 	currentLens->m_flags |= GolCamera::c_flagViewDirty;
 }
 
+// [library:config] LegoRacers4K: re-fit the camera viewport after the view (or its frame) was moved.
+void MenuSceneView::RefreshViewport()
+{
+	Rect rect = *GetGlobalRect();
+	ClampToScreen(&rect);
+}
+
 // FUNCTION: LEGORACERS 0x00465e40
 void MenuSceneView::ClampToScreen(Rect* p_rect)
 {

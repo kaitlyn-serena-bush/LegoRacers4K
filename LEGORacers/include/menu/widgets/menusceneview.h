@@ -53,6 +53,7 @@ public:
 	GolWorldDatabase* GetBlendedWorld() const { return m_blendedWorld; }
 	GolCamera* GetCamera() const { return m_camera; }
 	void SetDrawWorld(undefined4 p_drawWorld) { m_drawWorld = p_drawWorld; }
+	void RefreshViewport(); // [library:config]
 
 	// SYNTHETIC: LEGORACERS 0x00465730
 	// MenuSceneView::`scalar deleting destructor'

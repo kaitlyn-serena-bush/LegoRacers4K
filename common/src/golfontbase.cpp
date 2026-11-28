@@ -1102,11 +1102,14 @@ LegoBool32 GolFontBase::ComputeClipRect(GolRenderDevice* p_renderer, Rect* p_rec
 		p_result->m_right += wideExtra;
 	}
 	else {
-		if (p_rect->m_right <= 0) {
+		// [library:2d] Widescreen: text may be drawn into the side areas.
+		LegoS32 wideExtra = MiniwinGetWideExtra();
+
+		if (p_rect->m_right <= -wideExtra) {
 			return FALSE;
 		}
 
-		if (p_rect->m_left >= p_renderer->GetRenderTargetInfo()->GetWidth()) {
+		if (p_rect->m_left >= p_renderer->GetRenderTargetInfo()->GetWidth() + wideExtra) {
 			return FALSE;
 		}
 
@@ -1119,7 +1122,7 @@ LegoBool32 GolFontBase::ComputeClipRect(GolRenderDevice* p_renderer, Rect* p_rec
 		}
 
 		LegoS32 left = p_rect->m_left;
-		p_result->m_left = left < 0 ? 0 : left;
+		p_result->m_left = left < -wideExtra ? -wideExtra : left;
 
 		if (p_rect->m_top < 0) {
 			p_result->m_top = 0;
@@ -1128,8 +1131,8 @@ LegoBool32 GolFontBase::ComputeClipRect(GolRenderDevice* p_renderer, Rect* p_rec
 			p_result->m_top = p_rect->m_top;
 		}
 
-		if (p_rect->m_right > p_renderer->GetRenderTargetInfo()->GetWidth()) {
-			p_result->m_right = p_renderer->GetRenderTargetInfo()->GetWidth();
+		if (p_rect->m_right > p_renderer->GetRenderTargetInfo()->GetWidth() + wideExtra) {
+			p_result->m_right = p_renderer->GetRenderTargetInfo()->GetWidth() + wideExtra;
 		}
 		else {
 			p_result->m_right = p_rect->m_right;

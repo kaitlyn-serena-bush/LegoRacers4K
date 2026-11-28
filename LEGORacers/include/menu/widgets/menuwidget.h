@@ -93,6 +93,11 @@ public:
 	// SYNTHETIC: LEGORACERS 0x004729d0
 	// MenuWidget::`scalar deleting destructor'
 
+	void SetWideClip(LegoS32 p_extra);
+	void SetRectRaw(const Rect& p_rect) { m_rect = p_rect; }
+	LegoS32 GetOffsetX() const { return m_offsetX; }
+	void SetOffsetX(LegoS32 p_offset) { m_offsetX = p_offset; } // [library:config]
+
 protected:
 	MenuWidget* m_parent;                 // 0x04
 	MenuWidget* m_firstChild;             // 0x08

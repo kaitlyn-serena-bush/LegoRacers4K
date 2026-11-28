@@ -14,6 +14,7 @@ public:
 	MenuWidget* DrawSelf(Rect*, Rect*) override; // vtable+0x38
 	undefined4 OnEvent(undefined4) override;     // vtable+0x3c
 	void StartScroll(undefined4) override;       // vtable+0x44
+	void FinishScrollNow(); // [library:config]
 	LegoS32 ScrollNext() override;               // vtable+0x54
 	LegoS32 ScrollPrevious() override;           // vtable+0x58
 	void LayoutItem(MenuWidget*) override;       // vtable+0x5c

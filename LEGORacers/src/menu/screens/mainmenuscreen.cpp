@@ -1,5 +1,9 @@
 #include "menu/screens/mainmenuscreen.h"
 
+#include <miniwin/miniwinapp.h>
+
+extern float g_menuTextScale; // [library:config]
+
 #include "audio/soundgroupbinding.h"
 #include "input/inputmanager.h"
 #include "menu/menudialog.h"
@@ -118,6 +122,29 @@ LegoBool32 MainMenuScreen::Initialize(MenuGameContext* p_context, MenuScreenCrea
 	p_context->m_saveSystem.GetActiveRecord().Reset();
 	m_garageButton.Select(5);
 	m_cursor->SetCursorEnabled(TRUE);
+
+	// [library:config] LegoRacers4K: the logo and the options sit at the left edge of the (wide)
+	// screen, with larger text at the same row spacing.
+	{
+		LegoS32 shift = MiniwinGetWideExtra();
+		MenuWidget* moved[] = {
+			&m_logoImage,
+			&m_garageButton,
+			&m_circuitRaceButton,
+			&m_singleRaceButton,
+			&m_versusRaceButton,
+			&m_timeRaceButton,
+			&m_optionsButton,
+			&m_exitButton
+		};
+		for (MenuWidget* widget : moved) {
+			Rect rect = *widget->GetRect();
+			rect.m_left -= shift;
+			rect.m_right -= shift;
+			widget->SetRect(&rect);
+		}
+	}
+	g_menuTextScale = 1.3f;
 	return TRUE;
 }
 
@@ -128,6 +155,7 @@ LegoBool32 MainMenuScreen::Destroy()
 		return TRUE;
 	}
 
+	g_menuTextScale = 1.0f;
 	ClearCosmeticTable();
 	return MenuGameScreen::Destroy();
 }
