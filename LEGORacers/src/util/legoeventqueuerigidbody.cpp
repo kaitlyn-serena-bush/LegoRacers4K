@@ -58,7 +58,7 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 			axisZ.m_x = m_body->m_orientation.m_m[2][0];
 			axisZ.m_y = m_body->m_orientation.m_m[2][1];
 			axisZ.m_z = m_body->m_orientation.m_m[2][2];
-			GolMath::ScaleVector3(&axisX, m_boxSizeX * 0.5f, &axisX);
+			GolMath::ScaleVector3(&axisX, GOL_MUL(m_boxSizeX, 0.5f), &axisX);
 			GolMath::ScaleVector3(&axisY, ((((m_boxSizeY * 0.5f)))), &axisY);
 			GolMath::ScaleVector3(&axisZ, (m_boxSizeZ * 0.5f), &axisZ);
 
@@ -85,7 +85,7 @@ LegoBool32 LegoEventQueue::Descriptor::RigidBody::CalculateBoxContact(
 			axisZ.m_x = p_other->m_body->m_orientation.m_m[2][0];
 			axisZ.m_y = p_other->m_body->m_orientation.m_m[2][1];
 			axisZ.m_z = p_other->m_body->m_orientation.m_m[2][2];
-			GolMath::ScaleVector3(&axisX, p_other->m_boxSizeX * 0.5f, &axisX);
+			GolMath::ScaleVector3(&axisX, GOL_MUL(p_other->m_boxSizeX, 0.5f), &axisX);
 			GolMath::ScaleVector3(&axisY, ((((p_other->m_boxSizeY * 0.5f)))), &axisY);
 			GolMath::ScaleVector3(&axisZ, (p_other->m_boxSizeZ * 0.5f), &axisZ);
 
