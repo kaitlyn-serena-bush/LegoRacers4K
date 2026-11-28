@@ -3,6 +3,7 @@
 
 #include "compat.h"
 #include "decomp.h"
+#include "golanimatedentity.h"
 #include "menu/menuanimationlist.h"
 #include "menu/screens/singleraceselectbase.h"
 #include "menu/widgets/menuimage.h"
@@ -20,6 +21,7 @@ public:
 	void CreateWidgets() override;                                             // vtable+0x4c
 	void Reset() override;                                                     // vtable+0x54
 	~CircuitRaceScreen() override;                                             // vtable+0x68
+	LegoBool32 Destroy() override;                                             // [library:3d]
 	LegoBool32 Update(undefined4) override;                                    // vtable+0x78
 	void Navigate() override;                                                  // vtable+0x84
 	LegoBool32 Initialize(MenuGameContext*, MenuScreenCreateParams*) override; // vtable+0x8c
@@ -29,8 +31,10 @@ public:
 
 protected:
 	void UpdateRacePreview();
-	void LayoutCentered(); // [library:config]
-	void ShowAllRaces();   // [library:3d]
+	void LayoutCentered();                                       // [library:config]
+	void ShowAllRaces();                                         // [library:3d]
+	void SetQuadDriver(LegoS32 p_index, const LegoChar* p_name); // [library:3d]
+	void CreateQuadWidgets();                                    // [library:3d]
 
 	MenuImage m_photoImage;                 // 0x1908
 	MenuTextLabel m_infoLabel;              // 0x1964
@@ -46,6 +50,12 @@ protected:
 	LegoU32 m_circuitIndex;                 // 0x221c
 	LegoU32 m_previewRaceIndex;             // 0x2220
 	LegoBool32 m_previewChanged;            // 0x2224
+	// [library:3d] LegoRacers4K: three more preview scenes, each with its own champion.
+	MenuSceneScreen::SceneWidget m_quadWidgets[3];
+	GolAnimatedEntity m_quadDrivers[3];
+	GolModelBase* m_quadModels[3];
+	LegoChar m_quadNames[3][8];
+	LegoBool32 m_quadActive;
 };
 
 #endif // CIRCUITRACESCREEN_H

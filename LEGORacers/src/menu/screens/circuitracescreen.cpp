@@ -1,7 +1,9 @@
 #include "menu/screens/circuitracescreen.h"
 
 #include "camera/golcamera.h"
+#include "core/gol.h"
 #include "golanimatedentity.h"
+#include "golhashtable.h"
 #include "golname.h"
 #include "golstring.h"
 #include "menu/menugamecontext.h"
@@ -32,6 +34,7 @@ void CircuitRaceScreen::Reset()
 	m_previewTimerMs = 0;
 	m_previewRaceIndex = 0;
 	m_previewChanged = FALSE;
+	m_quadActive = FALSE; // [library:3d]
 	MenuGameScreen::Reset();
 }
 
@@ -50,6 +53,7 @@ void CircuitRaceScreen::CreateWidgets()
 	CreateTextLabel(&m_circuitDescLabel, 0x60, 0x37, 0x60);
 	CreateTextButton(&m_startButton, 0x40, 0x46, 0x72);
 	CreateTextButton(&m_backButton, 0x3f, 0x43, 2);
+	CreateQuadWidgets(); // [library:3d]
 }
 
 // [library:config] LegoRacers4K layout, like Race Select: title centred, the preview with the circuit
@@ -287,24 +291,26 @@ void CircuitRaceScreen::ShowAllRaces()
 		m_raceNameLabel.SetString(&s_strings[m_circuitIndex], 0);
 	}
 
-	m_sceneWidget.m_extraFrameCount = 0;
-	CutsceneDefinition::Frame* frames[4];
-	LegoS32 count = 0;
-	GolNameTable* frameNames = &m_sceneWidget.m_definition;
-	for (LegoU32 i = 0; i < 4 && frameNames->GetNameEntries(); i++) {
-		RaceNameEntry* entry = m_circuitEntry->GetRaceNameEntry(i);
-		if (!entry) {
-			continue;
-		}
-		GolName frameName;
-		::memcpy(frameName, entry->GetThemeName(), sizeof(GolName));
-		CutsceneDefinition::Frame* frame = static_cast<CutsceneDefinition::Frame*>(frameNames->GetName(frameName));
-		if (frame) {
-			frames[count++] = frame;
+	// Four independent scenes: the main widget plus three more, each with its own cutscene data,
+	// champion and animation clock.
+	LegoS32 raceCount = 0;
+	for (LegoU32 i = 0; i < 4; i++) {
+		if (m_circuitEntry->GetRaceNameEntry(i)) {
+			raceCount++;
 		}
 	}
 
-	if (m_circuitIndex == 6 || count < 2 || !m_sceneWidget.m_frame) {
+	m_quadActive = m_circuitIndex != 6 && raceCount >= 2 && m_sceneWidget.m_frame;
+	for (LegoS32 i = 0; i < 3; i++) {
+		if (m_quadActive) {
+			m_quadWidgets[i].SetFlags(2);
+		}
+		else {
+			m_quadWidgets[i].ClearFlags(2);
+		}
+	}
+
+	if (!m_quadActive) {
 		return;
 	}
 
@@ -312,47 +318,121 @@ void CircuitRaceScreen::ShowAllRaces()
 	LegoS32 width = full.m_right - full.m_left;
 	LegoS32 height = full.m_bottom - full.m_top;
 	const LegoS32 gap = 2;
-	for (LegoS32 i = 0; i < count && i < 4; i++) {
+	for (LegoS32 i = 0; i < 4; i++) {
+		RaceNameEntry* entry = m_circuitEntry->GetRaceNameEntry(i);
+		MenuSceneScreen::SceneWidget* widget = i == 0 ? &m_sceneWidget : &m_quadWidgets[i - 1];
+		if (!entry || !widget->m_frame) {
+			continue;
+		}
+
 		Rect cell;
 		cell.m_left = full.m_left + (i & 1) * ((width + gap) >> 1);
 		cell.m_right = cell.m_left + ((width - gap) >> 1);
 		cell.m_top = full.m_top + (i >> 1) * ((height + gap) >> 1);
 		cell.m_bottom = cell.m_top + ((height - gap) >> 1);
-		if (i == 0) {
-			if (frames[0] != m_sceneWidget.m_frame) {
-				m_sceneWidget.SetFrame(frames[0]);
-			}
-			m_sceneWidget.m_frame->SetFlags(CutsceneDefinition::Frame::c_flagLoop);
-			m_sceneWidget.m_frame->SetViewportRect(&cell);
+
+		GolName frameName;
+		::memcpy(frameName, entry->GetThemeName(), sizeof(GolName));
+		GolNameTable* frameNames = &widget->m_definition;
+		CutsceneDefinition::Frame* frame = NULL;
+		if (frameNames->GetNameEntries()) {
+			frame = static_cast<CutsceneDefinition::Frame*>(frameNames->GetName(frameName));
 		}
-		else {
-			frames[i]->Rewind();
-			frames[i]->Play();
-			frames[i]->SetFlags(CutsceneDefinition::Frame::c_flagLoop);
-			frames[i]->SetViewportRect(&cell);
-			m_sceneWidget.m_extraFrames[m_sceneWidget.m_extraFrameCount++] = frames[i];
+
+		if (frame && (i > 0 || frame != widget->m_frame)) {
+			widget->SetFrame(frame);
+		}
+		widget->m_frame->SetFlags(CutsceneDefinition::Frame::c_flagLoop);
+		widget->m_frame->SetViewportRect(&cell);
+		// Start each preview at a different point of its loop.
+		widget->m_frame->Update(i * 900);
+
+		if (i > 0) {
+			SetQuadDriver(i - 1, entry->GetMascotName());
+		}
+	}
+}
+
+// [library:3d] The champion of one of the extra preview scenes (same recipe as SetPreviewDriver).
+void CircuitRaceScreen::SetQuadDriver(LegoS32 p_index, const LegoChar* p_name)
+{
+	MenuSceneScreen::SceneWidget* widget = &m_quadWidgets[p_index];
+	GolAnimatedEntity* modelEntity = NULL;
+	for (LegoU32 i = 0; !modelEntity && i < widget->m_definition.GetWorldDatabaseCount(); i++) {
+		GolWorldDatabase* worldDatabase = widget->m_definition.GetWorldDatabase(i);
+		if (worldDatabase->GetAnimatedEntityEntries()) {
+			modelEntity = worldDatabase->GetAnimatedEntityByName("guy1");
+		}
+	}
+	if (!modelEntity || !p_name[0]) {
+		return;
+	}
+
+	GolAnimatedEntity* driver = &m_quadDrivers[p_index];
+	LegoChar* name = m_quadNames[p_index];
+	if (::strncmp(name, p_name, sizeof(m_quadNames[p_index])) != 0 || !driver->HasModel()) {
+		::strncpy(name, p_name, sizeof(m_quadNames[p_index]));
+
+		if (driver->HasModel()) {
+			driver->ResetModelState();
+		}
+		if (m_quadModels[p_index]) {
+			m_golExport->DestroyModel(m_quadModels[p_index]);
+			m_quadModels[p_index] = NULL;
+		}
+
+		DriverCosmetics cosmetics;
+		m_context->m_cosmeticTable.CopyCosmetics(name, &cosmetics);
+		m_quadModels[p_index] = m_context->m_modelBuilder.BuildDriverModel(&cosmetics, NULL, 0);
+		driver->SetModel(
+			m_quadModels[p_index],
+			modelEntity->GetSceneNode(0),
+			modelEntity->GetModelPart(),
+			modelEntity->GetModelDistance(0)
+		);
+	}
+
+	CutsceneDefinition::Frame* frame = widget->m_frame;
+	for (LegoU32 i = 0; i < frame->GetModelEventCount(); i++) {
+		CutsceneDefinition::Frame::ModelEvent* model = frame->GetModel(i);
+		if (model->GetEntity() == modelEntity) {
+			model->SetEntity(driver);
+		}
+	}
+}
+
+// [library:3d] The extra preview scenes and their champions.
+void CircuitRaceScreen::CreateQuadWidgets()
+{
+	if (g_hashTable) {
+		g_hashTable->SetCurrentEntryFromString("MENUDATA\\SINGRACE");
+	}
+	for (LegoS32 i = 0; i < 3; i++) {
+		CreateRegion(&m_quadWidgets[i], 6);
+		m_quadWidgets[i].m_skippable = FALSE;
+		m_quadNames[i][0] = '\0';
+		m_quadModels[i] = NULL;
+	}
+	if (g_hashTable) {
+		g_hashTable->SetCurrentEntryFromString("MENUDATA");
+	}
+}
+
+LegoBool32 CircuitRaceScreen::Destroy()
+{
+	if (m_initialized) {
+		for (LegoS32 i = 0; i < 3; i++) {
+			m_quadDrivers[i].ResetModelState();
+			if (m_quadModels[i]) {
+				m_golExport->DestroyModel(m_quadModels[i]);
+				m_quadModels[i] = NULL;
+			}
+			m_quadNames[i][0] = '\0';
+			m_quadWidgets[i].Destroy();
 		}
 	}
 
-	// Every cell shows the circuit's champion: hand the shared driver to the other frames too.
-	if (m_driverEntity.HasModel()) {
-		GolAnimatedEntity* modelEntity = NULL;
-		for (LegoU32 i = 0; !modelEntity && i < m_sceneWidget.m_definition.GetWorldDatabaseCount(); i++) {
-			GolWorldDatabase* worldDatabase = m_sceneWidget.m_definition.GetWorldDatabase(i);
-			if (worldDatabase->GetAnimatedEntityEntries()) {
-				modelEntity = worldDatabase->GetAnimatedEntityByName("guy1");
-			}
-		}
-		for (LegoS32 f = 0; f < m_sceneWidget.m_extraFrameCount; f++) {
-			CutsceneDefinition::Frame* frame = m_sceneWidget.m_extraFrames[f];
-			for (LegoU32 i = 0; i < frame->GetModelEventCount(); i++) {
-				CutsceneDefinition::Frame::ModelEvent* model = frame->GetModel(i);
-				if (model->GetEntity() == modelEntity) {
-					model->SetEntity(&m_driverEntity);
-				}
-			}
-		}
-	}
+	return SingleRaceSelectBase::Destroy();
 }
 
 // FUNCTION: LEGORACERS 0x0047a3f0
@@ -362,7 +442,7 @@ LegoBool32 CircuitRaceScreen::Update(undefined4 p_elapsed)
 		m_transition = NULL;
 	}
 
-	if (p_elapsed > m_previewTimerMs && m_circuitIndex != 6 && !m_sceneWidget.m_extraFrameCount) {
+	if (p_elapsed > m_previewTimerMs && m_circuitIndex != 6 && !m_quadActive) {
 		m_previewRaceIndex = (m_previewRaceIndex + 1) & 3;
 		UpdateRacePreview();
 	}
@@ -370,8 +450,7 @@ LegoBool32 CircuitRaceScreen::Update(undefined4 p_elapsed)
 		m_previewTimerMs -= p_elapsed;
 	}
 
-	if (m_previewTimerMs < 250 && !m_context->m_menuAnimations.HasActive() && m_circuitIndex != 6 &&
-		!m_sceneWidget.m_extraFrameCount) {
+	if (m_previewTimerMs < 250 && !m_context->m_menuAnimations.HasActive() && m_circuitIndex != 6 && !m_quadActive) {
 		if (m_transition && m_transition->IsActive()) {
 			m_context->m_menuAnimations.Deactivate(m_transition);
 			m_transition = NULL;
