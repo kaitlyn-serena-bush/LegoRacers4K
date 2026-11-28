@@ -124,8 +124,10 @@ LegoBool32 MainMenuScreen::Initialize(MenuGameContext* p_context, MenuScreenCrea
 	// screen, with larger text at the same row spacing.
 	{
 		LegoS32 shift = MiniwinGetWideExtra();
-		// English only: TIME RACE is called TIME TRIAL.
+		// English only: TIME RACE is TIME TRIAL, VERSUS RACE is MULTIPLAYER.
 		static GolString s_timeTrial;
+		static GolString s_multiplayer;
+		static undefined2 s_multiplayerBuffer[16];
 		static undefined2 s_timeTrialBuffer[16];
 		{
 			const undefined2* name = m_menuTextStrings->GetStringBuffer(
@@ -149,6 +151,13 @@ LegoBool32 MainMenuScreen::Initialize(MenuGameContext* p_context, MenuScreenCrea
 				s_timeTrialBuffer[length] = 0;
 				s_timeTrial.CopyFromBufSelection(s_timeTrialBuffer, static_cast<undefined2>(length + 1));
 				m_timeRaceButton.SetText(&s_timeTrial);
+				static const char c_multi[] = "MULTIPLAYER";
+				for (length = 0; c_multi[length]; length++) {
+					s_multiplayerBuffer[length] = static_cast<LegoU8>(c_multi[length]);
+				}
+				s_multiplayerBuffer[length] = 0;
+				s_multiplayer.CopyFromBufSelection(s_multiplayerBuffer, static_cast<undefined2>(length + 1));
+				m_versusRaceButton.SetText(&s_multiplayer);
 			}
 		}
 		MenuTextButton* buttons[] = {
