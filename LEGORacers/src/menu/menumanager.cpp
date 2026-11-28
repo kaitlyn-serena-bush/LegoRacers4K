@@ -1043,12 +1043,13 @@ void MenuManager::BuildPlayerDriverModel(
 		sourceMaterial->CopyParamsTo(&params);
 
 		if (sourceMaterial->GetFlags() & GolMaterial::c_flagTextured) {
-			GolD3DTexture* texture = p_slot->m_altTextures->GetItem(textureCount++);
+			GolD3DTexture* texture = p_slot->m_altTextures->GetItem(textureCount);
 			texture->SetNameRecord(static_cast<GolD3DTexture*>(params.m_texture)->GetNameRecord());
 			texture->SetTextureFlags(params.m_texture->GetTextureFlags());
 			texture->CopyMipmapCountFrom(params.m_texture);
 			texture->SetColorKeyValue(params.m_texture->GetColorKey());
 			params.m_texture = texture;
+			textureCount++;
 		}
 		else {
 			params.m_texture = NULL;
