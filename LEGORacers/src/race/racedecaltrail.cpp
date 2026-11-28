@@ -600,14 +600,18 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 	LegoU8* indices = m_sourceIndexBytes + 4 * p_firstPolygon;
 	LegoU8* end = indices + 4 * p_polygonCount;
 
-	for (; indices < end; indices += 4) {
+	while (indices < end) {
 		LegoU32 index1 = indices[1];
 		LegoU32 index2 = indices[2];
 		ProjectedVertex* vertex0 = &g_decalProjectedVertices[indices[0]];
 		ProjectedVertex* vertex1 = &g_decalProjectedVertices[index1];
 		ProjectedVertex* vertex2 = &g_decalProjectedVertices[index2];
+		LegoU32 flags0 = vertex0->m_clipFlags;
+		LegoU32 flags1 = vertex1->m_clipFlags;
+		LegoU32 flags2 = vertex2->m_clipFlags;
 
-		if (vertex0->m_clipFlags & vertex1->m_clipFlags & vertex2->m_clipFlags) {
+		if (flags0 & flags1 & flags2) {
+			indices += 4;
 			continue;
 		}
 
@@ -616,10 +620,11 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 				(vertex1->m_projected.m_y.m_float - vertex2->m_projected.m_y.m_float) *
 					(vertex0->m_projected.m_x.m_float - vertex2->m_projected.m_x.m_float) <=
 			0.0f) {
+			indices += 4;
 			continue;
 		}
 
-		LegoU32 combinedFlags = vertex0->m_clipFlags | vertex1->m_clipFlags | vertex2->m_clipFlags;
+		LegoU32 combinedFlags = flags0 | flags1 | flags2;
 
 		if (!combinedFlags) {
 			EmitTriangle(vertex0, vertex1, vertex2);
@@ -632,12 +637,12 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 
 			indicesA[0] = indices[0];
 			indicesA[1] = index1;
-			flagsA[0] = vertex0->m_clipFlags;
+			flagsA[0] = flags0;
 			indicesA[2] = index2;
-			flagsA[2] = vertex2->m_clipFlags;
+			flagsA[2] = flags2;
 			LegoU32* inputIndices = indicesA;
 
-			flagsA[1] = vertex1->m_clipFlags;
+			flagsA[1] = flags1;
 			LegoU32* inputFlags = flagsA;
 			LegoU32* outputIndices = indicesB;
 			LegoU32* outputFlags = flagsB;
@@ -845,6 +850,8 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 				);
 			}
 		}
+
+		indices += 4;
 	}
 }
 
