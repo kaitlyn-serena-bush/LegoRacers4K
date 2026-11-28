@@ -1,9 +1,24 @@
 #include "font/golfont.h"
 
+#include <cmath>
 #include <miniwin/hdtexture.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+// [library:hd] Font sets with natural glyph widths (cells.csv): each glyph's HD columns,
+// indexed like m_glyphs before sorting, plus the original-pixel width of the HD strip.
+struct HdFontCells {
+	std::vector<int> m_hdX;
+	std::vector<int> m_hdWidth;
+	int m_imageWidth = 0;
+};
+
+static std::unordered_map<const GolFont*, HdFontCells>& HdFontCellMap()
+{
+	static std::unordered_map<const GolFont*, HdFontCells> s_cells;
+	return s_cells;
+}
 
 // [library:hd] Game path each font was loaded from, for its glyph textures' HD pixels.
 static std::unordered_map<const GolFont*, std::string>& HdFontPaths()
@@ -51,7 +66,8 @@ GolFont::GolFont()
 // FUNCTION: GOLDP 0x10004480
 GolFont::~GolFont()
 {
-	HdFontPaths().erase(this); // [library:hd]
+	HdFontPaths().erase(this);   // [library:hd]
+	HdFontCellMap().erase(this); // [library:hd]
 	Clear();
 }
 
@@ -92,6 +108,7 @@ void GolFont::Load(const LegoChar* p_name, GolD3DRenderDevice* p_renderer)
 	imageFile->Destroy();
 
 	ScanGlyphs(p_name);
+	ApplyHdFontCells(); // [library:hd]
 
 	GolSurfaceFormat textureFormat;
 	g_fontSourceImage = &m_sourceImage;
@@ -372,11 +389,16 @@ void GolFont::CopyGlyphsToTextures(
 	if (hdPath != HdFontPaths().end()) {
 		for (LegoU32 surface = 0; surface < m_surfaceCount; surface++) {
 			std::vector<MiniwinHdBlit> blits;
+			auto cells = HdFontCellMap().find(this);
 			for (LegoU32 i = 0; i < static_cast<LegoU32>(m_glyphCount); i++) {
 				if (m_glyphs[i].m_surfaceIndex != surface) {
 					continue;
 				}
 				MiniwinHdBlit blit;
+				if (cells != HdFontCellMap().end() && i < cells->second.m_hdX.size()) {
+					blit.m_hdSrcX = cells->second.m_hdX[i];
+					blit.m_hdSrcWidth = cells->second.m_hdWidth[i];
+				}
 				blit.m_srcX = m_glyphs[i].m_sourceX;
 				blit.m_srcY = 0;
 				blit.m_width = m_glyphs[i].m_width;
@@ -385,9 +407,10 @@ void GolFont::CopyGlyphsToTextures(
 				blit.m_dstY = m_glyphs[i].m_textureY;
 				blits.push_back(blit);
 			}
+			auto cellsForSize = HdFontCellMap().find(this);
 			GetTexture(surface)->BindHdReplacementBlits(
 				hdPath->second.c_str(),
-				m_sourceImage.GetWidth(),
+				cellsForSize != HdFontCellMap().end() ? cellsForSize->second.m_imageWidth : m_sourceImage.GetWidth(),
 				m_sourceImage.GetHeight(),
 				(m_flags & c_flagBit2) != 0,
 				blits.data(),
@@ -401,4 +424,62 @@ void GolFont::CopyGlyphsToTextures(
 void GolFont::EndDrawing()
 {
 	// empty
+}
+
+// [library:hd] LegoRacers4K: when this font's HD strip comes from a font set with natural
+// glyph widths (cells.csv), take each glyph's width, the spacing and the space from it
+// (converted to original pixels) instead of the original strip's cells. The original
+// pixels copied into the glyph textures are then placeholders; the HD strip covers them.
+void GolFont::ApplyHdFontCells()
+{
+	HdFontCellMap().erase(this);
+	auto path = HdFontPaths().find(this);
+	if (path == HdFontPaths().end() || path->second.empty() || m_glyphCount < 2 || !m_fontHeight) {
+		return;
+	}
+
+	std::vector<int> x(m_glyphCount);
+	std::vector<int> width(m_glyphCount);
+	std::vector<int> advance(m_glyphCount);
+	int hdWidth = 0;
+	int hdHeight = 0;
+	int inkHeight = 0;
+	int count = MiniwinHdGetFontCells(
+		path->second.c_str(),
+		x.data(),
+		width.data(),
+		advance.data(),
+		(int) m_glyphCount,
+		&hdWidth,
+		&hdHeight,
+		&inkHeight
+	);
+	if (count != (int) m_glyphCount - 1 || hdHeight <= 0) {
+		return;
+	}
+
+	double scale = (double) hdHeight / m_fontHeight;
+	LegoU32 sourceWidth = m_sourceImage.GetWidth();
+	HdFontCells& cells = HdFontCellMap()[this];
+	cells.m_imageWidth = (int) std::lround(hdWidth / scale);
+	cells.m_hdX.assign(m_glyphCount, -1);
+	cells.m_hdWidth.assign(m_glyphCount, 0);
+	// The space has no ink: fill its texture cell from the strip's blank first column.
+	cells.m_hdX[0] = 0;
+	cells.m_hdWidth[0] = 1;
+	for (LegoU32 i = 1; i < m_glyphCount; i++) {
+		// +2: one transparent original pixel each side (filled in by the HD blit).
+		LegoU32 glyphWidth = (LegoU32) std::max(1L, std::lround(width[i - 1] / scale)) + 2;
+		if (glyphWidth > sourceWidth) {
+			glyphWidth = sourceWidth;
+		}
+		m_glyphs[i].m_width = static_cast<LegoU16>(glyphWidth);
+		m_glyphs[i].m_sourceX = 0;
+		cells.m_hdX[i] = x[i - 1];
+		cells.m_hdWidth[i] = width[i - 1];
+	}
+
+	m_charSpacing = (LegoS32) std::lround((advance[0] - width[0]) / scale) - 2;
+	m_spaceWidth = (LegoS32) std::max(1L, std::lround(0.43 * inkHeight / scale)) + 2;
+	m_glyphs[0].m_width = static_cast<LegoU16>(m_spaceWidth);
 }

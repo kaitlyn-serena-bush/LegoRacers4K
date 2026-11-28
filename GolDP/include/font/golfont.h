@@ -33,6 +33,7 @@ public:
 	LegoFloat GetInverseTextureWidth() const { return m_inverseTextureWidth; }
 
 private:
+	void ApplyHdFontCells(); // [library:hd] LegoRacers4K natural-width font sets
 	enum {
 		c_fontMaterialFlags = 0x92aaa
 	};

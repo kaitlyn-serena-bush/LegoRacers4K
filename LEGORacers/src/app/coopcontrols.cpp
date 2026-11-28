@@ -481,5 +481,5 @@ LegoBool32 CoopControls_GetBinding(
 
 void GameSettings_Load()
 {
-	MiniwinHdSetFontSet("legomovie");
+	MiniwinHdSetFontSet("legomovie_v2");
 }

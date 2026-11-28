@@ -42,6 +42,11 @@ struct MiniwinHdBlit {
 	int m_height;
 	int m_dstX;
 	int m_dstY;
+	// Optional: the piece's columns in the HD image itself (HD pixels), for HD strips laid
+	// out differently from the original (font sets with natural glyph widths). The piece
+	// is stretched to fill its scaled destination width.
+	int m_hdSrcX = -1;
+	int m_hdSrcWidth = 0;
 };
 
 // Returns true when HD replacements are enabled and one exists for this game path
@@ -69,6 +74,21 @@ void MiniwinHdDetach(IDirectDrawSurface* p_surface);
 // HD folder's while selected. NULL or "" = none. Shared by every copy of miniwin through
 // an SDL global property; textures bound afterwards pick it up.
 void MiniwinHdSetFontSet(const char* p_name);
+
+// Glyph cells of a font strip whose replacement comes from a font set with natural glyph
+// widths: the set's cells.csv rows for that strip, in strip order (HD pixels). Also gives
+// the HD image size and its first glyph's ink height. Returns the number of cells (0 when
+// the replacement is not such a strip).
+int MiniwinHdGetFontCells(
+	const char* p_gamePath,
+	int* p_x,
+	int* p_width,
+	int* p_advance,
+	int p_maxCells,
+	int* p_hdWidth,
+	int* p_hdHeight,
+	int* p_inkHeight
+);
 
 // Disables HD replacements for this run (command line --nohd).
 void MiniwinHdSetEnabled(bool p_enabled);

@@ -44,6 +44,7 @@ struct HdState {
 	// Font sets: alternative font strips that override the base folder's files while
 	// selected (LegoRacers4K Options > Font). Set name -> (key -> full path).
 	std::unordered_map<std::string, std::unordered_map<std::string, std::string> > m_fontSets;
+	std::unordered_map<std::string, std::string> m_fontSetRoots; // set name -> folder
 };
 
 HdState& State()
@@ -183,6 +184,7 @@ const std::unordered_map<std::string, std::string>* FontSetFiles()
 		std::error_code ec;
 		fs::path dir = root / name;
 		if (fs::is_directory(dir, ec) && IndexFolder(dir, files) > 0) {
+			state.m_fontSetRoots[name] = dir.string();
 			SDL_Log("HD textures: font set '%s' from %s", name, dir.string().c_str());
 			break;
 		}
@@ -411,6 +413,38 @@ bool MiniwinHdBuildPixels(const MiniwinHdBinding& p_binding, std::vector<Uint8>&
 			// Scale edges rather than sizes so neighbouring pieces meet without gaps.
 			int sx0 = (int) std::lround(blit.m_srcX * scaleX);
 			int sx1 = (int) std::lround((blit.m_srcX + blit.m_width) * scaleX);
+			if (blit.m_hdSrcX >= 0 && blit.m_hdSrcWidth > 0) {
+				// Natural-width glyph: stretch its HD columns over the scaled destination.
+				int srcX0 = blit.m_hdSrcX;
+				int srcW = std::min(blit.m_hdSrcWidth, image->m_width - srcX0);
+				int dstX0 = (int) std::lround(blit.m_dstX * scaleX);
+				int dstW = std::min((int) std::lround((blit.m_dstX + blit.m_width) * scaleX) - dstX0, outW - dstX0);
+				int ry0 = (int) std::lround(blit.m_srcY * scaleY);
+				int ry1 = (int) std::lround((blit.m_srcY + blit.m_height) * scaleY);
+				int dstY0 = (int) std::lround(blit.m_dstY * scaleY);
+				int rows = std::min({ry1 - ry0, image->m_height - ry0, outH - dstY0});
+				if (srcW <= 0 || dstW <= 0 || rows <= 0 || dstX0 < 0 || dstY0 < 0 || ry0 < 0) {
+					continue;
+				}
+				// The glyph's cell carries a one original pixel transparent margin on each side so
+				// filtered sampling never picks up the neighbouring glyph in the packed texture.
+				int margin = std::max(1, (int) std::lround(scaleX));
+				int inkW = dstW - 2 * margin;
+				for (int y = 0; y < rows; y++) {
+					const Uint8* srcRow = imageRowPtr(ry0 + y);
+					Uint8* dstRow = p_out.data() + ((size_t) (dstY0 + y) * outW + dstX0) * 4;
+					for (int x = 0; x < dstW; x++) {
+						int ix = x - margin;
+						if (inkW <= 0 || ix < 0 || ix >= inkW) {
+							SDL_memset(dstRow + x * 4, 0, 4);
+							continue;
+						}
+						int sx = srcX0 + std::min(srcW - 1, (int) ((ix + 0.5) * srcW / inkW));
+						SDL_memcpy(dstRow + x * 4, srcRow + (size_t) sx * 4, 4);
+					}
+				}
+				continue;
+			}
 			int sy0 = (int) std::lround(blit.m_srcY * scaleY);
 			int sy1 = (int) std::lround((blit.m_srcY + blit.m_height) * scaleY);
 			int dx0 = (int) std::lround(blit.m_dstX * scaleX);
@@ -443,4 +477,128 @@ bool MiniwinHdBuildPixels(const MiniwinHdBinding& p_binding, std::vector<Uint8>&
 		}
 	}
 	return true;
+}
+
+int MiniwinHdGetFontCells(
+	const char* p_gamePath,
+	int* p_x,
+	int* p_width,
+	int* p_advance,
+	int p_maxCells,
+	int* p_hdWidth,
+	int* p_hdHeight,
+	int* p_inkHeight
+)
+{
+	if (!p_gamePath || !*p_gamePath) {
+		return 0;
+	}
+
+	HdState& state = State();
+	std::string key = KeyFromPath(p_gamePath);
+	std::string file;
+	std::string root;
+	{
+		std::lock_guard<std::mutex> lock(state.m_mutex);
+		EnsureIndexed();
+		if (!state.m_enabled) {
+			return 0;
+		}
+		const auto* set = FontSetFiles();
+		const char* name = SDL_GetStringProperty(SDL_GetGlobalProperties(), "miniwin.hd_font_set", "");
+		auto rootIt = state.m_fontSetRoots.find(name ? name : "");
+		if (!set || rootIt == state.m_fontSetRoots.end()) {
+			return 0;
+		}
+		auto fileIt = set->find(key);
+		if (fileIt == set->end()) {
+			return 0;
+		}
+		file = fileIt->second;
+		root = rootIt->second;
+	}
+
+	size_t size = 0;
+	char* text = (char*) SDL_LoadFile((fs::path(root) / "cells.csv").string().c_str(), &size);
+	if (!text) {
+		return 0;
+	}
+
+	// Rows: strip,char,codepoint,x,width,advance,source (after a header row).
+	std::string all(text, size);
+	SDL_free(text);
+	int count = 0;
+	size_t pos = all.find('\n');
+	while (pos != std::string::npos && pos + 1 < all.size()) {
+		size_t end = all.find('\n', pos + 1);
+		std::string line = all.substr(pos + 1, end == std::string::npos ? std::string::npos : end - pos - 1);
+		pos = end;
+		std::vector<std::string> fields;
+		std::string field;
+		bool quoted = false;
+		for (size_t i = 0; i < line.size(); i++) {
+			char c = line[i];
+			if (c == '"') {
+				if (quoted && i + 1 < line.size() && line[i + 1] == '"') {
+					field += '"';
+					i++;
+				}
+				else {
+					quoted = !quoted;
+				}
+			}
+			else if (c == ',' && !quoted) {
+				fields.push_back(field);
+				field.clear();
+			}
+			else if (c != '\r') {
+				field += c;
+			}
+		}
+		fields.push_back(field);
+		if (fields.size() < 6 || KeyFromPath(fields[0].c_str()) != key) {
+			continue;
+		}
+		if (count >= p_maxCells) {
+			return 0;
+		}
+		p_x[count] = SDL_atoi(fields[3].c_str());
+		p_width[count] = SDL_atoi(fields[4].c_str());
+		p_advance[count] = SDL_atoi(fields[5].c_str());
+		count++;
+	}
+	if (count == 0) {
+		return 0;
+	}
+
+	std::shared_ptr<HdImage> image;
+	{
+		std::lock_guard<std::mutex> lock(state.m_mutex);
+		image = LoadImage(file, file);
+	}
+	if (!image) {
+		return 0;
+	}
+	*p_hdWidth = image->m_width;
+	*p_hdHeight = image->m_height;
+
+	// Ink height of the first glyph (a capital): rows with any visible pixel.
+	int top = -1;
+	int bottom = -1;
+	for (int y = 0; y < image->m_height; y++) {
+		const Uint8* row = image->m_rgba.data() + (size_t) y * image->m_width * 4;
+		for (int x = p_x[0]; x < p_x[0] + p_width[0] && x < image->m_width; x++) {
+			const Uint8* px = row + x * 4;
+			bool ink = image->m_hasAlpha ? px[3] > 128 : (px[0] + px[1] + px[2]) > 60;
+			if (ink) {
+				if (top < 0) {
+					top = y;
+				}
+				bottom = y;
+				break;
+			}
+		}
+	}
+	*p_inkHeight = top >= 0 ? bottom - top + 1 : image->m_height;
+	return count;
 }
