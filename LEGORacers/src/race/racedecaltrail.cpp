@@ -662,10 +662,10 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 						ProjectedVertex* current = &g_decalProjectedVertices[inputIndices[i]];
 						outputIndices[outputCount] = generatedIndex;
 						ProjectedVertex* clipped = &g_decalProjectedVertices[generatedIndex];
-						generatedIndex++;
-						clipped->m_projected.m_x.m_float = 0.0f;
 						LegoFloat amount = (previous->m_projected.m_x.m_float - 0.0f) /
 										   (previous->m_projected.m_x.m_float - current->m_projected.m_x.m_float);
+						generatedIndex++;
+						clipped->m_projected.m_x.m_float = 0.0f;
 						GolVec3 delta = (current->m_position - previous->m_position) * amount;
 						clipped->m_position.m_x = delta.m_x + previous->m_position.m_x;
 						clipped->m_position.m_y = delta.m_y + previous->m_position.m_y;
