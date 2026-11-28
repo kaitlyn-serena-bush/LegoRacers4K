@@ -645,11 +645,11 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 
 			flagsA[1] = vertex1->m_clipFlags;
 			LegoU32* inputFlags = flagsA;
-			LegoS32 inputCount = 3;
+			LegoU32* outputIndices = indicesB;
 			LegoU32* outputFlags = flagsB;
 			LegoU32 generatedIndex = c_projectedVertexCount;
 			LegoS32 outputCount = 0;
-			LegoU32* outputIndices = indicesB;
+			LegoS32 inputCount = 3;
 
 			if (combinedFlags & c_clipXMinFlag) {
 				previousIndex = inputCount - 1;
@@ -659,8 +659,8 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 					LegoU32 currentOutside = inputFlags[i] & c_clipXMinFlag;
 
 					if (currentOutside ^ previousOutside) {
-						ProjectedVertex* current = &g_decalProjectedVertices[inputIndices[i]];
 						ProjectedVertex* previous = &g_decalProjectedVertices[inputIndices[previousIndex]];
+						ProjectedVertex* current = &g_decalProjectedVertices[inputIndices[i]];
 						outputIndices[outputCount] = generatedIndex;
 						ProjectedVertex* clipped = &g_decalProjectedVertices[generatedIndex];
 						generatedIndex++;
@@ -809,16 +809,16 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 					LegoU32 currentOutside = inputFlags[i] & c_clipYMaxFlag;
 
 					if (currentOutside ^ sweepOld0) {
+						ProjectedVertex* previous = &g_decalProjectedVertices[inputIndices[previousIndex]];
+						ProjectedVertex* current = &g_decalProjectedVertices[inputIndices[i]];
 						outputIndices[outputCount] = generatedIndex;
 						ProjectedVertex* clipped = &g_decalProjectedVertices[generatedIndex];
-						ProjectedVertex* current = &g_decalProjectedVertices[inputIndices[i]];
-						ProjectedVertex* previous = &g_decalProjectedVertices[inputIndices[previousIndex]];
 						LegoFloat amount = (1.0f - previous->m_projected.m_y.m_float) /
 										   (current->m_projected.m_y.m_float - previous->m_projected.m_y.m_float);
 						generatedIndex++;
+						clipped->m_projected.m_y.m_float = g_decalMaxTextureCoordinate;
 						outputFlags[outputCount] = 0;
 						outputCount++;
-						clipped->m_projected.m_y.m_float = g_decalMaxTextureCoordinate;
 						GolVec3 delta = (current->m_position - previous->m_position) * amount;
 						clipped->m_position.m_x = delta.m_x + previous->m_position.m_x;
 						clipped->m_position.m_y = delta.m_y + previous->m_position.m_y;
