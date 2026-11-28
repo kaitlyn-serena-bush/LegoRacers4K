@@ -598,7 +598,7 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 	LegoU32 previousOutside;
 	LegoS32 previousIndex;
 	LegoU8* indices = m_sourceIndexBytes + 4 * p_firstPolygon;
-	LegoU8* end = indices + 4 * p_polygonCount;
+	LegoU8* end = m_sourceIndexBytes + 4 * (p_firstPolygon + p_polygonCount);
 
 	while (indices < end) {
 		LegoU32 index1 = indices[1];
