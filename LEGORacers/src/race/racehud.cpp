@@ -1100,7 +1100,7 @@ void RaceHud::Initialize(
 	m_elapsedMs = 0;
 	m_speedValue = 0;
 	m_isTimeRace = 0;
-	m_gadgetMode = 1;
+	m_gadgetMode = 4; // [library:2d] LegoRacers4K: speedometer + map by default (original: 1, map)
 	m_mapMaterial = 0;
 	ResetDisplay(-1);
 	m_renderer = p_renderer;
@@ -1839,8 +1839,7 @@ void RaceHud::Draw()
 		DrawFixedMap();
 		break;
 	case 2:
-		DrawSpeedometer();
-		DrawSpeedReadout();
+		DrawGaugeSpeedometer(); // [library:2d] LegoRacers4K: gauge tile speedometer
 		break;
 	case 3:
 		DrawRotatingMap();
@@ -1848,8 +1847,7 @@ void RaceHud::Draw()
 	case 4: {
 		// [library:2d] LegoRacers4K: speedometer in the corner, static map right under the
 		// lap and time rows (below the best-lap row, so it never covers it).
-		DrawSpeedometer();
-		DrawSpeedReadout();
+		DrawGaugeSpeedometer();
 		LegoFloat rangeX = m_mapMaxX - m_mapMinX;
 		LegoFloat rangeY = m_mapMaxY - m_mapMinY;
 		if (rangeX > 0.0f && rangeY > 0.0f) {
@@ -1867,47 +1865,159 @@ void RaceHud::Draw()
 	}
 }
 
-// [library:2d] LegoRacers4K: the speedometer shows the speed as a number in
-// studs per second (one world unit is one stud; m_speedValue is units per ms).
-void RaceHud::DrawSpeedReadout()
+// [library:2d] LegoRacers4K gauge speedometer digits: LEGO Movie font set legomovie_v2 digit outlines
+// (font units, y up, cap height 1180, advance 1004), triangulated offline. Three vertices per triangle.
+static const LegoS16 g_gaugeDigitVerts[][2] = {
+	{0, 140},     {284, 284},   {284, 896},   {720, 284},   {284, 284},   {0, 140},     {720, 284},   {0, 140},
+	{140, 0},     {720, 284},   {140, 0},     {864, 0},     {720, 284},   {864, 0},     {1004, 140},  {720, 284},
+	{1004, 140},  {1004, 1040}, {720, 284},   {1004, 1040}, {864, 1180},  {864, 1180},  {140, 1180},  {0, 1040},
+	{0, 1040},    {0, 140},     {284, 896},   {0, 1040},    {284, 896},   {720, 896},   {720, 896},   {720, 284},
+	{864, 1180},  {720, 896},   {864, 1180},  {0, 1040},    {570, 896},   {284, 474},   {284, 284},   {570, 896},
+	{284, 284},   {434, 284},   {570, 896},   {434, 284},   {720, 706},   {570, 896},   {720, 706},   {720, 896},
+	{492, 896},   {492, 0},     {776, 0},     {492, 896},   {776, 0},     {776, 1180},  {492, 896},   {776, 1180},
+	{364, 1180},  {492, 896},   {364, 1180},  {224, 1040},  {492, 896},   {224, 1040},  {224, 896},   {140, 732},
+	{0, 592},     {0, 140},     {140, 732},   {0, 140},     {140, 0},     {140, 0},     {864, 0},     {1004, 140},
+	{140, 0},     {1004, 140},  {1004, 284},  {140, 0},     {1004, 284},  {284, 284},   {140, 0},     {284, 284},
+	{284, 448},   {284, 448},   {864, 448},   {1004, 588},  {1004, 588},  {1004, 1040}, {864, 1180},  {864, 1180},
+	{140, 1180},  {0, 1040},    {864, 1180},  {0, 1040},    {0, 896},     {864, 1180},  {0, 896},     {720, 896},
+	{864, 1180},  {720, 896},   {720, 732},   {140, 732},   {140, 0},     {284, 448},   {140, 732},   {284, 448},
+	{1004, 588},  {1004, 588},  {864, 1180},  {720, 732},   {1004, 588},  {720, 732},   {140, 732},   {720, 284},
+	{0, 284},     {0, 140},     {720, 284},   {0, 140},     {140, 0},     {720, 284},   {140, 0},     {864, 0},
+	{720, 284},   {864, 0},     {1004, 140},  {720, 284},   {1004, 140},  {1004, 1040}, {720, 284},   {1004, 1040},
+	{864, 1180},  {864, 1180},  {140, 1180},  {0, 1040},    {864, 1180},  {0, 1040},    {0, 896},     {864, 1180},
+	{0, 896},     {720, 896},   {864, 1180},  {720, 896},   {720, 732},   {720, 732},   {180, 732},   {180, 448},
+	{720, 732},   {180, 448},   {720, 448},   {720, 448},   {720, 284},   {864, 1180},  {720, 448},   {864, 1180},
+	{720, 732},   {720, 448},   {720, 0},     {1004, 0},    {720, 448},   {1004, 0},    {1004, 1180}, {1004, 1180},
+	{720, 1180},  {720, 732},   {284, 732},   {284, 1180},  {0, 1180},    {284, 732},   {0, 1180},    {0, 588},
+	{284, 732},   {0, 588},     {140, 448},   {284, 732},   {140, 448},   {720, 448},   {720, 448},   {1004, 1180},
+	{720, 732},   {720, 448},   {720, 732},   {284, 732},   {720, 284},   {0, 284},     {0, 140},     {720, 284},
+	{0, 140},     {140, 0},     {720, 284},   {140, 0},     {864, 0},     {720, 284},   {864, 0},     {1004, 140},
+	{720, 284},   {1004, 140},  {1004, 592},  {720, 284},   {1004, 592},  {864, 732},   {284, 896},   {1004, 896},
+	{1004, 1180}, {284, 896},   {1004, 1180}, {0, 1180},    {284, 896},   {0, 1180},    {0, 448},     {720, 448},
+	{720, 284},   {864, 732},   {720, 448},   {864, 732},   {284, 732},   {284, 732},   {284, 896},   {0, 448},
+	{284, 732},   {0, 448},     {720, 448},   {0, 140},     {284, 284},   {284, 448},   {720, 284},   {284, 284},
+	{0, 140},     {720, 284},   {0, 140},     {140, 0},     {720, 284},   {140, 0},     {864, 0},     {720, 284},
+	{864, 0},     {1004, 140},  {720, 284},   {1004, 140},  {1004, 592},  {720, 284},   {1004, 592},  {864, 732},
+	{284, 896},   {1004, 896},  {1004, 1040}, {284, 896},   {1004, 1040}, {864, 1180},  {284, 896},   {864, 1180},
+	{140, 1180},  {284, 896},   {140, 1180},  {0, 1040},    {284, 896},   {0, 1040},    {0, 140},     {720, 448},
+	{720, 284},   {864, 732},   {720, 448},   {864, 732},   {284, 732},   {284, 732},   {284, 896},   {0, 140},
+	{284, 732},   {0, 140},     {284, 448},   {284, 732},   {284, 448},   {720, 448},   {720, 896},   {720, 0},
+	{1004, 0},    {720, 896},   {1004, 0},    {1004, 1040}, {720, 896},   {1004, 1040}, {864, 1180},  {720, 896},
+	{864, 1180},  {140, 1180},  {720, 896},   {140, 1180},  {0, 1040},    {720, 896},   {0, 1040},    {0, 896},
+	{0, 640},     {284, 732},   {284, 896},   {720, 732},   {284, 732},   {0, 640},     {720, 732},   {0, 640},
+	{70, 590},    {720, 732},   {70, 590},    {0, 540},     {0, 540},     {0, 140},     {284, 284},   {0, 540},
+	{284, 284},   {284, 448},   {0, 540},     {284, 448},   {720, 448},   {720, 284},   {284, 284},   {0, 140},
+	{720, 284},   {0, 140},     {140, 0},     {720, 284},   {140, 0},     {864, 0},     {720, 284},   {864, 0},
+	{1004, 140},  {720, 284},   {1004, 140},  {1004, 540},  {720, 284},   {1004, 540},  {934, 590},   {934, 590},
+	{1004, 640},  {1004, 1040}, {934, 590},   {1004, 1040}, {864, 1180},  {864, 1180},  {140, 1180},  {0, 1040},
+	{0, 1040},    {0, 640},     {284, 896},   {0, 1040},    {284, 896},   {720, 896},   {720, 732},   {0, 540},
+	{720, 448},   {720, 448},   {720, 284},   {934, 590},   {720, 448},   {934, 590},   {864, 1180},  {864, 1180},
+	{0, 1040},    {720, 896},   {864, 1180},  {720, 896},   {720, 732},   {864, 1180},  {720, 732},   {720, 448},
+	{0, 588},     {284, 732},   {284, 896},   {720, 732},   {284, 732},   {0, 588},     {720, 732},   {0, 588},
+	{140, 448},   {720, 732},   {140, 448},   {720, 448},   {720, 284},   {0, 284},     {0, 140},     {720, 284},
+	{0, 140},     {140, 0},     {720, 284},   {140, 0},     {864, 0},     {720, 284},   {864, 0},     {1004, 140},
+	{720, 284},   {1004, 140},  {1004, 1040}, {720, 284},   {1004, 1040}, {864, 1180},  {864, 1180},  {140, 1180},
+	{0, 1040},    {0, 1040},    {0, 588},     {284, 896},   {0, 1040},    {284, 896},   {720, 896},   {720, 448},
+	{720, 284},   {864, 1180},  {864, 1180},  {0, 1040},    {720, 896},   {864, 1180},  {720, 896},   {720, 732},
+	{864, 1180},  {720, 732},   {720, 448},
+};
+static const LegoU16 g_gaugeDigitRange[10][2] =
+	{{0, 48}, {48, 15}, {63, 48}, {111, 42}, {153, 27}, {180, 39}, {219, 51}, {270, 18}, {288, 72}, {360, 51}};
+
+// [library:2d] LegoRacers4K: gauge speedometer, a redraw of the LEGO 1x1 round gauge tile
+// (98138pb010). The HD SPEED texture is the dial face (ticks, hub, window and the fixed "SPS"
+// label); the red pointer and the number in the window are drawn here. Layout is in tile
+// units: the image spans -10.6..10.6 on both axes, centred on the gauge. The pointer sweeps
+// 252 degrees clockwise from lower left (0) to lower right (g_gaugeMaxSps); the number is
+// right-aligned against the fixed SPS label. Speed is studs per second (one world unit is
+// one stud; m_speedValue is units per ms).
+static const LegoFloat g_gaugeHalfSize = 10.6f;
+static const LegoFloat g_gaugeMaxSps = 200.0f;
+static const LegoFloat g_gaugeStartDeg = 144.0f;
+static const LegoFloat g_gaugeSweepDeg = 252.0f;
+static const LegoFloat g_gaugeFontScale = 1.12f / 1180.0f;
+static const LegoFloat g_gaugeDigitAdvance = 1004.0f + 110.0f;
+static const LegoFloat g_gaugeOnesLeft = -3.50807f + (3232.0f - 1004.0f) * (1.12f / 1180.0f);
+static const LegoFloat g_gaugeBaseline = 6.385f;
+
+void RaceHud::DrawGaugeSpeedometer()
 {
 	GolImage* dial = m_images->GetItem(0);
-	LegoS32 dialWidth = static_cast<LegoS32>(
+	LegoS32 width = static_cast<LegoS32>(
 		static_cast<double>(dial->GetWidth()) * static_cast<double>(m_mapScale) * static_cast<double>(m_textScaleX)
 	);
-	LegoS32 dialHeight = static_cast<LegoS32>(
+	LegoS32 height = static_cast<LegoS32>(
 		static_cast<double>(dial->GetHeight()) * static_cast<double>(m_mapScale) * static_cast<double>(m_scaleY)
 	);
-	LegoS32 centerX = m_viewport.m_right - ((52 * dialWidth) >> 7) - 2;
-	LegoS32 centerY = m_viewport.m_bottom - ((52 * dialHeight) >> 7) - 2;
+	LegoS32 left = m_viewport.m_right - width - 2;
+	LegoS32 top = m_viewport.m_bottom - height - 2;
+	m_renderer->DrawImage(dial, 0, left, top, width, height);
 
-	LegoS32 speed = static_cast<LegoS32>(m_speedValue * 1000.0f + 0.5f);
-	if (speed < 0) {
-		speed = -speed;
+	LegoFloat unitX = static_cast<LegoFloat>(width) / (2.0f * g_gaugeHalfSize);
+	LegoFloat unitY = static_cast<LegoFloat>(height) / (2.0f * g_gaugeHalfSize);
+	LegoFloat centerX = static_cast<LegoFloat>(left) + static_cast<LegoFloat>(width) * 0.5f;
+	LegoFloat centerY = static_cast<LegoFloat>(top) + static_cast<LegoFloat>(height) * 0.5f;
+
+	LegoFloat sps = m_speedValue * 1000.0f;
+	if (sps < 0.0f) {
+		sps = -sps;
 	}
 
-	LegoChar text[16];
-	::sprintf(text, "%d SPS", speed);
-	CopyToGolString(text, m_scratchString);
+	GolRenderDevice::TexturedVertex v[3];
+	for (LegoS32 i = 0; i < 3; i++) {
+		v[i].m_z = 0.0f;
+		v[i].m_u = 0.0f;
+		v[i].m_v = 0.0f;
+		v[i].m_color.m_red = 0xc9;
+		v[i].m_color.m_grn = 0x1a;
+		v[i].m_color.m_blu = 0x09;
+		v[i].m_color.m_alp = 0xff;
+	}
 
-	LegoFloat scale = m_textScale * 0.6f;
-	LegoFloat scaleX = scale * m_textScaleX;
-	LegoFloat scaleY = scale * m_scaleY;
-	LegoS32 textWidth;
-	LegoS32 textHeight;
-	m_font->MeasureString(m_scratchString, &textWidth, &textHeight);
-	textWidth = static_cast<LegoS32>(static_cast<LegoFloat>(textWidth) * scaleX);
-	textHeight = static_cast<LegoS32>(static_cast<LegoFloat>(textHeight) * scaleY);
-	m_renderer->DrawString(
-		m_scratchString,
-		m_font,
-		centerX - (textWidth >> 1),
-		centerY + (dialHeight >> 3),
-		scaleX,
-		scaleY,
-		NULL,
-		0
-	);
+	// Pointer: a slim red wedge from the hub edge (radius 2.28, +-23.5 degrees) to radius 5.68.
+	LegoFloat fraction = sps / g_gaugeMaxSps;
+	if (fraction > 1.0f) {
+		fraction = 1.0f;
+	}
+	const LegoFloat degToRad = 0.017453292f;
+	LegoFloat angle = (g_gaugeStartDeg + g_gaugeSweepDeg * fraction) * degToRad;
+	LegoFloat s;
+	LegoFloat c;
+	GolMath::SinCos(angle, &s, &c);
+	v[0].m_x = centerX + c * 5.68f * unitX;
+	v[0].m_y = centerY + s * 5.68f * unitY;
+	GolMath::SinCos(angle + 23.5f * degToRad, &s, &c);
+	v[1].m_x = centerX + c * 2.28f * unitX;
+	v[1].m_y = centerY + s * 2.28f * unitY;
+	GolMath::SinCos(angle - 23.5f * degToRad, &s, &c);
+	v[2].m_x = centerX + c * 2.28f * unitX;
+	v[2].m_y = centerY + s * 2.28f * unitY;
+	m_renderer->DrawTriangle(&v[0], &v[1], &v[2], NULL, 0);
+
+	// Number: dark print, right-aligned in a three-digit field before the fixed SPS label.
+	for (LegoS32 i = 0; i < 3; i++) {
+		v[i].m_color.m_red = 0x0f;
+		v[i].m_color.m_grn = 0x17;
+		v[i].m_color.m_blu = 0x1e;
+	}
+	LegoS32 value = static_cast<LegoS32>(sps + 0.5f);
+	if (value > 999) {
+		value = 999;
+	}
+	LegoFloat glyphX = g_gaugeOnesLeft;
+	do {
+		const LegoU16* range = g_gaugeDigitRange[value % 10];
+		for (LegoU32 t = 0; t < range[1]; t += 3) {
+			for (LegoS32 k = 0; k < 3; k++) {
+				const LegoS16* p = g_gaugeDigitVerts[range[0] + t + k];
+				v[k].m_x = centerX + (glyphX + p[0] * g_gaugeFontScale) * unitX;
+				v[k].m_y = centerY + (g_gaugeBaseline - p[1] * g_gaugeFontScale) * unitY;
+			}
+			m_renderer->DrawTriangle(&v[0], &v[1], &v[2], NULL, 0);
+		}
+		glyphX -= g_gaugeDigitAdvance * g_gaugeFontScale;
+		value /= 10;
+	} while (value > 0);
 }
 
 // FUNCTION: LEGORACERS 0x00427140
