@@ -144,6 +144,9 @@ static const LegoS32 c_controlRight = 576;
 static const LegoS32 c_rowFirst = 112;
 static const LegoS32 c_rowStep = 48;
 static const LegoS32 c_backTop = 440;
+// The back arrow plus its space push the text right; shift the button left so MAIN MENU lines up
+// with the other rows.
+static const LegoS32 c_backArrowShift = 10;
 // Text buttons keep room for the back arrow before their text; selectors carry extra
 // space under their arrows. Offsets so the visible text and arrows line up.
 static const LegoS32 c_buttonTextInset = 32;
@@ -386,7 +389,7 @@ void OptionsScreenBase::CreateSinglePageWidgets()
 			c_rowFirst + (4 + i) * c_rowStep - ((rect->m_bottom - rect->m_top) >> 1)
 		);
 	}
-	PlaceAt(&m_backButton, c_labelLeft - c_buttonTextInset, c_backTop);
+	PlaceAt(&m_backButton, c_labelLeft - c_buttonTextInset - c_backArrowShift, c_backTop);
 }
 
 // FUNCTION: LEGORACERS 0x004831d0
