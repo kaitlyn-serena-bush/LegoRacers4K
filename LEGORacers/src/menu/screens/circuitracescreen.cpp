@@ -15,8 +15,46 @@
 
 DECOMP_SIZE_ASSERT(CircuitRaceScreen, 0x2228)
 
-static const LegoS32 c_quadHeadStartMs =
-	2500; // [library:3d] preview animations start with their mascots already placed
+// [library:3d] Where a preview starts playing: just after its champion steps into the scene, so all
+// four champions are there from the first frame (p_staggerMs offsets the cells from each other while
+// keeping the champion on screen).
+static LegoS32 ChampionStartMs(CutsceneDefinition::Frame* p_frame, GolWorldEntity* p_driver, LegoS32 p_staggerMs)
+{
+	LegoU32 rate = p_frame->GetPlaybackRate();
+	if (!rate) {
+		return 0;
+	}
+
+	LegoU32 start = 0;
+	LegoU32 end = 0;
+	LegoBool32 found = FALSE;
+	for (LegoU32 i = 0; i < p_frame->GetModelEventCount(); i++) {
+		CutsceneDefinition::Frame::ModelEvent* model = p_frame->GetModel(i);
+		if (model->GetEntity() == p_driver) {
+			if (!found || model->m_startFrame < start) {
+				start = model->m_startFrame;
+			}
+			if (!found || model->m_endFrame > end) {
+				end = model->m_endFrame;
+			}
+			found = TRUE;
+		}
+	}
+	if (!found) {
+		return 0;
+	}
+
+	LegoS32 startMs = static_cast<LegoS32>(start * 1000 / rate) + 40;
+	LegoS32 endMs = static_cast<LegoS32>(end * 1000 / rate);
+	LegoS32 stagger = p_staggerMs;
+	if (startMs + stagger > endMs - 1500) {
+		stagger = endMs - 1500 - startMs;
+	}
+	if (stagger < 0) {
+		stagger = 0;
+	}
+	return startMs + stagger;
+}
 
 // FUNCTION: LEGORACERS 0x00479d70
 CircuitRaceScreen::CircuitRaceScreen()
@@ -352,11 +390,11 @@ void CircuitRaceScreen::ShowAllRaces()
 		widget->m_finished = FALSE;
 		widget->m_frame->Rewind();
 		widget->m_frame->Play();
-		widget->m_frame->Update(c_quadHeadStartMs + i * 900);
-
+		widget->m_player.StopAll();
 		if (i > 0) {
 			SetQuadDriver(i - 1, entry->GetMascotName());
 		}
+		widget->m_frame->Update(ChampionStartMs(widget->m_frame, QuadDriver(i), i * 700));
 	}
 }
 
@@ -476,7 +514,7 @@ LegoBool32 CircuitRaceScreen::Update(undefined4 p_elapsed)
 				widget->m_finished = FALSE;
 				widget->m_frame->Rewind();
 				widget->m_frame->Play();
-				widget->m_frame->Update(c_quadHeadStartMs);
+				widget->m_frame->Update(ChampionStartMs(widget->m_frame, QuadDriver(i), 0));
 				widget->m_player.StopAll();
 			}
 		}

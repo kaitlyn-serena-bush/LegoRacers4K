@@ -34,7 +34,11 @@ protected:
 	void LayoutCentered();                                       // [library:config]
 	void ShowAllRaces();                                         // [library:3d]
 	void SetQuadDriver(LegoS32 p_index, const LegoChar* p_name); // [library:3d]
-	void CreateQuadWidgets();                                    // [library:3d]
+	GolWorldEntity* QuadDriver(LegoS32 p_cell)
+	{
+		return p_cell == 0 ? static_cast<GolWorldEntity*>(&m_driverEntity) : &m_quadDrivers[p_cell - 1];
+	}                         // [library:3d]
+	void CreateQuadWidgets(); // [library:3d]
 
 	MenuImage m_photoImage;                 // 0x1908
 	MenuTextLabel m_infoLabel;              // 0x1964
