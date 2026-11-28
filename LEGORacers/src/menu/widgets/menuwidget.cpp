@@ -5,6 +5,7 @@
 #include "image/golimage.h"
 #include "render/gold3drenderdevice.h"
 
+#include <miniwin/miniwinapp.h>
 #include <string.h>
 
 DECOMP_SIZE_ASSERT(MenuWidget, 0x58)
@@ -302,16 +303,7 @@ void MenuWidget::DrawString(
 			width *= m_scaleX;
 			height *= m_scaleX;
 		}
-		m_renderer->DrawStringFitted(
-			p_string,
-			p_font,
-			x,
-			y,
-			width,
-			height,
-			p_dest,
-			0
-		);
+		m_renderer->DrawStringFitted(p_string, p_font, x, y, width, height, p_dest, 0);
 	}
 }
 
@@ -586,7 +578,20 @@ LegoBool32 MenuWidget::DispatchCursorEvent(MenuInputDispatcher::Cursor* p_cursor
 
 	ScreenToLocal(x, y);
 
-	if ((m_flags & 2) && HitTest(x, y)) {
+	// [library:input] Widescreen: the root and its full-width container also accept the cursor in
+	// the side areas, where the (left-shifted) widgets live.
+	LegoBool32 hit = HitTest(x, y);
+	if (!hit && (m_flags & 2)) {
+		LegoS32 wideExtra = MiniwinGetWideExtra();
+		LegoBool32 spansScreen = !m_parent || (!m_parent->m_parent && m_rect.m_left <= 5 && m_rect.m_right >= 635);
+		if (wideExtra > 0 && spansScreen) {
+			hit = static_cast<LegoS32>(x) >= -wideExtra &&
+				  static_cast<LegoS32>(x) <= (m_rect.m_right - m_rect.m_left) + wideExtra &&
+				  static_cast<LegoS32>(y) >= 0 && static_cast<LegoS32>(y) <= (m_rect.m_bottom - m_rect.m_top);
+		}
+	}
+
+	if ((m_flags & 2) && hit) {
 		while (child) {
 			if (child->DispatchCursorEvent(p_cursor, x, y)) {
 				return TRUE;

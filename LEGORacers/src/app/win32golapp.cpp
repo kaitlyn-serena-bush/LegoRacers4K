@@ -421,7 +421,9 @@ void Win32GolApp::UpdateMousePosition()
 		}
 		else {
 			LegoFloat width = (LegoFloat) m_golDrawState->m_width;
-			LegoFloat xScale = (((LegoFloat) (bottomRight.x - topLeft.x))) / width;
+			// [library:window] Widescreen: the window shows the game area plus the side areas.
+			LegoS32 wideExtra = MiniwinGetWideExtra();
+			LegoFloat xScale = (((LegoFloat) (bottomRight.x - topLeft.x))) / (width + (LegoFloat) (2 * wideExtra));
 			LegoFloat height = (LegoFloat) m_golDrawState->m_height;
 			LegoFloat yScale = (LegoFloat) (bottomRight.y - topLeft.y) / height;
 #ifdef __EMSCRIPTEN__
@@ -446,7 +448,7 @@ void Win32GolApp::UpdateMousePosition()
 			if (cursorMoved) {
 				cursorPos.x -= topLeft.x;
 				cursorPos.y -= topLeft.y;
-				cursorPos.x = static_cast<LONG>(static_cast<LegoFloat>(cursorPos.x) / xScale);
+				cursorPos.x = static_cast<LONG>(static_cast<LegoFloat>(cursorPos.x) / xScale) - wideExtra;
 				cursorPos.y = static_cast<LONG>(static_cast<LegoFloat>(cursorPos.y) / yScale);
 				m_eventHandler->OnCursorMoved(cursorPos.x, cursorPos.y);
 			}
