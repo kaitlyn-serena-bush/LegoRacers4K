@@ -1459,8 +1459,7 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 	impulseNumerator *= (g_collisionRestitution + 1.0f);
 
 	LegoFloat collisionNormalLengthSquared = DotVectorsZxy(collisionNormal, collisionNormal, *normal);
-	LegoFloat inverseMassTerm =
-		((((secondTarget->m_inverseMass + firstTarget->m_inverseMass)))) * collisionNormalLengthSquared;
+	LegoFloat inverseMassTerm =GOL_MUL((((((secondTarget->m_inverseMass + firstTarget->m_inverseMass))))), collisionNormalLengthSquared);
 
 	SoundVector* contactPosition = reinterpret_cast<SoundVector*>(&collision->m_contactPoint);
 
@@ -1489,37 +1488,37 @@ void Racer::OnEvent(LegoEventQueue::CallbackData* p_data)
 
 	GolMath::CrossVector3(&firstContactOffset, normal, &firstAxis);
 
-	angular.m_x = firstInertia.m_m[0][0] * firstAxis.m_x;
-	angular.m_y = firstInertia.m_m[0][1] * firstAxis.m_x;
-	angular.m_z = firstInertia.m_m[0][2] * firstAxis.m_x;
-	angular.m_x += firstInertia.m_m[1][0] * firstAxis.m_y;
-	angular.m_y += firstInertia.m_m[1][1] * firstAxis.m_y;
-	angular.m_z += firstInertia.m_m[1][2] * firstAxis.m_y;
-	angular.m_x += firstInertia.m_m[2][0] * firstAxis.m_z;
-	angular.m_y += firstInertia.m_m[2][1] * firstAxis.m_z;
-	angular.m_z += firstInertia.m_m[2][2] * firstAxis.m_z;
+	angular.m_x =GOL_MUL((firstInertia.m_m[0][0]), firstAxis.m_x);
+	angular.m_y =GOL_MUL((firstInertia.m_m[0][1]), firstAxis.m_x);
+	angular.m_z =GOL_MUL((firstInertia.m_m[0][2]), firstAxis.m_x);
+	angular.m_x +=GOL_MUL((firstInertia.m_m[1][0]), firstAxis.m_y);
+	angular.m_y +=GOL_MUL((firstInertia.m_m[1][1]), firstAxis.m_y);
+	angular.m_z +=GOL_MUL((firstInertia.m_m[1][2]), firstAxis.m_y);
+	angular.m_x +=GOL_MUL((firstInertia.m_m[2][0]), firstAxis.m_z);
+	angular.m_y +=GOL_MUL((firstInertia.m_m[2][1]), firstAxis.m_z);
+	angular.m_z +=GOL_MUL((firstInertia.m_m[2][2]), firstAxis.m_z);
 
 	GolVec3 firstAngularContribution;
-	firstAngularContribution.m_x = angular.m_y * firstContactOffset.m_z - angular.m_z * firstContactOffset.m_y;
-	firstAngularContribution.m_y = angular.m_z * firstContactOffset.m_x - firstContactOffset.m_z * angular.m_x;
-	firstAngularContribution.m_z = firstContactOffset.m_y * angular.m_x - angular.m_y * firstContactOffset.m_x;
+	firstAngularContribution.m_x =GOL_MUL((angular.m_y), firstContactOffset.m_z) -GOL_MUL((angular.m_z), firstContactOffset.m_y);
+	firstAngularContribution.m_y =GOL_MUL((angular.m_z), firstContactOffset.m_x) -GOL_MUL((firstContactOffset.m_z), angular.m_x);
+	firstAngularContribution.m_z =GOL_MUL((firstContactOffset.m_y), angular.m_x) -GOL_MUL((angular.m_y), firstContactOffset.m_x);
 
 	GolVec3 secondAxis;
 	GolMath::CrossVector3(&secondContactOffset, normal, &secondAxis);
-	angular.m_x = firstInertia.m_m[0][0] * secondAxis.m_x;
-	angular.m_y = firstInertia.m_m[0][1] * secondAxis.m_x;
-	angular.m_z = firstInertia.m_m[0][2] * secondAxis.m_x;
-	angular.m_x += firstInertia.m_m[1][0] * secondAxis.m_y;
-	angular.m_y += firstInertia.m_m[1][1] * secondAxis.m_y;
-	angular.m_z += firstInertia.m_m[1][2] * secondAxis.m_y;
-	angular.m_x += firstInertia.m_m[2][0] * secondAxis.m_z;
-	angular.m_y += firstInertia.m_m[2][1] * secondAxis.m_z;
-	angular.m_z += firstInertia.m_m[2][2] * secondAxis.m_z;
+	angular.m_x =GOL_MUL((firstInertia.m_m[0][0]), secondAxis.m_x);
+	angular.m_y =GOL_MUL((firstInertia.m_m[0][1]), secondAxis.m_x);
+	angular.m_z =GOL_MUL((firstInertia.m_m[0][2]), secondAxis.m_x);
+	angular.m_x +=GOL_MUL((firstInertia.m_m[1][0]), secondAxis.m_y);
+	angular.m_y +=GOL_MUL((firstInertia.m_m[1][1]), secondAxis.m_y);
+	angular.m_z +=GOL_MUL((firstInertia.m_m[1][2]), secondAxis.m_y);
+	angular.m_x +=GOL_MUL((firstInertia.m_m[2][0]), secondAxis.m_z);
+	angular.m_y +=GOL_MUL((firstInertia.m_m[2][1]), secondAxis.m_z);
+	angular.m_z +=GOL_MUL((firstInertia.m_m[2][2]), secondAxis.m_z);
 
 	GolVec3 secondAngularContribution;
-	secondAngularContribution.m_x = angular.m_y * secondContactOffset.m_z - angular.m_z * secondContactOffset.m_y;
-	secondAngularContribution.m_y = angular.m_z * secondContactOffset.m_x - secondContactOffset.m_z * angular.m_x;
-	secondAngularContribution.m_z = secondContactOffset.m_y * angular.m_x - angular.m_y * secondContactOffset.m_x;
+	secondAngularContribution.m_x =GOL_MUL((angular.m_y), secondContactOffset.m_z) -GOL_MUL((angular.m_z), secondContactOffset.m_y);
+	secondAngularContribution.m_y =GOL_MUL((angular.m_z), secondContactOffset.m_x) -GOL_MUL((secondContactOffset.m_z), angular.m_x);
+	secondAngularContribution.m_z =GOL_MUL((secondContactOffset.m_y), angular.m_x) -GOL_MUL((angular.m_y), secondContactOffset.m_x);
 
 	firstAngularContribution.m_x += secondAngularContribution.m_x;
 	firstAngularContribution.m_y += secondAngularContribution.m_y;
