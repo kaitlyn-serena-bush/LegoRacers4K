@@ -305,6 +305,7 @@ public:
 		ModelEvent* GetModel(LegoU32 p_index) const { return &m_modelEvents[p_index]; }
 		ModelEvent* GetModels() const { return m_modelEvents; }
 		void SetFlags(LegoU32 p_flags) { m_flags |= p_flags; }
+		void ClearFlags(LegoU32 p_flags) { m_flags &= ~p_flags; } // [library:3d]
 
 	private:
 		CutsceneDefinition* m_definition;                        // 0x00

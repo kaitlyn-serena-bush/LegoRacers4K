@@ -15,6 +15,9 @@
 
 DECOMP_SIZE_ASSERT(CircuitRaceScreen, 0x2228)
 
+static const LegoS32 c_quadHeadStartMs =
+	2500; // [library:3d] preview animations start with their mascots already placed
+
 // FUNCTION: LEGORACERS 0x00479d70
 CircuitRaceScreen::CircuitRaceScreen()
 {
@@ -342,10 +345,14 @@ void CircuitRaceScreen::ShowAllRaces()
 		if (frame && (i > 0 || frame != widget->m_frame)) {
 			widget->SetFrame(frame);
 		}
-		widget->m_frame->SetFlags(CutsceneDefinition::Frame::c_flagLoop);
+		// Each preview plays its animation through once and then starts again from the top.
+		widget->m_frame->ClearFlags(CutsceneDefinition::Frame::c_flagLoop);
 		widget->m_frame->SetViewportRect(&cell);
-		// Start each preview at a different point of its loop.
-		widget->m_frame->Update(i * 900);
+		// Start each preview at a different point of its loop (revisited circuits begin from a clean state).
+		widget->m_finished = FALSE;
+		widget->m_frame->Rewind();
+		widget->m_frame->Play();
+		widget->m_frame->Update(c_quadHeadStartMs + i * 900);
 
 		if (i > 0) {
 			SetQuadDriver(i - 1, entry->GetMascotName());
@@ -375,6 +382,7 @@ void CircuitRaceScreen::SetQuadDriver(LegoS32 p_index, const LegoChar* p_name)
 
 		if (driver->HasModel()) {
 			driver->ResetModelState();
+			m_context->m_modelBuilder.RefreshMenuResources();
 		}
 		if (m_quadModels[p_index]) {
 			m_golExport->DestroyModel(m_quadModels[p_index]);
@@ -460,7 +468,24 @@ LegoBool32 CircuitRaceScreen::Update(undefined4 p_elapsed)
 		m_transition = m_context->m_menuAnimations.Activate(250, FALSE, NULL, rectSource);
 	}
 
+	if (m_quadActive) {
+		for (LegoS32 i = 0; i < 4; i++) {
+			MenuSceneScreen::SceneWidget* widget = i == 0 ? &m_sceneWidget : &m_quadWidgets[i - 1];
+			if (widget->m_frame &&
+				(widget->m_finished || (widget->m_frame->GetFlags() & CutsceneDefinition::Frame::c_flagComplete))) {
+				widget->m_finished = FALSE;
+				widget->m_frame->Rewind();
+				widget->m_frame->Play();
+				widget->m_frame->Update(c_quadHeadStartMs);
+				widget->m_player.StopAll();
+			}
+		}
+	}
+
 	LegoBool32 result = MenuSceneScreen::Update(p_elapsed);
+	if (m_previewChanged && m_quadActive) {
+		m_previewChanged = FALSE;
+	}
 	if (m_previewChanged) {
 		if (m_transition && m_transition->IsActive()) {
 			m_context->m_menuAnimations.Deactivate(m_transition);
