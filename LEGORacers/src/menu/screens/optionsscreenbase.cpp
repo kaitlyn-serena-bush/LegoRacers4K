@@ -141,10 +141,8 @@ void OptionsScreenBase::CreateWidgets()
 // heights with label and control centred on each other; spacing groups the rows).
 static const LegoS32 c_labelLeft = 64;
 static const LegoS32 c_controlRight = 576;
-static const LegoS32 c_rowFirst = 122;
-static const LegoS32 c_rowStep = 54;
-static const LegoS32 c_linkFirst = 352;
-static const LegoS32 c_linkStep = 28;
+static const LegoS32 c_rowFirst = 112;
+static const LegoS32 c_rowStep = 48;
 static const LegoS32 c_backTop = 440;
 // Text buttons keep room for the back arrow before their text; selectors carry extra
 // space under their arrows. Offsets so the visible text and arrows line up.
@@ -378,9 +376,16 @@ void OptionsScreenBase::CreateSinglePageWidgets()
 		m_creditsButton.SetText(&m_rowTitleStrings[2]);
 	}
 	UpdateRowLabelColors();
-	PlaceAt(&m_controls1Button, c_labelLeft - c_buttonTextInset, c_linkFirst);
-	PlaceAt(&m_controls2Button, c_labelLeft - c_buttonTextInset, c_linkFirst + c_linkStep);
-	PlaceAt(&m_creditsButton, c_labelLeft - c_buttonTextInset, c_linkFirst + 2 * c_linkStep);
+	// The links continue the settings rows at the same spacing.
+	MenuWidget* links[3] = {&m_controls1Button, &m_controls2Button, &m_creditsButton};
+	for (i = 0; i < 3; i++) {
+		const Rect* rect = links[i]->GetRect();
+		PlaceAt(
+			links[i],
+			c_labelLeft - c_buttonTextInset,
+			c_rowFirst + (4 + i) * c_rowStep - ((rect->m_bottom - rect->m_top) >> 1)
+		);
+	}
 	PlaceAt(&m_backButton, c_labelLeft - c_buttonTextInset, c_backTop);
 }
 
