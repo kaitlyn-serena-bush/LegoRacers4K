@@ -70,11 +70,12 @@ struct HdState {
 	std::deque<std::string> m_prewarmQueue;
 	int m_prewarmWorkers = 0;
 	bool m_prewarmStarted = false;
-	// Preview bindings seen so far (share keys), and the placeholder surfaces that upload
+	// Menu bindings seen so far ("KEY|region"), and the placeholder surfaces that upload
 	// the ones listed in hdpreload.txt before their screen first opens.
 	std::unordered_set<std::string> m_learned;
 	std::vector<MiniwinSurface*> m_placeholders;
-	std::deque<MiniwinSurface*> m_preupload; // surfaces of prewarmed images not yet uploaded
+	std::deque<MiniwinSurface*> m_preupload;    // surfaces of prewarmed images not yet uploaded
+	std::unordered_set<std::string> m_inflight; // files a worker is decoding right now
 };
 
 HdState& State()
@@ -291,11 +292,6 @@ std::shared_ptr<HdImage> LoadImage(const std::string& p_key, const std::string& 
 	if (!image) {
 		return nullptr;
 	}
-	if (state.m_prewarmFiles.count(p_file)) {
-		// Wanted ahead of time but asked for first: keep it like the prewarmed ones.
-		state.m_pinned[p_file] = image;
-		return image;
-	}
 
 	state.m_cache.emplace_front(p_key, image);
 	state.m_cacheBytes += image->m_rgba.size();
@@ -306,35 +302,19 @@ std::shared_ptr<HdImage> LoadImage(const std::string& p_key, const std::string& 
 	return image;
 }
 
-// Menu scenes that show many large textures at once on their first frame: the circuit and
-// single race previews (every track's scenery plus the champions' minifig parts). Their PNGs
-// are decoded on worker threads while the game starts, so opening those screens never stalls.
+// Menu textures. The game loads most of a menu screen's textures only when the screen
+// opens, so with large HD replacements the first frame of a screen used to stall on PNG
+// decodes and uploads. Their PNGs are decoded on worker threads instead, uploaded a few per
+// frame, and shared between identical bindings (see QueuePrewarm, MiniwinHdNextPreupload,
+// MiniwinHdShareKey and hdpreload.txt). Font strips are left alone (built separately).
 bool IsPrewarmKey(const std::string& p_key)
 {
-	static const char c_singRace[] = "MENUDATA/SINGRACE/";
-	static const char c_partDb[] = "MENUDATA/PARTDB/";
-	if (p_key.compare(0, sizeof(c_singRace) - 1, c_singRace) == 0) {
-		return true;
-	}
-	if (p_key.compare(0, sizeof(c_partDb) - 1, c_partDb) != 0) {
+	static const char c_menuData[] = "MENUDATA/";
+	if (p_key.compare(0, sizeof(c_menuData) - 1, c_menuData) != 0) {
 		return false;
 	}
-	std::string part = p_key.substr(sizeof(c_partDb) - 1);
-	if (part.compare(0, 4, "LEG_") == 0) {
-		return true;
-	}
-	// Minifig parts of the circuit champions (mascots of every race).
-	static const char* const c_champions[] =
-		{"AD", "AP", "BJ", "CC", "GB", "IL", "KK", "PM", "RH", "RK", "SB", "TC", "WW"};
-	if (part.size() < 3 || part[2] != '_') {
-		return false;
-	}
-	for (const char* prefix : c_champions) {
-		if (part.compare(0, 2, prefix) == 0) {
-			return true;
-		}
-	}
-	return false;
+	size_t slash = p_key.find_last_of('/');
+	return p_key.compare(slash + 1, 4, "FONT") != 0;
 }
 
 void PrewarmWorker()
@@ -353,10 +333,12 @@ void PrewarmWorker()
 			}
 			file = state.m_prewarmQueue.front();
 			state.m_prewarmQueue.pop_front();
+			state.m_inflight.insert(file);
 		}
 		std::shared_ptr<HdImage> image = DecodeFile(file);
+		std::lock_guard<std::mutex> lock(state.m_mutex);
+		state.m_inflight.erase(file);
 		if (image) {
-			std::lock_guard<std::mutex> lock(state.m_mutex);
 			state.m_pinned.emplace(file, image);
 		}
 	}
@@ -774,7 +756,7 @@ std::string RegionText(const MiniwinHdRegion& r)
 	return buffer;
 }
 
-// hdpreload.txt next to the exe lists the preview textures ("KEY|region" per line) the
+// hdpreload.txt next to the exe lists the menu textures ("KEY|region" per line) the
 // game loads only when their screen opens. Those are uploaded at startup through
 // placeholder surfaces, so the screen finds them on the GPU already. New ones are appended
 // as they are seen. Caller holds the state mutex.
@@ -913,18 +895,10 @@ static bool AttachBinding(
 	surface->m_textureDirty = true;
 	if (IsPrewarmKey(hd->m_key)) {
 		std::lock_guard<std::mutex> lock(State().m_mutex);
-		// The first preview texture this copy of miniwin loads starts decoding all of them
-		// (the scenes themselves are only loaded when their screen opens).
+		// The first menu texture this copy of miniwin loads also starts the ones listed in
+		// hdpreload.txt (textures of screens that are loaded only when they open).
 		if (!State().m_prewarmStarted) {
 			State().m_prewarmStarted = true;
-			std::vector<std::pair<std::string, std::string> > files(State().m_files.begin(), State().m_files.end());
-			std::sort(files.begin(), files.end());
-			for (const auto& entry : files) {
-				// All preview scenery; champion parts only as listed in hdpreload.txt.
-				if (entry.first.compare(0, 18, "MENUDATA/SINGRACE/") == 0) {
-					QueuePrewarm(entry.first, entry.second);
-				}
-			}
 			LoadLearned();
 		}
 		Learn(*hd);
@@ -940,18 +914,41 @@ MiniwinSurface* MiniwinHdNextPreupload()
 {
 	HdState& state = State();
 	std::lock_guard<std::mutex> lock(state.m_mutex);
-	for (size_t i = 0; i < state.m_preupload.size(); i++) {
+	for (size_t i = 0, count = state.m_preupload.size(); i < count; i++) {
 		MiniwinSurface* surface = state.m_preupload.front();
 		state.m_preupload.pop_front();
 		if (!surface->m_hd) {
 			continue; // detached since
 		}
-		if (state.m_pinned.count(surface->m_hd->m_file)) {
+		const std::string& file = surface->m_hd->m_file;
+		if (state.m_pinned.count(file)) {
 			return surface;
 		}
-		state.m_preupload.push_back(surface); // still decoding: try again later
+		bool pending =
+			state.m_inflight.count(file) ||
+			std::find(state.m_prewarmQueue.begin(), state.m_prewarmQueue.end(), file) != state.m_prewarmQueue.end();
+		if (pending) {
+			state.m_preupload.push_back(surface); // still decoding: try again later
+		}
+		// Otherwise its image was already uploaded and released: it uploads (or shares) on draw.
 	}
 	return nullptr;
+}
+
+void MiniwinHdPreuploadDone(MiniwinSurface* p_surface)
+{
+	if (!p_surface->m_hd) {
+		return;
+	}
+	HdState& state = State();
+	std::lock_guard<std::mutex> lock(state.m_mutex);
+	const std::string& file = p_surface->m_hd->m_file;
+	for (MiniwinSurface* other : state.m_preupload) {
+		if (other->m_hd && other->m_hd->m_file == file) {
+			return; // still needed
+		}
+	}
+	state.m_pinned.erase(file); // on the GPU now; the decoded pixels are not kept
 }
 
 bool MiniwinHdShareKey(const MiniwinHdBinding& p_binding, std::string& p_key)

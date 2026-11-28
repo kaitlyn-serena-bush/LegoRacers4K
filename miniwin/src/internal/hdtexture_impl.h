@@ -24,6 +24,7 @@ struct MiniwinSurface;
 // ahead of time, a few per frame, so the screens that show them never stall on first draw.
 // Returns the next surface whose image is ready, or nullptr.
 MiniwinSurface* MiniwinHdNextPreupload();
+void MiniwinHdPreuploadDone(MiniwinSurface* p_surface); // releases its decoded image when unused
 void MiniwinHdForgetSurface(MiniwinSurface* p_surface);
 
 // For prewarmed single-region bindings: a key that identical bindings share (same image,

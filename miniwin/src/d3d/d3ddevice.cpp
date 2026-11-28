@@ -392,6 +392,7 @@ HRESULT IDirect3DDevice3::BeginScene()
 		Uint64 start = SDL_GetTicksNS();
 		while (MiniwinSurface* surface = MiniwinHdNextPreupload()) {
 			self->EnsureTexture(surface);
+			MiniwinHdPreuploadDone(surface);
 			if (SDL_GetTicksNS() - start > 3000000) {
 				break;
 			}
