@@ -70,6 +70,10 @@ MiniwinScaleMode MiniwinGetScaleMode();
 void MiniwinSetWidescreen(bool p_enabled);
 int MiniwinGetWideExtra();
 
+// Hides cutscene/menu text drawn through GolFontBase (used while a replacement is drawn).
+void MiniwinSetSceneTextHidden(bool p_hidden);
+bool MiniwinIsSceneTextHidden();
+
 // Internal rasterization resolution: the native drawable size (default) or the
 // game's original logical resolution (640x480) upscaled at present time.
 enum MiniwinRenderResolution {

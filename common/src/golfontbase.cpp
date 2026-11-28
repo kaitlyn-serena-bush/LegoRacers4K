@@ -678,6 +678,10 @@ void GolFontBase::DrawString(
 	LegoS32 p_centered
 )
 {
+	if (MiniwinIsSceneTextHidden()) {
+		return;
+	}
+
 	GolFontBase* font = this;
 	LegoU8 lineBreak = TRUE;
 
@@ -851,6 +855,10 @@ void GolFontBase::DrawString(
 	undefined4 p_centered
 )
 {
+	if (MiniwinIsSceneTextHidden()) {
+		return;
+	}
+
 	GolFontBase* font = this;
 	const LegoChar* cursor = p_string;
 
@@ -908,6 +916,10 @@ void GolFontBase::DrawString(
 	undefined4 p_centered
 )
 {
+	if (MiniwinIsSceneTextHidden()) {
+		return;
+	}
+
 	GolFontBase* font = this;
 	GolString* string = p_string;
 	if (string->SelectionLength()) {

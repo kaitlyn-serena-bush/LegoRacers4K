@@ -57,6 +57,17 @@ int MiniwinGetWideExtra()
 	return (int) SDL_GetNumberProperty(SDL_GetGlobalProperties(), MINIWIN_PROP_WIDE_EXTRA, 0);
 }
 
+// [library:window] Cross-module flag (the exe and GolDP each link their own copy of this file).
+void MiniwinSetSceneTextHidden(bool p_hidden)
+{
+	SDL_SetBooleanProperty(SDL_GetGlobalProperties(), "racers.hide_scene_text", p_hidden);
+}
+
+bool MiniwinIsSceneTextHidden()
+{
+	return SDL_GetBooleanProperty(SDL_GetGlobalProperties(), "racers.hide_scene_text", false);
+}
+
 static MiniwinRenderResolution g_renderResolution = MINIWIN_RESOLUTION_NATIVE;
 
 void MiniwinSetRenderResolution(MiniwinRenderResolution p_resolution)
