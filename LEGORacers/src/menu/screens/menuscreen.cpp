@@ -1,5 +1,7 @@
 #include "menu/screens/menuscreen.h"
 
+#include <miniwin/miniwinapp.h>
+
 #include "core/gol.h"
 #include "font/golfonttable.h"
 #include "golerror.h"
@@ -29,7 +31,6 @@
 #include "render/gold3drenderdevice.h"
 #include "render/goldrawstate.h"
 
-#include <miniwin/miniwinapp.h>
 #include <string.h>
 
 DECOMP_SIZE_ASSERT(MenuScreen, 0x290)
@@ -272,7 +273,8 @@ void MenuScreen::ApplyWidgetDefaults(MenuWidget::CreateParams* p_createParams)
 	if (!p_createParams->m_parent && (p_createParams->m_flags & 1)) {
 		if (p_createParams->m_name[0]) {
 			MenuInputBindingTable::IconBinding* entry =
-				(MenuInputBindingTable::IconBinding*) GetMenuInputBindings()->ResolveEntryByName(p_createParams->m_name
+				(MenuInputBindingTable::IconBinding*) GetMenuInputBindings()->ResolveEntryByName(
+					p_createParams->m_name
 				);
 
 			if (entry) {
@@ -294,7 +296,8 @@ void MenuScreen::ApplyIconDefaults(MenuIcon::CreateParams* p_createParams)
 	if (!p_createParams->m_parent && p_createParams->m_attachToParent) {
 		if (p_createParams->m_resolveParentByName) {
 			MenuInputBindingTable::IconBinding* entry =
-				(MenuInputBindingTable::IconBinding*) GetMenuInputBindings()->ResolveEntryByName(p_createParams->m_name
+				(MenuInputBindingTable::IconBinding*) GetMenuInputBindings()->ResolveEntryByName(
+					p_createParams->m_name
 				);
 			p_createParams->m_parentId = entry->m_id;
 		}

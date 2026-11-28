@@ -115,7 +115,8 @@ LegoBool32 AwardCinematicScreen::Destroy()
 	if (m_context) {
 		if (m_context->m_modelBuilder.GetMusicGroup() && m_context->m_modelBuilder.GetMusicInstance()) {
 			m_context->m_modelBuilder.GetMusicInstance()->Stop();
-			m_context->m_modelBuilder.GetMusicGroup()->DestroyMusicInstance(m_context->m_modelBuilder.GetMusicInstance()
+			m_context->m_modelBuilder.GetMusicGroup()->DestroyMusicInstance(
+				m_context->m_modelBuilder.GetMusicInstance()
 			);
 			m_context->m_modelBuilder.SetMusicInstance(NULL);
 		}
@@ -446,7 +447,8 @@ LegoBool32 AwardCinematicScreen::GrantAwards()
 	}
 
 	CircuitDefinitionList::CircuitDefinition* circuitDefinition =
-		static_cast<CircuitDefinitionList::CircuitDefinition*>(m_context->m_circuitList.GetName(context->m_circuitName)
+		static_cast<CircuitDefinitionList::CircuitDefinition*>(
+			m_context->m_circuitList.GetName(context->m_circuitName)
 		);
 	m_trophyAwarded = GrantTrophy(records, circuitDefinition);
 
