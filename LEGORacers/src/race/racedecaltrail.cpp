@@ -600,16 +600,14 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 	LegoU8* indices = m_sourceIndexBytes + 4 * p_firstPolygon;
 	LegoU8* end = indices + 4 * p_polygonCount;
 
-	while (indices < end) {
+	for (; indices < end; indices += 4) {
 		LegoU32 index1 = indices[1];
 		LegoU32 index2 = indices[2];
-		LegoU8* next = indices + 4;
 		ProjectedVertex* vertex0 = &g_decalProjectedVertices[indices[0]];
 		ProjectedVertex* vertex1 = &g_decalProjectedVertices[index1];
 		ProjectedVertex* vertex2 = &g_decalProjectedVertices[index2];
 
 		if (vertex0->m_clipFlags & vertex1->m_clipFlags & vertex2->m_clipFlags) {
-			indices = next;
 			continue;
 		}
 
@@ -618,7 +616,6 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 				(vertex1->m_projected.m_y.m_float - vertex2->m_projected.m_y.m_float) *
 					(vertex0->m_projected.m_x.m_float - vertex2->m_projected.m_x.m_float) <=
 			0.0f) {
-			indices = next;
 			continue;
 		}
 
@@ -848,8 +845,6 @@ void RaceDecalManager::Trail::Decal::EmitPolygon(LegoU32 p_firstPolygon, LegoU32
 				);
 			}
 		}
-
-		indices = next;
 	}
 }
 
