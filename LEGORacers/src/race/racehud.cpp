@@ -1399,7 +1399,10 @@ void RaceHud::Draw()
 			color.m_uBytes[2] = 0xff;
 			m_numberFont->SetColor(color.m_u32);
 
-			if ((previousState == 1 || previousState / 1000 != countdownState) && m_soundSource) {
+			// [library:audio] LegoRacers4K: 5 and 4 are silent (they show over the intro camera);
+			// only 3, 2 and 1 beep.
+			if (countdownState >= 2 && (previousState == 1 || previousState / 1000 != countdownState) &&
+				m_soundSource) {
 				m_soundSource->PlaySoundById(0);
 			}
 		}

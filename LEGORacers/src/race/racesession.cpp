@@ -34,6 +34,7 @@
 #include "surface/golrendertarget.h"
 #include "world/golworlddatabase.h"
 
+#include <math.h>
 #include <memory.h>
 #include <miniwin/miniwinapp.h>
 #include <miniwin/touch.h>
@@ -74,6 +75,67 @@ const LegoU16 g_pauseMenuStringIds[16] =
 
 // [library:config] LegoRacers4K: set once the HUD countdown has started for this race.
 static LegoBool32 g_hudCountdownStarted = FALSE;
+
+// [library:3d] LegoRacers4K: part time where the shortened intro fly-in starts.
+static LegoFloat g_introBlendStart = 0.0f;
+
+// [library:3d] LegoRacers4K: the chase view a player's camera settles into on the grid,
+// worked out the same way RaceCameraController::Update does on a snapped (dirty) frame.
+// FALSE when that player's view is not a chase view (the intro then cuts as before).
+static LegoBool32 ComputeGridChaseView(
+	RaceCameraController& p_controller,
+	GolVec3* p_position,
+	GolMatrix3* p_orientation
+)
+{
+	Racer* racer = p_controller.m_racer;
+	if (racer == NULL || p_controller.m_mode != RaceCameraController::c_modeChase) {
+		return FALSE;
+	}
+
+	GolAnimatedEntity* car = racer->m_visuals.m_carEntity;
+	GolVec3 target;
+	car->GetPosition(&target);
+
+	LegoFloat viewX = car->GetOrientation().m_rows[0].m_x;
+	LegoFloat viewY = car->GetOrientation().m_rows[0].m_y;
+	LegoFloat length = sqrtf(viewX * viewX + viewY * viewY);
+	if (length <= 0.0f) {
+		return FALSE;
+	}
+	viewX /= length;
+	viewY /= length;
+
+	GolVec3 direction;
+	direction.m_x = p_controller.m_pitchCosine * viewX;
+	direction.m_y = p_controller.m_pitchCosine * viewY;
+	direction.m_z = -p_controller.m_pitchSine;
+
+	LegoFloat distance = p_controller.m_followDistance;
+	p_position->m_x = target.m_x - direction.m_x * distance;
+	p_position->m_y = target.m_y - direction.m_y * distance;
+	p_position->m_z = target.m_z - (direction.m_z - p_controller.m_heightSine) * distance;
+
+	GolVec3 up;
+	up.m_x = 0.0f;
+	up.m_y = 0.0f;
+	up.m_z = -1.0f;
+	RaceCameraController::BuildOrientation(&direction, &up, p_orientation);
+	return TRUE;
+}
+
+static void LerpUnit(const GolVec3& p_from, const GolVec3& p_to, LegoFloat p_amount, GolVec3* p_dest)
+{
+	p_dest->m_x = p_from.m_x + (p_to.m_x - p_from.m_x) * p_amount;
+	p_dest->m_y = p_from.m_y + (p_to.m_y - p_from.m_y) * p_amount;
+	p_dest->m_z = p_from.m_z + (p_to.m_z - p_from.m_z) * p_amount;
+	LegoFloat length = sqrtf(p_dest->m_x * p_dest->m_x + p_dest->m_y * p_dest->m_y + p_dest->m_z * p_dest->m_z);
+	if (length > 0.0f) {
+		p_dest->m_x /= length;
+		p_dest->m_y /= length;
+		p_dest->m_z /= length;
+	}
+}
 
 // FUNCTION: LEGORACERS 0x004316e0
 RaceSession::RaceSession()
@@ -1502,6 +1564,7 @@ void RaceSession::StartIntroCamera()
 		if (introSkip > 0.0f) {
 			entity->SetActiveValue(introSkip);
 		}
+		g_introBlendStart = introSkip > 0.0f ? introSkip : 0.0f;
 
 		LegoU32 i = 0;
 		m_trackCamera->m_trackedEntity->SetFlags(
@@ -2148,6 +2211,70 @@ void RaceSession::Update()
 
 			if (m_timeRaceManager) {
 				m_timeRaceManager->Update(stepMs);
+			}
+		}
+
+		// [library:3d] LegoRacers4K: during the shortened intro (countdown 5 and 4) ease each
+		// player's camera from the fly-in path onto its grid chase view, arriving and stopping
+		// exactly as the intro ends, so the hand-off to the race camera (which snaps to that same
+		// view) has no jump and nothing moves during 3-2-1.
+		if (m_state == 1 && m_trackCamera && !m_demoMode) {
+			for (i = 0; i < m_context->m_playerCount; i++) {
+				GolCamera* camera = m_cameras[i];
+				if (!camera || !camera->m_trackedEntity) {
+					continue;
+				}
+
+				Racer* racer = m_raceState.m_playerRacers[i];
+				if (racer) {
+					racer->ReapplyCameraView();
+				}
+
+				GolVec3 chasePosition;
+				GolMatrix3 chaseOrientation;
+				if (!ComputeGridChaseView(m_cameraControllers[i], &chasePosition, &chaseOrientation)) {
+					continue;
+				}
+
+				GolAnimatedEntity* entity = camera->m_trackedEntity;
+				const CmbModelPartData& part = entity->GetModelPart(0)->GetPartData()[entity->GetCurrentPartIndex()];
+				LegoFloat endTime = static_cast<LegoFloat>(part.GetFrameCount() - 1);
+				LegoFloat amount = 1.0f;
+				if (endTime > g_introBlendStart) {
+					amount = (entity->GetPartTimeMs() - g_introBlendStart) / (endTime - g_introBlendStart);
+				}
+				if (amount < 0.0f) {
+					amount = 0.0f;
+				}
+				else if (amount > 1.0f) {
+					amount = 1.0f;
+				}
+				// Smootherstep: zero speed and acceleration change at both ends.
+				amount = amount * amount * amount * (amount * (amount * 6.0f - 15.0f) + 10.0f);
+
+				camera->UpdateFromTrackedEntity();
+				GolVec3 introPosition;
+				GolVec3 introDirection;
+				GolVec3 introUp;
+				camera->GetTransform()->GetPosition(&introPosition);
+				camera->GetTransform()->GetDirectionUp(&introDirection, &introUp);
+				GolMatrix3 introOrientation;
+				RaceCameraController::BuildOrientation(&introDirection, &introUp, &introOrientation);
+
+				GolVec3 position;
+				position.m_x = introPosition.m_x + (chasePosition.m_x - introPosition.m_x) * amount;
+				position.m_y = introPosition.m_y + (chasePosition.m_y - introPosition.m_y) * amount;
+				position.m_z = introPosition.m_z + (chasePosition.m_z - introPosition.m_z) * amount;
+				GolVec3 direction;
+				GolVec3 up;
+				LerpUnit(introOrientation.m_rows[2], chaseOrientation.m_rows[2], amount, &direction);
+				LerpUnit(introOrientation.m_rows[1], chaseOrientation.m_rows[1], amount, &up);
+				GolMatrix3 orientation;
+				RaceCameraController::BuildOrientation(&direction, &up, &orientation);
+
+				camera->GetTransform()->SetPosition(&position);
+				camera->GetTransform()->SetDirectionUp(&orientation.m_rows[2], &orientation.m_rows[1]);
+				camera->m_flags |= GolCamera::c_flagViewDirty;
 			}
 		}
 
