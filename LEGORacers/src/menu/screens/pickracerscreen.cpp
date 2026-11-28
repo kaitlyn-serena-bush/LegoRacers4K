@@ -100,10 +100,10 @@ void PickRacerScreen::LayoutCentered()
 	PlaceWidget(&m_infoLabel, centerX(&m_infoLabel), m_infoLabel.GetRect()->m_top);
 	{
 		const Rect* fr = m_sceneViews[0].GetFrame()->GetRect();
-		PlaceWidget(m_sceneViews[0].GetFrame(), 320 - ((fr->m_right - fr->m_left) >> 1), fr->m_top);
+		PlaceWidget(m_sceneViews[0].GetFrame(), 320 - ((fr->m_right - fr->m_left) >> 1), fr->m_top - 24);
 	}
 	m_sceneViews[0].RefreshViewport();
-	PlaceWidget(&m_nameSelectors[0], centerX(&m_nameSelectors[0]), 388);
+	PlaceWidget(&m_nameSelectors[0], centerX(&m_nameSelectors[0]), 364);
 	m_controlsButton.ClearFlags(2);
 	PlaceWidget(&m_backButton, 3, 418);
 	PlaceWidget(&m_startButton, 640 - 3 - (m_startButton.GetRect()->m_right - m_startButton.GetRect()->m_left), 418);

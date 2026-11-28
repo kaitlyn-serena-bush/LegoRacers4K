@@ -116,6 +116,71 @@ void RaceModeSetupScreen::CreateWidgets()
 	}
 }
 
+// [library:config] LegoRacers4K layout, like Racer Select: title centred, circuit picker below it, the
+// preview with the race arrows on either side, the race name below the preview, OK bottom-right and
+// MAIN MENU bottom-left.
+static void PlaceWidget(MenuWidget* p_widget, LegoS32 p_left, LegoS32 p_top)
+{
+	Rect rect = *p_widget->GetRect();
+	rect.m_right += p_left - rect.m_left;
+	rect.m_bottom += p_top - rect.m_top;
+	rect.m_left = p_left;
+	rect.m_top = p_top;
+	p_widget->SetRect(&rect);
+}
+
+static LegoS32 CenterLeft(MenuWidget* p_widget)
+{
+	const Rect* r = p_widget->GetRect();
+	return 320 - ((r->m_right - r->m_left) >> 1);
+}
+
+void RaceModeSetupScreen::LayoutCentered()
+{
+	PlaceWidget(&m_infoLabel, CenterLeft(&m_infoLabel), m_infoLabel.GetRect()->m_top);
+	PlaceWidget(&m_trackSelector, CenterLeft(&m_trackSelector), 66);
+
+	// Preview: the frame and the scene inside it move together.
+	const LegoS32 frameTop = 108;
+	LegoS32 frameLeft = CenterLeft(&m_borderFrame);
+	LegoS32 dx = frameLeft - m_borderFrame.GetRect()->m_left;
+	LegoS32 dy = frameTop - m_borderFrame.GetRect()->m_top;
+	LegoS32 frameWidth = m_borderFrame.GetRect()->m_right - m_borderFrame.GetRect()->m_left;
+	LegoS32 frameHeight = m_borderFrame.GetRect()->m_bottom - m_borderFrame.GetRect()->m_top;
+	PlaceWidget(&m_borderFrame, frameLeft, frameTop);
+	PlaceWidget(&m_sceneWidget, m_sceneWidget.GetRect()->m_left + dx, m_sceneWidget.GetRect()->m_top + dy);
+	m_sceneWidget.ComputeViewportRect();
+	if (m_sceneWidget.m_frame) {
+		m_sceneWidget.m_frame->SetViewportRect(&m_sceneWidget.m_viewportRect);
+	}
+
+	// Race selector: spans the preview so its arrows sit on either side of it, level with the
+	// preview's middle; the race name is moved below the preview.
+	const LegoS32 arrowWidth = 32;
+	const LegoS32 arrowGap = 8;
+	const LegoS32 nameTop = frameTop + frameHeight + 4;
+	LegoS32 selectorWidth = frameWidth + 2 * (arrowWidth + arrowGap);
+	LegoS32 selectorTop = frameTop + (frameHeight >> 1) - (arrowWidth >> 1);
+	LegoS32 nameHeight = m_raceCarousel.GetRect()->m_bottom - m_raceCarousel.GetRect()->m_top;
+	Rect selector = *m_raceSelector.GetRect();
+	selector.m_left = 320 - (selectorWidth >> 1);
+	selector.m_right = selector.m_left + selectorWidth;
+	selector.m_top = selectorTop;
+	selector.m_bottom = nameTop + nameHeight;
+	m_raceSelector.SetRect(&selector);
+	PlaceWidget(&m_raceSelector.GetPrevButton(), 0, 0);
+	PlaceWidget(&m_raceSelector.GetNextButton(), selectorWidth - arrowWidth, 0);
+	LegoS32 carouselWidth = m_raceCarousel.GetRect()->m_right - m_raceCarousel.GetRect()->m_left;
+	PlaceWidget(&m_raceCarousel, (selectorWidth - carouselWidth) >> 1, nameTop - selectorTop);
+
+	PlaceWidget(&m_backButton, 3, 418);
+	PlaceWidget(
+		&m_startButton,
+		640 - 3 - (m_startButton.GetRect()->m_right - m_startButton.GetRect()->m_left),
+		418
+	);
+}
+
 // FUNCTION: LEGORACERS 0x00487ca0
 LegoBool32 RaceModeSetupScreen::Initialize(MenuGameContext* p_context, MenuScreenCreateParams* p_createParams)
 {
@@ -130,6 +195,7 @@ LegoBool32 RaceModeSetupScreen::Initialize(MenuGameContext* p_context, MenuScree
 
 	OnWidgetValueChanged(&m_trackSelector);
 	m_startButton.Select(0);
+	LayoutCentered();
 	m_recordToggleMs = 2500;
 
 	// [library:input] LegoRacers4K: a Versus Grand Prix picks the circuit only.

@@ -33,6 +33,7 @@ public:
 protected:
 	void FormatTime(LegoChar* p_buffer, LegoU32 p_time);
 	void UpdateRacePreview();
+	void LayoutCentered();
 	void UpdateBestTimePanel();
 
 	MenuImage m_photoImage;                               // 0x1908

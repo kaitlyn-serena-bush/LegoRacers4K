@@ -1,14 +1,12 @@
 #include "menu/screens/mainmenuscreen.h"
 
-#include <miniwin/miniwinapp.h>
-
-
 #include "audio/soundgroupbinding.h"
 #include "input/inputmanager.h"
 #include "menu/menudialog.h"
 #include "menu/menugamecontext.h"
 #include "menu/menuscreencreateparams.h"
 
+#include <miniwin/miniwinapp.h>
 #include <string.h>
 
 DECOMP_SIZE_ASSERT(MainMenuScreen, 0x2450)
@@ -126,6 +124,33 @@ LegoBool32 MainMenuScreen::Initialize(MenuGameContext* p_context, MenuScreenCrea
 	// screen, with larger text at the same row spacing.
 	{
 		LegoS32 shift = MiniwinGetWideExtra();
+		// English only: TIME RACE is called TIME TRIAL.
+		static GolString s_timeTrial;
+		static undefined2 s_timeTrialBuffer[16];
+		{
+			const undefined2* name = m_menuTextStrings->GetStringBuffer(
+				static_cast<LegoU16>(0x9d + p_context->m_saveSystem.GetLanguageIndex())
+			);
+			static const char c_english[] = "ENGLISH";
+			LegoBool32 english = name != NULL;
+			for (LegoS32 i = 0; english && c_english[i]; i++) {
+				LegoU16 c = name[i];
+				if (c >= 'a' && c <= 'z') {
+					c -= 'a' - 'A';
+				}
+				english = c == static_cast<LegoU8>(c_english[i]);
+			}
+			if (english) {
+				static const char c_text[] = "TIME TRIAL";
+				LegoS32 length = 0;
+				for (; c_text[length]; length++) {
+					s_timeTrialBuffer[length] = static_cast<LegoU8>(c_text[length]);
+				}
+				s_timeTrialBuffer[length] = 0;
+				s_timeTrial.CopyFromBufSelection(s_timeTrialBuffer, static_cast<undefined2>(length + 1));
+				m_timeRaceButton.SetText(&s_timeTrial);
+			}
+		}
 		MenuTextButton* buttons[] = {
 			&m_garageButton,
 			&m_circuitRaceButton,
