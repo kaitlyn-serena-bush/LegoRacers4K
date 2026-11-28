@@ -32,12 +32,25 @@ void OptionsScreenBase::Reset()
 	MenuGameScreen::Reset();
 }
 
+// [library:config] LegoRacers4K: the "OPTIONS" title sits centred on the screen (was
+// right-aligned with WrapText(20)).
+static void CenterInfoLabel(MenuTextLabel* p_label)
+{
+	Rect rect = *p_label->GetRect();
+	LegoS32 width = rect.m_right - rect.m_left;
+	LegoS32 parentWidth =
+		p_label->GetParent() ? p_label->GetParent()->GetRect()->m_right - p_label->GetParent()->GetRect()->m_left : 640;
+	rect.m_left = (parentWidth - width) / 2;
+	rect.m_right = rect.m_left + width;
+	p_label->SetRect(&rect);
+}
+
 // FUNCTION: LEGORACERS 0x00482e00
 void OptionsScreenBase::CreateHeaderWidgets()
 {
 	CreateImage(&m_photoImage, 0x49, 0x49);
 	CreateTextLabel(&m_infoLabel, 0x3a, 0x3a, 0x10);
-	m_infoLabel.WrapText(20);
+	CenterInfoLabel(&m_infoLabel); // [library:config]
 }
 
 // FUNCTION: LEGORACERS 0x00482e40
@@ -133,14 +146,16 @@ static void ScaleButton(MenuButton* p_button, LegoS32 p_height)
 	p_button->SetRect(&rect);
 }
 
+static const LegoS32 c_volumeBarX = 280;
+
 static void PlaceVolumeBar(OptionsRowBase* p_row, LegoS32 p_top)
 {
 	Rect rect = *p_row->GetRect();
 	LegoS32 width = rect.m_right - rect.m_left;
 	LegoS32 height = rect.m_bottom - rect.m_top;
 	LegoS32 newHeight = (height * 7) / 10;
-	rect.m_left = 8;
-	rect.m_right = 20 + width + 6;
+	rect.m_left = c_volumeBarX;
+	rect.m_right = c_volumeBarX + 12 + width + 6;
 	rect.m_top = p_top + ((height - newHeight) >> 1);
 	rect.m_bottom = rect.m_top + newHeight;
 	p_row->SetRect(&rect);
@@ -223,6 +238,9 @@ void OptionsScreenBase::CreateSinglePageWidgets()
 	const LegoS32 c_rowMusic = 138;
 	const LegoS32 c_rowSound = 204;
 	const LegoS32 c_rowLanguage = 276;
+	// Label first (left column), its control after it (right column).
+	const LegoS32 c_labelX = 8;
+	const LegoS32 c_controlSelectorX = 312;
 
 	CreateCarousel(&m_racerCountCarousel, 0x3d, 0x3b);
 	CreateSelector(&m_racerCountSelector, &m_racerCountCarousel, 0xf3, 0x4c);
@@ -233,8 +251,8 @@ void OptionsScreenBase::CreateSinglePageWidgets()
 	}
 	m_racerCountCarousel.SetSelection(m_gameState->GetRacerCount());
 	OnWidgetValueChanged(&m_racerCountSelector);
-	MoveWidget(&m_racerCountSelector, 72, c_rowOpponents);
-	MoveWidget(&m_gameOptionLabels[0], 330, c_rowOpponents - 2);
+	MoveWidget(&m_racerCountSelector, c_controlSelectorX, c_rowOpponents);
+	MoveWidget(&m_gameOptionLabels[0], c_labelX, c_rowOpponents - 2);
 
 	CreateOptionsRow(&m_musicVolumeSlider, 0xf9, 0xec);
 	CreateOptionsRow(&m_soundVolumeSlider, 0xfa, 0xec);
@@ -257,8 +275,8 @@ void OptionsScreenBase::CreateSinglePageWidgets()
 			m_audioTitleBuffers[i]
 		);
 	}
-	MoveWidget(&m_audioLabels[0], 330, c_rowMusic + 4);
-	MoveWidget(&m_audioLabels[1], 330, c_rowSound + 4);
+	MoveWidget(&m_audioLabels[0], c_labelX, c_rowMusic + 4);
+	MoveWidget(&m_audioLabels[1], c_labelX, c_rowSound + 4);
 
 	CreateCarousel(&m_languageCarousel, 0x3d, 0x3b);
 	CreateSelector(&m_languageSelector, &m_languageCarousel, 0xf3, 0x4c);
@@ -268,8 +286,8 @@ void OptionsScreenBase::CreateSinglePageWidgets()
 	}
 	m_languageCarousel.SetSelection(m_context->m_saveSystem.GetLanguageIndex());
 	CreateTextLabel(&m_languageTitle, 0x100, 0x37, 0x9c);
-	MoveWidget(&m_languageSelector, 72, c_rowLanguage);
-	MoveWidget(&m_languageTitle, 330, c_rowLanguage - 2);
+	MoveWidget(&m_languageSelector, c_controlSelectorX, c_rowLanguage);
+	MoveWidget(&m_languageTitle, c_labelX, c_rowLanguage - 2);
 
 	CreateTextButton(&m_controls1Button, 0xf0, 0x42, 0x17);
 	CreateTextButton(&m_controls2Button, 0xf1, 0x42, 0x18);
@@ -459,7 +477,7 @@ void OptionsScreenBase::ShowMainButtons()
 		m_racerCountSelector.Select(4);
 	}
 	m_infoLabel.SetStringByIndex(0x10, TRUE);
-	m_infoLabel.WrapText(20);
+	CenterInfoLabel(&m_infoLabel); // [library:config]
 	m_backButton.SetTextByIndex(2);
 }
 
@@ -478,7 +496,7 @@ void OptionsScreenBase::HideMainButtons()
 void OptionsScreenBase::ShowGameOptionWidgets()
 {
 	m_infoLabel.SetStringByIndex(0x11, TRUE);
-	m_infoLabel.WrapText(20);
+	CenterInfoLabel(&m_infoLabel); // [library:config]
 	m_backButton.SetTextByIndex(0x10);
 
 	m_racerCountSelector.SetFlags(2);
@@ -513,7 +531,7 @@ void OptionsScreenBase::ShowAudioOptionWidgets()
 	OnWidgetValueChanged(&m_stereoSelector);
 	m_musicVolumeSlider.Select(4);
 	m_infoLabel.SetStringByIndex(0x13, TRUE);
-	m_infoLabel.WrapText(20);
+	CenterInfoLabel(&m_infoLabel); // [library:config]
 	m_backButton.SetTextByIndex(0x10);
 }
 

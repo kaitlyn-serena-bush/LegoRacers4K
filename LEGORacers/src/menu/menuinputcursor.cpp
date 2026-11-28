@@ -9,6 +9,8 @@
 #include "render/gold3drenderdevice.h"
 #include "render/goldrawstate.h"
 
+#include <miniwin/miniwinapp.h>
+
 DECOMP_SIZE_ASSERT(MenuInputDispatcher::Cursor, 0x44)
 
 // FUNCTION: LEGORACERS 0x00467c60
@@ -84,11 +86,13 @@ LegoS32 MenuInputDispatcher::Cursor::UpdatePosition(undefined4)
 		m_cursorX += (LegoS32) mouse->GetAxisValue(1);
 		m_cursorY += (LegoS32) mouse->GetAxisValue(2);
 
-		if (m_cursorX < m_bounds.m_left) {
-			m_cursorX = m_bounds.m_left;
+		// [library:2d] Widescreen: the cursor may travel into the side areas.
+		LegoS32 wideExtra = MiniwinGetWideExtra();
+		if (m_cursorX < m_bounds.m_left - wideExtra) {
+			m_cursorX = m_bounds.m_left - wideExtra;
 		}
-		else if (m_cursorX > m_bounds.m_right) {
-			m_cursorX = m_bounds.m_right;
+		else if (m_cursorX > m_bounds.m_right + wideExtra) {
+			m_cursorX = m_bounds.m_right + wideExtra;
 		}
 
 		if (m_cursorY < m_bounds.m_top) {
