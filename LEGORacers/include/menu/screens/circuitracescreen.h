@@ -30,6 +30,7 @@ public:
 protected:
 	void UpdateRacePreview();
 	void LayoutCentered(); // [library:config]
+	void ShowAllRaces();   // [library:3d]
 
 	MenuImage m_photoImage;                 // 0x1908
 	MenuTextLabel m_infoLabel;              // 0x1964

@@ -56,6 +56,7 @@ protected:
 	LegoBool32 HandleNavigationKeyDown(InputEventQueue::Event* p_event, undefined4 p_result);
 	LegoBool32 HandleNavigationKeyUp(InputEventQueue::Event* p_event, undefined4 p_result);
 
+	LegoBool32 m_heldStepDone = FALSE; // [library:input] one step per press, no hold-to-repeat
 	undefined4 m_unk0x1a8;                           // 0x1a8
 	MenuButton m_prevButton;                         // 0x1ac
 	MenuButton m_nextButton;                         // 0x3c8

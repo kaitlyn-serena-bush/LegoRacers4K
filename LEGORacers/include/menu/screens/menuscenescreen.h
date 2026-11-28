@@ -53,6 +53,9 @@ public:
 		undefined4 m_autoAdvance;           // 0x2c4
 		LegoBool32 m_finished;              // 0x2c8
 		LegoBool32 m_skippable;             // 0x2cc
+		// [library:3d] LegoRacers4K: more frames shown at once, each in its own viewport (Circuit Race).
+		CutsceneDefinition::Frame* m_extraFrames[3];
+		LegoS32 m_extraFrameCount;
 	};
 
 	MenuSceneScreen();

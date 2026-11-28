@@ -1,11 +1,13 @@
 #include "menu/screens/circuitracescreen.h"
 
 #include "camera/golcamera.h"
+#include "golanimatedentity.h"
 #include "golname.h"
 #include "golstring.h"
 #include "menu/menugamecontext.h"
 #include "menu/menuscreencreateparams.h"
 #include "race/data/racenameentry.h"
+#include "world/golworlddatabase.h"
 
 #include <string.h>
 
@@ -119,6 +121,7 @@ void CircuitRaceScreen::LayoutCentered()
 
 	PlaceWidget(&m_backButton, 3, 418);
 	PlaceWidget(&m_startButton, 640 - 3 - (m_startButton.GetRect()->m_right - m_startButton.GetRect()->m_left), 418);
+	ShowAllRaces();
 }
 
 // FUNCTION: LEGORACERS 0x0047a040
@@ -254,7 +257,102 @@ void CircuitRaceScreen::UpdateRacePreview()
 		SetPreviewDriver(driverName);
 	}
 
+	ShowAllRaces();
 	m_previewChanged = TRUE;
+}
+
+// [library:3d] LegoRacers4K: all of a circuit's races are previewed at once in a 2x2 grid, under
+// the champion's circuit name.
+void CircuitRaceScreen::ShowAllRaces()
+{
+	static const char* const c_names[7] = {
+		"CAPTAIN REDBEARD'S RECKLESS RAMPAGE",
+		"KING KAHUKA'S KINGDOM KLASH",
+		"BASIL'S BATTY BRICK BASH",
+		"JOHNNY THUNDER'S JOLLY JUNGLE JAUNT",
+		"BARON'S BOLD BRICK BATTLE",
+		"GYPSY MOTH'S GLORIOUS GALLOP",
+		"ROCKET RACER'S RADICAL RUSH"
+	};
+	static GolString s_strings[7];
+	static undefined2 s_buffers[7][48];
+
+	if (m_circuitIndex < 7) {
+		LegoU32 length = 0;
+		for (; c_names[m_circuitIndex][length]; length++) {
+			s_buffers[m_circuitIndex][length] = static_cast<LegoU8>(c_names[m_circuitIndex][length]);
+		}
+		s_buffers[m_circuitIndex][length] = 0;
+		s_strings[m_circuitIndex].CopyFromBufSelection(s_buffers[m_circuitIndex], static_cast<undefined2>(length + 1));
+		m_raceNameLabel.SetString(&s_strings[m_circuitIndex], 0);
+	}
+
+	m_sceneWidget.m_extraFrameCount = 0;
+	CutsceneDefinition::Frame* frames[4];
+	LegoS32 count = 0;
+	GolNameTable* frameNames = &m_sceneWidget.m_definition;
+	for (LegoU32 i = 0; i < 4 && frameNames->GetNameEntries(); i++) {
+		RaceNameEntry* entry = m_circuitEntry->GetRaceNameEntry(i);
+		if (!entry) {
+			continue;
+		}
+		GolName frameName;
+		::memcpy(frameName, entry->GetThemeName(), sizeof(GolName));
+		CutsceneDefinition::Frame* frame = static_cast<CutsceneDefinition::Frame*>(frameNames->GetName(frameName));
+		if (frame) {
+			frames[count++] = frame;
+		}
+	}
+
+	if (m_circuitIndex == 6 || count < 2 || !m_sceneWidget.m_frame) {
+		return;
+	}
+
+	const Rect full = m_sceneWidget.m_viewportRect;
+	LegoS32 width = full.m_right - full.m_left;
+	LegoS32 height = full.m_bottom - full.m_top;
+	const LegoS32 gap = 2;
+	for (LegoS32 i = 0; i < count && i < 4; i++) {
+		Rect cell;
+		cell.m_left = full.m_left + (i & 1) * ((width + gap) >> 1);
+		cell.m_right = cell.m_left + ((width - gap) >> 1);
+		cell.m_top = full.m_top + (i >> 1) * ((height + gap) >> 1);
+		cell.m_bottom = cell.m_top + ((height - gap) >> 1);
+		if (i == 0) {
+			if (frames[0] != m_sceneWidget.m_frame) {
+				m_sceneWidget.SetFrame(frames[0]);
+			}
+			m_sceneWidget.m_frame->SetFlags(CutsceneDefinition::Frame::c_flagLoop);
+			m_sceneWidget.m_frame->SetViewportRect(&cell);
+		}
+		else {
+			frames[i]->Rewind();
+			frames[i]->Play();
+			frames[i]->SetFlags(CutsceneDefinition::Frame::c_flagLoop);
+			frames[i]->SetViewportRect(&cell);
+			m_sceneWidget.m_extraFrames[m_sceneWidget.m_extraFrameCount++] = frames[i];
+		}
+	}
+
+	// Every cell shows the circuit's champion: hand the shared driver to the other frames too.
+	if (m_driverEntity.HasModel()) {
+		GolAnimatedEntity* modelEntity = NULL;
+		for (LegoU32 i = 0; !modelEntity && i < m_sceneWidget.m_definition.GetWorldDatabaseCount(); i++) {
+			GolWorldDatabase* worldDatabase = m_sceneWidget.m_definition.GetWorldDatabase(i);
+			if (worldDatabase->GetAnimatedEntityEntries()) {
+				modelEntity = worldDatabase->GetAnimatedEntityByName("guy1");
+			}
+		}
+		for (LegoS32 f = 0; f < m_sceneWidget.m_extraFrameCount; f++) {
+			CutsceneDefinition::Frame* frame = m_sceneWidget.m_extraFrames[f];
+			for (LegoU32 i = 0; i < frame->GetModelEventCount(); i++) {
+				CutsceneDefinition::Frame::ModelEvent* model = frame->GetModel(i);
+				if (model->GetEntity() == modelEntity) {
+					model->SetEntity(&m_driverEntity);
+				}
+			}
+		}
+	}
 }
 
 // FUNCTION: LEGORACERS 0x0047a3f0
@@ -264,7 +362,7 @@ LegoBool32 CircuitRaceScreen::Update(undefined4 p_elapsed)
 		m_transition = NULL;
 	}
 
-	if (p_elapsed > m_previewTimerMs && m_circuitIndex != 6) {
+	if (p_elapsed > m_previewTimerMs && m_circuitIndex != 6 && !m_sceneWidget.m_extraFrameCount) {
 		m_previewRaceIndex = (m_previewRaceIndex + 1) & 3;
 		UpdateRacePreview();
 	}
@@ -272,7 +370,8 @@ LegoBool32 CircuitRaceScreen::Update(undefined4 p_elapsed)
 		m_previewTimerMs -= p_elapsed;
 	}
 
-	if (m_previewTimerMs < 250 && !m_context->m_menuAnimations.HasActive() && m_circuitIndex != 6) {
+	if (m_previewTimerMs < 250 && !m_context->m_menuAnimations.HasActive() && m_circuitIndex != 6 &&
+		!m_sceneWidget.m_extraFrameCount) {
 		if (m_transition && m_transition->IsActive()) {
 			m_context->m_menuAnimations.Deactivate(m_transition);
 			m_transition = NULL;

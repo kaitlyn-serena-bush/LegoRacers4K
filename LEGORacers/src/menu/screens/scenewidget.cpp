@@ -27,6 +27,7 @@ void MenuSceneScreen::SceneWidget::ResetState()
 	m_frame = NULL;
 	m_autoAdvance = 0;
 	m_finished = FALSE;
+	m_extraFrameCount = 0; // [library:3d]
 	m_viewportRect.m_top = 0;
 	m_viewportRect.m_bottom = 0;
 	m_viewportRect.m_left = 0;
@@ -151,6 +152,9 @@ undefined4 MenuSceneScreen::SceneWidget::OnEvent(undefined4 p_elapsedMs)
 	}
 
 	m_frame->Update(p_elapsedMs);
+	for (LegoS32 i = 0; i < m_extraFrameCount; i++) { // [library:3d]
+		m_extraFrames[i]->Update(p_elapsedMs);
+	}
 	m_player.Update(p_elapsedMs);
 
 	return FALSE;
@@ -165,6 +169,9 @@ MenuWidget* MenuSceneScreen::SceneWidget::DrawSelf(Rect*, Rect*)
 
 	m_renderer->EnableZBuffer();
 	m_frame->Draw(m_renderer, 0);
+	for (LegoS32 i = 0; i < m_extraFrameCount; i++) { // [library:3d]
+		m_extraFrames[i]->Draw(m_renderer, 0);
+	}
 	m_player.Draw(m_renderer);
 	m_player.DrawTransparent(m_renderer);
 	m_player.DrawOverlay(m_renderer);

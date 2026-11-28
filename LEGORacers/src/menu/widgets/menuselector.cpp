@@ -75,6 +75,7 @@ void MenuSelectorBase::OnPreviousPressed(undefined4 p_param)
 	m_stepDirection = -1;
 
 	if (m_prevButton.GetStateFlags() & c_flagFocused) {
+		m_heldStepDone = TRUE; // [library:input]
 		StepPrevious();
 
 		if (p_param) {
@@ -97,6 +98,7 @@ void MenuSelectorBase::OnNextPressed(undefined4 p_param)
 	m_stepDirection = 1;
 
 	if (m_nextButton.GetStateFlags() & c_flagFocused) {
+		m_heldStepDone = TRUE; // [library:input]
 		StepNext();
 
 		if (p_param) {
@@ -450,13 +452,21 @@ undefined4 MenuSelector::OnEvent(undefined4)
 	m_carousel->SetItemColors(&GetStyleEntry()->m_itemColors[index], &GetStyleEntry()->m_itemColors[index + 1]);
 	m_carousel->SetFocusedItemColors(&GetStyleEntry()->m_itemColors[index], &GetStyleEntry()->m_itemColors[index + 1]);
 
+	// [library:input] LegoRacers4K: a press steps once; holding the button does not keep stepping.
 	if (m_prevButton.GetStateFlags() & c_flagFocused) {
-		StepPrevious();
+		if (!m_heldStepDone) {
+			m_heldStepDone = TRUE;
+			StepPrevious();
+		}
 	}
 	else if (m_nextButton.GetStateFlags() & c_flagFocused) {
-		StepNext();
+		if (!m_heldStepDone) {
+			m_heldStepDone = TRUE;
+			StepNext();
+		}
 	}
 	else {
+		m_heldStepDone = FALSE;
 		MenuCarousel* carousel = m_carousel;
 		MenuStyleTable::SelectorStyle* styleEntry = GetStyleEntry();
 		carousel->SetFocusedItemColors(
