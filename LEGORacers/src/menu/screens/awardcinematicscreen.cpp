@@ -464,9 +464,7 @@ LegoBool32 AwardCinematicScreen::GrantAwards()
 	}
 
 	CircuitDefinitionList::CircuitDefinition* circuitDefinition =
-		static_cast<CircuitDefinitionList::CircuitDefinition*>(
-			m_context->m_circuitList.GetName(context->m_circuitName)
-		);
+		m_context->m_circuitList.FindCircuit(m_context->m_context->m_circuitName);
 	m_trophyAwarded = GrantTrophy(records, circuitDefinition);
 
 	if (m_resourceMenuId != c_menuChampAward1 && m_resourceMenuId != c_menuChampAward2) {
