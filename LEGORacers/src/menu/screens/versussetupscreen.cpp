@@ -42,6 +42,18 @@ void VersusSetupScreen::CreateWidgets()
 {
 	CreateImage(&m_photoImage, 0x49, 0x49);
 	CreateTextLabel(&m_infoLabel, 0x3a, 0x3a, 0x19);
+	{
+		static GolString s_title;
+		static undefined2 s_titleBuffer[16];
+		const char c_text[] = "MULTIPLAYER";
+		LegoU32 length = 0;
+		for (; c_text[length]; length++) {
+			s_titleBuffer[length] = static_cast<LegoU8>(c_text[length]);
+		}
+		s_titleBuffer[length] = 0;
+		s_title.CopyFromBufSelection(s_titleBuffer, static_cast<undefined2>(length + 1));
+		m_infoLabel.SetString(&s_title, 0);
+	}
 	m_infoLabel.WrapText(20);
 	{
 		const Rect* titleRect = m_infoLabel.GetRect();
