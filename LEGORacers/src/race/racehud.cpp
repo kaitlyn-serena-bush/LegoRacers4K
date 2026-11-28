@@ -1366,8 +1366,8 @@ void RaceHud::Draw()
 		LegoFloat pulseScale =
 			static_cast<LegoFloat>(200 * (5 * countdownState + 5) - m_bannerMs) * g_ghostAnimationRateScale * 0.001f;
 
-		// [library:config] LegoRacers4K: the countdown runs 5-4-3-2-1 (it starts two seconds
-		// earlier, during the intro camera), then GO.
+		// [library:config] LegoRacers4K: the countdown starts two seconds early, during the
+		// intro camera, but those two seconds draw nothing and stay silent: 3-2-1, then GO.
 		if (countdownState < 5) {
 			CopyToGolString(g_positionDigits[4 - countdownState], m_scratchString);
 
@@ -1384,7 +1384,9 @@ void RaceHud::Draw()
 			color.m_uBytes[3] = 0xff;
 			color.m_uBytes[2] = 0;
 			m_numberFont->SetColor(color.m_u32);
-			if (m_visible) {
+			// [library:config] LegoRacers4K: only 3, 2 and 1 show; the first two seconds (the
+			// intro camera's glide onto the grid) have no number.
+			if (m_visible && countdownState >= 2) {
 				m_renderer->DrawString(
 					m_scratchString,
 					m_numberFont,
@@ -1399,8 +1401,7 @@ void RaceHud::Draw()
 			color.m_uBytes[2] = 0xff;
 			m_numberFont->SetColor(color.m_u32);
 
-			// [library:audio] LegoRacers4K: 5 and 4 are silent (they show over the intro camera);
-			// only 3, 2 and 1 beep.
+			// [library:audio] LegoRacers4K: only 3, 2 and 1 beep.
 			if (countdownState >= 2 && (previousState == 1 || previousState / 1000 != countdownState) &&
 				m_soundSource) {
 				m_soundSource->PlaySoundById(0);
