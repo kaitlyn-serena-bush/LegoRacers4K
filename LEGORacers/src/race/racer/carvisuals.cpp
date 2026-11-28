@@ -650,7 +650,7 @@ void CarVisuals::Update(LegoU32 p_elapsedMs)
 			position.Clear();
 
 			g_randomTableIndex = (g_randomTableIndex + 1) & c_randomTableMask;
-			LegoBool32 chooseSecond = (g_randomTable[g_randomTableIndex] >> 1) & 1;
+			LegoBool32 chooseSecond = (static_cast<LegoS16>(g_randomTable[g_randomTableIndex]) / 2) & 1;
 			LegoBool32 found = FALSE;
 
 			for (LegoS32 tireIndex = 0; tireIndex < 4; tireIndex++) {
