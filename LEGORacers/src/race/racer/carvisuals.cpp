@@ -647,6 +647,7 @@ void CarVisuals::Update(LegoU32 p_elapsedMs)
 		}
 
 		if (m_tireSmokeParticle) {
+			sweepPad0_0:; sweepPad0_1:; // scratch: scheduler-phase labels (N287)
 			position.Clear();
 
 			g_randomTableIndex = (g_randomTableIndex + 1) & c_randomTableMask;
