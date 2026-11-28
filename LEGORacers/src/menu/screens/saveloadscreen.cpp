@@ -168,7 +168,7 @@ void SaveLoadScreen::CreateWidgets()
 	CreateImage(&m_statusPanelImage, 0x53, 0x53);
 	CreateImage(&m_statusIconImage, 0x54, 0x54);
 
-	m_requestMenuId = m_requestMenuId;
+	LegoU32 requestMenuId = m_requestMenuId;
 	switch (m_status) {
 	case 8:
 	case 0x12:
@@ -181,7 +181,7 @@ void SaveLoadScreen::CreateWidgets()
 		m_okButton.Select(0);
 		return;
 	default:
-		if (m_requestMenuId != c_menuSaveAll && m_requestMenuId != c_menuSaveCard) {
+		if (requestMenuId != c_menuSaveAll && requestMenuId != c_menuSaveCard) {
 			CreateTextLabel(&m_statusLine1, 0x145, 0x37, 0xa9);
 		}
 
