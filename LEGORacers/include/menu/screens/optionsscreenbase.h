@@ -79,14 +79,15 @@ protected:
 
 	// [library:config] LegoRacers4K: single options page (language picker inline).
 	void CreateSinglePageWidgets();
+	void UpdateRowLabelColors(); // [library:config]
 	MenuSelector m_languageSelector;
 	MenuCarouselNavigator m_languageCarousel;
 	MenuTextLabel m_languageLabels[9];
 	MenuTextLabel m_languageTitle;
 	GolString m_audioTitleStrings[2];
 	undefined2 m_audioTitleBuffers[2][64];
-	GolString m_rowTitleStrings[2]; // [library:config] short English titles
-	undefined2 m_rowTitleBuffers[2][64];
+	GolString m_rowTitleStrings[3]; // [library:config] short English titles
+	undefined2 m_rowTitleBuffers[3][64];
 	void ReloadForLanguage();
 };
 

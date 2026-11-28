@@ -180,7 +180,7 @@ static void PlaceRowControl(MenuWidget* p_widget, LegoS32 p_rowCenter)
 }
 
 // Short one-line English title ("OPPONENTS", "LANGUAGE"); other languages keep theirs.
-static void SetShortTitle(MenuTextLabel* p_label, GolString* p_string, undefined2* p_buffer, const char* p_text)
+static void SetShortTitle(GolString* p_string, undefined2* p_buffer, const char* p_text)
 {
 	LegoS32 length = 0;
 	for (; p_text[length] && length < 63; length++) {
@@ -188,6 +188,11 @@ static void SetShortTitle(MenuTextLabel* p_label, GolString* p_string, undefined
 	}
 	p_buffer[length] = 0;
 	p_string->CopyFromBufSelection(p_buffer, static_cast<undefined2>(length + 1));
+}
+
+static void SetShortTitle(MenuTextLabel* p_label, GolString* p_string, undefined2* p_buffer, const char* p_text)
+{
+	SetShortTitle(p_string, p_buffer, p_text);
 	p_label->SetString(p_string, TRUE);
 }
 
@@ -316,7 +321,7 @@ void OptionsScreenBase::CreateSinglePageWidgets()
 	m_racerCountCarousel.SetSelection(m_gameState->GetRacerCount());
 	OnWidgetValueChanged(&m_racerCountSelector);
 	if (english) {
-		SetShortTitle(&m_gameOptionLabels[0], &m_rowTitleStrings[0], m_rowTitleBuffers[0], "OPPONENTS");
+		SetShortTitle(&m_gameOptionLabels[0], &m_rowTitleStrings[0], m_rowTitleBuffers[0], "CPU OPPONENTS");
 	}
 	PlaceRowControl(&m_racerCountSelector, c_rowOpponents - c_selectorRaise);
 	PlaceRowLabel(&m_gameOptionLabels[0], c_rowOpponents);
@@ -368,6 +373,11 @@ void OptionsScreenBase::CreateSinglePageWidgets()
 	CreateTextButton(&m_creditsButton, 0x27, 0x42, 0x58);
 	CreateTextButton(&m_backButton, 0x3f, 0x43, 2);
 	// Links to other screens: their own group under the settings, same left edge.
+	if (english) {
+		SetShortTitle(&m_rowTitleStrings[2], m_rowTitleBuffers[2], "CREDITS");
+		m_creditsButton.SetText(&m_rowTitleStrings[2]);
+	}
+	UpdateRowLabelColors();
 	PlaceAt(&m_controls1Button, c_labelLeft - c_buttonTextInset, c_linkFirst);
 	PlaceAt(&m_controls2Button, c_labelLeft - c_buttonTextInset, c_linkFirst + c_linkStep);
 	PlaceAt(&m_creditsButton, c_labelLeft - c_buttonTextInset, c_linkFirst + 2 * c_linkStep);
@@ -652,9 +662,38 @@ void OptionsScreenBase::ApplyPageChange()
 	m_page = m_nextPage;
 }
 
+// [library:config] LegoRacers4K: row titles take the menu buttons' colours (the same
+// font and colour as an unfocused button, the focused ones while their control has
+// focus), so every item on the page reads the same way.
+void OptionsScreenBase::UpdateRowLabelColors()
+{
+	// Same source as the Credits button: its binding's (else the style's) state colours and fonts.
+	MenuStyleTable::TextButtonStyle* style = GetTextButtonStyle(0x42);
+	ButtonBindingTable::ButtonBinding* binding = GetButtonBinding(0x27);
+	if (!style || !binding) {
+		return;
+	}
+	MenuTextButton::CreateParams params;
+	::memcpy(&params, binding, sizeof(params));
+	MenuTextLabel* labels[4] = {&m_gameOptionLabels[0], &m_audioLabels[0], &m_audioLabels[1], &m_languageTitle};
+	MenuIcon* controls[4] = {&m_racerCountSelector, &m_musicVolumeSlider, &m_soundVolumeSlider, &m_languageSelector};
+	for (LegoS32 i = 0; i < 4; i++) {
+		LegoS32 state = (controls[i]->GetStateFlags() & MenuIcon::c_flagSelected) ? MenuIcon::c_stateFocused
+																				  : MenuIcon::c_stateNormal;
+		GolFont* font = params.m_stateFonts[state] ? params.m_stateFonts[state] : style->m_stateFonts[state];
+		if (font) {
+			labels[i]->SetFont(font);
+		}
+		VisualStateColor* colors = params.m_hasStateColors ? params.m_iconStateColors : style->m_iconStateColors;
+		labels[i]->SetColor(&colors[state]);
+	}
+}
+
 // FUNCTION: LEGORACERS 0x004838e0
 LegoBool32 OptionsScreenBase::Update(undefined4 p_elapsed)
 {
+	UpdateRowLabelColors(); // [library:config]
+
 	if (m_nextPage != m_page && !(m_clickedWidget->GetAnimFlags() & 1)) {
 		ApplyPageChange();
 	}
