@@ -77,6 +77,7 @@ target_include_directories(miniwin
     "${CMAKE_CURRENT_SOURCE_DIR}/src/internal"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/d3d/backends"
     "${PROJECT_SOURCE_DIR}/3rdparty/stb"
+    "${PROJECT_SOURCE_DIR}/3rdparty/nanosvg"
 )
 
 # POSIX shims for MSVC-specific CRT headers (<io.h>); real Windows provides these natively.

@@ -14,6 +14,11 @@
 #include <system_error>
 #include <unordered_map>
 
+#define NANOSVG_IMPLEMENTATION
+#define NANOSVGRAST_IMPLEMENTATION
+#include "nanosvg.h"
+#include "nanosvgrast.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_ONLY_PNG
 #define STBI_NO_STDIO
@@ -31,6 +36,12 @@ struct HdImage {
 	std::vector<Uint8> m_rgba;
 };
 
+struct VectorCell {
+	int m_x;
+	int m_width;
+	int m_advance;
+};
+
 struct HdState {
 	std::mutex m_mutex;
 	bool m_enabled = true;
@@ -45,6 +56,10 @@ struct HdState {
 	// selected (LegoRacers4K Options > Font). Set name -> (key -> full path).
 	std::unordered_map<std::string, std::unordered_map<std::string, std::string> > m_fontSets;
 	std::unordered_map<std::string, std::string> m_fontSetRoots; // set name -> folder
+	// Font strips rasterised from a set's vector outlines, by the replaced PNG's path.
+	// Kept for the whole run (never evicted) so every texture sees the same image.
+	std::unordered_map<std::string, std::shared_ptr<HdImage> > m_generated;
+	std::unordered_map<std::string, std::vector<VectorCell> > m_generatedCells;
 };
 
 HdState& State()
@@ -212,6 +227,10 @@ std::string ResolveFile(const std::string& p_key)
 std::shared_ptr<HdImage> LoadImage(const std::string& p_key, const std::string& p_file)
 {
 	HdState& state = State();
+	auto generated = state.m_generated.find(p_file);
+	if (generated != state.m_generated.end()) {
+		return generated->second;
+	}
 	for (auto it = state.m_cache.begin(); it != state.m_cache.end(); ++it) {
 		if (it->first == p_key) {
 			state.m_cache.splice(state.m_cache.begin(), state.m_cache, it);
@@ -249,6 +268,351 @@ std::shared_ptr<HdImage> LoadImage(const std::string& p_key, const std::string& 
 		state.m_cacheBytes -= state.m_cache.back().second->m_rgba.size();
 		state.m_cache.pop_back();
 	}
+	return image;
+}
+
+std::vector<std::string> SplitCsvLine(const std::string& p_line)
+{
+	std::vector<std::string> fields;
+	std::string field;
+	bool quoted = false;
+	for (size_t i = 0; i < p_line.size(); i++) {
+		char c = p_line[i];
+		if (c == '"') {
+			if (quoted && i + 1 < p_line.size() && p_line[i + 1] == '"') {
+				field += '"';
+				i++;
+			}
+			else {
+				quoted = !quoted;
+			}
+		}
+		else if (c == ',' && !quoted) {
+			fields.push_back(field);
+			field.clear();
+		}
+		else if (c != '\r') {
+			field += c;
+		}
+	}
+	fields.push_back(field);
+	return fields;
+}
+
+// Rows of a CSV file after its header row.
+std::vector<std::vector<std::string> > ReadCsvRows(const fs::path& p_file)
+{
+	std::vector<std::vector<std::string> > rows;
+	size_t size = 0;
+	char* text = (char*) SDL_LoadFile(p_file.string().c_str(), &size);
+	if (!text) {
+		return rows;
+	}
+	std::string all(text, size);
+	SDL_free(text);
+	size_t pos = all.find('\n');
+	while (pos != std::string::npos && pos + 1 < all.size()) {
+		size_t end = all.find('\n', pos + 1);
+		std::string line = all.substr(pos + 1, end == std::string::npos ? std::string::npos : end - pos - 1);
+		pos = end;
+		if (!line.empty() && line != "\r") {
+			rows.push_back(SplitCsvLine(line));
+		}
+	}
+	return rows;
+}
+
+bool ParseHexColor(const std::string& p_text, Uint8 p_rgb[3])
+{
+	const char* text = p_text.c_str();
+	if (*text == '#') {
+		text++;
+	}
+	if (SDL_strlen(text) != 6) {
+		return false;
+	}
+	unsigned long value = SDL_strtoul(text, nullptr, 16);
+	p_rgb[0] = (Uint8) (value >> 16);
+	p_rgb[1] = (Uint8) (value >> 8);
+	p_rgb[2] = (Uint8) value;
+	return true;
+}
+
+// Screen pixels per original (480-line) pixel: the display's height in pixels, so text is
+// rasterised at the size it is shown (RACERS_FONT_SCALE overrides).
+float FontRasterScale()
+{
+	if (const char* env = SDL_getenv("RACERS_FONT_SCALE")) {
+		float scale = (float) SDL_atof(env);
+		if (scale > 0.f) {
+			return std::min(scale, 16.f);
+		}
+	}
+	float height = 0.f;
+	SDL_DisplayID display = SDL_GetPrimaryDisplay();
+	if (const SDL_DisplayMode* mode = display ? SDL_GetDesktopDisplayMode(display) : nullptr) {
+		height = mode->h * (mode->pixel_density > 0.f ? mode->pixel_density : 1.f);
+	}
+	int count = 0;
+	if (SDL_Window** windows = SDL_GetWindows(&count)) {
+		for (int i = 0; i < count; i++) {
+			int w = 0;
+			int h = 0;
+			if (SDL_GetWindowSizeInPixels(windows[i], &w, &h)) {
+				height = std::max(height, (float) h);
+			}
+		}
+		SDL_free(windows);
+	}
+	if (height <= 0.f) {
+		height = 2160.f;
+	}
+	return std::clamp(height / 480.f, 1.f, 16.f);
+}
+
+// Composites colour p_rgb with coverage p_cov (0..1) over p_dst (straight alpha).
+void Over(float* p_dst, const Uint8 p_rgb[3], float p_cov)
+{
+	if (p_cov <= 0.f) {
+		return;
+	}
+	float da = p_dst[3];
+	float oa = p_cov + da * (1.f - p_cov);
+	for (int c = 0; c < 3; c++) {
+		p_dst[c] = (p_rgb[c] * p_cov + p_dst[c] * da * (1.f - p_cov)) / oa;
+	}
+	p_dst[3] = oa;
+}
+
+// Builds a font strip from the set's vector outlines (vector/strips.csv layout, glyph order
+// from cells.csv, vector/glyphs/U+XXXX.svg outlines in font units, baseline at y=0) at the
+// screen's size: same layout rules as the PNG strips (column 0 empty, one run of columns
+// per glyph, even gap). Transparent pixels carry the face colour so filtering never
+// darkens the edges.
+std::shared_ptr<HdImage> BuildVectorStrip(
+	const std::string& p_root,
+	const std::string& p_key,
+	int p_origHeight,
+	std::vector<VectorCell>& p_cells
+)
+{
+	fs::path vector = fs::path(p_root) / "vector";
+	std::error_code ec;
+	if (p_origHeight <= 0 || !fs::is_directory(vector, ec)) {
+		return nullptr;
+	}
+
+	std::vector<std::string> layout;
+	for (auto& row : ReadCsvRows(vector / "strips.csv")) {
+		if (row.size() >= 8 && KeyFromPath(row[0].c_str()) == p_key) {
+			layout = row;
+			break;
+		}
+	}
+	if (layout.empty()) {
+		return nullptr;
+	}
+
+	std::vector<unsigned> codepoints;
+	for (auto& row : ReadCsvRows(fs::path(p_root) / "cells.csv")) {
+		if (row.size() >= 3 && KeyFromPath(row[0].c_str()) == p_key) {
+			const char* cp = row[2].c_str();
+			if (SDL_strncasecmp(cp, "U+", 2) == 0) {
+				cp += 2;
+			}
+			codepoints.push_back((unsigned) SDL_strtoul(cp, nullptr, 16));
+		}
+	}
+	if (codepoints.empty()) {
+		return nullptr;
+	}
+
+	double capTop = SDL_atof(layout[1].c_str());
+	double base = SDL_atof(layout[2].c_str());
+	double gapUnits = SDL_atof(layout[3].c_str());
+	double emboss = SDL_atof(layout[4].c_str());
+	Uint8 face[3] = {255, 255, 255};
+	Uint8 hi[3] = {255, 255, 255};
+	Uint8 shadow[3] = {0, 0, 0};
+	ParseHexColor(layout[5], face);
+	ParseHexColor(layout[6], hi);
+	ParseHexColor(layout[7], shadow);
+	if (base <= capTop || base > 1.0) {
+		return nullptr;
+	}
+
+	const double capUnits = 1180.0; // cap height of the capitals, font units
+	int height = (int) std::lround(p_origHeight * FontRasterScale());
+	int basePx = (int) std::lround(base * height);
+	double k = (basePx - std::lround(capTop * height)) / capUnits; // pixels per font unit
+	int offset = emboss > 0.0 ? std::max(1, (int) std::lround(emboss * height)) : 0;
+	int gap = std::max(2, (int) std::lround(gapUnits * k));
+
+	NSVGrasterizer* rasterizer = nsvgCreateRasterizer();
+	if (!rasterizer) {
+		return nullptr;
+	}
+
+	struct Piece {
+		int m_width;
+		std::vector<Uint8> m_rgba;
+	};
+	std::vector<Piece> pieces;
+	bool ok = true;
+	for (unsigned codepoint : codepoints) {
+		char name[32];
+		SDL_snprintf(name, sizeof(name), "U+%04X.svg", codepoint);
+		std::string file = (vector / "glyphs" / name).string();
+		size_t size = 0;
+		char* text = (char*) SDL_LoadFile(file.c_str(), &size);
+		if (!text && codepoint >= 1 && codepoint <= 9) {
+			// The FDBs list a second run of digits as codes 1-9.
+			SDL_snprintf(name, sizeof(name), "U+%04X.svg", '0' + codepoint);
+			file = (vector / "glyphs" / name).string();
+			text = (char*) SDL_LoadFile(file.c_str(), &size);
+		}
+		if (!text) {
+			SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "HD textures: no outline %s", file.c_str());
+			ok = false;
+			break;
+		}
+		std::string svgText(text, size);
+		SDL_free(text);
+
+		// viewBox "x0 -y1 w h": the parsed shapes start at the bounds' top-left corner.
+		double viewTop = 0.0;
+		size_t vb = svgText.find("viewBox=\"");
+		if (vb != std::string::npos) {
+			double values[4] = {};
+			const char* p = svgText.c_str() + vb + 9;
+			for (double& value : values) {
+				char* end = nullptr;
+				value = SDL_strtod(p, &end);
+				p = end;
+				while (*p == ' ' || *p == ',') {
+					p++;
+				}
+			}
+			viewTop = values[1];
+		}
+		NSVGimage* svg = nsvgParse(svgText.data(), "px", 96.0f);
+		if (!svg) {
+			ok = false;
+			break;
+		}
+		// One pixel of padding each side, plus room for the emboss layers.
+		int inkW = (int) std::ceil(svg->width * k);
+		int width = inkW + 2 * offset + 2;
+		int topPx = (int) std::lround(basePx + viewTop * k); // viewTop = -y1
+		std::vector<Uint8> coverage((size_t) width * height * 4, 0);
+		nsvgRasterize(
+			rasterizer,
+			svg,
+			(float) (offset + 1),
+			(float) topPx,
+			(float) k,
+			coverage.data(),
+			width,
+			height,
+			width * 4
+		);
+		nsvgDelete(svg);
+
+		std::vector<float> layered((size_t) width * height * 4, 0.f);
+		for (size_t i = 0; i < (size_t) width * height; i++) {
+			layered[i * 4 + 0] = face[0];
+			layered[i * 4 + 1] = face[1];
+			layered[i * 4 + 2] = face[2];
+		}
+		auto cov = [&](int x, int y) -> float {
+			if (x < 0 || y < 0 || x >= width || y >= height) {
+				return 0.f;
+			}
+			return coverage[((size_t) y * width + x) * 4 + 3] / 255.f;
+		};
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				float* dst = &layered[((size_t) y * width + x) * 4];
+				if (offset > 0) {
+					Over(dst, hi, cov(x + offset, y + offset));
+					Over(dst, shadow, cov(x - offset, y - offset));
+				}
+				Over(dst, face, cov(x, y));
+			}
+		}
+
+		// Trim to the inked columns.
+		int first = width;
+		int last = -1;
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				if (layered[((size_t) y * width + x) * 4 + 3] > 0.f) {
+					first = std::min(first, x);
+					last = std::max(last, x);
+					break;
+				}
+			}
+		}
+		if (last < first) {
+			first = 0;
+			last = 0;
+		}
+		Piece piece;
+		piece.m_width = last - first + 1;
+		piece.m_rgba.resize((size_t) piece.m_width * height * 4);
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < piece.m_width; x++) {
+				const float* src = &layered[((size_t) y * width + first + x) * 4];
+				Uint8* dst = &piece.m_rgba[((size_t) y * piece.m_width + x) * 4];
+				for (int c = 0; c < 3; c++) {
+					dst[c] = (Uint8) std::clamp((int) std::lround(src[c]), 0, 255);
+				}
+				dst[3] = (Uint8) std::clamp((int) std::lround(src[3] * 255.f), 0, 255);
+			}
+		}
+		pieces.push_back(std::move(piece));
+	}
+	nsvgDeleteRasterizer(rasterizer);
+	if (!ok) {
+		return nullptr;
+	}
+
+	int total = gap;
+	for (const Piece& piece : pieces) {
+		total += piece.m_width + gap;
+	}
+	auto image = std::make_shared<HdImage>();
+	image->m_width = total;
+	image->m_height = height;
+	image->m_hasAlpha = true;
+	image->m_rgba.resize((size_t) total * height * 4);
+	for (size_t i = 0; i < (size_t) total * height; i++) {
+		image->m_rgba[i * 4 + 0] = face[0];
+		image->m_rgba[i * 4 + 1] = face[1];
+		image->m_rgba[i * 4 + 2] = face[2];
+		image->m_rgba[i * 4 + 3] = 0;
+	}
+	p_cells.clear();
+	int x = gap;
+	for (const Piece& piece : pieces) {
+		for (int y = 0; y < height; y++) {
+			SDL_memcpy(
+				&image->m_rgba[((size_t) y * total + x) * 4],
+				&piece.m_rgba[(size_t) y * piece.m_width * 4],
+				(size_t) piece.m_width * 4
+			);
+		}
+		p_cells.push_back({x, piece.m_width, piece.m_width + gap});
+		x += piece.m_width + gap;
+	}
+	SDL_Log(
+		"HD textures: %s rasterised from outlines at %dx%d (%.2fx), %d glyphs",
+		p_key.c_str(),
+		total,
+		height,
+		(double) height / p_origHeight,
+		(int) pieces.size()
+	);
 	return image;
 }
 
@@ -481,6 +845,7 @@ bool MiniwinHdBuildPixels(const MiniwinHdBinding& p_binding, std::vector<Uint8>&
 
 int MiniwinHdGetFontCells(
 	const char* p_gamePath,
+	int p_origHeight,
 	int* p_x,
 	int* p_width,
 	int* p_advance,
@@ -518,61 +883,58 @@ int MiniwinHdGetFontCells(
 		root = rootIt->second;
 	}
 
-	size_t size = 0;
-	char* text = (char*) SDL_LoadFile((fs::path(root) / "cells.csv").string().c_str(), &size);
-	if (!text) {
-		return 0;
-	}
-
-	// Rows: strip,char,codepoint,x,width,advance,source (after a header row).
-	std::string all(text, size);
-	SDL_free(text);
 	int count = 0;
-	size_t pos = all.find('\n');
-	while (pos != std::string::npos && pos + 1 < all.size()) {
-		size_t end = all.find('\n', pos + 1);
-		std::string line = all.substr(pos + 1, end == std::string::npos ? std::string::npos : end - pos - 1);
-		pos = end;
-		std::vector<std::string> fields;
-		std::string field;
-		bool quoted = false;
-		for (size_t i = 0; i < line.size(); i++) {
-			char c = line[i];
-			if (c == '"') {
-				if (quoted && i + 1 < line.size() && line[i + 1] == '"') {
-					field += '"';
-					i++;
-				}
-				else {
-					quoted = !quoted;
-				}
-			}
-			else if (c == ',' && !quoted) {
-				fields.push_back(field);
-				field.clear();
-			}
-			else if (c != '\r') {
-				field += c;
-			}
+	std::shared_ptr<HdImage> image;
+	{
+		std::lock_guard<std::mutex> lock(state.m_mutex);
+		auto generated = state.m_generated.find(file);
+		if (generated != state.m_generated.end()) {
+			image = generated->second;
 		}
-		fields.push_back(field);
-		if (fields.size() < 6 || KeyFromPath(fields[0].c_str()) != key) {
-			continue;
+	}
+	std::vector<VectorCell> vectorCells;
+	if (!image) {
+		image = BuildVectorStrip(root, key, p_origHeight, vectorCells);
+		if (image) {
+			std::lock_guard<std::mutex> lock(state.m_mutex);
+			state.m_generated[file] = image;
+			state.m_generatedCells[file] = vectorCells;
 		}
-		if (count >= p_maxCells) {
+	}
+	else {
+		std::lock_guard<std::mutex> lock(state.m_mutex);
+		vectorCells = state.m_generatedCells[file];
+	}
+	if (image) {
+		if ((int) vectorCells.size() > p_maxCells) {
 			return 0;
 		}
-		p_x[count] = SDL_atoi(fields[3].c_str());
-		p_width[count] = SDL_atoi(fields[4].c_str());
-		p_advance[count] = SDL_atoi(fields[5].c_str());
-		count++;
+		for (const VectorCell& cell : vectorCells) {
+			p_x[count] = cell.m_x;
+			p_width[count] = cell.m_width;
+			p_advance[count] = cell.m_advance;
+			count++;
+		}
+	}
+	else {
+		for (auto& fields : ReadCsvRows(fs::path(root) / "cells.csv")) {
+			if (fields.size() < 6 || KeyFromPath(fields[0].c_str()) != key) {
+				continue;
+			}
+			if (count >= p_maxCells) {
+				return 0;
+			}
+			p_x[count] = SDL_atoi(fields[3].c_str());
+			p_width[count] = SDL_atoi(fields[4].c_str());
+			p_advance[count] = SDL_atoi(fields[5].c_str());
+			count++;
+		}
 	}
 	if (count == 0) {
 		return 0;
 	}
 
-	std::shared_ptr<HdImage> image;
-	{
+	if (!image) {
 		std::lock_guard<std::mutex> lock(state.m_mutex);
 		image = LoadImage(file, file);
 	}

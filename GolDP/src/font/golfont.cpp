@@ -446,6 +446,7 @@ void GolFont::ApplyHdFontCells()
 	int inkHeight = 0;
 	int count = MiniwinHdGetFontCells(
 		path->second.c_str(),
+		(int) m_fontHeight,
 		x.data(),
 		width.data(),
 		advance.data(),

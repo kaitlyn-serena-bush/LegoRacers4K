@@ -78,9 +78,12 @@ void MiniwinHdSetFontSet(const char* p_name);
 // Glyph cells of a font strip whose replacement comes from a font set with natural glyph
 // widths: the set's cells.csv rows for that strip, in strip order (HD pixels). Also gives
 // the HD image size and its first glyph's ink height. Returns the number of cells (0 when
-// the replacement is not such a strip).
+// the replacement is not such a strip). When the set has vector outlines (vector/), the
+// strip is rasterised from them at the screen's size instead (p_origHeight = the original
+// strip height, 480-line units) and its cells describe that image.
 int MiniwinHdGetFontCells(
 	const char* p_gamePath,
+	int p_origHeight,
 	int* p_x,
 	int* p_width,
 	int* p_advance,
