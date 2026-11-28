@@ -252,8 +252,8 @@ LegoBool32 MenuSelectorBase::HandleNavigationKeyDown(InputEventQueue::Event* p_e
 			return TRUE;
 		}
 
-		if (p_event->m_isRepeat && (m_prevButton.GetStateFlags() & c_flagFocused)) {
-			OnPreviousPressed(0);
+		// [library:input] LegoRacers4K: one step per press; holding the button does not repeat.
+		if (p_event->m_isRepeat) {
 			return TRUE;
 		}
 
@@ -271,8 +271,8 @@ LegoBool32 MenuSelectorBase::HandleNavigationKeyDown(InputEventQueue::Event* p_e
 			return TRUE;
 		}
 
-		if (p_event->m_isRepeat && (m_nextButton.GetStateFlags() & c_flagFocused)) {
-			OnNextPressed(0);
+		// [library:input] LegoRacers4K: one step per press; holding the button does not repeat.
+		if (p_event->m_isRepeat) {
 			return TRUE;
 		}
 

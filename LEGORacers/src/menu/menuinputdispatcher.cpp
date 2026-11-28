@@ -193,6 +193,30 @@ void MenuInputDispatcher::DispatchMouseMove(MouseDevice* p_mouse)
 			}
 		}
 
+		// [library:input] The one hover path for every menu: the cursor is only sampled once per
+		// frame, so a fast move can jump over whole rows. Walk the straight path from the last
+		// sampled position and hover every widget on the way; the last one hit stays selected.
+		static LegoBool32 s_havePrevious = FALSE;
+		static LegoS32 s_previousX = 0;
+		static LegoS32 s_previousY = 0;
+		LegoS32 currentX = static_cast<LegoS32>(x);
+		LegoS32 currentY = static_cast<LegoS32>(y);
+		if (s_havePrevious) {
+			LegoS32 dx = currentX - s_previousX;
+			LegoS32 dy = currentY - s_previousY;
+			LegoS32 distance = (dx < 0 ? -dx : dx) > (dy < 0 ? -dy : dy) ? (dx < 0 ? -dx : dx) : (dy < 0 ? -dy : dy);
+			const LegoS32 c_step = 4;
+			LegoS32 steps = distance / c_step;
+			if (steps > 200) {
+				steps = 200;
+			}
+			for (LegoS32 i = 1; i < steps; i++) {
+				icon->DispatchCursorEvent(cursor, s_previousX + dx * i / steps, s_previousY + dy * i / steps);
+			}
+		}
+		s_havePrevious = TRUE;
+		s_previousX = currentX;
+		s_previousY = currentY;
 		icon->DispatchCursorEvent(cursor, x, y);
 	}
 }

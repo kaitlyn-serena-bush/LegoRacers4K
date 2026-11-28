@@ -174,11 +174,7 @@ void RaceModeSetupScreen::LayoutCentered()
 	PlaceWidget(&m_raceCarousel, (selectorWidth - carouselWidth) >> 1, nameTop - selectorTop);
 
 	PlaceWidget(&m_backButton, 3, 418);
-	PlaceWidget(
-		&m_startButton,
-		640 - 3 - (m_startButton.GetRect()->m_right - m_startButton.GetRect()->m_left),
-		418
-	);
+	PlaceWidget(&m_startButton, 640 - 3 - (m_startButton.GetRect()->m_right - m_startButton.GetRect()->m_left), 418);
 }
 
 // FUNCTION: LEGORACERS 0x00487ca0

@@ -50,6 +50,77 @@ void CircuitRaceScreen::CreateWidgets()
 	CreateTextButton(&m_backButton, 0x3f, 0x43, 2);
 }
 
+// [library:config] LegoRacers4K layout, like Race Select: title centred, the preview with the circuit
+// arrows on either side, the circuit name below it, OK bottom-right and MAIN MENU bottom-left. The
+// circuit number and the hosting champion are gone.
+static void PlaceWidget(MenuWidget* p_widget, LegoS32 p_left, LegoS32 p_top)
+{
+	Rect rect = *p_widget->GetRect();
+	rect.m_right += p_left - rect.m_left;
+	rect.m_bottom += p_top - rect.m_top;
+	rect.m_left = p_left;
+	rect.m_top = p_top;
+	p_widget->SetRect(&rect);
+}
+
+static LegoS32 CenterLeft(MenuWidget* p_widget)
+{
+	const Rect* r = p_widget->GetRect();
+	return 320 - ((r->m_right - r->m_left) >> 1);
+}
+
+void CircuitRaceScreen::LayoutCentered()
+{
+	PlaceWidget(&m_infoLabel, CenterLeft(&m_infoLabel), m_infoLabel.GetRect()->m_top);
+
+	const LegoS32 frameTop = 84;
+	LegoS32 frameLeft = CenterLeft(&m_borderFrame);
+	LegoS32 dx = frameLeft - m_borderFrame.GetRect()->m_left;
+	LegoS32 dy = frameTop - m_borderFrame.GetRect()->m_top;
+	LegoS32 frameWidth = m_borderFrame.GetRect()->m_right - m_borderFrame.GetRect()->m_left;
+	LegoS32 frameHeight = m_borderFrame.GetRect()->m_bottom - m_borderFrame.GetRect()->m_top;
+	PlaceWidget(&m_borderFrame, frameLeft, frameTop);
+	PlaceWidget(&m_sceneWidget, m_sceneWidget.GetRect()->m_left + dx, m_sceneWidget.GetRect()->m_top + dy);
+	m_sceneWidget.ComputeViewportRect();
+	if (m_sceneWidget.m_frame) {
+		m_sceneWidget.m_frame->SetViewportRect(&m_sceneWidget.m_viewportRect);
+	}
+
+	// Circuit selector: spans the preview so its arrows sit on either side, level with the
+	// preview's middle; its own picture carousel is not shown.
+	const LegoS32 arrowWidth = 32;
+	const LegoS32 arrowGap = 8;
+	LegoS32 selectorWidth = frameWidth + 2 * (arrowWidth + arrowGap);
+	LegoS32 selectorTop = frameTop + (frameHeight >> 1) - (arrowWidth >> 1);
+	Rect selector = *m_trackSelector.GetRect();
+	selector.m_left = 320 - (selectorWidth >> 1);
+	selector.m_right = selector.m_left + selectorWidth;
+	selector.m_top = selectorTop;
+	selector.m_bottom = selectorTop + arrowWidth;
+	m_trackSelector.SetRect(&selector);
+	PlaceWidget(&m_trackSelector.GetPrevButton(), 0, 0);
+	PlaceWidget(&m_trackSelector.GetNextButton(), selectorWidth - arrowWidth, 0);
+	PlaceWidget(&m_trackCarousel, (selectorWidth - arrowWidth) >> 1, 0);
+	m_trackCarousel.ClearFlags(2);
+
+	// Circuit name (the race name label) below the preview.
+	Rect name = *m_raceNameLabel.GetRect();
+	LegoS32 nameHeight = name.m_bottom - name.m_top;
+	name.m_left = 320 - 190;
+	name.m_right = 320 + 190;
+	name.m_top = frameTop + frameHeight + 6;
+	name.m_bottom = name.m_top + nameHeight;
+	m_raceNameLabel.SetRect(&name);
+
+	m_circuitCaptionLabel.ClearFlags(2);
+	m_circuitNameLabel.ClearFlags(2);
+	m_trackCaptionLabel.ClearFlags(2);
+	m_circuitDescLabel.ClearFlags(2);
+
+	PlaceWidget(&m_backButton, 3, 418);
+	PlaceWidget(&m_startButton, 640 - 3 - (m_startButton.GetRect()->m_right - m_startButton.GetRect()->m_left), 418);
+}
+
 // FUNCTION: LEGORACERS 0x0047a040
 LegoBool32 CircuitRaceScreen::Initialize(MenuGameContext* p_context, MenuScreenCreateParams* p_createParams)
 {
@@ -59,6 +130,7 @@ LegoBool32 CircuitRaceScreen::Initialize(MenuGameContext* p_context, MenuScreenC
 
 	OnWidgetValueChanged(&m_trackSelector);
 	m_startButton.Select(0);
+	LayoutCentered();
 	return TRUE;
 }
 

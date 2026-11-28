@@ -377,11 +377,15 @@ void OptionsScreenBase::CreateSinglePageWidgets()
 	if (english) {
 		SetShortTitle(&m_rowTitleStrings[2], m_rowTitleBuffers[2], "CREDITS");
 		m_creditsButton.SetText(&m_rowTitleStrings[2]);
+		// One entry for both players; the controls screen cycles between them.
+		SetShortTitle(&m_rowTitleStrings[4], m_rowTitleBuffers[4], "PLAYER CONTROLS");
+		m_controls1Button.SetText(&m_rowTitleStrings[4]);
 	}
+	m_controls2Button.ClearFlags(2);
 	UpdateRowLabelColors();
 	// The links continue the settings rows at the same spacing.
-	MenuWidget* links[3] = {&m_controls1Button, &m_controls2Button, &m_creditsButton};
-	for (i = 0; i < 3; i++) {
+	MenuWidget* links[2] = {&m_controls1Button, &m_creditsButton};
+	for (i = 0; i < 2; i++) {
 		const Rect* rect = links[i]->GetRect();
 		PlaceAt(
 			links[i],
@@ -550,7 +554,7 @@ void OptionsScreenBase::ShowMainButtons()
 {
 	// [library:config] LegoRacers4K: single options page.
 	m_controls1Button.SetFlags(2);
-	m_controls2Button.SetFlags(2);
+	m_controls2Button.ClearFlags(2);
 	m_creditsButton.SetFlags(2);
 	m_racerCountSelector.SetFlags(2);
 	m_gameOptionLabels[0].SetFlags(2);
@@ -723,12 +727,7 @@ LegoBool32 OptionsScreenBase::Update(undefined4 p_elapsed)
 	}
 
 	if (m_page == 0) {
-		if (m_inputManager->GetJoystickCount() <= 1 && !m_inputManager->IsKeyboardAvailable()) {
-			m_controls2Button.Disable(5);
-		}
-		else {
-			m_controls2Button.Enable(5);
-		}
+		m_controls2Button.Disable(5);
 	}
 
 	if (g_languageReloadPending) {

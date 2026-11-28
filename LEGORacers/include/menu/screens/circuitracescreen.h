@@ -29,6 +29,7 @@ public:
 
 protected:
 	void UpdateRacePreview();
+	void LayoutCentered(); // [library:config]
 
 	MenuImage m_photoImage;                 // 0x1908
 	MenuTextLabel m_infoLabel;              // 0x1964

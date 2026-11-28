@@ -67,13 +67,15 @@ void ControlConfigScreen::Reset()
 // FUNCTION: LEGORACERS 0x0047a860
 void ControlConfigScreen::CreateWidgets()
 {
-	LegoU16 idBase = m_playerIndex + 0x17;
-
 	CreateImage(&m_photoImage, 0x49, 0x49);
-	CreateTextLabel(&m_infoLabel, 0x3a, 0x3a, idBase);
-	m_infoLabel.WrapText(0x14);
+	// [library:config] LegoRacers4K: no device picker. The title is a two-entry selector that
+	// cycles through the players' controls (keyboard).
 	CreateCarousel(&m_deviceCarousel, 0x3e, 0x3b);
 	CreateSelector(&m_deviceSelector, &m_deviceCarousel, 0x111, 0x4d);
+	CreateTextLabel(&m_infoLabel, 0x3a, 0x3a, 0x17);
+	CreateTextLabel(&m_deviceLabel, 0x3a, 0x3a, 0x18);
+	m_deviceCarousel.AddItem(&m_infoLabel);
+	m_deviceCarousel.AddItem(&m_deviceLabel);
 
 	for (LegoU32 i = 0; i < 9; i++) {
 		CreateTextButton(&m_eventButtons[i], i + 0x108, 0x42, 0x69);
@@ -97,19 +99,6 @@ void ControlConfigScreen::PopulateDeviceCarousel()
 	for (i = 0; i < 2; i++) {
 		JoystickDevice* device = m_inputManager->GetJoystick(i);
 		if (device) {
-			switch (device->GetDeviceSubType()) {
-			case 4:
-				CreateImage(&m_deviceIcons[outputIndex], 0x113, 0x113);
-				break;
-			case 6:
-				CreateImage(&m_deviceIcons[outputIndex], 0x114, 0x114);
-				break;
-			default:
-				CreateImage(&m_deviceIcons[outputIndex], 0x112, 0x112);
-				break;
-			}
-
-			m_deviceCarousel.AddItem(&m_deviceIcons[outputIndex]);
 			m_devices[outputIndex] = device;
 			m_bindingIndices[outputIndex] = i;
 			outputIndex++;
@@ -119,13 +108,58 @@ void ControlConfigScreen::PopulateDeviceCarousel()
 	if (m_inputManager->IsKeyboardAvailable()) {
 		InputDevice* keyboard = m_inputManager->GetKeyboard();
 		for (LegoU32 i = 2; i < 5; i++) {
-			CreateImage(&m_deviceIcons[m_deviceCount], 0x115, 0x115);
-			m_deviceCarousel.AddItem(&m_deviceIcons[m_deviceCount]);
 			m_devices[m_deviceCount] = keyboard;
 			m_bindingIndices[m_deviceCount] = i;
 			m_deviceCount++;
 		}
 	}
+}
+
+// [library:config] LegoRacers4K: each player uses their own keyboard set (2 + player).
+LegoS32 ControlConfigScreen::FindPlayerDevice(LegoU32 p_player)
+{
+	for (LegoU32 i = 0; i < m_deviceCount; i++) {
+		if (m_devices[i] == m_inputManager->GetKeyboard() &&
+			m_bindingIndices[i] == static_cast<LegoS32>(2 + p_player)) {
+			return i;
+		}
+	}
+
+	return m_selectedDevice;
+}
+
+// [library:config] LegoRacers4K: the player title with an arrow on either side, top right.
+static void PlaceControlWidget(MenuWidget* p_widget, LegoS32 p_left, LegoS32 p_top, LegoS32 p_width, LegoS32 p_height)
+{
+	Rect rect;
+	rect.m_left = p_left;
+	rect.m_top = p_top;
+	rect.m_right = p_left + p_width;
+	rect.m_bottom = p_top + p_height;
+	p_widget->SetRect(&rect);
+}
+
+void ControlConfigScreen::LayoutPlayerSelector()
+{
+	const LegoS32 arrowWidth = 32;
+	const LegoS32 arrowGap = 8;
+	const LegoS32 titleWidth = 300;
+	const LegoS32 titleHeight = 48;
+	const LegoS32 selectorWidth = titleWidth + 2 * (arrowWidth + arrowGap);
+	const LegoS32 selectorLeft = 636 - selectorWidth;
+
+	PlaceControlWidget(&m_deviceSelector, selectorLeft, 14, selectorWidth, titleHeight);
+	PlaceControlWidget(&m_deviceSelector.GetPrevButton(), 0, (titleHeight - arrowWidth) >> 1, arrowWidth, arrowWidth);
+	PlaceControlWidget(
+		&m_deviceSelector.GetNextButton(),
+		selectorWidth - arrowWidth,
+		(titleHeight - arrowWidth) >> 1,
+		arrowWidth,
+		arrowWidth
+	);
+	PlaceControlWidget(&m_deviceCarousel, arrowWidth + arrowGap, 0, titleWidth, titleHeight);
+	PlaceControlWidget(&m_infoLabel, 0, 0, titleWidth, titleHeight);
+	PlaceControlWidget(&m_deviceLabel, titleWidth, 0, titleWidth, titleHeight);
 }
 
 // FUNCTION: LEGORACERS 0x0047aaa0
@@ -141,18 +175,10 @@ LegoBool32 ControlConfigScreen::Initialize(MenuGameContext* p_context, MenuScree
 	}
 
 	PopulateDeviceCarousel();
-	LegoS32 selectedEntryIndex =
-		m_context->m_saveSystem.GetGameState().GetSelectedInputBindingEntryIndex(m_playerIndex);
-
-	for (LegoU32 i = 0; i < m_deviceCount; i++) {
-		if (m_bindingIndices[i] == selectedEntryIndex) {
-			m_selectedDevice = i;
-			break;
-		}
-	}
-
-	m_deviceCarousel.SetSelection(m_selectedDevice);
-	m_eventButtons[0].Select(4);
+	m_selectedDevice = FindPlayerDevice(m_playerIndex);
+	LayoutPlayerSelector();
+	m_deviceCarousel.SetSelection(m_playerIndex);
+	m_deviceSelector.Select(4);
 	Update(0);
 
 	return TRUE;
@@ -170,7 +196,8 @@ void ControlConfigScreen::Navigate()
 void ControlConfigScreen::OnWidgetValueChanged(MenuWidget* p_source)
 {
 	if (p_source == &m_deviceSelector) {
-		m_selectedDevice = m_deviceCarousel.GetSelectedIndex();
+		m_playerIndex = m_deviceCarousel.GetSelectedIndex();
+		m_selectedDevice = FindPlayerDevice(m_playerIndex);
 	}
 }
 

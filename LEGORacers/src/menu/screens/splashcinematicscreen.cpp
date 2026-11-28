@@ -2,13 +2,13 @@
 
 #include "audio/musicgroup.h"
 #include "audio/musicinstance.h"
+#include "font/golfont.h"
+#include "golfontbase.h"
 #include "golhashtable.h"
 #include "golstream.h"
 #include "menu/menugamecontext.h"
 #include "menu/menuscreencreateparams.h"
 #include "menu/menuscreenid.h"
-#include "font/golfont.h"
-#include "golfontbase.h"
 #include "render/golrenderdevice.h"
 
 #include <miniwin/miniwinapp.h>
@@ -20,7 +20,14 @@ DECOMP_SIZE_ASSERT(SplashCinematicScreen, 0x658)
 // page at a time, fading between them). Text and grouping come from the original credits.
 namespace
 {
-enum CreditKind { c_head, c_sub, c_role, c_name, c_text, c_para };
+enum CreditKind {
+	c_head,
+	c_sub,
+	c_role,
+	c_name,
+	c_text,
+	c_para
+};
 
 struct CreditLine {
 	CreditKind m_kind;
@@ -152,7 +159,6 @@ void CreditStyle(CreditKind p_kind, LegoU32* p_color, float* p_scale, float* p_b
 	}
 }
 } // namespace
-
 
 // FUNCTION: LEGORACERS 0x00488380
 SplashCinematicScreen::SplashCinematicScreen()

@@ -38,6 +38,8 @@ public:
 protected:
 	void PopulateDeviceCarousel();
 	void RefreshEventTexts();
+	LegoS32 FindPlayerDevice(LegoU32 p_player); // [library:config]
+	void LayoutPlayerSelector();                // [library:config]
 
 	InputDevice* m_devices[5];              // 0x0368
 	LegoS32 m_bindingIndices[5];            // 0x037c

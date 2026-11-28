@@ -43,6 +43,10 @@ void VersusSetupScreen::CreateWidgets()
 	CreateImage(&m_photoImage, 0x49, 0x49);
 	CreateTextLabel(&m_infoLabel, 0x3a, 0x3a, 0x19);
 	m_infoLabel.WrapText(20);
+	{
+		const Rect* titleRect = m_infoLabel.GetRect();
+		MoveTo(&m_infoLabel, 320 - ((titleRect->m_right - titleRect->m_left) >> 1), titleRect->m_top);
+	}
 
 	static const LegoS32 c_itemCounts[c_rowCount] = {2, 3, 5};
 	static const undefined2 c_firstItem[c_rowCount] = {0, 0x62, 0x61};
