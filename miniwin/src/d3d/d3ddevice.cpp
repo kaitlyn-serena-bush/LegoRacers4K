@@ -176,6 +176,11 @@ struct MiniwinD3DDevice : public IDirect3DDevice3 {
 			state.alphaOp = MiniwinTextureOp::Diffuse;
 		}
 		state.textureLinear = m_textureStageStates[0][D3DTSS_MAGFILTER] != D3DTFG_POINT;
+		// [library:hd] HD replacements (fonts, menu art) are drawn at their true resolution
+		// rather than as scaled-up pixel art, so always filter them smoothly.
+		if (state.textured && m_texture->m_hd) {
+			state.textureLinear = true;
+		}
 		state.textureWrap = m_textureStageStates[0][D3DTSS_ADDRESS] != D3DTADDRESS_CLAMP;
 
 		// Color keying: keyed texels were converted to alpha 0 at upload; reject them
@@ -184,6 +189,23 @@ struct MiniwinD3DDevice : public IDirect3DDevice3 {
 		// vertex alpha fades below the threshold (e.g. the magnet's sparkle column).
 		state.colorKeyTest =
 			state.textured && m_renderStates[D3DRENDERSTATE_COLORKEYENABLE] && m_texture->m_hasColorKey;
+
+		// [library:hd] HD replacements carry smooth (anti-aliased) alpha edges. For 2D draws
+		// (fonts, menu art: no depth test) blend them instead of the hard 50% colour-key cut,
+		// which would turn the edges back into jagged pixels. Fully transparent texels are
+		// still rejected by the alpha test.
+		if (state.colorKeyTest && m_texture->m_hd && !state.zEnable && !state.alphaBlend && !state.alphaTest) {
+			state.colorKeyTest = false;
+			state.alphaBlend = true;
+			state.srcBlend = D3DBLEND_SRCALPHA;
+			state.destBlend = D3DBLEND_INVSRCALPHA;
+			state.alphaTest = true;
+			state.alphaFunc = D3DCMP_GREATER;
+			state.alphaRef = 0.0f;
+			if (state.alphaOp == MiniwinTextureOp::Diffuse) {
+				state.alphaOp = MiniwinTextureOp::Modulate;
+			}
+		}
 
 		return state;
 	}
