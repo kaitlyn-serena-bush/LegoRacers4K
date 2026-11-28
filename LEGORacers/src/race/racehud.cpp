@@ -1170,15 +1170,15 @@ void RaceHud::SetLayout(LegoS32 p_mode)
 	CopyToGolString(m_lapTimeText.m_text, m_scratchString);
 	m_font->MeasureString(m_scratchString, &p_mode, &textHeight);
 	p_mode = static_cast<LegoS32>(GOL_MUL((static_cast<LegoFloat>(p_mode)), m_textScale));
-	m_shortTimeWidth = static_cast<LegoS32>(static_cast<LegoFloat>(p_mode) * m_textScaleX);
+	m_shortTimeWidth = static_cast<LegoS32>(GOL_MUL((static_cast<LegoFloat>(p_mode)), m_textScaleX));
 
 	FormatTime(m_lapTimeText.m_text, 0x36ee08);
 	CopyToGolString(m_lapTimeText.m_text, m_scratchString);
 	m_font->MeasureString(m_scratchString, &p_mode, &textHeight);
-	p_mode = static_cast<LegoS32>(static_cast<LegoFloat>(p_mode) * m_textScale);
-	LegoS32 scaledTextHeight = static_cast<LegoS32>(static_cast<LegoFloat>(textHeight) * m_textScale);
+	p_mode = static_cast<LegoS32>(GOL_MUL((static_cast<LegoFloat>(p_mode)), m_textScale));
+	LegoS32 scaledTextHeight = static_cast<LegoS32>(GOL_MUL((static_cast<LegoFloat>(textHeight)), m_textScale));
 	textHeight = scaledTextHeight;
-	m_longTimeWidth = static_cast<LegoS32>(static_cast<LegoFloat>(p_mode) * m_textScaleX);
+	m_longTimeWidth = static_cast<LegoS32>(GOL_MUL((static_cast<LegoFloat>(p_mode)), m_textScaleX));
 
 	timeX = m_viewport.m_right - ((11 * m_longTimeWidth) >> 3);
 	LegoFloat topTextOffset = m_scaleY;
@@ -1201,17 +1201,17 @@ void RaceHud::SetLayout(LegoS32 p_mode)
 	m_totalTimeX = timeX;
 
 	rowOffsetSteps = (static_cast<LegoU32>(14 * scaledTextHeight)) >> 3;
-	m_totalTimeY = topTextY + static_cast<LegoS32>(static_cast<double>(rowOffsetSteps) * m_scaleY);
+	m_totalTimeY = topTextY + static_cast<LegoS32>(GOL_MUL((static_cast<double>(rowOffsetSteps)), m_scaleY));
 	m_timeBehindX = timeX;
 
 	rowOffsetSteps = (static_cast<LegoU32>(21 * scaledTextHeight)) >> 3;
-	m_timeBehindY = topTextY + static_cast<LegoS32>(static_cast<double>(rowOffsetSteps) * m_scaleY);
+	m_timeBehindY = topTextY + static_cast<LegoS32>(GOL_MUL((static_cast<double>(rowOffsetSteps)), m_scaleY));
 	m_bannerY = m_timeBehindY;
 	m_centerX = (m_viewport.m_right + m_viewport.m_left) >> 1;
 
 	m_stringTable->CopyStringByIndex(&m_labelString, 0x24);
 	m_font->MeasureString(&m_labelString, &p_mode, &textHeight);
-	m_wrongWayX = m_centerX - (static_cast<LegoS32>(static_cast<LegoFloat>(p_mode) * m_textScaleX) >> 1);
+	m_wrongWayX = m_centerX - (static_cast<LegoS32>(GOL_MUL((static_cast<LegoFloat>(p_mode)), m_textScaleX)) >> 1);
 	m_wrongWayY = m_viewport.m_top + ((m_viewport.m_bottom - m_viewport.m_top) / 5);
 
 	GolImage* resource = m_images->GetItem(11);
