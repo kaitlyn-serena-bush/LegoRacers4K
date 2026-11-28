@@ -7,12 +7,15 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
+#include <deque>
 #include <filesystem>
 #include <list>
 #include <mutex>
 #include <string>
 #include <system_error>
+#include <thread>
 #include <unordered_map>
+#include <unordered_set>
 
 #define NANOSVG_IMPLEMENTATION
 #define NANOSVGRAST_IMPLEMENTATION
@@ -60,12 +63,25 @@ struct HdState {
 	// Kept for the whole run (never evicted) so every texture sees the same image.
 	std::unordered_map<std::string, std::shared_ptr<HdImage> > m_generated;
 	std::unordered_map<std::string, std::vector<VectorCell> > m_generatedCells;
+	// Images decoded ahead of time on worker threads (see QueuePrewarm), by file. Never
+	// evicted, so the screens that use them never wait for a PNG decode.
+	std::unordered_map<std::string, std::shared_ptr<HdImage> > m_pinned;
+	std::unordered_set<std::string> m_prewarmFiles; // every file ever queued
+	std::deque<std::string> m_prewarmQueue;
+	int m_prewarmWorkers = 0;
+	bool m_prewarmStarted = false;
+	// Preview bindings seen so far (share keys), and the placeholder surfaces that upload
+	// the ones listed in hdpreload.txt before their screen first opens.
+	std::unordered_set<std::string> m_learned;
+	std::vector<MiniwinSurface*> m_placeholders;
+	std::deque<MiniwinSurface*> m_preupload; // surfaces of prewarmed images not yet uploaded
 };
 
 HdState& State()
 {
-	static HdState s_state;
-	return s_state;
+	// Never destroyed: prewarm workers may still be decoding while the process exits.
+	static HdState* s_state = new HdState;
+	return *s_state;
 }
 
 const size_t c_cacheLimitBytes = 256u * 1024u * 1024u;
@@ -224,20 +240,8 @@ std::string ResolveFile(const std::string& p_key)
 	return it != state.m_files.end() ? it->second : std::string();
 }
 
-std::shared_ptr<HdImage> LoadImage(const std::string& p_key, const std::string& p_file)
+std::shared_ptr<HdImage> DecodeFile(const std::string& p_file)
 {
-	HdState& state = State();
-	auto generated = state.m_generated.find(p_file);
-	if (generated != state.m_generated.end()) {
-		return generated->second;
-	}
-	for (auto it = state.m_cache.begin(); it != state.m_cache.end(); ++it) {
-		if (it->first == p_key) {
-			state.m_cache.splice(state.m_cache.begin(), state.m_cache, it);
-			return it->second;
-		}
-	}
-
 	size_t fileSize = 0;
 	void* fileData = SDL_LoadFile(p_file.c_str(), &fileSize);
 	if (!fileData) {
@@ -261,6 +265,37 @@ std::shared_ptr<HdImage> LoadImage(const std::string& p_key, const std::string& 
 	image->m_hasAlpha = channels == 2 || channels == 4;
 	image->m_rgba.assign(pixels, pixels + (size_t) width * height * 4);
 	stbi_image_free(pixels);
+	return image;
+}
+
+std::shared_ptr<HdImage> LoadImage(const std::string& p_key, const std::string& p_file)
+{
+	HdState& state = State();
+	auto generated = state.m_generated.find(p_file);
+	if (generated != state.m_generated.end()) {
+		return generated->second;
+	}
+	for (auto it = state.m_cache.begin(); it != state.m_cache.end(); ++it) {
+		if (it->first == p_key) {
+			state.m_cache.splice(state.m_cache.begin(), state.m_cache, it);
+			return it->second;
+		}
+	}
+
+	auto pinned = state.m_pinned.find(p_file);
+	if (pinned != state.m_pinned.end()) {
+		return pinned->second;
+	}
+
+	std::shared_ptr<HdImage> image = DecodeFile(p_file);
+	if (!image) {
+		return nullptr;
+	}
+	if (state.m_prewarmFiles.count(p_file)) {
+		// Wanted ahead of time but asked for first: keep it like the prewarmed ones.
+		state.m_pinned[p_file] = image;
+		return image;
+	}
 
 	state.m_cache.emplace_front(p_key, image);
 	state.m_cacheBytes += image->m_rgba.size();
@@ -269,6 +304,78 @@ std::shared_ptr<HdImage> LoadImage(const std::string& p_key, const std::string& 
 		state.m_cache.pop_back();
 	}
 	return image;
+}
+
+// Menu scenes that show many large textures at once on their first frame: the circuit and
+// single race previews (every track's scenery plus the champions' minifig parts). Their PNGs
+// are decoded on worker threads while the game starts, so opening those screens never stalls.
+bool IsPrewarmKey(const std::string& p_key)
+{
+	static const char c_singRace[] = "MENUDATA/SINGRACE/";
+	static const char c_partDb[] = "MENUDATA/PARTDB/";
+	if (p_key.compare(0, sizeof(c_singRace) - 1, c_singRace) == 0) {
+		return true;
+	}
+	if (p_key.compare(0, sizeof(c_partDb) - 1, c_partDb) != 0) {
+		return false;
+	}
+	std::string part = p_key.substr(sizeof(c_partDb) - 1);
+	if (part.compare(0, 4, "LEG_") == 0) {
+		return true;
+	}
+	// Minifig parts of the circuit champions (mascots of every race).
+	static const char* const c_champions[] =
+		{"AD", "AP", "BJ", "CC", "GB", "IL", "KK", "PM", "RH", "RK", "SB", "TC", "WW"};
+	if (part.size() < 3 || part[2] != '_') {
+		return false;
+	}
+	for (const char* prefix : c_champions) {
+		if (part.compare(0, 2, prefix) == 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void PrewarmWorker()
+{
+	HdState& state = State();
+	for (;;) {
+		std::string file;
+		{
+			std::lock_guard<std::mutex> lock(state.m_mutex);
+			while (!state.m_prewarmQueue.empty() && state.m_pinned.count(state.m_prewarmQueue.front())) {
+				state.m_prewarmQueue.pop_front();
+			}
+			if (state.m_prewarmQueue.empty()) {
+				state.m_prewarmWorkers--;
+				return;
+			}
+			file = state.m_prewarmQueue.front();
+			state.m_prewarmQueue.pop_front();
+		}
+		std::shared_ptr<HdImage> image = DecodeFile(file);
+		if (image) {
+			std::lock_guard<std::mutex> lock(state.m_mutex);
+			state.m_pinned.emplace(file, image);
+		}
+	}
+}
+
+// Caller holds the state mutex.
+void QueuePrewarm(const std::string& p_key, const std::string& p_file)
+{
+	HdState& state = State();
+	if (p_file.empty() || !IsPrewarmKey(p_key) || !state.m_prewarmFiles.insert(p_file).second) {
+		return;
+	}
+	state.m_prewarmQueue.push_back(p_file);
+	unsigned int cores = std::thread::hardware_concurrency();
+	int maxWorkers = (int) std::max(1u, std::min(4u, cores > 2 ? cores - 2 : 1u));
+	if (state.m_prewarmWorkers < maxWorkers) {
+		state.m_prewarmWorkers++;
+		std::thread(PrewarmWorker).detach();
+	}
 }
 
 std::vector<std::string> SplitCsvLine(const std::string& p_line)
@@ -643,6 +750,134 @@ bool MiniwinHdHasReplacement(const char* p_gamePath)
 	return !ResolveFile(KeyFromPath(p_gamePath)).empty();
 }
 
+std::string RegionText(const MiniwinHdRegion& r)
+{
+	char buffer[160];
+	SDL_snprintf(
+		buffer,
+		sizeof(buffer),
+		"%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
+		r.m_imageWidth,
+		r.m_imageHeight,
+		r.m_srcX,
+		r.m_srcY,
+		r.m_srcWidth,
+		r.m_srcHeight,
+		r.m_textureWidth,
+		r.m_textureHeight,
+		(int) r.m_flipVertically,
+		(int) r.m_colorKeyed,
+		r.m_keyRed,
+		r.m_keyGreen,
+		r.m_keyBlue
+	);
+	return buffer;
+}
+
+// hdpreload.txt next to the exe lists the preview textures ("KEY|region" per line) the
+// game loads only when their screen opens. Those are uploaded at startup through
+// placeholder surfaces, so the screen finds them on the GPU already. New ones are appended
+// as they are seen. Caller holds the state mutex.
+std::string LearnedListPath()
+{
+	const char* base = SDL_GetBasePath();
+	return std::string(base ? base : "") + "hdpreload.txt";
+}
+
+void LoadLearned()
+{
+	HdState& state = State();
+	size_t size = 0;
+	char* text = (char*) SDL_LoadFile(LearnedListPath().c_str(), &size);
+	if (!text) {
+		return;
+	}
+	std::string all(text, size);
+	SDL_free(text);
+	size_t pos = 0;
+	while (pos < all.size()) {
+		size_t end = all.find('\n', pos);
+		if (end == std::string::npos) {
+			end = all.size();
+		}
+		std::string line = all.substr(pos, end - pos);
+		pos = end + 1;
+		if (!line.empty() && line.back() == '\r') {
+			line.pop_back();
+		}
+		size_t bar = line.find('|');
+		if (bar == std::string::npos) {
+			continue;
+		}
+		MiniwinHdRegion r = {};
+		int flip = 0, keyed = 0, red = 0, green = 0, blue = 0;
+		if (SDL_sscanf(
+				line.c_str() + bar + 1,
+				"%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
+				&r.m_imageWidth,
+				&r.m_imageHeight,
+				&r.m_srcX,
+				&r.m_srcY,
+				&r.m_srcWidth,
+				&r.m_srcHeight,
+				&r.m_textureWidth,
+				&r.m_textureHeight,
+				&flip,
+				&keyed,
+				&red,
+				&green,
+				&blue
+			) != 13) {
+			continue;
+		}
+		r.m_flipVertically = flip != 0;
+		r.m_colorKeyed = keyed != 0;
+		r.m_keyRed = (unsigned char) red;
+		r.m_keyGreen = (unsigned char) green;
+		r.m_keyBlue = (unsigned char) blue;
+		std::string key = line.substr(0, bar);
+		if (!IsPrewarmKey(key) || !state.m_learned.insert(key + "|" + RegionText(r)).second) {
+			continue;
+		}
+		std::string file = ResolveFile(key);
+		if (file.empty() || r.m_textureWidth <= 0 || r.m_textureHeight <= 0) {
+			continue;
+		}
+		QueuePrewarm(key, file);
+
+		DDSURFACEDESC2 desc = {};
+		desc.dwSize = sizeof(desc);
+		desc.dwWidth = (DWORD) r.m_textureWidth;
+		desc.dwHeight = (DWORD) r.m_textureHeight;
+		auto* surface = new MiniwinSurface(desc, MiniwinSurfaceKind::Texture);
+		auto hd = std::make_shared<MiniwinHdBinding>();
+		hd->m_key = key;
+		hd->m_file = file;
+		hd->m_region = r;
+		surface->m_hd = hd;
+		surface->m_textureDirty = true;
+		state.m_placeholders.push_back(surface); // kept for the whole run
+		state.m_preupload.push_back(surface);
+	}
+}
+
+void Learn(const MiniwinHdBinding& p_binding)
+{
+	HdState& state = State();
+	if (!p_binding.m_blits.empty()) {
+		return;
+	}
+	std::string line = p_binding.m_key + "|" + RegionText(p_binding.m_region);
+	if (!state.m_learned.insert(line).second) {
+		return;
+	}
+	line += "\n";
+	if (SDL_IOStream* io = SDL_IOFromFile(LearnedListPath().c_str(), "ab")) {
+		SDL_WriteIO(io, line.data(), line.size());
+		SDL_CloseIO(io);
+	}
+}
+
 static bool AttachBinding(
 	IDirectDrawSurface* p_surface,
 	const char* p_gamePath,
@@ -668,6 +903,7 @@ static bool AttachBinding(
 	{
 		std::lock_guard<std::mutex> lock(State().m_mutex);
 		hd->m_file = ResolveFile(hd->m_key);
+		QueuePrewarm(hd->m_key, hd->m_file);
 	}
 	hd->m_region = p_region;
 	if (p_blits) {
@@ -675,7 +911,64 @@ static bool AttachBinding(
 	}
 	surface->m_hd = hd;
 	surface->m_textureDirty = true;
+	if (IsPrewarmKey(hd->m_key)) {
+		std::lock_guard<std::mutex> lock(State().m_mutex);
+		// The first preview texture this copy of miniwin loads starts decoding all of them
+		// (the scenes themselves are only loaded when their screen opens).
+		if (!State().m_prewarmStarted) {
+			State().m_prewarmStarted = true;
+			std::vector<std::pair<std::string, std::string> > files(State().m_files.begin(), State().m_files.end());
+			std::sort(files.begin(), files.end());
+			for (const auto& entry : files) {
+				// All preview scenery; champion parts only as listed in hdpreload.txt.
+				if (entry.first.compare(0, 18, "MENUDATA/SINGRACE/") == 0) {
+					QueuePrewarm(entry.first, entry.second);
+				}
+			}
+			LoadLearned();
+		}
+		Learn(*hd);
+		auto& queue = State().m_preupload;
+		if (std::find(queue.begin(), queue.end(), surface) == queue.end()) {
+			queue.push_back(surface);
+		}
+	}
 	return true;
+}
+
+MiniwinSurface* MiniwinHdNextPreupload()
+{
+	HdState& state = State();
+	std::lock_guard<std::mutex> lock(state.m_mutex);
+	for (size_t i = 0; i < state.m_preupload.size(); i++) {
+		MiniwinSurface* surface = state.m_preupload.front();
+		state.m_preupload.pop_front();
+		if (!surface->m_hd) {
+			continue; // detached since
+		}
+		if (state.m_pinned.count(surface->m_hd->m_file)) {
+			return surface;
+		}
+		state.m_preupload.push_back(surface); // still decoding: try again later
+	}
+	return nullptr;
+}
+
+bool MiniwinHdShareKey(const MiniwinHdBinding& p_binding, std::string& p_key)
+{
+	if (!p_binding.m_blits.empty() || !IsPrewarmKey(p_binding.m_key)) {
+		return false;
+	}
+	p_key = p_binding.m_file + "|" + RegionText(p_binding.m_region);
+	return true;
+}
+
+void MiniwinHdForgetSurface(MiniwinSurface* p_surface)
+{
+	HdState& state = State();
+	std::lock_guard<std::mutex> lock(state.m_mutex);
+	auto& queue = state.m_preupload;
+	queue.erase(std::remove(queue.begin(), queue.end(), p_surface), queue.end());
 }
 
 bool MiniwinHdAttach(IDirectDrawSurface* p_surface, const char* p_gamePath, const MiniwinHdRegion& p_region)

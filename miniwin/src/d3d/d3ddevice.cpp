@@ -9,6 +9,9 @@
 
 #include <miniwin/d3d.h>
 #include <string.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 void MiniwinFillDeviceDesc(D3DDEVICEDESC* p_desc); // d3d.cpp
@@ -67,6 +70,28 @@ struct MiniwinD3DDevice : public IDirect3DDevice3 {
 		// [library:hd] Sample the HD replacement instead of the original pixels. Always
 		// mipmapped: a 4K texture on a small on-screen triangle shimmers without them.
 		bool hd = false;
+		// [library:hd] Preview scenery and champion parts are reloaded every time their
+		// screen opens; reuse the texture already uploaded for the same image and region.
+		std::string shareKey;
+		if (p_surface->m_hd && MiniwinHdShareKey(*p_surface->m_hd, shareKey)) {
+			auto shared = m_sharedHd.find(shareKey);
+			if (shared != m_sharedHd.end()) {
+				if (p_surface->m_backendTexture != 0 && p_surface->m_backendTexture != shared->second.m_id &&
+					!m_sharedIds.count(p_surface->m_backendTexture)) {
+					backend->DestroyTexture(p_surface->m_backendTexture);
+				}
+				p_surface->m_backendTexture = shared->second.m_id;
+				p_surface->m_backendWidth = shared->second.m_width;
+				p_surface->m_backendHeight = shared->second.m_height;
+				p_surface->m_backendMipmaps = true;
+				p_surface->m_textureDirty = false;
+				p_surface->m_paletteVersion = paletteVersion;
+				return p_surface->m_backendTexture;
+			}
+		}
+		if (m_sharedIds.count(p_surface->m_backendTexture)) {
+			p_surface->m_backendTexture = 0; // never overwrite a shared texture
+		}
 		if (p_surface->m_hd) {
 			int hdWidth = 0;
 			int hdHeight = 0;
@@ -102,6 +127,10 @@ struct MiniwinD3DDevice : public IDirect3DDevice3 {
 		p_surface->m_backendWidth = width;
 		p_surface->m_backendHeight = height;
 		p_surface->m_backendMipmaps = mipmaps;
+		if (hd && !shareKey.empty() && p_surface->m_backendTexture != 0) {
+			m_sharedHd[shareKey] = {p_surface->m_backendTexture, width, height};
+			m_sharedIds.insert(p_surface->m_backendTexture);
+		}
 		if (hd) {
 			// Large HD buffers are not worth keeping between uploads.
 			std::vector<Uint8>().swap(m_convertScratch);
@@ -126,6 +155,14 @@ struct MiniwinD3DDevice : public IDirect3DDevice3 {
 		p_surface->m_paletteVersion = paletteVersion;
 		return p_surface->m_backendTexture;
 	}
+
+	struct SharedTexture {
+		Uint32 m_id;
+		int m_width;
+		int m_height;
+	};
+	std::unordered_map<std::string, SharedTexture> m_sharedHd; // [library:hd]
+	std::unordered_set<Uint32> m_sharedIds;
 
 	MiniwinRasterState BuildState()
 	{
@@ -350,6 +387,15 @@ HRESULT IDirect3DDevice3::BeginScene()
 	if (MiniwinRenderBackend* backend = self->Backend()) {
 		MiniwinWide_Update(backend, reinterpret_cast<SDL_Window*>(self->m_renderTarget->m_ddraw->m_hwnd));
 		backend->BeginScene();
+		// [library:hd] Upload prewarmed HD textures a few at a time, ahead of the screens
+		// that use them (about 3 ms a frame, at least one texture).
+		Uint64 start = SDL_GetTicksNS();
+		while (MiniwinSurface* surface = MiniwinHdNextPreupload()) {
+			self->EnsureTexture(surface);
+			if (SDL_GetTicksNS() - start > 3000000) {
+				break;
+			}
+		}
 	}
 	return D3D_OK;
 }

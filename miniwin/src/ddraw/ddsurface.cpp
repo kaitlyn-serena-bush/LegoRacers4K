@@ -2,6 +2,7 @@
 // and 3D rendering are wired to the render backends (M2).
 
 #include "ddraw_impl.h"
+#include "hdtexture_impl.h"
 #include "miniwin.h"
 #include "renderbackend.h"
 
@@ -15,6 +16,7 @@ MiniwinSurface::MiniwinSurface(const DDSURFACEDESC2& p_desc, MiniwinSurfaceKind 
 
 MiniwinSurface::~MiniwinSurface()
 {
+	MiniwinHdForgetSurface(this); // [library:hd]
 	if (m_backBuffer) {
 		m_backBuffer->Release();
 		m_backBuffer = nullptr;
