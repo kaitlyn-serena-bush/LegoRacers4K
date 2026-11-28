@@ -453,10 +453,8 @@ LegoS32 LegoPieceLibrary::Load(const LegoChar* p_filename, undefined4 p_binary)
 			}
 		}
 
-		if (variantCount > 0) {
-			for (LegoS32 j = 0; j < variantCount; j++) {
-				m_pieces[i - j - 1].m_variantCount = static_cast<LegoU8>(variantCount);
-			}
+		for (LegoS32 j = 0; j < variantCount; j++) {
+			m_pieces[i - j - 1].m_variantCount = static_cast<LegoU8>(variantCount);
 		}
 	}
 
