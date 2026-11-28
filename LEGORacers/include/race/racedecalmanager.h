@@ -83,7 +83,7 @@ public:
 			void EndGeometry(GolModelBase* p_model);
 			void SetOrientation(GolVec3* p_normal, GolVec3* p_lengthAxis);
 			void ComputeProjection();
-			LegoU32 TransformVertices(LegoU32 p_destIndex, LegoU32 p_firstVertex, LegoU32 p_vertexCount);
+			void TransformVertices(LegoU32 p_destIndex, LegoU32 p_firstVertex, LegoU32 p_vertexCount);
 			void EmitPolygon(LegoU32 p_firstPolygon, LegoU32 p_polygonCount);
 			void EmitTriangle(ProjectedVertex* p_vertex0, ProjectedVertex* p_vertex1, ProjectedVertex* p_vertex2);
 			void FlushBatch();

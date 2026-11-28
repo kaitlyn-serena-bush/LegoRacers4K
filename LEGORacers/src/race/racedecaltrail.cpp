@@ -549,13 +549,12 @@ void RaceDecalManager::Trail::Decal::ComputeProjection()
 }
 
 // FUNCTION: LEGORACERS 0x00414e40
-LegoU32 RaceDecalManager::Trail::Decal::TransformVertices(
+void RaceDecalManager::Trail::Decal::TransformVertices(
 	LegoU32 p_destIndex,
 	LegoU32 p_firstVertex,
 	LegoU32 p_vertexCount
 )
 {
-	LegoU32 result = p_vertexCount;
 	LegoU32 vertexIndex = p_firstVertex;
 	ProjectedVertex* projected = &g_decalProjectedVertices[p_destIndex];
 	LegoU32 end = p_firstVertex + p_vertexCount;
@@ -580,7 +579,7 @@ LegoU32 RaceDecalManager::Trail::Decal::TransformVertices(
 
 		LegoU32 projectedXBits = projected->m_projected.m_x.m_bits;
 		projected->m_projected.m_y.m_float = g_decalVOffset + projected->m_projected.m_y.m_float;
-		result = ((projectedXBits >> 2) | (projected->m_projected.m_y.m_bits & c_clipYMinMask)) >> 29;
+		LegoU32 result = ((projectedXBits >> 2) | (projected->m_projected.m_y.m_bits & c_clipYMinMask)) >> 29;
 
 		LegoU32 projectedYBits = projected->m_projected.m_y.m_bits;
 		LegoU32 highFlags = (((c_floatOneBits - projectedYBits) & c_clipYMaxMask) |
@@ -591,8 +590,6 @@ LegoU32 RaceDecalManager::Trail::Decal::TransformVertices(
 		vertexIndex++;
 		projected++;
 	}
-
-	return result;
 }
 
 // FUNCTION: LEGORACERS 0x00414f40
