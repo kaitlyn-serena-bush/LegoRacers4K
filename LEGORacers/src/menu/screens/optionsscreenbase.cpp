@@ -136,6 +136,80 @@ void OptionsScreenBase::CreateWidgets()
 // created in navigation order (top to bottom), then moved into rows.
 // [library:config] LegoRacers4K: move a volume bar, shrink its minifig-head buttons to
 // 70% (the track keeps its height), widen the bar a little, then lay it out again so
+// [library:config] LegoRacers4K options layout (settings-row rules: short label first,
+// left-aligned in one column; its control right-aligned in a second column; equal row
+// heights with label and control centred on each other; spacing groups the rows).
+static const LegoS32 c_labelLeft = 64;
+static const LegoS32 c_controlRight = 576;
+static const LegoS32 c_rowFirst = 122;
+static const LegoS32 c_rowStep = 54;
+static const LegoS32 c_linkFirst = 352;
+static const LegoS32 c_linkStep = 28;
+static const LegoS32 c_backTop = 440;
+// Text buttons keep room for the back arrow before their text; selectors carry extra
+// space under their arrows. Offsets so the visible text and arrows line up.
+static const LegoS32 c_buttonTextInset = 32;
+static const LegoS32 c_selectorRaise = 4;
+
+static void PlaceAt(MenuWidget* p_widget, LegoS32 p_left, LegoS32 p_top)
+{
+	Rect rect = *p_widget->GetRect();
+	rect.m_right += p_left - rect.m_left;
+	rect.m_bottom += p_top - rect.m_top;
+	rect.m_left = p_left;
+	rect.m_top = p_top;
+	p_widget->SetRect(&rect);
+}
+
+// Label: left column, vertically centred on the row.
+static void PlaceRowLabel(MenuWidget* p_widget, LegoS32 p_rowCenter)
+{
+	const Rect* rect = p_widget->GetRect();
+	PlaceAt(p_widget, c_labelLeft, p_rowCenter - ((rect->m_bottom - rect->m_top) >> 1));
+}
+
+// Control: right column, vertically centred on the row.
+static void PlaceRowControl(MenuWidget* p_widget, LegoS32 p_rowCenter)
+{
+	const Rect* rect = p_widget->GetRect();
+	PlaceAt(
+		p_widget,
+		c_controlRight - (rect->m_right - rect->m_left),
+		p_rowCenter - ((rect->m_bottom - rect->m_top) >> 1)
+	);
+}
+
+// Short one-line English title ("OPPONENTS", "LANGUAGE"); other languages keep theirs.
+static void SetShortTitle(MenuTextLabel* p_label, GolString* p_string, undefined2* p_buffer, const char* p_text)
+{
+	LegoS32 length = 0;
+	for (; p_text[length] && length < 63; length++) {
+		p_buffer[length] = static_cast<LegoU8>(p_text[length]);
+	}
+	p_buffer[length] = 0;
+	p_string->CopyFromBufSelection(p_buffer, static_cast<undefined2>(length + 1));
+	p_label->SetString(p_string, TRUE);
+}
+
+static LegoBool32 IsEnglish(undefined2* p_languageName)
+{
+	static const char c_english[] = "ENGLISH";
+	if (!p_languageName) {
+		return FALSE;
+	}
+	LegoS32 i;
+	for (i = 0; c_english[i]; i++) {
+		LegoU16 c = p_languageName[i];
+		if (c >= 'a' && c <= 'z') {
+			c -= 'a' - 'A';
+		}
+		if (c != static_cast<LegoU8>(c_english[i])) {
+			return FALSE;
+		}
+	}
+	return p_languageName[i] == 0 || p_languageName[i] == ' ' || p_languageName[i] == '\n';
+}
+
 // the thumb and the mouse-drag bounds (the track's screen rect) follow.
 static void ScaleButton(MenuButton* p_button, LegoS32 p_height)
 {
@@ -146,17 +220,16 @@ static void ScaleButton(MenuButton* p_button, LegoS32 p_height)
 	p_button->SetRect(&rect);
 }
 
-static const LegoS32 c_volumeBarX = 280;
-
-static void PlaceVolumeBar(OptionsRowBase* p_row, LegoS32 p_top)
+static void PlaceVolumeBar(OptionsRowBase* p_row, LegoS32 p_rowCenter)
 {
 	Rect rect = *p_row->GetRect();
 	LegoS32 width = rect.m_right - rect.m_left;
 	LegoS32 height = rect.m_bottom - rect.m_top;
 	LegoS32 newHeight = (height * 7) / 10;
-	rect.m_left = c_volumeBarX;
-	rect.m_right = c_volumeBarX + 12 + width + 6;
-	rect.m_top = p_top + ((height - newHeight) >> 1);
+	// Right-aligned in the control column, centred on the row.
+	rect.m_right = c_controlRight;
+	rect.m_left = c_controlRight - (12 + width + 6);
+	rect.m_top = p_rowCenter - (newHeight >> 1);
 	rect.m_bottom = rect.m_top + newHeight;
 	p_row->SetRect(&rect);
 	ScaleButton(&p_row->GetPrevButton(), newHeight);
@@ -221,26 +294,17 @@ static LegoBool32 g_focusLanguageAfterReload = FALSE;
 
 static LegoBool32 g_languageReloadPending = FALSE;
 
-static void MoveWidget(MenuWidget* p_widget, LegoS32 p_left, LegoS32 p_top)
-{
-	Rect rect = *p_widget->GetRect();
-	rect.m_right += p_left - rect.m_left;
-	rect.m_bottom += p_top - rect.m_top;
-	rect.m_left = p_left;
-	rect.m_top = p_top;
-	p_widget->SetRect(&rect);
-}
-
 void OptionsScreenBase::CreateSinglePageWidgets()
 {
 	LegoS32 i;
-	const LegoS32 c_rowOpponents = 74;
-	const LegoS32 c_rowMusic = 138;
-	const LegoS32 c_rowSound = 204;
-	const LegoS32 c_rowLanguage = 276;
-	// Label first (left column), its control after it (right column).
-	const LegoS32 c_labelX = 8;
-	const LegoS32 c_controlSelectorX = 312;
+	// Row centres.
+	const LegoS32 c_rowOpponents = c_rowFirst;
+	const LegoS32 c_rowMusic = c_rowFirst + c_rowStep;
+	const LegoS32 c_rowSound = c_rowFirst + 2 * c_rowStep;
+	const LegoS32 c_rowLanguage = c_rowFirst + 3 * c_rowStep;
+	LegoBool32 english = IsEnglish(
+		m_menuTextStrings->GetStringBuffer(static_cast<LegoU16>(0x9d + m_context->m_saveSystem.GetLanguageIndex()))
+	);
 
 	CreateCarousel(&m_racerCountCarousel, 0x3d, 0x3b);
 	CreateSelector(&m_racerCountSelector, &m_racerCountCarousel, 0xf3, 0x4c);
@@ -251,8 +315,11 @@ void OptionsScreenBase::CreateSinglePageWidgets()
 	}
 	m_racerCountCarousel.SetSelection(m_gameState->GetRacerCount());
 	OnWidgetValueChanged(&m_racerCountSelector);
-	MoveWidget(&m_racerCountSelector, c_controlSelectorX, c_rowOpponents);
-	MoveWidget(&m_gameOptionLabels[0], c_labelX, c_rowOpponents - 2);
+	if (english) {
+		SetShortTitle(&m_gameOptionLabels[0], &m_rowTitleStrings[0], m_rowTitleBuffers[0], "OPPONENTS");
+	}
+	PlaceRowControl(&m_racerCountSelector, c_rowOpponents - c_selectorRaise);
+	PlaceRowLabel(&m_gameOptionLabels[0], c_rowOpponents);
 
 	CreateOptionsRow(&m_musicVolumeSlider, 0xf9, 0xec);
 	CreateOptionsRow(&m_soundVolumeSlider, 0xfa, 0xec);
@@ -275,8 +342,12 @@ void OptionsScreenBase::CreateSinglePageWidgets()
 			m_audioTitleBuffers[i]
 		);
 	}
-	MoveWidget(&m_audioLabels[0], c_labelX, c_rowMusic + 4);
-	MoveWidget(&m_audioLabels[1], c_labelX, c_rowSound + 4);
+	if (english) {
+		SetShortTitle(&m_audioLabels[0], &m_audioTitleStrings[0], m_audioTitleBuffers[0], "MUSIC");
+		SetShortTitle(&m_audioLabels[1], &m_audioTitleStrings[1], m_audioTitleBuffers[1], "SOUND");
+	}
+	PlaceRowLabel(&m_audioLabels[0], c_rowMusic);
+	PlaceRowLabel(&m_audioLabels[1], c_rowSound);
 
 	CreateCarousel(&m_languageCarousel, 0x3d, 0x3b);
 	CreateSelector(&m_languageSelector, &m_languageCarousel, 0xf3, 0x4c);
@@ -286,17 +357,21 @@ void OptionsScreenBase::CreateSinglePageWidgets()
 	}
 	m_languageCarousel.SetSelection(m_context->m_saveSystem.GetLanguageIndex());
 	CreateTextLabel(&m_languageTitle, 0x100, 0x37, 0x9c);
-	MoveWidget(&m_languageSelector, c_controlSelectorX, c_rowLanguage);
-	MoveWidget(&m_languageTitle, c_labelX, c_rowLanguage - 2);
+	if (english) {
+		SetShortTitle(&m_languageTitle, &m_rowTitleStrings[1], m_rowTitleBuffers[1], "LANGUAGE");
+	}
+	PlaceRowControl(&m_languageSelector, c_rowLanguage - c_selectorRaise);
+	PlaceRowLabel(&m_languageTitle, c_rowLanguage);
 
 	CreateTextButton(&m_controls1Button, 0xf0, 0x42, 0x17);
 	CreateTextButton(&m_controls2Button, 0xf1, 0x42, 0x18);
 	CreateTextButton(&m_creditsButton, 0x27, 0x42, 0x58);
 	CreateTextButton(&m_backButton, 0x3f, 0x43, 2);
-	MoveWidget(&m_controls1Button, 3, 340);
-	MoveWidget(&m_controls2Button, 3, 368);
-	MoveWidget(&m_creditsButton, 3, 396);
-	MoveWidget(&m_backButton, 16, 436);
+	// Links to other screens: their own group under the settings, same left edge.
+	PlaceAt(&m_controls1Button, c_labelLeft - c_buttonTextInset, c_linkFirst);
+	PlaceAt(&m_controls2Button, c_labelLeft - c_buttonTextInset, c_linkFirst + c_linkStep);
+	PlaceAt(&m_creditsButton, c_labelLeft - c_buttonTextInset, c_linkFirst + 2 * c_linkStep);
+	PlaceAt(&m_backButton, c_labelLeft - c_buttonTextInset, c_backTop);
 }
 
 // FUNCTION: LEGORACERS 0x004831d0

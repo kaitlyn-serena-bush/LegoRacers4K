@@ -85,6 +85,8 @@ protected:
 	MenuTextLabel m_languageTitle;
 	GolString m_audioTitleStrings[2];
 	undefined2 m_audioTitleBuffers[2][64];
+	GolString m_rowTitleStrings[2]; // [library:config] short English titles
+	undefined2 m_rowTitleBuffers[2][64];
 	void ReloadForLanguage();
 };
 
