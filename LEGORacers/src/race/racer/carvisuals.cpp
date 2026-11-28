@@ -1031,6 +1031,20 @@ done:
 	return;
 }
 
+inline LegoFloat DotVectors(const GolVec3& p_left, const GolVec3& p_right)
+{
+	LegoFloat result = p_left.m_z;
+	LegoFloat z = p_right.m_z;
+	result *= z;
+	LegoFloat y = p_left.m_y;
+	LegoFloat rightY = p_right.m_y;
+	y *= rightY;
+	result += y;
+	result += p_left.m_x * p_right.m_x;
+
+	return result;
+}
+
 // FUNCTION: LEGORACERS 0x0043f1e0
 void CarVisuals::UpdateSkidMarks(LegoU32 p_elapsedMs)
 {
@@ -1089,7 +1103,7 @@ void CarVisuals::UpdateSkidMarks(LegoU32 p_elapsedMs)
 		GolVec3 slipDirection = m_racerPhysics->m_velocityDirection;
 		GolVec3 side;
 		m_carEntity->GetOrientationRow1(&side);
-		LegoFloat dot = side.m_x * slipDirection.m_x + slipDirection.m_z * side.m_z + side.m_y * slipDirection.m_y;
+		LegoFloat dot = DotVectors(slipDirection, side);
 		if (dot > 0.0f) {
 			m_wheelSkidFlags[0] &= ~c_wheelSkidActive;
 			m_wheelSkidFlags[2] &= ~c_wheelSkidActive;
@@ -1149,19 +1163,6 @@ void CarVisuals::UpdateSkidMarks(LegoU32 p_elapsedMs)
 			itemSlot++;
 		} while (i < sizeOfArray(m_skidMarks));
 	}
-}
-
-inline LegoFloat DotVectors(const GolVec3& p_left, const GolVec3& p_right)
-{
-	LegoFloat result = p_left.m_z;
-	LegoFloat z = p_right.m_z;
-	result *= z;
-	LegoFloat y = p_left.m_y;
-	y *= p_right.m_y;
-	result += y;
-	result += p_left.m_x * p_right.m_x;
-
-	return result;
 }
 
 inline void CrossVectors(const GolVec3& p_left, const GolVec3& p_right, GolVec3* p_dest)
