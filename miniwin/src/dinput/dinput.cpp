@@ -383,6 +383,15 @@ int MiniwinInput_DikFromKeyName(const char* p_name)
 	return ScancodeToDik(scancode);
 }
 
+const char* MiniwinInput_KeyNameFromDik(int p_dik)
+{
+	if (p_dik <= 0 || p_dik > 0xff) {
+		return "";
+	}
+	SDL_Scancode scancode = DikToScancode((Uint8) p_dik);
+	return scancode == SDL_SCANCODE_UNKNOWN ? "" : SDL_GetScancodeName(scancode);
+}
+
 // --- Gamepad slots (4-player couch co-op, hot-plug) ---
 // The game enumerates joysticks once at startup and keeps the device objects for
 // the whole session, so DirectInput sees four fixed virtual pads ("Gamepad 1".."4").

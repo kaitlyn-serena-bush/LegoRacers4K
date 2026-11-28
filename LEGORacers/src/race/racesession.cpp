@@ -2942,6 +2942,28 @@ void RaceSession::ProcessPauseDialog()
 		break;
 	}
 
+	// [library:input] LegoRacers4K: Restart Race and Quit Race act at once, with no "Are you sure?"
+	// (the confirm dialog's yes path).
+	if (m_pendingAction) {
+		if (m_pendingAction == 1) {
+			if (!m_standings || (m_context->m_flags & LegoRacers::Context::c_flagFirstRace)) {
+				if (m_standings) {
+					m_standings->ClearPoints();
+				}
+				RestartRace();
+			}
+			else {
+				m_running = 0;
+				m_context->m_flags |= LegoRacers::Context::c_flagRestartCircuit;
+			}
+		}
+		else if (m_pendingAction == 2) {
+			m_running = 0;
+			m_context->m_flags |= LegoRacers::Context::c_flagAbortRace;
+		}
+		m_pendingAction = 0;
+	}
+
 	if (m_pendingAction) {
 		m_pauseState = 3;
 		OpenPauseDialog();

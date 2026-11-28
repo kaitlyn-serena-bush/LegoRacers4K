@@ -28,6 +28,24 @@ void GarageScreen::Reset()
 	RacerPickScreenBase::Reset();
 }
 
+// [library:config] LegoRacers4K: the title is centred, as on the other menus.
+static void CenterTitle(MenuWidget* p_title)
+{
+	Rect rect = *p_title->GetRect();
+	LegoS32 width = rect.m_right - rect.m_left;
+	rect.m_left = 320 - (width >> 1);
+	rect.m_right = rect.m_left + width;
+	p_title->SetRect(&rect);
+}
+
+static void MoveBy(MenuWidget* p_widget, LegoS32 p_dx)
+{
+	Rect rect = *p_widget->GetRect();
+	rect.m_left += p_dx;
+	rect.m_right += p_dx;
+	p_widget->SetRect(&rect);
+}
+
 // FUNCTION: LEGORACERS 0x0047e550
 void GarageScreen::CreateMainButtons()
 {
@@ -90,6 +108,30 @@ LegoBool32 GarageScreen::Initialize(MenuGameContext* p_context, MenuScreenCreate
 	}
 
 	SetupLighting();
+
+	// [library:config] LegoRacers4K: the options sit further from the preview, and MAIN MENU
+	// is bottom-left as on every screen.
+	{
+		MenuWidget* buttons[] = {
+			&m_newRacerButton,
+			&m_editButton,
+			&m_loadButton,
+			&m_deleteButton,
+			&m_testDriveButton,
+			&m_editDriverButton,
+			&m_licenseButton,
+			&m_editCarButton
+		};
+		for (MenuWidget* button : buttons) {
+			MoveBy(button, -20);
+		}
+		Rect rect = *m_backButton.GetRect();
+		rect.m_right += 3 - rect.m_left;
+		rect.m_bottom += 418 - rect.m_top;
+		rect.m_left = 3;
+		rect.m_top = 418;
+		m_backButton.SetRect(&rect);
+	}
 	ShowMainButtons();
 	return TRUE;
 }
@@ -106,6 +148,7 @@ void GarageScreen::ShowMainButtons()
 	m_backButton.SetTextByIndex(2);
 	m_infoLabel.SetStringByIndex(3, TRUE);
 	m_infoLabel.WrapText(0x14);
+	CenterTitle(&m_infoLabel); // [library:config]
 
 	if (m_recordCounts[0]) {
 		m_editButton.Enable(5);
@@ -168,6 +211,7 @@ void GarageScreen::ShowEditButtons()
 	m_backButton.SetTextByIndex(3);
 	m_infoLabel.SetStringByIndex(4, TRUE);
 	m_infoLabel.WrapText(0x14);
+	CenterTitle(&m_infoLabel); // [library:config]
 }
 
 // FUNCTION: LEGORACERS 0x0047e9c0

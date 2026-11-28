@@ -886,6 +886,15 @@ void MenuManager::PrepareRaceContext()
 		m_gameContext.m_saveSystem.GetGameState()
 			.GetInputBindingEntry(playerIndex, entryIndex, &context->m_inputBindings[playerIndex]);
 
+		// [library:input] LegoRacers4K: keyboard keys come from the player's keyboard set in
+		// controls.ini (edited on the Player Controls screen), as in Versus.
+		if (context->m_inputBindings[playerIndex].m_deviceType == DIDEVTYPE_KEYBOARD) {
+			CoopControls_GetPresetEvents(
+				c_coopPresetKeyboard1 + static_cast<LegoS32>(playerIndex),
+				context->m_inputBindings[playerIndex].m_events
+			);
+		}
+
 		// [library:input] Gamepad slots always exist now; if the chosen pad isn't plugged
 		// in, fall back to the default (gamepad N if connected, else keyboard set N).
 		if (context->m_inputBindings[playerIndex].m_deviceType == DIDEVTYPE_JOYSTICK &&

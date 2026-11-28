@@ -61,6 +61,13 @@ protected:
 	MenuTextButton m_eventButtons[9];       // 0x144c
 	MenuTextLabel m_eventLabels[9];         // 0x2ebc
 	GolString m_eventTexts[9];              // 0x32f4
+
+	// [library:config] LegoRacers4K: Players 3 and 4 in the title selector, and every player's
+	// keyboard set as saved in controls.ini (what Versus uses; player 1 also drives single player).
+	MenuTextLabel m_extraPlayerLabels[2];
+	GolString m_extraPlayerStrings[2];
+	undefined2 m_extraPlayerBuffers[2][32];
+	LegoU32 m_keyEvents[4][9];
 };
 
 #endif // CONTROLCONFIGSCREEN_H

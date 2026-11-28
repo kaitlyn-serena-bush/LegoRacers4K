@@ -1,5 +1,6 @@
 #include "menu/screens/mainmenuscreen.h"
 
+#include "app/coopcontrols.h"
 #include "audio/soundgroupbinding.h"
 #include "input/inputmanager.h"
 #include "menu/menudialog.h"
@@ -158,6 +159,35 @@ LegoBool32 MainMenuScreen::Initialize(MenuGameContext* p_context, MenuScreenCrea
 				s_multiplayerBuffer[length] = 0;
 				s_multiplayer.CopyFromBufSelection(s_multiplayerBuffer, static_cast<undefined2>(length + 1));
 				m_versusRaceButton.SetText(&s_multiplayer);
+				static GolString s_singlePlayer;
+				static undefined2 s_singlePlayerBuffer[16];
+				static const char c_single[] = "SINGLE PLAYER";
+				for (length = 0; c_single[length]; length++) {
+					s_singlePlayerBuffer[length] = static_cast<LegoU8>(c_single[length]);
+				}
+				s_singlePlayerBuffer[length] = 0;
+				s_singlePlayer.CopyFromBufSelection(s_singlePlayerBuffer, static_cast<undefined2>(length + 1));
+				m_circuitRaceButton.SetText(&s_singlePlayer);
+			}
+		}
+		// One SINGLE PLAYER entry (it opens Circuit Race; arrows by that screen's title switch to
+		// Single Race and Time Trial), so Single Race and Time Trial leave the main menu. The five
+		// remaining entries are spread evenly over the original rows.
+		m_singleRaceButton.ClearFlags(2);
+		m_singleRaceButton.Disable(5);
+		m_timeRaceButton.ClearFlags(2);
+		m_timeRaceButton.Disable(5);
+		{
+			MenuTextButton* rows[] =
+				{&m_garageButton, &m_circuitRaceButton, &m_versusRaceButton, &m_optionsButton, &m_exitButton};
+			LegoS32 first = m_garageButton.GetRect()->m_top;
+			LegoS32 last = m_exitButton.GetRect()->m_top;
+			for (LegoS32 i = 0; i < 5; i++) {
+				Rect rect = *rows[i]->GetRect();
+				LegoS32 top = first + (last - first) * i / 4;
+				rect.m_bottom += top - rect.m_top;
+				rect.m_top = top;
+				rows[i]->SetRectRaw(rect);
 			}
 		}
 		MenuTextButton* buttons[] = {
@@ -219,9 +249,18 @@ void MainMenuScreen::OnIconUnfocused(MenuWidget* p_source)
 		);
 	}
 	else if (p_source == &m_versusRaceButton) {
-		// [library:config] LegoRacers4K: Versus opens its setup screen (race type, players, laps)
-		// first; that screen sets the Versus flow flag.
-		m_nextMenuId = 4;
+		// [library:config] LegoRacers4K: MULTIPLAYER opens MULTIPLAYER SINGLE RACE (players and laps
+		// are picked there; arrows by the title switch to MULTIPLAYER CIRCUIT RACE).
+		m_context->m_modelBuilder.SetMenuFlowFlags(
+			m_context->m_modelBuilder.GetMenuFlowFlags() | DriverModelBuilder::c_menuFlowVersus
+		);
+		CoopVersusSettings* settings = CoopVersus_GetSettings();
+		settings->m_lapCount = static_cast<LegoU8>(m_context->m_saveSystem.GetGameState().GetLapCount());
+		if (settings->m_lapCount < 1 || settings->m_lapCount > 5) {
+			settings->m_lapCount = 3;
+		}
+		m_context->m_context->m_lapCount = settings->m_lapCount;
+		m_nextMenuId = 6;
 	}
 	else if (p_source == &m_timeRaceButton) {
 		m_nextMenuId = 0x1d;

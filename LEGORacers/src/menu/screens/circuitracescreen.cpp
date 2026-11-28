@@ -94,7 +94,8 @@ void CircuitRaceScreen::CreateWidgets()
 	CreateTextLabel(&m_circuitDescLabel, 0x60, 0x37, 0x60);
 	CreateTextButton(&m_startButton, 0x40, 0x46, 0x72);
 	CreateTextButton(&m_backButton, 0x3f, 0x43, 2);
-	CreateQuadWidgets(); // [library:3d]
+	CreateQuadWidgets();  // [library:3d]
+	CreateModeSelector(); // [library:config]
 }
 
 // [library:config] LegoRacers4K layout, like Race Select: title centred, the preview with the circuit
@@ -133,21 +134,28 @@ void CircuitRaceScreen::LayoutCentered()
 		m_sceneWidget.m_frame->SetViewportRect(&m_sceneWidget.m_viewportRect);
 	}
 
-	// Circuit selector: spans the preview so its arrows sit on either side, level with the
-	// preview's middle; its own picture carousel is not shown.
-	const LegoS32 arrowWidth = 32;
-	const LegoS32 arrowGap = 8;
-	LegoS32 selectorWidth = frameWidth + 2 * (arrowWidth + arrowGap);
-	LegoS32 selectorTop = frameTop + (frameHeight >> 1) - (arrowWidth >> 1);
+	// Circuit selector: big arrows touching the preview on either side, level with its middle;
+	// its own picture carousel is not shown.
+	const LegoS32 arrowSize = 64;
+	const LegoS32 arrowInset = 6; // the arrow art has a margin: overlap it so the arrows touch
+	LegoS32 selectorWidth = frameWidth + 2 * (arrowSize - arrowInset);
+	LegoS32 selectorTop = frameTop + (frameHeight >> 1) - (arrowSize >> 1);
 	Rect selector = *m_trackSelector.GetRect();
 	selector.m_left = 320 - (selectorWidth >> 1);
 	selector.m_right = selector.m_left + selectorWidth;
 	selector.m_top = selectorTop;
-	selector.m_bottom = selectorTop + arrowWidth;
+	selector.m_bottom = selectorTop + arrowSize;
 	m_trackSelector.SetRect(&selector);
-	PlaceWidget(&m_trackSelector.GetPrevButton(), 0, 0);
-	PlaceWidget(&m_trackSelector.GetNextButton(), selectorWidth - arrowWidth, 0);
-	PlaceWidget(&m_trackCarousel, (selectorWidth - arrowWidth) >> 1, 0);
+	Rect arrow;
+	arrow.m_left = 0;
+	arrow.m_top = 0;
+	arrow.m_right = arrowSize;
+	arrow.m_bottom = arrowSize;
+	m_trackSelector.GetPrevButton().SetRect(&arrow);
+	arrow.m_left = selectorWidth - arrowSize;
+	arrow.m_right = selectorWidth;
+	m_trackSelector.GetNextButton().SetRect(&arrow);
+	PlaceWidget(&m_trackCarousel, (selectorWidth - arrowSize) >> 1, 0);
 	m_trackCarousel.ClearFlags(2);
 
 	// Circuit name (the race name label) below the preview.
@@ -164,8 +172,17 @@ void CircuitRaceScreen::LayoutCentered()
 	m_trackCaptionLabel.ClearFlags(2);
 	m_circuitDescLabel.ClearFlags(2);
 
+	// No OK button: the start button is an invisible area over the preview, so clicking the
+	// picture or pressing Enter starts. MAIN MENU sits bottom-left, as on every screen.
+	static GolString s_empty;
+	static undefined2 s_emptyBuffer[1] = {0};
+	s_empty.CopyFromBufSelection(s_emptyBuffer, 1);
+	m_startButton.SetText(&s_empty);
+	m_startButton.HideImage();
+	Rect start = *m_borderFrame.GetRect();
+	m_startButton.SetRect(&start);
 	PlaceWidget(&m_backButton, 3, 418);
-	PlaceWidget(&m_startButton, 640 - 3 - (m_startButton.GetRect()->m_right - m_startButton.GetRect()->m_left), 418);
+	LayoutModeSelector(&m_infoLabel, 0);
 	ShowAllRaces();
 }
 
@@ -200,8 +217,11 @@ void CircuitRaceScreen::OnIconUnfocused(MenuWidget* p_source)
 }
 
 // FUNCTION: LEGORACERS 0x0047a0e0
-void CircuitRaceScreen::OnWidgetValueChanged(MenuWidget*)
+void CircuitRaceScreen::OnWidgetValueChanged(MenuWidget* p_source)
 {
+	if (HandleModeChanged(p_source)) { // [library:config]
+		return;
+	}
 	m_context->m_context->m_raceMode = LegoRacers::Context::c_raceModeCircuit;
 
 	m_circuitIndex = m_trackCarousel.GetSelectedIndex();
@@ -255,8 +275,24 @@ void CircuitRaceScreen::Navigate()
 		m_transition = NULL;
 	}
 
+	if (NavigateModeSwitch()) { // [library:config]
+		return;
+	}
+
 	if (m_nextMenuId == 2) {
+		// [library:config] LegoRacers4K: MULTIPLAYER CIRCUIT RACE returns to the main menu too.
+		m_context->m_modelBuilder.SetMenuFlowFlags(
+			m_context->m_modelBuilder.GetMenuFlowFlags() & ~DriverModelBuilder::c_menuFlowVersus
+		);
 		m_context->m_menuStack.Pop();
+		return;
+	}
+
+	// [library:input] LegoRacers4K: in Multiplayer, every player picks at once and the circuit's
+	// races run back to back (the race slots were filled when the circuit was picked).
+	if (m_context->m_modelBuilder.GetMenuFlowFlags() & DriverModelBuilder::c_menuFlowVersus) {
+		m_context->m_context->m_raceMode = LegoRacers::Context::c_raceModeSingle;
+		m_context->m_menuStack.Push(0x1e);
 		return;
 	}
 
@@ -484,6 +520,13 @@ LegoBool32 CircuitRaceScreen::Destroy()
 // FUNCTION: LEGORACERS 0x0047a3f0
 LegoBool32 CircuitRaceScreen::Update(undefined4 p_elapsed)
 {
+	// [library:config] LegoRacers4K: a mode arrow switches screens at once (hover focus clears
+	// m_navPending before the base Update sees it).
+	if (m_modeSwitchMenuId) {
+		Navigate();
+		return FALSE;
+	}
+
 	if (m_transition && !m_transition->IsActive()) {
 		m_transition = NULL;
 	}

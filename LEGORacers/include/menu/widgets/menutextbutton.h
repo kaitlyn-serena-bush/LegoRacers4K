@@ -40,7 +40,8 @@ public:
 	void SetIconEventHandler(MenuScreenInterface*) override;                       // vtable+0x40
 	void SetTextByIndex(undefined4);
 	void SetText(GolString* p_string);
-	void SetTextScale(LegoFloat p_scale); // [library:config]
+	void SetTextScale(LegoFloat p_scale);       // [library:config]
+	void HideImage() { m_image.ClearFlags(2); } // [library:config] text and icon gone: a bare click area
 	LegoBool32 Create(CreateParams* p_createParams, MenuStyleTable::TextButtonStyle* p_styleEntry);
 
 	// SYNTHETIC: LEGORACERS 0x00482400

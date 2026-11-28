@@ -27,6 +27,8 @@ int MiniwinGamepad_ConnectedMask(); // bit i set = slot i has a pad
 bool MiniwinGamepad_GetName(int p_slot, char* p_buffer, size_t p_size);
 // DirectInput DIK_* code for an SDL key name ("Left", "Right Ctrl", "Keypad 4"), 0 if unknown.
 int MiniwinInput_DikFromKeyName(const char* p_name);
+// SDL key name for a DirectInput DIK_* code ("" if unknown); the reverse of the above.
+const char* MiniwinInput_KeyNameFromDik(int p_dik);
 
 // Scales the relative mouse deltas fed to DirectInput into the game's cursor coordinate space
 // (1.0 = no scaling). Used on the web, where the window fills the browser tab but the UI

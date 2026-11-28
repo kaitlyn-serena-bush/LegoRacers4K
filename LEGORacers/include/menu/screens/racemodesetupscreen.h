@@ -34,6 +34,8 @@ protected:
 	void FormatTime(LegoChar* p_buffer, LegoU32 p_time);
 	void UpdateRacePreview();
 	void LayoutCentered();
+	void BuildRaceList();      // [library:config]
+	void ApplyListSelection(); // [library:config]
 	void UpdateBestTimePanel();
 
 	MenuImage m_photoImage;                               // 0x1908
@@ -55,6 +57,16 @@ protected:
 	undefined2 m_timeBuffer[(0x2e46 - 0x2e32) / 2];       // 0x2e32
 	GolString m_holderNameString;                         // 0x2e48
 	GolString m_timeString;                               // 0x2e54
+
+	// [library:config] LegoRacers4K: one continuous list of every race (each track once)
+	// replaces the circuit picker; the original carousels stay hidden and follow it.
+	MenuCarouselNavigator m_listCarousel;
+	MenuSelector m_listSelector;
+	MenuTextLabel m_listLabels[16];
+	LegoU8 m_listCircuit[16];
+	LegoU8 m_listRace[16];
+	LegoS32 m_listCount = 0;
+	LegoBool32 m_listActive = FALSE;
 };
 
 #endif // RACEMODESETUPSCREEN_H

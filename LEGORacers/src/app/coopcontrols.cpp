@@ -353,6 +353,106 @@ void CoopControls_GetPresetEvents(LegoS32 p_preset, LegoU32 p_events[c_coopActio
 	}
 }
 
+void CoopControls_SetKeyboardEvent(LegoS32 p_set, LegoS32 p_action, LegoU32 p_event)
+{
+	if (p_set < 0 || p_set > 3 || p_action < 0 || p_action >= c_coopActionCount) {
+		return;
+	}
+
+	Ini ini;
+	LoadIni(&ini); // makes sure the file exists and g_path is set
+	const char* name = "none";
+	if ((p_event & InputDevice::c_sourceMask) == InputDevice::c_sourceKeyboard) {
+		const char* keyName = MiniwinInput_KeyNameFromDik(static_cast<int>(p_event & 0xff));
+		if (keyName[0]) {
+			name = keyName;
+		}
+	}
+
+	size_t size = 0;
+	char* text = static_cast<char*>(SDL_LoadFile(g_path, &size));
+	if (!text) {
+		return;
+	}
+
+	// Rewrite the action's line in [keyboardN], or add one under the section header (or add
+	// the section), keeping everything else (comments included) as it was.
+	char section[16];
+	SDL_snprintf(section, sizeof(section), "[keyboard%d]", p_set + 1);
+	const char* action = c_actionNames[p_action];
+	char line[96];
+	SDL_snprintf(line, sizeof(line), "%s = %s", action, name);
+
+	size_t replaceStart = size;
+	size_t replaceEnd = size;
+	size_t insertAt = size;
+	LegoBool32 inSection = FALSE;
+	LegoBool32 found = FALSE;
+	size_t pos = 0;
+	while (pos < size && !found) {
+		size_t end = pos;
+		while (end < size && text[end] != '\n') {
+			end++;
+		}
+		size_t start = pos;
+		while (start < end && (text[start] == ' ' || text[start] == '\t')) {
+			start++;
+		}
+		if (start < end && text[start] == '[') {
+			if (inSection) {
+				break;
+			}
+			inSection = SDL_strncasecmp(text + start, section, SDL_strlen(section)) == 0;
+			if (inSection) {
+				insertAt = end < size ? end + 1 : size;
+			}
+		}
+		else if (inSection) {
+			size_t length = SDL_strlen(action);
+			size_t after = start + length;
+			if (end - start >= length && SDL_strncasecmp(text + start, action, length) == 0 && after <= end) {
+				while (after < end && (text[after] == ' ' || text[after] == '\t')) {
+					after++;
+				}
+				if (after < end && text[after] == '=') {
+					replaceStart = pos;
+					replaceEnd = end;
+					found = TRUE;
+				}
+			}
+		}
+		pos = end < size ? end + 1 : size;
+	}
+
+	SDL_IOStream* stream = SDL_IOFromFile(g_path, "wb");
+	if (stream) {
+		if (found) {
+			SDL_WriteIO(stream, text, replaceStart);
+			SDL_WriteIO(stream, line, SDL_strlen(line));
+			SDL_WriteIO(stream, text + replaceEnd, size - replaceEnd);
+		}
+		else if (insertAt < size || inSection) {
+			SDL_WriteIO(stream, text, insertAt);
+			SDL_WriteIO(stream, line, SDL_strlen(line));
+			SDL_WriteIO(stream, "\n", 1);
+			SDL_WriteIO(stream, text + insertAt, size - insertAt);
+		}
+		else {
+			SDL_WriteIO(stream, text, size);
+			if (size && text[size - 1] != '\n') {
+				SDL_WriteIO(stream, "\n", 1);
+			}
+			SDL_WriteIO(stream, "\n", 1);
+			SDL_WriteIO(stream, section, SDL_strlen(section));
+			SDL_WriteIO(stream, "\n", 1);
+			SDL_WriteIO(stream, line, SDL_strlen(line));
+			SDL_WriteIO(stream, "\n", 1);
+		}
+		SDL_CloseIO(stream);
+	}
+	SDL_free(text);
+}
+
 void CoopControls_GetActionName(LegoS32 p_preset, LegoS32 p_action, char* p_buffer, LegoU32 p_size)
 {
 	Ini ini;

@@ -1,5 +1,6 @@
 #include "menu/screens/controlconfigscreen.h"
 
+#include "app/coopcontrols.h"
 #include "audio/soundgroupbinding.h"
 #include "input/inputdevice.h"
 #include "input/inputmanager.h"
@@ -76,6 +77,25 @@ void ControlConfigScreen::CreateWidgets()
 	CreateTextLabel(&m_deviceLabel, 0x3a, 0x3a, 0x18);
 	m_deviceCarousel.AddItem(&m_infoLabel);
 	m_deviceCarousel.AddItem(&m_deviceLabel);
+	// Players 3 and 4: the Player 2 title with its digit changed.
+	for (LegoS32 i = 0; i < 2; i++) {
+		CreateTextLabel(&m_extraPlayerLabels[i], 0x3a, 0x3a, 0x18);
+		const undefined2* source = m_menuTextStrings->GetStringBuffer(0x18);
+		LegoS32 length = 0;
+		LegoBool32 replaced = FALSE;
+		for (; source && source[length] && length < 31; length++) {
+			undefined2 c = source[length];
+			if (!replaced && c == '2') {
+				c = static_cast<undefined2>('3' + i);
+				replaced = TRUE;
+			}
+			m_extraPlayerBuffers[i][length] = c;
+		}
+		m_extraPlayerBuffers[i][length] = 0;
+		m_extraPlayerStrings[i].CopyFromBufSelection(m_extraPlayerBuffers[i], static_cast<undefined2>(length + 1));
+		m_extraPlayerLabels[i].SetString(&m_extraPlayerStrings[i], 0);
+		m_deviceCarousel.AddItem(&m_extraPlayerLabels[i]);
+	}
 
 	for (LegoU32 i = 0; i < 9; i++) {
 		CreateTextButton(&m_eventButtons[i], i + 0x108, 0x42, 0x69);
@@ -146,7 +166,7 @@ void ControlConfigScreen::LayoutPlayerSelector()
 	const LegoS32 titleWidth = 300;
 	const LegoS32 titleHeight = 48;
 	const LegoS32 selectorWidth = titleWidth + 2 * (arrowWidth + arrowGap);
-	const LegoS32 selectorLeft = 636 - selectorWidth;
+	const LegoS32 selectorLeft = 320 - (selectorWidth >> 1); // centred
 
 	PlaceControlWidget(&m_deviceSelector, selectorLeft, 14, selectorWidth, titleHeight);
 	PlaceControlWidget(&m_deviceSelector.GetPrevButton(), 0, (titleHeight - arrowWidth) >> 1, arrowWidth, arrowWidth);
@@ -160,6 +180,8 @@ void ControlConfigScreen::LayoutPlayerSelector()
 	PlaceControlWidget(&m_deviceCarousel, arrowWidth + arrowGap, 0, titleWidth, titleHeight);
 	PlaceControlWidget(&m_infoLabel, 0, 0, titleWidth, titleHeight);
 	PlaceControlWidget(&m_deviceLabel, titleWidth, 0, titleWidth, titleHeight);
+	PlaceControlWidget(&m_extraPlayerLabels[0], 2 * titleWidth, 0, titleWidth, titleHeight);
+	PlaceControlWidget(&m_extraPlayerLabels[1], 3 * titleWidth, 0, titleWidth, titleHeight);
 }
 
 // FUNCTION: LEGORACERS 0x0047aaa0
@@ -175,6 +197,9 @@ LegoBool32 ControlConfigScreen::Initialize(MenuGameContext* p_context, MenuScree
 	}
 
 	PopulateDeviceCarousel();
+	for (LegoS32 i = 0; i < 4; i++) {
+		CoopControls_GetPresetEvents(c_coopPresetKeyboard1 + i, m_keyEvents[i]); // [library:config]
+	}
 	m_selectedDevice = FindPlayerDevice(m_playerIndex);
 	LayoutPlayerSelector();
 	m_deviceCarousel.SetSelection(m_playerIndex);
@@ -187,7 +212,9 @@ LegoBool32 ControlConfigScreen::Initialize(MenuGameContext* p_context, MenuScree
 // FUNCTION: LEGORACERS 0x0047ab60
 void ControlConfigScreen::Navigate()
 {
-	m_context->m_saveSystem.GetGameState().SelectInputBinding(m_playerIndex, m_bindingIndices[m_selectedDevice]);
+	if (m_playerIndex < 2) { // [library:config] the save state only has players 1 and 2
+		m_context->m_saveSystem.GetGameState().SelectInputBinding(m_playerIndex, m_bindingIndices[m_selectedDevice]);
+	}
 	m_context->m_menuStack.Pop();
 	m_context->m_menuStack.Push(0x30);
 }
@@ -211,7 +238,9 @@ void ControlConfigScreen::OnIconFocused(MenuIcon* p_source)
 		m_savedButtonMapping = device->GetCustomButtonMapping();
 		m_savedAxisMapping = device->GetCustomAxisMapping();
 		device->SetEventMappings(NULL, NULL);
-		m_context->m_saveSystem.GetGameState().SetInputEvent(m_bindingIndices[m_selectedDevice], eventIndex, 0);
+		if (m_playerIndex < 2) { // [library:config]
+			m_context->m_saveSystem.GetGameState().SetInputEvent(m_bindingIndices[m_selectedDevice], eventIndex, 0);
+		}
 		m_awaitingButton = p_source;
 	}
 }
@@ -255,7 +284,15 @@ LegoBool32 ControlConfigScreen::HandleKeyDown(MenuWidget*, InputEventQueue::Even
 				return TRUE;
 			}
 
-			state.SetInputEvent(entryIndex, m_awaitingButton->GetId() - m_eventButtons[0].GetId(), keyCode);
+			LegoS32 eventIndex = m_awaitingButton->GetId() - m_eventButtons[0].GetId();
+			if (m_playerIndex < 2) { // [library:config]
+				state.SetInputEvent(entryIndex, eventIndex, keyCode);
+			}
+			// [library:config] LegoRacers4K: every player's keys are saved to controls.ini.
+			if (source == InputDevice::c_sourceKeyboard && m_playerIndex < 4) {
+				m_keyEvents[m_playerIndex][eventIndex] = keyCode;
+				CoopControls_SetKeyboardEvent(m_playerIndex, eventIndex, keyCode);
+			}
 			device->SetEventMappings(m_savedButtonMapping, m_savedAxisMapping);
 			m_awaitingButton->Unfocus(0);
 			m_awaitingButton = NULL;
@@ -284,7 +321,8 @@ void ControlConfigScreen::RefreshEventTexts()
 		m_eventTexts[i].CopyFromBufSelection(m_ellipsisText, 0);
 
 		if (!(m_eventButtons[i].GetStateFlags() & MenuIcon::c_flagFocused)) {
-			LegoU32 event = state.GetInputEvent(m_playerIndex, m_bindingIndices[m_selectedDevice], i);
+			// [library:config] LegoRacers4K: the player's keyboard set from controls.ini.
+			LegoU32 event = m_playerIndex < 4 ? m_keyEvents[m_playerIndex][i] : 0;
 
 			if (event) {
 				InputDevice* device;

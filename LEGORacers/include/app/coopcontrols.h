@@ -55,6 +55,9 @@ void CoopControls_SetSessionPreset(LegoU32 p_playerIndex, LegoS32 p_preset);
 // Event codes of a preset's nine actions (0 = unbound).
 void CoopControls_GetPresetEvents(LegoS32 p_preset, LegoU32 p_events[c_coopActionCount]);
 
+// Binds one action of keyboard set p_set (0-3) to a keyboard event and saves controls.ini.
+void CoopControls_SetKeyboardEvent(LegoS32 p_set, LegoS32 p_action, LegoU32 p_event);
+
 // Uppercase key legend for a preset, two lines separated by '\n'.
 void CoopControls_DescribePreset(LegoS32 p_preset, char* p_buffer, LegoU32 p_size);
 

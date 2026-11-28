@@ -114,6 +114,14 @@ void RaceModeSetupScreen::CreateWidgets()
 		CreateTextLabel(&m_unlockedLabel, 0x6d, 0x37, 0x49);
 		m_unlockedLabel.ClearFlags(2);
 	}
+
+	// [library:config] The race list (see BuildRaceList), made like the race picker.
+	CreateCarousel(&m_listCarousel, 0x3d, 0x3b);
+	CreateSelector(&m_listSelector, &m_listCarousel, 0x95, 0x4d);
+	for (LegoS32 i = 0; i < sizeOfArray(m_listLabels); i++) {
+		CreateTextLabel(&m_listLabels[i], 0x96, 0x37, 0x70);
+	}
+	CreateModeSelector();
 }
 
 // [library:config] LegoRacers4K layout, like Racer Select: title centred, circuit picker below it, the
@@ -141,7 +149,7 @@ void RaceModeSetupScreen::LayoutCentered()
 	PlaceWidget(&m_trackSelector, CenterLeft(&m_trackSelector), 66);
 
 	// Preview: the frame and the scene inside it move together.
-	const LegoS32 frameTop = 108;
+	const LegoS32 frameTop = 112;
 	LegoS32 frameLeft = CenterLeft(&m_borderFrame);
 	LegoS32 dx = frameLeft - m_borderFrame.GetRect()->m_left;
 	LegoS32 dy = frameTop - m_borderFrame.GetRect()->m_top;
@@ -154,27 +162,101 @@ void RaceModeSetupScreen::LayoutCentered()
 		m_sceneWidget.m_frame->SetViewportRect(&m_sceneWidget.m_viewportRect);
 	}
 
-	// Race selector: spans the preview so its arrows sit on either side of it, level with the
-	// preview's middle; the race name is moved below the preview.
-	const LegoS32 arrowWidth = 32;
-	const LegoS32 arrowGap = 8;
-	const LegoS32 nameTop = frameTop + frameHeight + 4;
-	LegoS32 selectorWidth = frameWidth + 2 * (arrowWidth + arrowGap);
-	LegoS32 selectorTop = frameTop + (frameHeight >> 1) - (arrowWidth >> 1);
-	LegoS32 nameHeight = m_raceCarousel.GetRect()->m_bottom - m_raceCarousel.GetRect()->m_top;
-	Rect selector = *m_raceSelector.GetRect();
-	selector.m_left = 320 - (selectorWidth >> 1);
-	selector.m_right = selector.m_left + selectorWidth;
-	selector.m_top = selectorTop;
-	selector.m_bottom = nameTop + nameHeight;
-	m_raceSelector.SetRect(&selector);
-	PlaceWidget(&m_raceSelector.GetPrevButton(), 0, 0);
-	PlaceWidget(&m_raceSelector.GetNextButton(), selectorWidth - arrowWidth, 0);
-	LegoS32 carouselWidth = m_raceCarousel.GetRect()->m_right - m_raceCarousel.GetRect()->m_left;
-	PlaceWidget(&m_raceCarousel, (selectorWidth - carouselWidth) >> 1, nameTop - selectorTop);
+	// Race picker: big arrows touching the preview on either side, the race name above the
+	// preview (under the title). With the race list on, the list takes the picker's place.
+	MenuSelector* selector = m_listActive ? &m_listSelector : &m_raceSelector;
+	MenuCarouselNavigator* carousel = m_listActive ? &m_listCarousel : &m_raceCarousel;
+	const LegoS32 arrowSize = 64;
+	const LegoS32 arrowInset = 6; // the arrow art has a margin: overlap it so the arrows touch
+	const LegoS32 nameTop = 70;
+	LegoS32 nameHeight = carousel->GetRect()->m_bottom - carousel->GetRect()->m_top;
+	LegoS32 selectorWidth = frameWidth + 2 * (arrowSize - arrowInset);
+	LegoS32 arrowTop = frameTop + (frameHeight >> 1) - (arrowSize >> 1);
+	Rect rect = *selector->GetRect();
+	rect.m_left = 320 - (selectorWidth >> 1);
+	rect.m_right = rect.m_left + selectorWidth;
+	rect.m_top = nameTop;
+	rect.m_bottom = arrowTop + arrowSize;
+	selector->SetRect(&rect);
+	Rect arrow;
+	arrow.m_left = 0;
+	arrow.m_top = arrowTop - nameTop;
+	arrow.m_right = arrowSize;
+	arrow.m_bottom = arrow.m_top + arrowSize;
+	selector->GetPrevButton().SetRect(&arrow);
+	arrow.m_left = selectorWidth - arrowSize;
+	arrow.m_right = selectorWidth;
+	selector->GetNextButton().SetRect(&arrow);
+	LegoS32 carouselWidth = carousel->GetRect()->m_right - carousel->GetRect()->m_left;
+	PlaceWidget(carousel, (selectorWidth - carouselWidth) >> 1, 0);
+	(void) nameHeight;
 
+	// No OK button: the start button is an invisible area over the preview, so clicking the
+	// picture or pressing Enter starts. MAIN MENU sits bottom-left, as on every screen.
+	static GolString s_empty;
+	static undefined2 s_emptyBuffer[1] = {0};
+	s_empty.CopyFromBufSelection(s_emptyBuffer, 1);
+	m_startButton.SetText(&s_empty);
+	m_startButton.HideImage();
+	Rect start = *m_borderFrame.GetRect();
+	m_startButton.SetRect(&start);
 	PlaceWidget(&m_backButton, 3, 418);
-	PlaceWidget(&m_startButton, 640 - 3 - (m_startButton.GetRect()->m_right - m_startButton.GetRect()->m_left), 418);
+
+	// Time Trial: the best time sits under the preview, left-aligned with it (the arrows now
+	// fill its sides): record type on one line, holder and time on the next.
+	if (m_menuId == 0x1d) {
+		LegoS32 row = frameTop + frameHeight + 4;
+		PlaceWidget(&m_recordTypeLabel, frameLeft, row);
+		row += 26;
+		PlaceWidget(&m_holderNameLabel, frameLeft, row);
+		PlaceWidget(&m_timeLabel, frameLeft + frameWidth - 110, row);
+	}
+}
+
+// [library:config] Every track once, in circuit order (mirrored repeats left out).
+void RaceModeSetupScreen::BuildRaceList()
+{
+	GolString string;
+	m_listCount = 0;
+	m_listCarousel.RemoveAllItems();
+	for (LegoU32 c = 0; c < m_context->m_circuitList.GetEntryCount(); c++) {
+		CircuitDefinitionList::CircuitDefinition* circuit = &m_context->m_circuitList.m_entries[c];
+		for (LegoU32 r = 0; r < 4 && m_listCount < sizeOfArray(m_listLabels); r++) {
+			RaceNameEntry* entry = circuit->GetRaceNameEntry(r);
+			if (!entry || entry->GetMirror()) {
+				continue;
+			}
+			LegoBool32 seen = FALSE;
+			for (LegoS32 i = 0; i < m_listCount && !seen; i++) {
+				RaceNameEntry* other =
+					m_context->m_circuitList.m_entries[m_listCircuit[i]].GetRaceNameEntry(m_listRace[i]);
+				seen = ::strcmp(other->GetFolderName(), entry->GetFolderName()) == 0;
+			}
+			if (seen) {
+				continue;
+			}
+			entry->CopyDisplayString(&string);
+			m_listLabels[m_listCount].SetString(&string, TRUE);
+			m_listCarousel.AddItem(&m_listLabels[m_listCount]);
+			m_listCircuit[m_listCount] = static_cast<LegoU8>(c);
+			m_listRace[m_listCount] = static_cast<LegoU8>(r);
+			m_listCount++;
+		}
+	}
+	m_listCarousel.SetSelection(0);
+}
+
+// [library:config] Points the hidden circuit and race pickers at the listed race.
+void RaceModeSetupScreen::ApplyListSelection()
+{
+	LegoU32 index = m_listCarousel.GetSelectedIndex();
+	if (static_cast<LegoS32>(index) >= m_listCount) {
+		return;
+	}
+	m_trackCarousel.SetSelection(m_listCircuit[index]);
+	OnWidgetValueChanged(&m_trackSelector);
+	m_raceCarousel.SetSelection(m_listRace[index]);
+	UpdateRacePreview();
 }
 
 // FUNCTION: LEGORACERS 0x00487ca0
@@ -191,14 +273,67 @@ LegoBool32 RaceModeSetupScreen::Initialize(MenuGameContext* p_context, MenuScree
 
 	OnWidgetValueChanged(&m_trackSelector);
 	m_startButton.Select(0);
-	LayoutCentered();
 	m_recordToggleMs = 2500;
 
-	// [library:input] LegoRacers4K: a Versus Grand Prix picks the circuit only.
-	if ((p_context->m_modelBuilder.GetMenuFlowFlags() & DriverModelBuilder::c_menuFlowVersus) &&
-		CoopVersus_GetSettings()->m_grandPrix) {
+	// [library:input] LegoRacers4K: a Versus Grand Prix is picked on the circuit screen
+	// (MULTIPLAYER CIRCUIT RACE), so this screen always picks one race.
+	if (p_context->m_modelBuilder.GetMenuFlowFlags() & DriverModelBuilder::c_menuFlowVersus) {
+		CoopVersus_GetSettings()->m_grandPrix = FALSE;
+	}
+	LegoBool32 grandPrix = FALSE;
+	if (grandPrix) {
 		m_raceSelector.ClearFlags(2);
 	}
+
+	// [library:config] Otherwise one list of every race replaces the circuit and race pickers.
+	m_listActive = !grandPrix;
+	if (m_listActive) {
+		m_trackSelector.ClearFlags(2);
+		m_raceSelector.ClearFlags(2);
+		// Hidden pickers would still take left/right; the list takes them instead.
+		m_trackSelector.SetAcceptUnfocusedInput(0);
+		m_raceSelector.SetAcceptUnfocusedInput(0);
+		m_listSelector.SetAcceptUnfocusedInput(1);
+		BuildRaceList();
+		ApplyListSelection();
+	}
+	else {
+		m_listSelector.ClearFlags(2);
+	}
+	LayoutCentered();
+	if (!m_listActive) {
+		// Grand Prix: the circuit picker takes the race name's place above the preview.
+		PlaceWidget(&m_trackSelector, CenterLeft(&m_trackSelector), 70);
+	}
+
+	// [library:config] English: the Time Trial title says TIME TRIAL.
+	if (m_menuId == 0x1d) {
+		const undefined2* language =
+			m_menuTextStrings->GetStringBuffer(static_cast<LegoU16>(0x9d + p_context->m_saveSystem.GetLanguageIndex()));
+		static const char c_english[] = "ENGLISH";
+		LegoBool32 english = language != NULL;
+		for (LegoS32 i = 0; english && c_english[i]; i++) {
+			LegoU16 c = language[i];
+			if (c >= 'a' && c <= 'z') {
+				c -= 'a' - 'A';
+			}
+			english = c == static_cast<LegoU8>(c_english[i]);
+		}
+		if (english) {
+			static GolString s_title;
+			static undefined2 s_titleBuffer[16];
+			static const char c_title[] = "TIME TRIAL";
+			LegoS32 length = 0;
+			for (; c_title[length]; length++) {
+				s_titleBuffer[length] = static_cast<LegoU8>(c_title[length]);
+			}
+			s_titleBuffer[length] = 0;
+			s_title.CopyFromBufSelection(s_titleBuffer, static_cast<undefined2>(length + 1));
+			m_infoLabel.SetString(&s_title, 0);
+			PlaceWidget(&m_infoLabel, CenterLeft(&m_infoLabel), m_infoLabel.GetRect()->m_top);
+		}
+	}
+	LayoutModeSelector(&m_infoLabel, m_menuId == 0x1d ? 2 : 1);
 	return TRUE;
 }
 
@@ -274,6 +409,15 @@ void RaceModeSetupScreen::OnWidgetValueChanged(MenuWidget* p_source)
 	GolString string;
 	LegoBool32 isComplete = FALSE;
 
+	if (HandleModeChanged(p_source)) {
+		return;
+	}
+	// [library:config] The race list drives the hidden pickers.
+	if (p_source == &m_listSelector) {
+		ApplyListSelection();
+		return;
+	}
+
 	if (p_source == &m_trackSelector) {
 		LegoU32 circuitIndex = m_trackCarousel.GetSelectedIndex();
 		if (circuitIndex >= m_context->m_circuitList.GetEntryCount()) {
@@ -318,6 +462,11 @@ void RaceModeSetupScreen::OnWidgetValueChanged(MenuWidget* p_source)
 // FUNCTION: LEGORACERS 0x00487f90
 void RaceModeSetupScreen::Navigate()
 {
+	if (NavigateModeSwitch()) { // [library:config]
+		m_context->m_context->m_racerCount = m_savedRacerCount;
+		return;
+	}
+
 	if (m_nextMenuId == 2) {
 		m_context->m_context->m_racerCount = m_savedRacerCount;
 		m_context->m_menuStack.Pop();
@@ -387,6 +536,13 @@ void RaceModeSetupScreen::UpdateRacePreview()
 // FUNCTION: LEGORACERS 0x00488150
 LegoBool32 RaceModeSetupScreen::Update(undefined4 p_elapsed)
 {
+	// [library:config] LegoRacers4K: a mode arrow switches screens at once (hover focus clears
+	// m_navPending before the base Update sees it).
+	if (m_modeSwitchMenuId) {
+		Navigate();
+		return FALSE;
+	}
+
 	if (p_elapsed > m_recordToggleMs) {
 		m_showLapTime = (m_showLapTime == 0);
 		UpdateBestTimePanel();
@@ -446,7 +602,8 @@ void RaceModeSetupScreen::UpdateBestTimePanel()
 	m_timeLabel.SetString(&m_timeString, 0);
 	m_recordToggleMs = 2500;
 
-	if (static_cast<LegoU16>(unlockedMask & (1 << m_selectedRaceIndex))) {
+	// [library:config] LegoRacers4K: every race is unlocked, so the "won" note would always show.
+	if (FALSE && static_cast<LegoU16>(unlockedMask & (1 << m_selectedRaceIndex))) {
 		m_unlockedLabel.SetFlags(2);
 	}
 	else {
