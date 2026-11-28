@@ -1054,14 +1054,12 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 	if (entry < probesEnd) {
 		GolVec3* rayEnd2 = &entry->m_rayEnd;
 		GolVec3* hitPoint3 = &entry->m_hitPoint;
-		RaceEventRecord** hitRecord2 = &entry->m_hitRecord;
 		GolVec3* rayStart2 = &entry->m_rayStart;
 		GolVec3** s_x = &rayEnd2;
 		do {
 			if (entry->m_flags & WheelProbe::c_flagHit) {
 				entry++;
 				rayStart2 = (GolVec3*)((char*)rayStart2 + sizeof(WheelProbe));
-				hitRecord2 = (RaceEventRecord**)((char*)hitRecord2 + sizeof(WheelProbe));
 				hitPoint3 = (GolVec3*)((char*)hitPoint3 + sizeof(WheelProbe));
 				rayEnd2 = (GolVec3*)((char*)rayEnd2 + sizeof(WheelProbe));
 
@@ -1099,7 +1097,6 @@ void RacerCarBody::UpdateWheelContacts(LegoS32 p_elapsedMs)
 			rayStart2 = (GolVec3*)((char*)rayStart2 + sizeof(WheelProbe));
 			entry++;
 			hitPoint3 = (GolVec3*)((char*)hitPoint3 + sizeof(WheelProbe));
-			hitRecord2 = (RaceEventRecord**)((char*)hitRecord2 + sizeof(WheelProbe));
 			rayEnd2 = (GolVec3*)((char*)rayEnd2 + sizeof(WheelProbe));
 		} while (entry < probesEnd);
 	}
