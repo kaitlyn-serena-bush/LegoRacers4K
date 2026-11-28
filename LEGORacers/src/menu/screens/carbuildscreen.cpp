@@ -303,6 +303,9 @@ LegoBool32 CarBuildScreen::HandleBuildKey(MenuWidget*, InputEventQueue::Event* p
 	LegoBool32 result = nextMode;
 	LegoBool32 moved;
 	SoundVector position;
+	LegoBool32 spatial = FALSE;
+	LegoU32 spatialSound;
+	LegoFloat volume;
 
 	switch (keyCode) {
 	case c_carBuildKeyboardLeft:
@@ -385,9 +388,7 @@ LegoBool32 CarBuildScreen::HandleBuildKey(MenuWidget*, InputEventQueue::Event* p
 	case c_carBuildKeyboardX:
 		moved = m_partPlacement.PitchViewStep(-1, TRUE);
 
-	playMovementSound: {
-		LegoU32 spatialSound;
-		LegoFloat volume;
+	playMovementSound:
 		if (moved) {
 			spatialSound = 6;
 			volume = 0.6f;
@@ -396,13 +397,8 @@ LegoBool32 CarBuildScreen::HandleBuildKey(MenuWidget*, InputEventQueue::Event* p
 			spatialSound = 8;
 			volume = 0.7f;
 		}
-
-		position.m_x = 0.0f;
-		position.m_y = 0.0f;
-		position.m_z = 0.0f;
-		m_soundGroupBinding->PlaySpatialSound(spatialSound & 0xffff, &position, 100.0f, 200.0f, volume, 1.0f);
-		goto done;
-	}
+		spatial = TRUE;
+		break;
 	case c_carBuildKeyboardPlus:
 		if (m_partPlacement.CommitPiece()) {
 			nextMode = 6;
@@ -444,8 +440,16 @@ LegoBool32 CarBuildScreen::HandleBuildKey(MenuWidget*, InputEventQueue::Event* p
 		break;
 	}
 
-	m_soundGroupBinding->PlaySoundByIndex(sound & 0xffff);
-done:
+	if (!spatial) {
+		m_soundGroupBinding->PlaySoundByIndex(sound & 0xffff);
+	}
+	else {
+		position.m_x = 0.0f;
+		position.m_y = 0.0f;
+		position.m_z = 0.0f;
+		m_soundGroupBinding->PlaySpatialSound(spatialSound & 0xffff, &position, 100.0f, 200.0f, volume, 1.0f);
+	}
+
 	m_nextMode = nextMode;
 	return result;
 }
