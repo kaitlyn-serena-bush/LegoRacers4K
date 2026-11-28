@@ -569,6 +569,17 @@ void OptionsScreenBase::ShowMainButtons()
 	m_infoLabel.SetStringByIndex(0x10, TRUE);
 	CenterInfoLabel(&m_infoLabel); // [library:config]
 	m_backButton.SetTextByIndex(2);
+	// A space between the back arrow and its text.
+	if (undefined2* backText = m_menuTextStrings->GetStringBuffer(2)) {
+		LegoS32 length = 0;
+		m_rowTitleBuffers[3][length++] = ' ';
+		for (LegoS32 c = 0; backText[c] && length < 63; c++) {
+			m_rowTitleBuffers[3][length++] = backText[c];
+		}
+		m_rowTitleBuffers[3][length] = 0;
+		m_rowTitleStrings[3].CopyFromBufSelection(m_rowTitleBuffers[3], static_cast<undefined2>(length + 1));
+		m_backButton.SetText(&m_rowTitleStrings[3]);
+	}
 }
 
 // FUNCTION: LEGORACERS 0x00483640
