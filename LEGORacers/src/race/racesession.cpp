@@ -72,6 +72,9 @@ const LegoFloat g_viewportRects[4] = {0.5f, 0.01f, 0.49f, 0.49f};
 const LegoU16 g_pauseMenuStringIds[16] =
 	{0x0e, 0x0f, 0x11, 0x14, 0x0e, 0x10, 0x11, 0x00, 0x12, 0x13, 0x15, 0x16, 0x17, 0x18, 0x2c, 0x00};
 
+// [library:config] LegoRacers4K: set once the HUD countdown has started for this race.
+static LegoBool32 g_hudCountdownStarted = FALSE;
+
 // FUNCTION: LEGORACERS 0x004316e0
 RaceSession::RaceSession()
 {
@@ -1481,6 +1484,7 @@ void RaceSession::DestroyCameras()
 // FUNCTION: LEGORACERS 0x00434340
 void RaceSession::StartIntroCamera()
 {
+	g_hudCountdownStarted = FALSE; // [library:config]
 	if (m_trackCamera) {
 		m_trackCamera->m_trackedEntity->PlayPart(0);
 		m_trackCamera->m_trackedEntity->SetFlags(
@@ -1490,6 +1494,14 @@ void RaceSession::StartIntroCamera()
 		GolAnimatedEntity* entity = m_trackCamera->m_trackedEntity;
 		entity->ResetPartIndices();
 		entity->SetActiveValue(0.0f);
+
+		// [library:config] LegoRacers4K: play only the last two seconds of the intro
+		// fly-in (the countdown shows 5 and 4 meanwhile).
+		const CmbModelPartData& introPart = entity->GetModelPart(0)->GetPartData()[entity->GetCurrentPartIndex()];
+		LegoFloat introSkip = static_cast<LegoFloat>(introPart.GetFrameCount() - 1) - 2000.0f * entity->GetMsPerFrame();
+		if (introSkip > 0.0f) {
+			entity->SetActiveValue(introSkip);
+		}
 
 		LegoU32 i = 0;
 		m_trackCamera->m_trackedEntity->SetFlags(
@@ -1732,6 +1744,17 @@ void RaceSession::PlayIntroMusic()
 // FUNCTION: LEGORACERS 0x004349a0
 void RaceSession::UpdateIntroState()
 {
+	// [library:config] LegoRacers4K: the 5-4-3-2-1 countdown starts with the intro, two
+	// seconds before the countdown state (which then runs 3-2-1 and starts the race).
+	if (!g_hudCountdownStarted) {
+		g_hudCountdownStarted = TRUE;
+		if (!m_returnToGarage) {
+			for (LegoU32 hudIndex = 0; hudIndex < m_context->m_playerCount; hudIndex++) {
+				m_huds[hudIndex].StartCountdown();
+			}
+		}
+	}
+
 	if (m_trackCamera && m_cameras[0] && m_cameras[0]->m_trackedEntity &&
 		m_cameras[0]->m_trackedEntity->IsPartAnimationDone()) {
 		GolVec3 position;
@@ -1765,7 +1788,8 @@ void RaceSession::UpdateIntroState()
 			cameraController++;
 		} while (--remaining);
 
-		m_elapsedMs = 0;
+		// [library:config] LegoRacers4K: no extra hold after the (shortened) intro.
+		m_elapsedMs = 2000;
 	}
 
 	if (m_elapsedMs >= 2000) {
@@ -1781,9 +1805,7 @@ void RaceSession::UpdateIntroState()
 				RaceHud* hud = m_huds;
 				do {
 					(*racer)->ReapplyCameraView();
-					if (!m_returnToGarage) {
-						hud->StartCountdown();
-					}
+					// [library:config] LegoRacers4K: the HUD countdown already started with the intro.
 					(*racer)->StartEngine();
 					forceFeedback->StartEngineEffect();
 
@@ -2133,7 +2155,8 @@ void RaceSession::Update()
 		m_hazardManager.UpdatePerRacer(m_cameras[0], m_cameraControllers[0].m_racer);
 		m_skyState.Update(elapsedMs);
 
-		if (m_state == 2 || m_state == 3 || m_state == 4) {
+		// [library:config] LegoRacers4K: state 1 too, so the 5-4 countdown runs during the intro.
+		if (m_state == 1 || m_state == 2 || m_state == 3 || m_state == 4) {
 			UpdateHuds();
 		}
 	}
@@ -2312,6 +2335,8 @@ void RaceSession::DrawRacerViewportForState5(Racer* p_racer)
 // FUNCTION: LEGORACERS 0x004357e0
 void RaceSession::DrawOverlaysForState1()
 {
+	// [library:config] LegoRacers4K: the countdown (5, 4) shows during the intro camera.
+	DrawHuds();
 	DrawDemoText();
 	m_animationList.Draw(m_renderer);
 	DrawPauseDialog();
@@ -2456,8 +2481,9 @@ void RaceSession::DrawLoadProgress(LegoFloat p_progress)
 {
 	m_renderer->BeginFrame(FALSE);
 	m_renderer->SelectViewport(FALSE);
-	m_loadingScreen.SetProgress(p_progress);
-	m_loadingScreen.Draw();
+	// [library:config] LegoRacers4K: loading is near-instant, so no loading screen: the
+	// screen stays black between the menu and the race (which then fades in).
+	(void) p_progress;
 	m_renderer->EndFrame();
 	m_golApp->PresentFrame();
 

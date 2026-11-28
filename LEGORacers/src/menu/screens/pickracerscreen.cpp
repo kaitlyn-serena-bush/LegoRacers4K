@@ -152,7 +152,7 @@ void PickRacerScreen::OnIconUnfocused(MenuWidget* p_source)
 			m_context->m_context->m_racerCount = 0;
 		}
 
-		PlayRandomNamedAnimation(0);
+		// [library:config] LegoRacers4K: no celebration animation after picking (it only delays).
 		MenuGameContext* context = m_context;
 		SaveRecordList::Record* record = m_recordCursors[0].GetSelectedRecord();
 		context->m_saveSystem.GetActiveRecord().SetSelectedRecord(
@@ -165,7 +165,7 @@ void PickRacerScreen::OnIconUnfocused(MenuWidget* p_source)
 		m_nextMenuId = 0x41;
 	}
 	else if (p_source == &m_nextPlayerButton) {
-		PlayRandomNamedAnimation(0);
+		// [library:config] LegoRacers4K: no celebration animation after picking (it only delays).
 		MenuGameContext* context = m_context;
 		SaveRecordList::Record* record = m_recordCursors[0].GetSelectedRecord();
 		context->m_saveSystem.GetActiveRecord().SetSelectedRecord(

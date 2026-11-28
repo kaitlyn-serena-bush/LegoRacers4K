@@ -477,74 +477,9 @@ LegoBool32 CoopControls_GetBinding(
 }
 
 // ---------------------------------------------------------------------------
-// LegoRacers4K Options > Font (settings.ini next to the exe).
-
-namespace
-{
-const char* const c_fontSetFolders[c_fontSetCount] = {"", "legomovie", "clicky2", "clicky3"};
-const char* const c_fontSetLabels[c_fontSetCount] = {"ORIGINAL", "LEGO MOVIE", "CLICKY BRICKS 2", "CLICKY BRICKS 3"};
-LegoS32 g_fontIndex = 0;
-LegoBool32 g_fontChanged = FALSE;
-
-void SettingsPath(char* p_path, size_t p_size)
-{
-	const char* base = SDL_GetBasePath();
-	SDL_snprintf(p_path, p_size, "%ssettings.ini", base ? base : "");
-}
-} // namespace
+// LegoRacers4K: the menu and HUD text use the LEGO Movie font set (MiniwinHdSetFontSet).
 
 void GameSettings_Load()
 {
-	char path[1024];
-	SettingsPath(path, sizeof(path));
-	size_t size = 0;
-	char* text = static_cast<char*>(SDL_LoadFile(path, &size));
-	if (text) {
-		const char* line = SDL_strstr(text, "font=");
-		if (line) {
-			line += 5;
-			for (LegoS32 i = 1; i < c_fontSetCount; i++) {
-				size_t length = SDL_strlen(c_fontSetFolders[i]);
-				if (SDL_strncmp(line, c_fontSetFolders[i], length) == 0 &&
-					(line[length] == '\0' || line[length] == '\r' || line[length] == '\n' || line[length] == ' ')) {
-					g_fontIndex = i;
-				}
-			}
-		}
-		SDL_free(text);
-	}
-	MiniwinHdSetFontSet(c_fontSetFolders[g_fontIndex]);
-}
-
-LegoS32 GameSettings_GetFontIndex()
-{
-	return g_fontIndex;
-}
-
-void GameSettings_SetFontIndex(LegoS32 p_index)
-{
-	if (p_index < 0 || p_index >= c_fontSetCount || p_index == g_fontIndex) {
-		return;
-	}
-	g_fontIndex = p_index;
-	g_fontChanged = TRUE;
-	MiniwinHdSetFontSet(c_fontSetFolders[g_fontIndex]);
-
-	char path[1024];
-	SettingsPath(path, sizeof(path));
-	char text[128];
-	SDL_snprintf(text, sizeof(text), "[display]\nfont=%s\n", g_fontIndex ? c_fontSetFolders[g_fontIndex] : "original");
-	SDL_SaveFile(path, text, SDL_strlen(text));
-}
-
-const char* GameSettings_GetFontLabel(LegoS32 p_index)
-{
-	return p_index >= 0 && p_index < c_fontSetCount ? c_fontSetLabels[p_index] : "";
-}
-
-LegoBool32 GameSettings_TakeFontChanged()
-{
-	LegoBool32 changed = g_fontChanged;
-	g_fontChanged = FALSE;
-	return changed;
+	MiniwinHdSetFontSet("legomovie");
 }

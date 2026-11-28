@@ -535,11 +535,6 @@ void MenuManager::UnloadMenuData()
 // FUNCTION: LEGORACERS 0x0042d300
 LegoBool32 MenuManager::LoadLocalizedMenuResources(LegoU32 p_languageIndex, LegoBool32 p_forceReload)
 {
-	// [library:hd] LegoRacers4K: a new Options > Font choice reloads the fonts too.
-	if (GameSettings_TakeFontChanged()) {
-		p_forceReload = TRUE;
-	}
-
 	if (p_languageIndex != m_gameContext.m_context->m_languageIndex || p_forceReload) {
 		m_gameContext.m_saveSystem.GetGameState().SetLanguageResourcePath();
 		m_gameContext.m_context->m_languageIndex = p_languageIndex;

@@ -86,13 +86,6 @@ protected:
 	GolString m_audioTitleStrings[2];
 	undefined2 m_audioTitleBuffers[2][64];
 	void ReloadForLanguage();
-	// [library:hd] LegoRacers4K: Options > Font (original or an alternative font set).
-	MenuSelector m_fontSelector;
-	MenuCarouselNavigator m_fontCarousel;
-	MenuTextLabel m_fontLabels[4];
-	MenuTextLabel m_fontTitle;
-	GolString m_fontStrings[5];
-	undefined2 m_fontBuffers[5][24];
 };
 
 #endif // OPTIONSSCREENBASE_H

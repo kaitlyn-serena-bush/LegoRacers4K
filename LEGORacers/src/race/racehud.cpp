@@ -1366,8 +1366,10 @@ void RaceHud::Draw()
 		LegoFloat pulseScale =
 			static_cast<LegoFloat>(200 * (5 * countdownState + 5) - m_bannerMs) * g_ghostAnimationRateScale * 0.001f;
 
-		if (countdownState < 3) {
-			CopyToGolString(g_positionDigits[2 - countdownState], m_scratchString);
+		// [library:config] LegoRacers4K: the countdown runs 5-4-3-2-1 (it starts two seconds
+		// earlier, during the intro camera), then GO.
+		if (countdownState < 5) {
+			CopyToGolString(g_positionDigits[4 - countdownState], m_scratchString);
 
 			m_numberFont->MeasureString(m_scratchString, &textWidth, &textHeight);
 
@@ -1401,8 +1403,8 @@ void RaceHud::Draw()
 				m_soundSource->PlaySoundById(0);
 			}
 		}
-		else if (countdownState < 5) {
-			if (countdownState < 4) {
+		else if (countdownState < 7) {
+			if (countdownState < 6) {
 				pulseScale = 1.8f;
 			}
 
@@ -1439,7 +1441,7 @@ void RaceHud::Draw()
 			color.m_uBytes[2] = 0xff;
 			m_numberFont->SetColor(color.m_u32);
 
-			if (m_soundSource && countdownState == 3 && previousState / 1000 != 3) {
+			if (m_soundSource && countdownState == 5 && previousState / 1000 != 5) {
 				m_soundSource->PlaySoundById(c_soundCountdown);
 			}
 		}
@@ -1840,13 +1842,22 @@ void RaceHud::Draw()
 		DrawRotatingMap();
 		break;
 	case 4: {
-		// [library:2d] LegoRacers4K: speedometer to the left of the minimap.
-		DrawRotatingMap();
-		LegoS32 right = m_viewport.m_right;
-		m_viewport.m_right -= static_cast<LegoS32>(150.0f * m_scaleX);
+		// [library:2d] LegoRacers4K: speedometer in the corner, static map right under the
+		// lap and time rows (below the best-lap row, so it never covers it).
 		DrawSpeedometer();
 		DrawSpeedReadout();
-		m_viewport.m_right = right;
+		LegoFloat rangeX = m_mapMaxX - m_mapMinX;
+		LegoFloat rangeY = m_mapMaxY - m_mapMinY;
+		if (rangeX > 0.0f && rangeY > 0.0f) {
+			double mapScale = (rangeX > rangeY ? g_hudMapSize / rangeX : g_hudMapSize / rangeY) * m_mapScale;
+			LegoS32 mapHeight = static_cast<LegoS32>(m_scaleY * mapScale * rangeY);
+			LegoS32 inset = static_cast<LegoS32>(m_scaleY * static_cast<double>(m_screenHeight) * g_hudMapInsetScale);
+			LegoS32 top = m_bestLapY + (m_bestLapY - m_lapTimeY) + inset;
+			LegoS32 bottom = m_viewport.m_bottom;
+			m_viewport.m_bottom = top + mapHeight + inset;
+			DrawFixedMap();
+			m_viewport.m_bottom = bottom;
+		}
 		break;
 	}
 	}
