@@ -164,6 +164,28 @@ void MenuTextButton::SetText(GolString* p_string)
 	SetRect(&m_rect);
 }
 
+// [library:config] LegoRacers4K: draws the text larger and grows the label and the button's
+// selection box with it (one thing, so the clickable area always matches the text). The button
+// keeps its vertical centre, so row spacing is unchanged.
+void MenuTextButton::SetTextScale(LegoFloat p_scale)
+{
+	Rect label = *m_label.GetRect();
+	LegoS32 width = static_cast<LegoS32>(static_cast<LegoFloat>(label.m_right - label.m_left) * p_scale);
+	LegoS32 height = static_cast<LegoS32>(static_cast<LegoFloat>(label.m_bottom - label.m_top) * p_scale);
+	label.m_right = label.m_left + width;
+	label.m_bottom = label.m_top + height;
+	m_label.SetRect(&label);
+	m_label.SetTextScale(p_scale);
+
+	LegoS32 centerY = (m_rect.m_top + m_rect.m_bottom) >> 1;
+	Rect rect = m_rect;
+	rect.m_right = label.m_right + rect.m_left;
+	LegoS32 boxHeight = label.m_bottom > (m_rect.m_bottom - m_rect.m_top) ? label.m_bottom : (m_rect.m_bottom - m_rect.m_top);
+	rect.m_top = centerY - (boxHeight >> 1);
+	rect.m_bottom = rect.m_top + boxHeight;
+	m_rect = rect;
+}
+
 // FUNCTION: LEGORACERS 0x00482890
 void MenuTextButton::SetRect(Rect* p_rect)
 {

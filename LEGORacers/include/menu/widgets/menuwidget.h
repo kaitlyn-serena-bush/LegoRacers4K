@@ -94,6 +94,7 @@ public:
 	// MenuWidget::`scalar deleting destructor'
 
 	void SetWideClip(LegoS32 p_extra);
+	void SetTextScale(LegoFloat p_scale) { m_scaleX = m_scaleY = p_scale; } // [library:config] labels only
 	void SetRectRaw(const Rect& p_rect) { m_rect = p_rect; }
 	LegoS32 GetOffsetX() const { return m_offsetX; }
 	void SetOffsetX(LegoS32 p_offset) { m_offsetX = p_offset; } // [library:config]

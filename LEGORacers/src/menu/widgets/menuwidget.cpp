@@ -262,9 +262,6 @@ void MenuWidget::DrawImage(Rect* p_destRect, Rect* p_sourceRect, GolImage* p_ima
 	m_renderer->DrawImageClipped(p_image, 0, p_destRect, p_sourceRect, NULL);
 }
 
-// [library:config] LegoRacers4K: per-screen enlargement of fitted menu text (1.0 = original size).
-float g_menuTextScale = 1.0f;
-
 // FUNCTION: LEGORACERS 0x00472da0
 void MenuWidget::DrawString(
 	Rect* p_source,
@@ -296,19 +293,14 @@ void MenuWidget::DrawString(
 	else {
 		LegoS32 y = p_source->m_top;
 		LegoS32 x = p_source->m_left;
-		Rect scaledClip;
 		LegoFloat width = static_cast<LegoFloat>(p_source->m_right - x);
 		LegoFloat height = static_cast<LegoFloat>(p_source->m_bottom - y);
-		if (g_menuTextScale != 1.0f) {
-			// Grow around the vertical centre, keeping the left edge.
-			y -= static_cast<LegoS32>(height * (g_menuTextScale - 1.0f) * 0.5f);
-			width *= g_menuTextScale;
-			height *= g_menuTextScale;
-			scaledClip = *p_dest;
-			scaledClip.m_right += static_cast<LegoS32>(width);
-			scaledClip.m_top -= static_cast<LegoS32>(height);
-			scaledClip.m_bottom += static_cast<LegoS32>(height);
-			p_dest = &scaledClip;
+		if (m_scaleX != 1.0f) {
+			// Grow around the centre of the natural text rectangle.
+			x -= static_cast<LegoS32>(width * (m_scaleX - 1.0f) * 0.5f);
+			y -= static_cast<LegoS32>(height * (m_scaleX - 1.0f) * 0.5f);
+			width *= m_scaleX;
+			height *= m_scaleX;
 		}
 		m_renderer->DrawStringFitted(
 			p_string,

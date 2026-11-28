@@ -2,7 +2,6 @@
 
 #include <miniwin/miniwinapp.h>
 
-extern float g_menuTextScale; // [library:config]
 
 #include "audio/soundgroupbinding.h"
 #include "input/inputmanager.h"
@@ -127,6 +126,18 @@ LegoBool32 MainMenuScreen::Initialize(MenuGameContext* p_context, MenuScreenCrea
 	// screen, with larger text at the same row spacing.
 	{
 		LegoS32 shift = MiniwinGetWideExtra();
+		MenuTextButton* buttons[] = {
+			&m_garageButton,
+			&m_circuitRaceButton,
+			&m_singleRaceButton,
+			&m_versusRaceButton,
+			&m_timeRaceButton,
+			&m_optionsButton,
+			&m_exitButton
+		};
+		for (MenuTextButton* button : buttons) {
+			button->SetTextScale(1.3f);
+		}
 		MenuWidget* moved[] = {
 			&m_logoImage,
 			&m_garageButton,
@@ -141,10 +152,9 @@ LegoBool32 MainMenuScreen::Initialize(MenuGameContext* p_context, MenuScreenCrea
 			Rect rect = *widget->GetRect();
 			rect.m_left -= shift;
 			rect.m_right -= shift;
-			widget->SetRect(&rect);
+			widget->SetRectRaw(rect);
 		}
 	}
-	g_menuTextScale = 1.3f;
 	return TRUE;
 }
 
@@ -155,7 +165,6 @@ LegoBool32 MainMenuScreen::Destroy()
 		return TRUE;
 	}
 
-	g_menuTextScale = 1.0f;
 	ClearCosmeticTable();
 	return MenuGameScreen::Destroy();
 }
